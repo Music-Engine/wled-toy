@@ -10,6 +10,7 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       'vue', 'vue-router', '@vue-flow/core', '@vue-flow/background', '@vue-flow/controls', '@vue-flow/minimap', 'reka-ui', '@vueuse/core',
+      '@tauri-apps/plugin-opener',
       '@codemirror/autocomplete', '@codemirror/commands', '@codemirror/language', '@codemirror/lint', '@codemirror/search', '@codemirror/state', '@codemirror/view', '@lezer/highlight',
     ],
   },
@@ -29,6 +30,8 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.ts'],
+          // Vue Flow's fit-on-init alone takes over the default second in software-rendered Chromium on a loaded machine
+          expect: { poll: { timeout: 5000 } },
           browser: {
             enabled: true,
             headless: true,
