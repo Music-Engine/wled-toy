@@ -19,6 +19,12 @@ describe('sanitize', () => {
     expect(sanitize({ dockWidth: '400', bottomHeight: null })).toMatchObject({ dockWidth: 360, bottomHeight: 220 })
   })
 
+  it('keeps a known preview view and falls back to the render for anything else', async () => {
+    const { sanitize } = await reload()
+    expect(sanitize({ previewView: 'leds' }).previewView).toBe('leds')
+    expect(sanitize({ previewView: 'topology' }).previewView).toBe('render')
+  })
+
   it('drops unknown tabs, docks and modes and keeps the valid entries next to them', async () => {
     const { sanitize } = await reload()
     const layout = sanitize({

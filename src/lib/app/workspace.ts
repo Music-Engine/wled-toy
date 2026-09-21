@@ -2,6 +2,8 @@ import { reactive, ref, watch } from 'vue'
 
 export type DockId = 'right' | 'bottom'
 export type Mode = 'shader' | 'graph' | 'reference'
+/** What the preview pane shows for a device with a layout: the shader with the LEDs marked on it, or the LEDs alone, lit, where the layout puts them. */
+export type PreviewView = 'render' | 'leds'
 
 export interface Problem {
   message: string
@@ -46,6 +48,7 @@ interface Layout {
   bottomVisible: boolean
   placement: Record<TabId, DockId>
   activeTab: Record<DockId, Partial<Record<Mode, TabId>>>
+  previewView: PreviewView
 }
 
 // its own key, not AppConfig: exportConfig would carry panel sizes into a show file, and the config storage listener would make two windows fight over layout
@@ -58,6 +61,7 @@ const defaults = (): Layout => ({
   bottomVisible: false,
   placement: Object.fromEntries(DOCK_TABS.map((tab) => [tab.id, tab.home])) as Record<TabId, DockId>,
   activeTab: { right: {}, bottom: {} },
+  previewView: 'render',
 })
 
 const isDock = (value: unknown): value is DockId => value === 'right' || value === 'bottom'
@@ -74,6 +78,7 @@ export function sanitize(raw: unknown): Layout {
   out.bottomHeight = size(src.bottomHeight, DOCK_SIZES.bottom)
   if (typeof src.dockVisible === 'boolean') out.dockVisible = src.dockVisible
   if (typeof src.bottomVisible === 'boolean') out.bottomVisible = src.bottomVisible
+  if (src.previewView === 'render' || src.previewView === 'leds') out.previewView = src.previewView
   for (const [id, dock] of Object.entries(record(src.placement))) {
     if (isTab(id) && isDock(dock)) out.placement[id] = dock
   }

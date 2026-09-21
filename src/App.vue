@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useElementSize } from '@vueuse/core'
 import DockContribution from './components/shell/DockContribution.vue'
 import DropOverlay from './components/shell/DropOverlay.vue'
+import LedStrip from './components/panels/LedStrip.vue'
 import LogPanel from './components/panels/LogPanel.vue'
 import StatusBar from './components/shell/StatusBar.vue'
 import AboutDialog from './components/shell/AboutDialog.vue'
@@ -107,6 +108,7 @@ onBeforeUnmount(() => {
         />
         <RightDock v-show="dockShown" :style="{ width: `${dockWidth}px` }" />
       </div>
+      <LedStrip />
       <StatusBar />
     </div>
     <DockContribution tab="output">

@@ -39,6 +39,7 @@ declare module 'vue' {
     InspectorRow: typeof import('./src/components/shell/InspectorRow.vue')['default']
     InspectorSection: typeof import('./src/components/shell/InspectorSection.vue')['default']
     LaunchScreen: typeof import('./src/components/shell/LaunchScreen.vue')['default']
+    LedMap: typeof import('./src/components/panels/LedMap.vue')['default']
     LedStrip: typeof import('./src/components/panels/LedStrip.vue')['default']
     LiveIndicator: typeof import('./src/components/shell/LiveIndicator.vue')['default']
     LogPanel: typeof import('./src/components/panels/LogPanel.vue')['default']
