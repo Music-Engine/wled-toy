@@ -23,12 +23,12 @@ const lastLog = computed(() => logs.value[logs.value.length - 1])
   <footer class="flex h-(--app-status-h) shrink-0 items-center gap-3 border-t border-(--app-hairline) bg-(--app-chrome) px-2 text-[11px] text-muted">
     <TransportGroup @choose-song="runCommand('audio.fromFile')" />
     <OutputButton />
-    <span class="flex items-center gap-1.5">
+    <span class="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
       <span class="size-1.5 rounded-full" :class="bridge.dot" />
       {{ bridge.label }}
     </span>
-    <span class="tabular-nums">{{ config.ledCount }} LEDs</span>
-    <button v-if="workspace.problemCount" type="button" class="status-problems tabular-nums text-error hover:underline" @click="runCommand('view.panel.problems')">
+    <span class="shrink-0 whitespace-nowrap tabular-nums">{{ config.ledCount }} LEDs</span>
+    <button v-if="workspace.problemCount" type="button" class="status-problems shrink-0 whitespace-nowrap tabular-nums text-error hover:underline" @click="runCommand('view.panel.problems')">
       {{ workspace.problemCount }} {{ workspace.problemCount === 1 ? 'problem' : 'problems' }}
     </button>
     <button
