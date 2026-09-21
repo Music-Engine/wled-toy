@@ -3,6 +3,14 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { playwright } from '@vitest/browser-playwright'
 
+// audio tests: a synthetic microphone, no permission prompt, and an AudioContext that may start without a click
+const MEDIA_ARGS = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required']
+// headless Chromium has no GPU; SwiftShader gives it a software WebGL2 context
+const SWIFTSHADER_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist']
+// BENCH_GPU=1 asks for the real GPU instead, for benchmark runs; BENCH_GPU=headed also drops headless mode
+const GPU = process.env.BENCH_GPU === '1' || process.env.BENCH_GPU === 'headed'
+const GPU_ARGS = ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist']
+
 export default defineConfig({
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
@@ -34,17 +42,10 @@ export default defineConfig({
           expect: { poll: { timeout: 5000 } },
           browser: {
             enabled: true,
-            headless: true,
+            headless: process.env.BENCH_GPU !== 'headed',
             screenshotFailures: false,
-            // headless Chromium has no GPU; SwiftShader gives it a software WebGL2 context
             provider: playwright({
-              launchOptions: {
-                args: [
-                  '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist',
-                  // audio tests: a synthetic microphone, no permission prompt, and an AudioContext that may start without a click
-                  '--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required',
-                ],
-              },
+              launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
             }),
             instances: [{ browser: 'chromium' }],
           },
