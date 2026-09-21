@@ -19,6 +19,11 @@ describe('sanitize', () => {
     expect(sanitize({ dockWidth: '400', bottomHeight: null })).toMatchObject({ dockWidth: 360, bottomHeight: 220 })
   })
 
+  it('the LED strip shows unless a stored layout hid it', async () => {
+    const { sanitize } = await reload()
+    expect([sanitize({}).stripVisible, sanitize({ stripVisible: false }).stripVisible, sanitize({ stripVisible: 'no' }).stripVisible]).toEqual([true, false, true])
+  })
+
   it('keeps a known preview view and falls back to the render for anything else', async () => {
     const { sanitize } = await reload()
     expect(sanitize({ previewView: 'leds' }).previewView).toBe('leds')

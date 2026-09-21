@@ -14,6 +14,9 @@ export const segmentCount = (segment: Segment) =>
 
 export const layoutCount = (layout: Layout) => layout.segments.reduce((sum, segment) => sum + segmentCount(segment), 0)
 
+/** Whether the LEDs only run along lines, so a row of lights shows the device as it is; no layout is a single strip. */
+export const isStripLayout = (layout: Layout | null) => !layout || layout.segments.every((segment) => segment.kind === 'strip')
+
 function segmentPositions(segment: Segment): number[][] {
   if (segment.kind === 'points') return segment.points.map(([x = 0, y = 0, z = 0]) => [x, y, z])
   if (segment.kind === 'strip') {

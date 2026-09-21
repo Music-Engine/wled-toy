@@ -22,6 +22,7 @@ import TitleBar from './components/shell/TitleBar.vue'
 import { installKeyDispatcher, registerHandlers } from './lib/app/commands'
 import { config } from './lib/app/config'
 import { useEngine } from './lib/engine/engine'
+import { isStripLayout } from './lib/engine/layout'
 import { launchScreen, openSettings, preferences } from './lib/app/preferences'
 import { DOCK_SIZES, workspace } from './lib/app/workspace'
 
@@ -108,7 +109,7 @@ onBeforeUnmount(() => {
         />
         <RightDock v-show="dockShown" :style="{ width: `${dockWidth}px` }" />
       </div>
-      <LedStrip />
+      <LedStrip v-if="workspace.stripVisible && isStripLayout(config.layout)" />
       <StatusBar />
     </div>
     <DockContribution tab="output">

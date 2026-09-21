@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { layoutCount, layoutPositions, parseLayout, type Layout } from './layout'
+import { isStripLayout, layoutCount, layoutPositions, parseLayout, type Layout, type Segment } from './layout'
 
 const xy = (layout: Layout) => {
   const p = layoutPositions(layout)
@@ -31,6 +31,16 @@ describe('layoutPositions', () => {
     const layout: Layout = { segments: [{ kind: 'strip', count: 2, from: [0, 0], to: [1, 0] }, { kind: 'points', points: [[0.2, 0.3, 0.9], [0.4, 0.5]] }] }
     expect(layoutCount(layout)).toBe(4)
     expect([...layoutPositions(layout).slice(8)].map((v) => Number(v.toFixed(2)))).toEqual([0.2, 0.3, 0.9, 1, 0.4, 0.5, 0, 1])
+  })
+})
+
+describe('isStripLayout', () => {
+  it('holds for no layout and for strips only; one matrix, ring or point list ends it', () => {
+    const strip: Segment = { kind: 'strip', count: 4, from: [0, 0.5], to: [1, 0.5] }
+    expect(isStripLayout(null)).toBe(true)
+    expect(isStripLayout({ segments: [strip, strip] })).toBe(true)
+    expect(isStripLayout({ segments: [strip, { kind: 'ring', count: 8, center: [0.5, 0.5], radius: 0.4, startAngle: 0, clockwise: true }] })).toBe(false)
+    expect(isStripLayout({ segments: [{ kind: 'matrix', width: 2, height: 2, serpentine: false, origin: 'top-left' }] })).toBe(false)
   })
 })
 

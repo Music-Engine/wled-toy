@@ -46,6 +46,7 @@ interface Layout {
   dockVisible: boolean
   bottomHeight: number
   bottomVisible: boolean
+  stripVisible: boolean
   placement: Record<TabId, DockId>
   activeTab: Record<DockId, Partial<Record<Mode, TabId>>>
   previewView: PreviewView
@@ -59,6 +60,7 @@ const defaults = (): Layout => ({
   dockVisible: true,
   bottomHeight: DOCK_SIZES.bottom.initial,
   bottomVisible: false,
+  stripVisible: true,
   placement: Object.fromEntries(DOCK_TABS.map((tab) => [tab.id, tab.home])) as Record<TabId, DockId>,
   activeTab: { right: {}, bottom: {} },
   previewView: 'render',
@@ -78,6 +80,7 @@ export function sanitize(raw: unknown): Layout {
   out.bottomHeight = size(src.bottomHeight, DOCK_SIZES.bottom)
   if (typeof src.dockVisible === 'boolean') out.dockVisible = src.dockVisible
   if (typeof src.bottomVisible === 'boolean') out.bottomVisible = src.bottomVisible
+  if (typeof src.stripVisible === 'boolean') out.stripVisible = src.stripVisible
   if (src.previewView === 'render' || src.previewView === 'leds') out.previewView = src.previewView
   for (const [id, dock] of Object.entries(record(src.placement))) {
     if (isTab(id) && isDock(dock)) out.placement[id] = dock

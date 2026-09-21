@@ -5,6 +5,7 @@ import { copyText } from './clipboard'
 import { config, exportConfig, importConfig } from './config'
 import { activeDeviceId, devices, setActiveDevice } from './devices'
 import { useEngine } from '@/lib/engine/engine'
+import { isStripLayout } from '@/lib/engine/layout'
 import { EXAMPLES } from '@/lib/shader/examples'
 import { clearLogs, copyAllLogs, copyLogLine, log, logContext, shownLogs } from './logs'
 import { isMac, isTauri } from './platform'
@@ -368,6 +369,8 @@ registerCommands([
 
   { id: 'view.toggleDock', title: 'Side Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+B', checked: () => workspace.dockVisible, run: () => { workspace.dockVisible = !workspace.dockVisible } },
   { id: 'view.toggleBottom', title: 'Bottom Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+J', checked: () => workspace.bottomVisible, run: () => { workspace.bottomVisible = !workspace.bottomVisible } },
+  // a matrix or a ring has no row to show; the preview pane draws those
+  { id: 'view.ledStrip', title: 'LED Strip', menu: ['View'], group: 'layout', accelerator: 'Mod+Alt+L', checked: () => workspace.stripVisible, enabled: () => isStripLayout(config.layout), run: () => { workspace.stripVisible = !workspace.stripVisible } },
   { id: 'view.hideDock', title: 'Hide Side Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+Alt+Shift+B', contextOnly: true, run: () => { workspace.dockVisible = false } },
   { id: 'view.hideBottom', title: 'Hide Bottom Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+Alt+Shift+J', contextOnly: true, run: () => { workspace.bottomVisible = false } },
   ...DOCK_TABS.map((tab): Command => ({
