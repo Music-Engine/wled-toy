@@ -62,7 +62,7 @@ export class Fft {
         }
       }
     }
-    for (let i = 0; i < this.bins; i++) out[i] = Math.hypot(re[i], im[i]) * gain
+    for (let i = 0; i < this.bins; i++) out[i] = Math.sqrt(re[i] * re[i] + im[i] * im[i]) * gain
     return out
   }
 }
