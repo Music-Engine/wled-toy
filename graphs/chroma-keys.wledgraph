@@ -39,7 +39,7 @@
           "kind": "knob",
           "values": {
             "label": "Spin",
-            "value": 0.2,
+            "value": 0.3,
             "min": 0,
             "max": 1
           }
@@ -56,7 +56,7 @@
           "kind": "knob",
           "values": {
             "label": "Twist",
-            "value": 0.65,
+            "value": 0.7,
             "min": 0,
             "max": 1.5
           }
@@ -73,7 +73,7 @@
           "kind": "knob",
           "values": {
             "label": "Scope",
-            "value": 0.65,
+            "value": 0.85,
             "min": 0,
             "max": 1
           }
@@ -193,7 +193,7 @@
           "kind": "math",
           "values": {
             "op": "multiplyAdd",
-            "b": 0.18
+            "b": 0.12
           }
         }
       },
@@ -210,6 +210,23 @@
             "op": "multiplyAdd",
             "b": -0.1,
             "c": 1
+          }
+        }
+      },
+      {
+        "id": "noiseFloor",
+        "type": "shader",
+        "position": {
+          "x": 600,
+          "y": 1900
+        },
+        "data": {
+          "kind": "remap",
+          "values": {
+            "inLow": 0.15,
+            "inHigh": 0.27,
+            "outLow": 0.27,
+            "outHigh": 0.5
           }
         }
       },
@@ -288,8 +305,8 @@
           "values": {
             "inLow": 0.25,
             "inHigh": 0.7,
-            "outLow": 0.68,
-            "outHigh": 0.82
+            "outLow": 0.8,
+            "outHigh": 0.88
           }
         }
       },
@@ -374,7 +391,7 @@
           "kind": "math",
           "values": {
             "op": "multiplyAdd",
-            "b": 2
+            "b": 1
           }
         }
       },
@@ -445,7 +462,7 @@
           "kind": "mask",
           "values": {
             "invert": true,
-            "threshold": 0.03,
+            "threshold": 0.045,
             "softness": 0.03
           }
         }
@@ -739,7 +756,7 @@
           "kind": "remap",
           "values": {
             "inLow": 0.27,
-            "inHigh": 0.62,
+            "inHigh": 0.52,
             "outLow": 0,
             "outHigh": 0.8
           }
@@ -758,40 +775,21 @@
         }
       },
       {
-        "id": "scopeTint",
-        "type": "shader",
-        "position": {
-          "x": 3900,
-          "y": 300
-        },
-        "data": {
-          "kind": "color",
-          "values": {
-            "color": [
-              0.06,
-              0.12,
-              0.2
-            ]
-          }
-        }
-      },
-      {
-        "id": "scopeColor",
+        "id": "noteAfterglow",
         "type": "shader",
         "position": {
           "x": 4200,
           "y": 0
         },
         "data": {
-          "kind": "math",
+          "kind": "trails",
           "values": {
-            "op": "multiplyAdd",
-            "b": 1.6
+            "decay": 0.5
           }
         }
       },
       {
-        "id": "scopeOverHarmony",
+        "id": "scopeCarve",
         "type": "shader",
         "position": {
           "x": 4500,
@@ -800,21 +798,12 @@
         "data": {
           "kind": "layerMix",
           "values": {
-            "mode": "add"
-          }
-        }
-      },
-      {
-        "id": "noteAfterglow",
-        "type": "shader",
-        "position": {
-          "x": 4800,
-          "y": 0
-        },
-        "data": {
-          "kind": "trails",
-          "values": {
-            "decay": 0.3
+            "mode": "mix",
+            "layer": [
+              0,
+              0,
+              0
+            ]
           }
         }
       },
@@ -822,7 +811,7 @@
         "id": "out",
         "type": "shader",
         "position": {
-          "x": 5100,
+          "x": 4800,
           "y": 0
         },
         "data": {
@@ -996,6 +985,28 @@
         "sourceHandle": "air",
         "target": "sparkleDensity",
         "targetHandle": "value",
+        "style": {
+          "stroke": "#a1a1a1",
+          "strokeWidth": 2
+        }
+      },
+      {
+        "id": "e-audio-presence-noiseFloor-value",
+        "source": "audio",
+        "sourceHandle": "presence",
+        "target": "noiseFloor",
+        "targetHandle": "value",
+        "style": {
+          "stroke": "#a1a1a1",
+          "strokeWidth": 2
+        }
+      },
+      {
+        "id": "e-noiseFloor-result-glowContrast-inLow",
+        "source": "noiseFloor",
+        "sourceHandle": "result",
+        "target": "glowContrast",
+        "targetHandle": "inLow",
         "style": {
           "stroke": "#a1a1a1",
           "strokeWidth": 2
@@ -1431,54 +1442,10 @@
         }
       },
       {
-        "id": "e-harmonyColor-color-scopeColor-a",
-        "source": "harmonyColor",
-        "sourceHandle": "color",
-        "target": "scopeColor",
-        "targetHandle": "a",
-        "style": {
-          "stroke": "#c7c729",
-          "strokeWidth": 2
-        }
-      },
-      {
-        "id": "e-scopeTint-color-scopeColor-c",
-        "source": "scopeTint",
-        "sourceHandle": "color",
-        "target": "scopeColor",
-        "targetHandle": "c",
-        "style": {
-          "stroke": "#c7c729",
-          "strokeWidth": 2
-        }
-      },
-      {
-        "id": "e-harmonyColor-color-scopeOverHarmony-base",
-        "source": "harmonyColor",
-        "sourceHandle": "color",
-        "target": "scopeOverHarmony",
-        "targetHandle": "base",
-        "style": {
-          "stroke": "#c7c729",
-          "strokeWidth": 2
-        }
-      },
-      {
-        "id": "e-scopeColor-result-scopeOverHarmony-layer",
-        "source": "scopeColor",
-        "sourceHandle": "result",
-        "target": "scopeOverHarmony",
-        "targetHandle": "layer",
-        "style": {
-          "stroke": "#c7c729",
-          "strokeWidth": 2
-        }
-      },
-      {
-        "id": "e-scopeOpacity-result-scopeOverHarmony-opacity",
+        "id": "e-scopeOpacity-result-scopeCarve-opacity",
         "source": "scopeOpacity",
         "sourceHandle": "result",
-        "target": "scopeOverHarmony",
+        "target": "scopeCarve",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1486,10 +1453,10 @@
         }
       },
       {
-        "id": "e-scopeLine-mask-scopeOverHarmony-mask",
+        "id": "e-scopeLine-mask-scopeCarve-mask",
         "source": "scopeLine",
         "sourceHandle": "mask",
-        "target": "scopeOverHarmony",
+        "target": "scopeCarve",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1497,8 +1464,8 @@
         }
       },
       {
-        "id": "e-scopeOverHarmony-color-noteAfterglow-color",
-        "source": "scopeOverHarmony",
+        "id": "e-harmonyColor-color-noteAfterglow-color",
+        "source": "harmonyColor",
         "sourceHandle": "color",
         "target": "noteAfterglow",
         "targetHandle": "color",
@@ -1508,8 +1475,19 @@
         }
       },
       {
-        "id": "e-noteAfterglow-color-out-color",
+        "id": "e-noteAfterglow-color-scopeCarve-base",
         "source": "noteAfterglow",
+        "sourceHandle": "color",
+        "target": "scopeCarve",
+        "targetHandle": "base",
+        "style": {
+          "stroke": "#c7c729",
+          "strokeWidth": 2
+        }
+      },
+      {
+        "id": "e-scopeCarve-color-out-color",
+        "source": "scopeCarve",
         "sourceHandle": "color",
         "target": "out",
         "targetHandle": "color",
