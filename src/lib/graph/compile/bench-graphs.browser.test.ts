@@ -44,6 +44,21 @@ interface Timing {
 
 const round = (value: number) => Math.round(value * 1000) / 1000
 
+/** How many repeats the sub-0.1 ms stages are timed in; see `batched`. */
+const BATCH = 500
+
+/**
+ * `performance.now()` is clamped to 0.1 ms in this page, so a stage that costs less reads as 0 or 0.1.
+ * Timing `calls` repeats of it and dividing puts the quantum below the thing being measured. The stages timed
+ * this way are the ones whose per-frame figures quantize to 0; the repeats run on the same frame's inputs, so a
+ * stateful stage advances its state `calls` times instead of once.
+ */
+function batched(calls: number, fn: () => void): number {
+  const t0 = performance.now()
+  for (let i = 0; i < calls; i++) fn()
+  return round((performance.now() - t0) / calls)
+}
+
 function timing(values: number[]): Timing {
   const sorted = [...values].sort((a, b) => a - b)
   const at = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0
@@ -192,6 +207,14 @@ function benchmark(name: string, text: string) {
   }
   const heapEnd = heapUsed()
 
+  // the stages whose per-frame numbers sit under the 0.1 ms clock quantum, measured again over a batch
+  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frame: FRAMES, audio: undefined })
+  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frame: FRAMES, audio: undefined }) })
+  const batchedSetControls = batched(BATCH, () => primary.setControls(lastControls))
+  const extraTextures = slots.slice(1).map((slot) => slot.textures)
+  const batchedSetAudio = batched(BATCH, () => primary.setAudio(slots[0].textures, extraTextures))
+  const batchedRenderLeds = Object.fromEntries(TARGETS.map((t, i) => [t.name, batched(BATCH, () => { renderers[i].renderLeds({ time: 0, dt: 1 / FPS, frame: 0, ledCount: t.leds, scanY: 0.5 }) })]))
+
   for (const renderer of [...renderers, preview]) renderer.dispose()
   canvas.remove()
 
@@ -228,6 +251,14 @@ function benchmark(name: string, text: string) {
       renderPreview: timing(renderPreview),
       renderLeds: Object.fromEntries(TARGETS.map((t) => [t.name, timing(renderLeds[t.name])])),
     },
+    // one call's cost from a batch of BATCH, for the stages the 0.1 ms clock quantum cannot resolve one at a time
+    frameBatched: {
+      calls: BATCH,
+      runnerStep: batchedStep,
+      setControls: batchedSetControls,
+      setAudio: batchedSetAudio,
+      renderLeds: batchedRenderLeds,
+    },
     heap: heapStart && heapEnd
       ? { startBytes: heapStart, endBytes: heapEnd, growthBytes: heapEnd - heapStart, bytesPerFrame: Math.round((heapEnd - heapStart) / FRAMES) }
       : null,
@@ -239,11 +270,12 @@ type Result = ReturnType<typeof benchmark>
 function summaryTable(results: Result[]): string {
   const total = (r: Result) => r.frame.audioAnalysis.median + r.frame.runnerStep.median + r.frame.setControls.median + r.frame.setAudio.median + r.frame.renderLeds['strip-300'].median
   const sorted = [...results].sort((a, b) => total(b) - total(a))
-  const header = ['graph', 'nodes', 'GLSL lines', 'ctrl steps', 'generateGlsl', 'GL compile', 'analysis', 'step', 'setAudio', 'LEDs 300', 'LEDs 4096', 'preview', 'frame total']
+  const header = ['graph', 'nodes', 'GLSL lines', 'ctrl steps', 'generateGlsl', 'GL compile', 'analysis', 'step', 'step (batched)', 'setAudio', 'setAudio (batched)', 'LEDs 300', 'LEDs 4096', 'preview', 'frame total']
   const rows = sorted.map((r) => [
     r.graph, String(r.nodes), String(r.glslLines), String(r.controlSteps),
     r.compile.generateGlsl.median.toFixed(2), r.compile.shaderCompileWall.median.toFixed(1),
-    r.frame.audioAnalysis.median.toFixed(2), r.frame.runnerStep.median.toFixed(3), r.frame.setAudio.median.toFixed(3),
+    r.frame.audioAnalysis.median.toFixed(2), r.frame.runnerStep.median.toFixed(3), r.frameBatched.runnerStep.toFixed(3),
+    r.frame.setAudio.median.toFixed(3), r.frameBatched.setAudio.toFixed(3),
     r.frame.renderLeds['strip-300'].median.toFixed(2), r.frame.renderLeds['matrix-64x64'].median.toFixed(2),
     r.frame.renderPreview.median.toFixed(2), total(r).toFixed(2),
   ])
