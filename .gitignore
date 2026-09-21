@@ -7,5 +7,7 @@ graphs/**/*.md
 graphs/bench/reports
 graphs/notes
 
+.vscode
+
 .work
 .ongoing
