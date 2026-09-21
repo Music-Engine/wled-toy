@@ -28,11 +28,11 @@ describe('sanitizePreferences', () => {
     const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
     const out = sanitizePreferences({
       launchMode: 'graph', lastMode: 'reference', autosave: 'yes', autosaveSeconds: 30, confirmClose: false,
-      logLines: '500', previewFps: 30, density: 'huge', editorFontSize: 16, reduceMotion: true, unknown: 1,
+      logLines: '500', previewFps: 30, previewHeight: 180, density: 'huge', editorFontSize: 16, reduceMotion: true, unknown: 1,
     })
     expect(out).toEqual({
       ...PREFERENCE_DEFAULTS,
-      launchMode: 'graph', autosaveSeconds: 30, confirmClose: false, previewFps: 30, editorFontSize: 16, reduceMotion: true,
+      launchMode: 'graph', autosaveSeconds: 30, confirmClose: false, previewFps: 30, previewHeight: 180, editorFontSize: 16, reduceMotion: true,
     })
     expect(out).not.toHaveProperty('unknown')
   })
@@ -48,6 +48,7 @@ describe('sanitizePreferences', () => {
     const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
     expect(sanitizePreferences({ autosaveSeconds: 0, logLines: 1e9, previewFps: -5, editorFontSize: 13.6 })).toMatchObject({ autosaveSeconds: 1, logLines: 10000, previewFps: 0, editorFontSize: 14 })
     expect(sanitizePreferences({ editorFontSize: 99 }).editorFontSize).toBe(24)
+    expect([-1, 1e6, NaN].map((previewHeight) => sanitizePreferences({ previewHeight }).previewHeight)).toEqual([0, 4320, PREFERENCE_DEFAULTS.previewHeight])
     expect(sanitizePreferences({ logLines: NaN, previewFps: Infinity })).toMatchObject({ logLines: PREFERENCE_DEFAULTS.logLines, previewFps: PREFERENCE_DEFAULTS.previewFps })
   })
 })

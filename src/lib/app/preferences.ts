@@ -17,6 +17,8 @@ export interface Preferences {
   logLines: number
   /** Frames per second of the preview; 0 follows the display. */
   previewFps: number
+  /** Rows the preview shades; 0 follows the display. */
+  previewHeight: number
   density: Density
   editorFontSize: number
   reduceMotion: boolean
@@ -32,6 +34,7 @@ export const PREFERENCE_DEFAULTS: Preferences = {
   confirmClose: true,
   logLines: 300,
   previewFps: 0,
+  previewHeight: 0,
   density: 'default',
   editorFontSize: 14,
   reduceMotion: false,
@@ -58,6 +61,7 @@ export function sanitizePreferences(input: unknown): Preferences {
   if (typeof src.confirmClose === 'boolean') out.confirmClose = src.confirmClose
   out.logLines = int(src.logLines, 50, 10000, out.logLines)
   out.previewFps = int(src.previewFps, 0, 240, out.previewFps)
+  out.previewHeight = int(src.previewHeight, 0, 4320, out.previewHeight)
   if (src.density === 'compact' || src.density === 'default' || src.density === 'comfortable') out.density = src.density
   out.editorFontSize = int(src.editorFontSize, 10, 24, out.editorFontSize)
   if (typeof src.reduceMotion === 'boolean') out.reduceMotion = src.reduceMotion

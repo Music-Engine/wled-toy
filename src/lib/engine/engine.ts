@@ -247,7 +247,7 @@ class Engine {
     const now = performance.now()
     // rAF ticks land a little early or late; the 2 ms slack keeps a 30 fps cap from skipping every third frame of a 60 Hz display
     if (preferences.previewFps && now - this.lastPreview < 1000 / preferences.previewFps - 2) return
-    this.renderer.renderPreview({ ...this.frameParams(), dt: Math.min(0.1, (now - this.lastPreview) / 1000) })
+    this.renderer.renderPreview({ ...this.frameParams(), dt: Math.min(0.1, (now - this.lastPreview) / 1000) }, preferences.previewHeight)
     this.lastPreview = now
     this.frame++
     this.bridge.countRender()

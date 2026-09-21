@@ -206,10 +206,12 @@ export class ShaderRenderer {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, count, HISTORY_ROWS, 0, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array(count * HISTORY_ROWS))
   }
 
-  renderPreview(params: FrameParams) {
+  /** `maxHeight` caps the rows shaded, the width following the canvas's shape; 0 shades every display pixel. The canvas keeps its size on screen. */
+  renderPreview(params: FrameParams, maxHeight = 0) {
     const { canvas } = this
-    const w = Math.max(1, Math.round(canvas.clientWidth * devicePixelRatio))
-    const h = Math.max(1, Math.round(canvas.clientHeight * devicePixelRatio))
+    const displayHeight = Math.max(1, Math.round(canvas.clientHeight * devicePixelRatio))
+    const h = maxHeight ? Math.min(maxHeight, displayHeight) : displayHeight
+    const w = Math.max(1, Math.round(canvas.clientWidth * devicePixelRatio * h / displayHeight))
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w
       canvas.height = h
