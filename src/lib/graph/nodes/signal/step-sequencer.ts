@@ -14,9 +14,10 @@ export const stepSequencerNode = defineNode('stepSequencer', {
     reset: { type: Float, default: 0 },
   },
   output: { value: Float, step: Float },
-  state: () => ({ index: 0, trigger: { high: false }, reset: { high: false } }),
+  state: () => ({ index: 0, trigger: { high: false }, reset: { high: false }, steps: '', values: [] as number[] }),
   run: ({ steps, trigger, reset }, state) => {
-    const values = parse(steps)
+    if (steps !== state.steps) Object.assign(state, { steps, values: parse(steps) })
+    const { values } = state
     if (risingEdge(state.reset, reset)) state.index = 0
     else if (risingEdge(state.trigger, trigger)) state.index += 1
     if (!values.length) return { value: 0, step: 0 }
