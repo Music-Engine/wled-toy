@@ -258,6 +258,33 @@ const editorTheme = EditorView.theme({
   '.cm-glsl-doc-active': { color: 'var(--ui-primary)', fontWeight: '700', textDecoration: 'underline' },
   '.cm-glsl-doc p': { margin: '0', color: 'var(--ui-text-toned)' },
   '.cm-diagnostic': { fontFamily: 'var(--font-mono)' },
+  '.cm-panels': { backgroundColor: 'var(--app-chrome)', color: 'var(--ui-text)', fontFamily: 'var(--font-sans)' },
+  '.cm-panels-top': { borderBottom: '1px solid var(--app-hairline)' },
+  '.cm-panels-bottom': { borderTop: '1px solid var(--app-hairline)' },
+  '.cm-panel.cm-search': { padding: '4px 32px 4px 8px' },
+  '.cm-panel.cm-search input, .cm-panel.cm-search button, .cm-panel.cm-search label': { margin: '2px 6px 2px 0' },
+  '.cm-panel.cm-search label': { display: 'inline-flex', alignItems: 'center', gap: '4px', verticalAlign: 'middle', fontSize: '12px', color: 'var(--ui-text-muted)', whiteSpace: 'nowrap' },
+  '.cm-panel.cm-search input[type=checkbox]': { margin: '0', accentColor: 'var(--ui-primary)' },
+  '.cm-textfield': {
+    height: '20px', width: '200px', padding: '0 6px', fontSize: '12px', lineHeight: '18px', fontFamily: 'var(--font-mono)',
+    backgroundColor: 'var(--app-surface)', border: '1px solid var(--ui-border-accented)', borderRadius: '4px',
+  },
+  '.cm-textfield::placeholder': { color: 'var(--ui-text-dimmed)' },
+  '.cm-button': {
+    height: '20px', padding: '0 8px', fontSize: '12px', lineHeight: '18px', backgroundImage: 'none',
+    backgroundColor: 'transparent', border: '1px solid var(--ui-border-accented)', borderRadius: '4px',
+  },
+  '.cm-button:hover': { backgroundColor: 'var(--app-hover)' },
+  '.cm-button:active': { backgroundImage: 'none', backgroundColor: 'var(--ui-bg-accented)' },
+  '.cm-textfield:focus-visible, .cm-button:focus-visible': { outline: '2px solid var(--ui-primary)', outlineOffset: '1px' },
+  '.cm-panel.cm-search [name=close]': {
+    top: '6px', right: '8px', width: '20px', height: '20px', borderRadius: '4px',
+    fontSize: '16px', lineHeight: '18px', color: 'var(--ui-text-muted)', cursor: 'default',
+  },
+  '.cm-panel.cm-search [name=close]:hover': { backgroundColor: 'var(--app-hover)', color: 'var(--ui-text)' },
+  '.cm-searchMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-warning) 30%, transparent)', outline: 'none' },
+  '.cm-searchMatch-selected': { backgroundColor: 'color-mix(in oklab, var(--ui-primary) 45%, transparent)' },
+  '.cm-selectionMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-text) 12%, transparent)' },
 })
 
 export function glsl() {
