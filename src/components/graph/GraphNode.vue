@@ -5,12 +5,13 @@ import NodeShell from './ui/NodeShell.vue'
 import Socket from './ui/Socket.vue'
 import { handlerFor, nodeBodies, type TypeHandler } from './handlers'
 import { categoryById } from '@/lib/shader/glsl'
-import { graphIssuesKey } from './graph-context'
+import { connectedHandlesKey, graphIssuesKey } from './graph-context'
 import { isImplicit, isStructType, itemFor, linkTypeOf, rateOf, type GraphNodeData, type InputSocket, type SocketValue } from '@/lib/graph'
 
 const props = defineProps<NodeProps<GraphNodeData>>()
 const { edges, updateNodeData, updateNodeInternals } = useVueFlow()
 const graphIssues = inject(graphIssuesKey, null)
+const connectedHandles = inject(connectedHandlesKey, null)
 
 const kind = computed(() => itemFor(props.data.kind))
 // the node's sockets and code follow its values (a Math node changes with its operation)
@@ -19,11 +20,18 @@ const item = computed(() => kind.value?.shape(props.data.values))
 const shape = computed(() => (item.value && rateOf(item.value) === 'control' ? 'diamond' : 'circle'))
 // so are streams: they are settled before a single pixel is drawn
 const shapeOf = (type: { id: string }) => (shape.value === 'diamond' || isStructType(type as never) ? 'diamond' : 'circle')
-const connected = computed(() => new Set(edges.value.filter((e) => e.target === props.id).map((e) => e.targetHandle)))
+const NO_LINKS: ReadonlySet<string> = new Set()
+// the page computes this once per edge change; without it (a node mounted on its own) fall back to the edge array
+const connected = computed<ReadonlySet<string>>(() => connectedHandles
+  ? connectedHandles.value.get(props.id) ?? NO_LINKS
+  : new Set(edges.value.filter((e) => e.target === props.id).map((e) => e.targetHandle!)))
 
 const invalidFields = reactive(new Set<string>())
+// the page rebuilds its issue map on every compile; reading this node's entry first keeps a node without issues
+// from re-rendering, because undefined is unchanged and the computed below is never invalidated
+const issues = computed(() => graphIssues?.value.get(props.id))
 const warnings = computed(() => [
-  ...(graphIssues?.value.get(props.id) ?? []),
+  ...(issues.value ?? []),
   ...[...invalidFields].map((field) => `${field} is not a number; the last valid value is used`),
 ])
 

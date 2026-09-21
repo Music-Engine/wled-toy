@@ -18,7 +18,7 @@ import { createBrowserBackend } from '@/lib/documents/documents'
 import { log } from '@/lib/app/logs'
 import { useEngine } from '@/lib/engine/engine'
 import { categoryById } from '@/lib/shader/glsl'
-import { graphIssuesKey } from '@/components/graph/graph-context'
+import { connectedHandlesKey, graphIssuesKey } from '@/components/graph/graph-context'
 import { createGraphDocument, graphFileBackendKey, storedDoc, type GraphDocument } from '@/lib/graph/model/document'
 import { createHistory } from '@/lib/documents/history'
 import { frozenNotice, graphCodeNotice } from '@/lib/shader/shader-export'
@@ -139,7 +139,18 @@ function travel(step: 'undo' | 'redo') {
   return true
 }
 
-watch([nodes, storeEdges, scenes], () => {
+// Vue Flow's edge renderer writes sourceX/sourceY/targetX/targetY back into the store edge it is drawing, and a store
+// edge also links back to its two whole nodes. Deep-watching the store edges therefore makes every edge render
+// re-trigger the watcher below, which is what Vue aborts as a recursive update. This reads what the document keeps.
+const storedEdgeKey = () => storeEdges.value
+  .map((e) => [e.id, e.source, e.sourceHandle, e.target, e.targetHandle, (e.style as { stroke?: string } | undefined)?.stroke].join('\u0000'))
+  .join('\n')
+
+// Same reason, and the deep traversal is the cost of a drag: a Vue Flow node also carries measured dimensions, handle
+// rectangles, a computed position and its event handlers. Only the stored fields are watched; `data` still deeply.
+const storedNodeFields = () => nodes.value.map((n) => [n.id, n.type, n.position.x, n.position.y, n.data])
+
+watch([storedNodeFields, storedEdgeKey, scenes], () => {
   saveGraph()
   // a drag or a scrubbed slider is one step: it is recorded once the changes pause
   if (!restoring) {
@@ -230,6 +241,26 @@ const nodeIssues = computed(() => {
   return map
 })
 provide(graphIssuesKey, nodeIssues)
+
+let handlesByNode = new Map<string, ReadonlySet<string>>()
+const connectedHandles = computed(() => {
+  const next = new Map<string, Set<string>>()
+  for (const edge of storeEdges.value) {
+    if (!edge.targetHandle) continue
+    const set = next.get(edge.target)
+    if (set) set.add(edge.targetHandle)
+    else next.set(edge.target, new Set([edge.targetHandle]))
+  }
+  const kept = new Map<string, ReadonlySet<string>>()
+  for (const [id, set] of next) {
+    const before = handlesByNode.get(id)
+    // handing back the same set keeps a node whose links did not change from re-rendering
+    kept.set(id, before && before.size === set.size && [...set].every((handle) => before.has(handle)) ? before : set)
+  }
+  handlesByNode = kept
+  return kept
+})
+provide(connectedHandlesKey, connectedHandles)
 
 const dataOf = (id: string) => findNode(id)?.data as GraphNodeData | undefined
 
