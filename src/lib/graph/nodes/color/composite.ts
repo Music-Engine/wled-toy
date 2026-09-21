@@ -1,23 +1,27 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { colorMixChunk } from '@/lib/graph/compile/glsl/color-mix'
-import { Bool, Color, Enum, Float, enumIndex } from '@/lib/graph/define/types'
-import { BLEND_MODES } from './color-mix'
+import { BLEND_FUNCTIONS } from '@/lib/graph/compile/glsl/color-mix'
+import { Bool, Color, Enum, Float } from '@/lib/graph/define/types'
+import { BLEND_MODES, type BlendMode } from './color-mix'
 
-export const layerMixNode = defineNode('layerMix', {
-  title: 'Layer Mix',
-  description: 'Puts Layer over Base. Opacity and Mask multiply, so a mask can cut a layer to a shape and opacity can fade the whole layer in.',
-  category: 'color',
-  includes: [colorMixChunk],
-  input: {
-    mode: { type: Enum(BLEND_MODES), label: '', connectable: false, props: { label: 'Blend Mode' } },
-    base: { type: Color, default: [0, 0, 0] },
-    layer: { type: Color, default: [1, 1, 1] },
-    opacity: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
-    mask: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
-  },
-  output: { color: Color },
-  exec: ({ mode, base, layer, opacity, mask }, ctx) =>
-    ctx.call('colorMix', [`${opacity.expr} * ${mask.expr}`, enumIndex(BLEND_MODES, mode), base.expr, layer.expr, '1', '1'], { color: 'vec3' }),
+/** `mode` is `connectable: false`, so it is known at shape-build time and the node includes only that one blend function. */
+export const layerMixNode = defineNode('layerMix', ({ mode = 'mix' }: { mode?: BlendMode }) => {
+  const { fn, chunk } = BLEND_FUNCTIONS[mode] ?? BLEND_FUNCTIONS.mix
+  return {
+    title: 'Layer Mix',
+    description: 'Puts Layer over Base. Opacity and Mask multiply, so a mask can cut a layer to a shape and opacity can fade the whole layer in.',
+    category: 'color',
+    includes: [chunk],
+    input: {
+      mode: { type: Enum(BLEND_MODES), label: '', connectable: false, props: { label: 'Blend Mode' } },
+      base: { type: Color, default: [0, 0, 0] },
+      layer: { type: Color, default: [1, 1, 1] },
+      opacity: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
+      mask: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
+    },
+    output: { color: Color },
+    exec: ({ base, layer, opacity, mask }, ctx) =>
+      ({ color: ctx.declare('vec3', `clamp(${fn}(clamp(${opacity.expr} * ${mask.expr}, 0.0, 1.0), ${base.expr}, ${layer.expr}), 0.0, 1.0)`) }),
+  }
 })
 
 export const maskNode = defineNode('mask', {

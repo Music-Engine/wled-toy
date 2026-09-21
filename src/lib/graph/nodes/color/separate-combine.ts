@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { colorChunk } from '@/lib/graph/compile/glsl/color'
+import { hslToRgbChunk, hsvToRgbChunk, rgbToHslChunk, rgbToHsvChunk } from '@/lib/graph/compile/glsl/color'
 import { Color, Enum, Float } from '@/lib/graph/define/types'
 import { swizzle } from '@/lib/graph/define/value'
 
@@ -14,7 +14,7 @@ export const separateColorNode = defineNode('separateColor', ({ mode = 'rgb' }: 
     title: 'Separate Color',
     description: 'A color as three numbers: red, green, blue, or hue, saturation and value or lightness.',
     category: 'converter',
-    includes: [colorChunk],
+    includes: mode === 'hsv' ? [rgbToHsvChunk] : mode === 'hsl' ? [rgbToHslChunk] : [],
     input: { mode: { type: Enum(MODES), label: '', default: 'rgb', connectable: false, props: { label: 'Mode' } }, color: { type: Color, default: [1, 0.45, 0.1] } },
     output: { a: { type: Float, label: a }, b: { type: Float, label: b }, c: { type: Float, label: c } },
     exec: ({ color }, ctx) => {
@@ -31,7 +31,7 @@ export const combineColorNode = defineNode('combineColor', ({ mode = 'rgb' }: { 
     title: 'Combine Color',
     description: 'A color from three numbers, as red, green, blue, or hue, saturation and value or lightness.',
     category: 'converter',
-    includes: [colorChunk],
+    includes: mode === 'hsv' ? [hsvToRgbChunk] : mode === 'hsl' ? [hslToRgbChunk] : [],
     input: { mode: { type: Enum(MODES), label: '', default: 'rgb', connectable: false, props: { label: 'Mode' } }, a: channel(a, mode === 'rgb' ? 1 : 0), b: channel(b, mode === 'rgb' ? 0.45 : 1), c: channel(c, mode === 'rgb' ? 0.1 : mode === 'hsl' ? 0.5 : 1) },
     output: { color: Color },
     exec: (input, ctx) => {
