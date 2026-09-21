@@ -79,7 +79,10 @@ const cloneJson = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
 // Vue Flow only syncs its store back to v-model:edges when the edge count changes, so a
 // replaced link (remove + add in one tick) never reaches the `edges` ref. Read the store.
-const snapshot = () => storedDoc(nodes.value, storeEdges.value, scenes.value)
+// A computed, so the compile, the working copy, the undo recorder, the dirty check and the autosave all read one
+// serialization per change instead of taking their own.
+const storedSnapshot = computed(() => storedDoc(nodes.value, storeEdges.value, scenes.value))
+const snapshot = () => storedSnapshot.value
 
 /**
  * Knob turns, scene fades and MIDI change the CPU plan but not the shader, so they apply at once. A change to the
@@ -107,7 +110,11 @@ function regenerate(compileNow = true) {
   lastCompiled = code
 }
 
+let saveTimer: ReturnType<typeof setTimeout> | undefined
+
 function saveGraph() {
+  clearTimeout(saveTimer)
+  saveTimer = undefined
   const doc = snapshot()
   lastSaved = doc
   config.graph = doc
@@ -151,8 +158,10 @@ const storedEdgeKey = () => storeEdges.value
 const storedNodeFields = () => nodes.value.map((n) => [n.id, n.type, n.position.x, n.position.y, n.data])
 
 watch([storedNodeFields, storedEdgeKey, scenes], () => {
-  saveGraph()
-  // a drag or a scrubbed slider is one step: it is recorded once the changes pause
+  // a drag or a scrubbed slider is one step: it is recorded once the changes pause, and the working copy that other
+  // tabs and a reload read is written on the same pause. A closing window flushes it (`flushSave`) rather than waiting.
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(saveGraph, 350)
   if (!restoring) {
     clearTimeout(recordTimer)
     recordTimer = setTimeout(recordNow, 350)
@@ -206,6 +215,8 @@ onMounted(() => {
       replaceGraph(doc)
       nextTick(() => {
         fitView({ padding: 0.2 })
+        // New, Open, Revert and Recover are single acts, not gestures: the working copy follows them at once
+        flushSave()
         // another document starts with a clean history, as the first one does
         history.reset(JSON.stringify(snapshot()))
         restoring = false

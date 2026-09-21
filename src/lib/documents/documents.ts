@@ -271,7 +271,16 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
   const hasRecovery = ref(localStorage.getItem(recoveryKey) !== null)
 
   const fileName = computed(() => fileHandle.value?.name ?? handlelessName.value)
-  const dirty = computed(() => serialize(getSnapshot()) !== lastSavedText.value)
+
+  // The dirty flag is read on every render of the title bar and of the window title, and serializing a large document
+  // for each of those reads is most of what an edit costs. One serialization per snapshot serves them all.
+  let serialized: { snapshot: T; text: string } | null = null
+  function snapshotText() {
+    const snapshot = getSnapshot()
+    if (!serialized || serialized.snapshot !== snapshot) serialized = { snapshot, text: serialize(snapshot) }
+    return serialized.text
+  }
+  const dirty = computed(() => snapshotText() !== lastSavedText.value)
 
   function clearRecovery() {
     hasRecovery.value = false
@@ -285,6 +294,8 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
   }
 
   let autosaveTimer: ReturnType<typeof setTimeout> | undefined
+  // No deep option: `getSnapshot` reports a change by returning a different value, and walking a whole document on
+  // every edit is what this watcher is here to avoid.
   watch(getSnapshot, () => {
     clearTimeout(autosaveTimer)
     const delay = typeof autosaveDebounceMs === 'function' ? autosaveDebounceMs() : autosaveDebounceMs
@@ -293,7 +304,7 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
       if (dirty.value) localStorage.setItem(recoveryKey, serialize(getSnapshot()))
       else clearRecovery()
     }, delay)
-  }, { deep: true })
+  })
 
   function load(opened: OpenedFile) {
     const doc = parse(opened.text)
