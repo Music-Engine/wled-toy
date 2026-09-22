@@ -36,18 +36,6 @@ Building the application:
 pnpm run tauri build
 ```
 
-## Releases
-
-The release version is the `version` in `package.json`. Pushing a change to `package.json` on `main` runs `.github/workflows/release.yml`. If no release is published for `v<version>` yet, it builds Linux (deb, rpm, AppImage), Windows (MSI, NSIS) and macOS (dmg) bundles for amd64 and arm64 and attaches them to a draft GitHub release. Review the draft under Releases and publish it; publishing creates the `v<version>` tag.
-
-```bash
-npm version minor --no-git-tag-version
-git commit -am "chore(release): bump version"
-git push origin main
-```
-
-Running the workflow manually from another branch, or for a version that is already published, builds the same bundles as workflow artifacts without touching a release. Builds are not code signed; macOS builds carry an ad-hoc signature only.
-
 ## Features
 - Live GLSL shader editor with instant preview on a virtual LED strip or matrix
 - Node-graph editor for building shaders without writing code
