@@ -5,4 +5,4 @@
 ### Builds
 
 - Workflows reference GitHub's own actions (checkout, setup-node) by major tag. Third-party actions stay pinned to a commit.
-- Dependabot bumps the pinned actions weekly.
+- Dependabot bumps the pinned actions weekly. rust-toolchain is pinned to its v1 tag so it is tracked too.
