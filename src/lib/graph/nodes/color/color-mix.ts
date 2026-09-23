@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { BLEND_FUNCTIONS } from '@/lib/graph/compile/glsl/color-mix'
+import { BLEND_FUNCTIONS } from '@/lib/graph/nodes/glsl/blend'
 import { Bool, Color, Enum, Float } from '@/lib/graph/define/socket-types'
 
 export const BLEND_MODES = [

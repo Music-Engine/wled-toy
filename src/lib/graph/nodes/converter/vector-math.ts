@@ -1,7 +1,7 @@
 import { defineNode, type InputDef, type NodeItemOptions, type OutputDef } from '@/lib/graph/define/define'
 import type { FrameValue } from '@/lib/graph/define/context'
 import type { Value } from '@/lib/graph/define/value'
-import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/compile/glsl/math'
+import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/nodes/glsl/math'
 import { Enum, Float, Vec3 } from '@/lib/graph/define/socket-types'
 
 type V = [number, number, number]

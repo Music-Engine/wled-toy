@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BLEND_FUNCTIONS } from '@/lib/graph/compile/glsl/color-mix'
+import { BLEND_FUNCTIONS } from '@/lib/graph/nodes/glsl/blend'
 import { graph, node, renderGraph } from '@/lib/graph/testing'
 import { BLEND_MODES } from './color-mix'
 

@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { hslToRgbChunk, hsvToRgbChunk, rgbToHslChunk, rgbToHsvChunk } from '@/lib/graph/compile/glsl/color'
+import { hslToRgbChunk, hsvToRgbChunk, rgbToHslChunk, rgbToHsvChunk } from '@/lib/graph/nodes/glsl/color'
 import { Color, Enum, Float } from '@/lib/graph/define/socket-types'
 import { swizzle } from '@/lib/graph/define/value'
 

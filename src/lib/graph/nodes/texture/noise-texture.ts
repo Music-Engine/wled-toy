@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { noiseChunk } from '@/lib/graph/compile/glsl/noise'
+import { noiseChunk } from '@/lib/graph/nodes/glsl/noise'
 import { Color, Float } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 

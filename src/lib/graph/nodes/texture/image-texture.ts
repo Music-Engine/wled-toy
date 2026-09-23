@@ -1,8 +1,36 @@
 import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/glsl'
 import { defineNode } from '@/lib/graph/define/define'
-import { colorChunk } from '@/lib/graph/compile/glsl/color'
+import type { GlslChunk } from '@/lib/graph/define/context'
 import { Color, Enum, Float, Reference } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
+
+/* SPDX-FileCopyrightText: 2011-2022 Blender Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0 */
+
+/** sRGB to scene-linear (Blender node_color.h). */
+const colorChunk: GlslChunk = {
+  id: 'color-srgb-to-linear',
+  requires: [],
+  source: /* glsl */ `
+float color_srgb_to_scene_linear(float c)
+{
+  if (c < 0.04045) {
+    return (c < 0.0) ? 0.0 : c * (1.0 / 12.92);
+  }
+  else {
+    return pow((c + 0.055) * (1.0 / 1.055), 2.4);
+  }
+}
+
+vec3 color_srgb_to_scene_linear(vec3 c)
+{
+  return vec3(color_srgb_to_scene_linear(c[0]),
+               color_srgb_to_scene_linear(c[1]),
+               color_srgb_to_scene_linear(c[2]));
+}
+`,
+}
 
 const INTERPOLATIONS = [{ value: 'linear', label: 'Linear' }, { value: 'closest', label: 'Closest' }] as const
 const EXTENSIONS = [{ value: 'repeat', label: 'Repeat' }, { value: 'extend', label: 'Extend' }, { value: 'mirror', label: 'Mirror' }] as const
