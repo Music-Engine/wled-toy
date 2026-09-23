@@ -1,21 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import type { NodeItem } from '@/lib/graph/authoring'
 import { generateGlsl } from '@/lib/graph'
-import { graph, node } from '@/lib/graph/testing'
+import { graph, initialState, node } from '@/lib/graph/testing'
+import { clockDividerNode } from './clock-divider'
 import { counterNode, toggleNode } from './counter'
 import { curveNode } from './curve'
 import { envelopeNode } from './envelope'
 import { envelopeFollowerNode } from './envelope-follower'
+import { integratorNode } from './integrator'
 import { mapRangeNode } from './map-range'
 import { peakHoldNode } from './peak-hold'
 import { sampleHoldNode } from './sample-hold'
 import { schmittTriggerNode } from './schmitt-trigger'
 import { slewLimiterNode } from './slew-limiter'
+import { stepSequencerNode } from './step-sequencer'
 
 /** Runs a frame body at a fixed frame rate; `input(t)` gives its inputs at time t. Returns one output per frame. */
 function simulate(item: NodeItem, output: string, input: (t: number) => Record<string, unknown>, seconds: number, fps = 30): number[] {
-  const { frame: body, state: fresh } = item.base
-  const state = fresh?.()
+  const { frame: body, state: slots } = item.base
+  const state = slots && initialState(slots)
   return Array.from({ length: Math.round(seconds * fps) }, (_, frame) => {
     const time = (frame + 1) / fps
     return body!(input(time), { time, dt: 1 / fps, frameIndex: frame, state, resolved: {} })[output] as number
@@ -88,6 +91,24 @@ describe('triggers', () => {
     const toggled = simulate(toggleNode, 'state', (t) => ({ trigger: pulse(t) }), 1.4, 10)
     expect([toggled[2], toggled[7], toggled[12]]).toEqual([1, 0, 1])
   })
+})
+
+// what each state() factory returned, with the nested `{ high }` edge objects flattened into Bool slots
+it.each(([
+  [counterNode, { count: 0, triggerHigh: false, resetHigh: false }],
+  [toggleNode, { on: false, high: false }],
+  [clockDividerNode, { count: 0, triggerHigh: false, resetHigh: false }],
+  [integratorNode, { value: 0, high: false }],
+  [sampleHoldNode, { held: 0, high: false }],
+  [envelopeNode, { stage: 'idle', level: 0, high: false }],
+  [envelopeFollowerNode, { value: 0 }],
+  [slewLimiterNode, { value: 0 }],
+  [peakHoldNode, { value: 0, held: 0 }],
+  [schmittTriggerNode, { on: false }],
+  // `steps` and `values` left state for `resolve`, so only the slots that stayed are compared
+  [stepSequencerNode, { index: 0, triggerHigh: false, resetHigh: false }],
+] as const).map(([item, expected]) => [item.id, item, expected] as const))('%s starts every slot where its old state factory started', (_, item, expected) => {
+  expect(initialState(item.base.state!)).toEqual(expected)
 })
 
 describe('stateless nodes compute the same thing on both sides', () => {

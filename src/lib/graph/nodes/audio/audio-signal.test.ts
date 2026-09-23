@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { FrameRunner, generateGlsl, itemFor } from '@/lib/graph'
-import { graph, node } from '@/lib/graph/testing'
+import { graph, initialState, node } from '@/lib/graph/testing'
+import { audioSignalNode } from './audio-signal'
 
 const features = (patch: { level?: number; rms?: number; peak?: number }) => ({ level: 0, rms: 0, peak: 0, ...patch }) as never
 
@@ -37,4 +38,8 @@ describe('Distance From Center', () => {
     const { code } = generateGlsl(graph([node('f', 'fromCenter'), node('o', 'output')], [['f.distance', 'o.color']]))
     expect(code).toContain('abs(uv.x - 0.5)')
   })
+})
+
+it('starts its state where the old state factory started', () => {
+  expect(initialState(audioSignalNode.base.state!)).toEqual({ value: 0 })
 })

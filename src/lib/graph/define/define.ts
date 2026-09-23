@@ -29,7 +29,12 @@ export type Inputs<I, V extends 'frame' | 'pixel'> = { [K in keyof I]: SocketTyp
  */
 export type Outputs<O, V extends 'frame' | 'pixel'> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
 
-export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S = undefined> {
+/** A node's state: named slots, each holding a value of its type between frames. */
+export type StateDef = Record<string, DataType<any, any, any>>
+/** What a frame body finds in `info.state` for a slot declaration. */
+export type State<S extends StateDef> = { -readonly [K in keyof S]: Required<S[K]>['_frame'] }
+
+export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
   title: string
   description: string
   category: CategoryId
@@ -44,18 +49,20 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
   /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader. */
   pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext): Outputs<O, 'pixel'>
   /**
-   * Once per frame, in JS. A node with only `frame` can hold `state`, and its inputs must not vary per pixel. A node with
+   * Once per frame, in JS. A node with only `frame` can hold frame-scope `state`, and its inputs must not vary per pixel. A node with
    * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise.
    */
-  frame?(input: Inputs<I, 'frame'>, info: FrameContext<S>): Outputs<O, 'frame'>
+  frame?(input: Inputs<I, 'frame'>, info: FrameContext<State<S>>): Outputs<O, 'frame'>
   /**
    * While the graph compiles, from its stored values and the streams linked into it: what this node puts on its stream
    * outputs (Audio, Spectrum), what its bodies get as `resolved`, what the engine has to provide, and what is wrong.
    * `resources` is what earlier nodes registered, for a node whose result depends on the index its config gets.
    */
   resolve?(input: Inputs<I, 'pixel'>, resources: Resources): ResolveResult
-  /** Fresh state for a frame-only node. It survives recompiles for as long as the node exists. */
-  state?(): S
+  /** Slots that start at their type's zero. Frame-scope state survives recompiles for as long as the node exists. */
+  state?: S
+  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED. */
+  stateScope?: 'frame' | 'pixel'
   presets?: NodePreset[]
 }
 
@@ -64,7 +71,7 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
  * on the node. Given a function, the definition is rebuilt from the node's stored values whenever they change, so a
  * parameter can turn the node into a different shape.
  */
-export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S = undefined>(
+export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S extends StateDef = {}>(
   id: string,
   definition: NodeItemOptions<I, O, S> | ((values: Record<string, any>) => NodeItemOptions<I, O, S>),
 ): NodeItem {
@@ -78,12 +85,13 @@ export function defineNode<const I extends Record<string, InputDef>, const O ext
   }
 }
 
-function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S>(
+function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef>(
   id: string,
-  { title, signature, isOutput, includes, input, output, pixel, frame, state, resolve }: NodeItemOptions<I, O, S>,
+  { title, signature, isOutput, includes, input, output, pixel, frame, state, stateScope = 'frame', resolve }: NodeItemOptions<I, O, S>,
 ): NodeShape {
   if (!pixel && !frame && !resolve) throw new Error(`${id}: a node needs pixel, frame or resolve`)
-  if (state && pixel) throw new Error(`${id}: only a frame-only node can hold state; the shader has nowhere to keep it`)
+  if (state && stateScope === 'pixel') throw new Error(`${id}: pixel-scope state is not implemented`)
+  if (state && pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; the shader has nowhere to keep it`)
   return {
     title,
     signature: signature ?? '',
@@ -95,6 +103,7 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     frame: frame as NodeShape['frame'],
     resolve: resolve as NodeShape['resolve'],
     state,
+    stateScope: state && stateScope,
   }
 }
 

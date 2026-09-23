@@ -29,8 +29,8 @@ export interface Program {
   frame: ProgramStep[]
   /** Frame step outputs the shader reads, and where in the uniform block they go. */
   uniforms: UniformSlot[]
-  /** No node declares state slots yet; the js backend still takes state from each node's factory. */
-  state: never[]
+  /** The state each planned stateful node declares, by node id. */
+  state: Record<string, ProgramState>
   /** What nodes registered while compiling, by kind: the audio source the graph wants, the analyses it reads. */
   resources: Record<string, unknown[]>
   /** Wire settings from the graph's Output node; null when it has none. */
@@ -51,6 +51,15 @@ export interface ProgramNode {
   width: GlslType | null
   /** What the pixel body declared through `ctx.require`; the GLSL backend records it as it runs the body, absent when nothing. */
   requires?: 'glsl'[]
+}
+
+/**
+ * Slot name to type id, not the type: the Program stays plain data, and a backend that needs more than the id (an Enum's
+ * first option) reads the declaration at build version, as it reads the bodies.
+ */
+export interface ProgramState {
+  scope: 'frame' | 'pixel'
+  slots: Record<string, string>
 }
 
 export type ProgramStep = Omit<FrameStep, 'kind' | 'frame' | 'state' | 'resolved'>

@@ -1,4 +1,4 @@
-import { defineNode, Float, Int } from '@/lib/graph/authoring'
+import { Bool, defineNode, Float, Int } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 export const counterNode = defineNode('counter', {
@@ -11,10 +11,10 @@ export const counterNode = defineNode('counter', {
     reset: { type: Float, default: 0 },
   },
   output: { count: Float, phase: Float },
-  state: () => ({ count: 0, trigger: { high: false }, reset: { high: false } }),
+  state: { count: Int, triggerHigh: Bool, resetHigh: Bool },
   frame: ({ steps, trigger, reset }, { state }) => {
-    if (risingEdge(state.trigger, trigger)) state.count = (state.count + 1) % steps
-    if (risingEdge(state.reset, reset)) state.count = 0
+    if (risingEdge(state, 'triggerHigh', trigger)) state.count = (state.count + 1) % steps
+    if (risingEdge(state, 'resetHigh', reset)) state.count = 0
     return { count: state.count, phase: state.count / steps }
   },
 })
@@ -25,9 +25,9 @@ export const toggleNode = defineNode('toggle', {
   category: 'signal',
   input: { trigger: { type: Float, default: 0 } },
   output: { state: Float },
-  state: () => ({ on: false, high: false }),
+  state: { on: Bool, high: Bool },
   frame: ({ trigger }, { state }) => {
-    if (risingEdge(state, trigger)) state.on = !state.on
+    if (risingEdge(state, 'high', trigger)) state.on = !state.on
     return { state: state.on ? 1 : 0 }
   },
 })

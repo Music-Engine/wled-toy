@@ -1,7 +1,11 @@
-import { defineNode, Enum, Float } from '@/lib/graph/authoring'
+import { Bool, defineNode, Enum, Float } from '@/lib/graph/authoring'
 import { seconds } from './shared'
 
 const MODES = [{ value: 'adsr', label: 'ADSR (follows the gate)' }, { value: 'ad', label: 'AD (one shot)' }] as const
+const STAGES = [
+  { value: 'idle', label: 'Idle' }, { value: 'attack', label: 'Attack' }, { value: 'decay', label: 'Decay' },
+  { value: 'sustain', label: 'Sustain' }, { value: 'release', label: 'Release' },
+] as const
 
 export const envelopeNode = defineNode('envelope', {
   title: 'Envelope',
@@ -16,7 +20,7 @@ export const envelopeNode = defineNode('envelope', {
     release: seconds(0.4),
   },
   output: { envelope: Float },
-  state: () => ({ stage: 'idle' as 'idle' | 'attack' | 'decay' | 'sustain' | 'release', level: 0, high: false }),
+  state: { stage: Enum(STAGES), level: Float, high: Bool },
   frame: ({ mode, gate, attack, decay, sustain, release }, { state, dt }) => {
     const high = gate >= 0.5
     if (high && !state.high) state.stage = 'attack'

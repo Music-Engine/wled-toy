@@ -32,7 +32,9 @@ export interface NodeShape {
   pixel?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
   frame?(input: Record<string, any>, info: FrameContext): Record<string, FrameValue>
   resolve?(input: Record<string, any>, resources: Resources): ResolveResult
-  state?(): unknown
+  /** Slot name to type; absent on a stateless node. */
+  state?: Record<string, DataType<any>>
+  stateScope?: 'frame' | 'pixel'
 }
 
 /**

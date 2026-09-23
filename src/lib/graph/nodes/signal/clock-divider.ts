@@ -1,4 +1,4 @@
-import { defineNode, Float, Int } from '@/lib/graph/authoring'
+import { Bool, defineNode, Float, Int } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 export const clockDividerNode = defineNode('clockDivider', {
@@ -11,11 +11,11 @@ export const clockDividerNode = defineNode('clockDivider', {
     reset: { type: Float, default: 0 },
   },
   output: { trigger: Float, phase: Float },
-  state: () => ({ count: 0, trigger: { high: false }, reset: { high: false } }),
+  state: { count: Int, triggerHigh: Bool, resetHigh: Bool },
   frame: ({ divide, trigger, reset }, { state }) => {
-    if (risingEdge(state.reset, reset)) state.count = 0
+    if (risingEdge(state, 'resetHigh', reset)) state.count = 0
     let fired = 0
-    if (risingEdge(state.trigger, trigger)) {
+    if (risingEdge(state, 'triggerHigh', trigger)) {
       fired = Number(state.count === 0)
       state.count = (state.count + 1) % divide
     }

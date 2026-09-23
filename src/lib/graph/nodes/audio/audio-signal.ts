@@ -19,7 +19,7 @@ export const audioSignalNode = defineNode('audioSignal', {
     release: seconds(0.15),
   },
   output: { signal: Float },
-  state: () => ({ value: 0 }),
+  state: { value: Float },
   frame: ({ mode, attack, release }, { state, dt, audio }) => {
     const f = audio?.analyses[0]
     const target = !f ? 0 : mode === 'rms' ? f.rms : mode === 'peak' ? f.peak : f.level

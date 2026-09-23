@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { createDefaultGraph, FrameRunner, generateGlsl, type FramePlan } from '@/lib/graph'
-import { castFrameValue, type FrameBinding } from './frame'
+import { castFrameValue, zeroValue, type FrameBinding } from './frame'
 import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/socket-types'
+import { Float, GenType, Int, Vec3 } from '@/lib/graph/define/socket-types'
 import { graph, node } from '@/lib/graph/testing'
 
 const frame = (n: number) => ({ time: n / 30, dt: 1 / 30, frameIndex: n })
@@ -16,12 +16,19 @@ describe('castFrameValue', () => {
   })
 })
 
+describe('zeroValue', () => {
+  it('starts a vector slot at zero in every component and refuses a type without a fixed width', () => {
+    expect(zeroValue(Vec3)).toEqual([0, 0, 0])
+    expect(() => zeroValue(GenType)).toThrow('cannot hold node state')
+  })
+})
+
 describe('FrameRunner', () => {
   const counter = defineNode('testCounter', {
     title: 'Counter', description: '', category: 'signal',
     input: { step: { type: Float, default: 1 } },
     output: { count: Float },
-    state: () => ({ count: 0 }),
+    state: { count: Int },
     frame: ({ step }, { state }) => ({ count: (state.count += step as number) }),
   })
   const plan = (step: number): FramePlan => ({
@@ -37,6 +44,20 @@ describe('FrameRunner', () => {
     expect(runner.step(frame(1))[5]).toBe(2)
     runner.load(plan(10))
     expect(runner.step(frame(2))[5]).toBe(12)
+  })
+
+  it('keeps the slots a node had and starts a slot its definition gained at zero', () => {
+    const seen: unknown[] = []
+    const withSlots = (state: FramePlan['steps'][number]['state']): FramePlan => ({
+      ...plan(1),
+      steps: [{ ...plan(1).steps[0], state, frame: (_, info) => (seen.push({ ...info.state }), { count: (info.state.count += 1) }) }],
+    })
+    const runner = new FrameRunner()
+    runner.load(withSlots({ count: Int }))
+    runner.step(frame(0))
+    runner.load(withSlots({ count: Int, total: Float }))
+    runner.step(frame(1))
+    expect(seen).toEqual([{ count: 0 }, { count: 1, total: 0 }])
   })
 
   it('drops state when the node is gone or the clock is reset', () => {

@@ -7,7 +7,7 @@ export const peakHoldNode = defineNode('peakHold', {
   category: 'signal',
   input: { signal: { type: Float, default: 0 }, hold: seconds(0.2), decay: seconds(0.5) },
   output: { peak: Float },
-  state: () => ({ value: 0, held: 0 }),
+  state: { value: Float, held: Float },
   frame: ({ signal, hold, decay }, { state, dt }) => {
     const level = signal
     if (level >= state.value) {

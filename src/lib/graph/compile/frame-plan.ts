@@ -23,9 +23,14 @@ export function planStep(c: FrontEnd, id: string): number {
   c.dims.set(id, outputDims(shape, gen))
   c.leave(id)
   c.record(id)
+  if (shape.state) c.program.state[id] = { scope: shape.stateScope!, slots: slotTypes(shape.state) }
   const index = c.program.frame.push({ nodeId: id, inputs, dims: inputDims(shape, gen) }) - 1
   c.steps.set(id, index)
   return index
+}
+
+function slotTypes(state: NonNullable<NodeShape['state']>): Record<string, string> {
+  return Object.fromEntries(Object.entries(state).map(([name, type]) => [name, type.id]))
 }
 
 function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Socket): FrameBinding {

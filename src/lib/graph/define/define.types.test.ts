@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { DEFAULT_OUTPUT } from '@/lib/engine/output'
 import type { ResolveResult } from './context'
 import type { NodeItemOptions } from './define'
-import { AudioStream, Enum, Float, GenType, Vec3 } from './socket-types'
+import { AudioStream, Bool, Enum, Float, GenType, Int, Vec3 } from './socket-types'
 import type { Value } from './value'
 
 const input = {
@@ -67,6 +67,24 @@ describe('what a node body returns', () => {
 
   it('returns a number for a Float and a number or a possibly readonly vector for a GenType per frame', () => {
     expectTypeOf<ReturnType<Frame>>().toEqualTypeOf<{ level: number; result: number | number[] | readonly number[] }>()
+  })
+})
+
+describe('what a frame body finds in info.state', () => {
+  const state = { count: Int, on: Bool, stage: Enum([{ value: 'idle', label: 'Idle' }, { value: 'run', label: 'Run' }]) }
+  type StatefulFrame = NonNullable<NodeItemOptions<typeof input, typeof output, typeof state>['frame']>
+
+  it('gets each slot as its type per frame, writable', () => {
+    expectTypeOf<Parameters<StatefulFrame>[1]['state']>().toEqualTypeOf<{ count: number; on: boolean; stage: 'idle' | 'run' }>()
+  })
+
+  it('rejects a value that does not fit the slot type', () => {
+    const body = ((_, { state: slots }) => {
+      // @ts-expect-error count is an Int slot, so it holds a number
+      slots.count = 'many'
+      return { level: slots.count, result: 0 }
+    }) satisfies StatefulFrame
+    expectTypeOf(body).toBeFunction()
   })
 })
 

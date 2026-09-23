@@ -1,18 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import type { NodeItem } from '@/lib/graph/authoring'
 import { FrameRunner, generateGlsl, itemFor } from '@/lib/graph'
-import { graph, node } from '@/lib/graph/testing'
+import { graph, initialState, node } from '@/lib/graph/testing'
 import { clockDividerNode } from './clock-divider'
 import { integratorNode } from './integrator'
 import { stepSequencerNode } from './step-sequencer'
 import { waveNode } from './wave'
 
-const frame = (n: number, fps = 30, state?: unknown) => ({ time: n / fps, dt: 1 / fps, frameIndex: n, state, resolved: {} })
+const frame = (n: number, fps = 30, state?: unknown, resolved = {}) => ({ time: n / fps, dt: 1 / fps, frameIndex: n, state, resolved })
 
 function simulate(item: NodeItem, values: Record<string, unknown>, output: string, input: (t: number) => Record<string, unknown>, seconds: number, fps = 30): number[] {
   const shape = item.shape(values)
-  const state = shape.state?.()
-  return Array.from({ length: Math.round(seconds * fps) }, (_, n) => shape.frame!({ ...values, ...input((n + 1) / fps) }, frame(n + 1, fps, state))[output] as number)
+  const state = shape.state && initialState(shape.state)
+  const resolved = shape.resolve?.(values, {}).data
+  return Array.from({ length: Math.round(seconds * fps) }, (_, n) => shape.frame!({ ...values, ...input((n + 1) / fps) }, frame(n + 1, fps, state, resolved))[output] as number)
 }
 
 describe('Wave', () => {
@@ -59,7 +60,7 @@ describe('Clock Divider', () => {
   it('passes every fourth trigger and counts the phase between', () => {
     // a trigger on every fifth frame, starting with the first
     const shape = clockDividerNode.shape({})
-    const state = shape.state!()
+    const state = initialState(shape.state!)
     const out = Array.from({ length: 50 }, (_, n) => shape.frame!({ divide: 4, trigger: n % 5 === 0 ? 1 : 0, reset: 0 }, frame(n + 1, 10, state)))
     const fired = out.map((o, i) => (o.trigger ? i : -1)).filter((i) => i >= 0)
     expect(fired).toEqual([0, 20, 40])

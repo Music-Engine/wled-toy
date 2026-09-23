@@ -1,4 +1,4 @@
-import { defineNode, Float, Text } from '@/lib/graph/authoring'
+import { Bool, defineNode, Float, Int, Text } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 const parse = (steps: string) => steps.split(/[\s,]+/).map(Number).filter(Number.isFinite)
@@ -13,12 +13,12 @@ export const stepSequencerNode = defineNode('stepSequencer', {
     reset: { type: Float, default: 0 },
   },
   output: { value: Float, step: Float },
-  state: () => ({ index: 0, trigger: { high: false }, reset: { high: false }, steps: '', values: [] as number[] }),
-  frame: ({ steps, trigger, reset }, { state }) => {
-    if (steps !== state.steps) Object.assign(state, { steps, values: parse(steps) })
-    const { values } = state
-    if (risingEdge(state.reset, reset)) state.index = 0
-    else if (risingEdge(state.trigger, trigger)) state.index += 1
+  state: { index: Int, triggerHigh: Bool, resetHigh: Bool },
+  resolve: ({ steps }) => ({ data: { values: parse(steps) } }),
+  frame: ({ trigger, reset }, { state, resolved }) => {
+    const values = resolved.values as number[]
+    if (risingEdge(state, 'resetHigh', reset)) state.index = 0
+    else if (risingEdge(state, 'triggerHigh', trigger)) state.index += 1
     if (!values.length) return { value: 0, step: 0 }
     state.index %= values.length
     return { value: values[state.index], step: state.index }

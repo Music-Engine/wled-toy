@@ -1,6 +1,7 @@
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
 import type { FrameContext, FrameValue, FrameInfo } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
+import type { DataType } from '@/lib/graph/define/types'
 
 /** Where a frame step takes an input from: a value stored on the node, an earlier step's output, or a frame builtin by name. */
 export type FrameBinding = { constant: unknown } | { step: number; output: string } | { frame: 'time' }
@@ -39,17 +40,18 @@ type LoadedStep = Omit<FrameStep, 'inputs'> & { inputs: [string, LoadedBinding][
 export class FrameRunner {
   private plan: FramePlan = { steps: [], exports: [], resources: {} }
   private steps: LoadedStep[] = []
-  private states = new Map<string, unknown>()
+  private states = new Map<string, Record<string, unknown>>()
   private readonly block = new Float32Array(CONTROL_VECTORS * 4)
   private results: Record<string, FrameValue>[] = []
   // one object handed to every body and refilled in place, so stepping allocates no context per node or frame
   private readonly info: FrameContext = { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }
 
   load(plan: FramePlan) {
-    const states = new Map<string, unknown>()
+    const states = new Map<string, Record<string, unknown>>()
     for (const { nodeId, kind, state } of plan.steps) {
       const key = `${nodeId}:${kind}`
-      if (state) states.set(key, this.states.get(key) ?? state())
+      const kept = this.states.get(key)
+      if (state) states.set(key, kept ? fillMissingSlots(kept, state) : initialState(state))
     }
     this.steps = plan.steps.map((step) => ({ ...step, inputs: Object.entries(step.inputs).map(([name, binding]) => [name, loadBinding(binding)]) }))
     this.states = states
@@ -102,6 +104,29 @@ export class FrameRunner {
     }
     return this.block
   }
+}
+
+/** Fresh state for a slot declaration: every slot at its type's zero. */
+export function initialState(slots: NonNullable<NodeShape['state']>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(slots).map(([name, type]) => [name, zeroValue(type)]))
+}
+
+/** State kept from an earlier plan, with a zero in every slot the node declares now and did not then. */
+function fillMissingSlots(kept: Record<string, unknown>, slots: NonNullable<NodeShape['state']>): Record<string, unknown> {
+  for (const [name, type] of Object.entries(slots)) {
+    if (!(name in kept)) kept[name] = zeroValue(type)
+  }
+  return kept
+}
+
+/**
+ * A number or vector starts at 0 in every component and a stored option at its first value (`false`, an Enum's first
+ * option), not at the socket default, which for Float is 0.5.
+ */
+export function zeroValue(type: DataType<any>): unknown {
+  if (type.kind === 'param') return type.initial()
+  if (type.kind === 'value' && type.dim !== undefined) return type.dim === 1 ? 0 : Array(type.dim).fill(0)
+  throw new Error(`${type.label} cannot hold node state`)
 }
 
 function loadBinding(binding: FrameBinding): LoadedBinding {

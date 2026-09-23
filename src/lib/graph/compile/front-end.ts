@@ -27,7 +27,7 @@ export function storedValue(nodeId: string, data: GraphNodeData, socket: Socket)
 }
 
 export class FrontEnd {
-  readonly program: Program = { nodes: {}, pixel: [], frame: [], uniforms: [], state: [], resources: {}, output: null, issues: [], error: null, errorNode: null }
+  readonly program: Program = { nodes: {}, pixel: [], frame: [], uniforms: [], state: {}, resources: {}, output: null, issues: [], error: null, errorNode: null }
   /** Nodes on the current walk, for loop detection. */
   readonly visiting = new Set<string>()
 

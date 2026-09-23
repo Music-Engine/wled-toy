@@ -1,4 +1,4 @@
-import { defineNode, Float } from '@/lib/graph/authoring'
+import { Bool, defineNode, Float } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 export const sampleHoldNode = defineNode('sampleHold', {
@@ -7,9 +7,9 @@ export const sampleHoldNode = defineNode('sampleHold', {
   category: 'signal',
   input: { signal: { type: Float, default: 0 }, trigger: { type: Float, default: 0 } },
   output: { value: Float },
-  state: () => ({ held: 0, high: false }),
+  state: { held: Float, high: Bool },
   frame: ({ signal, trigger }, { state }) => {
-    if (risingEdge(state, trigger)) state.held = signal
+    if (risingEdge(state, 'high', trigger)) state.held = signal
     return { value: state.held }
   },
 })
