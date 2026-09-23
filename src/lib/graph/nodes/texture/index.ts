@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { brickTextureNode } from './brick-texture'
 import { checkerTextureNode } from './checker-texture'
 import { gradientTextureNode } from './gradient-texture'

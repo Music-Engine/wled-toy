@@ -1,7 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { GlslChunk } from '@/lib/graph/define/context'
+import { Color, defineNode, Enum, enumIndex, Float, type GlslChunk } from '@/lib/graph/authoring'
 import { noiseChunk } from '@/lib/graph/nodes/glsl/noise'
-import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 /** Blender wave texture (node_wave_texture.osl, node_noise.h) in GLSL. */

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { FrameRunner } from '@/lib/graph/compile/frame'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
 
 vi.stubGlobal('navigator', {})

@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Color } from '@/lib/graph/define/socket-types'
+import { Color, defineNode } from '@/lib/graph/authoring'
 
 export const colorNode = defineNode('color', {
   title: 'Color',

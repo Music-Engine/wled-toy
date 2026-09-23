@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { clampNode } from './clamp'
 import { mathNode } from './math'
 import { mixNode } from './mix'

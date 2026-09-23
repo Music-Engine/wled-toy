@@ -1,8 +1,5 @@
-import { defineNode, type InputDef, type NodeItemOptions, type OutputDef } from '@/lib/graph/define/define'
-import type { FrameValue } from '@/lib/graph/define/context'
-import type { Value } from '@/lib/graph/define/value'
+import { defineNode, Enum, Float, Vec3, type FrameValue, type InputDef, type NodeItemOptions, type OutputDef, type Value } from '@/lib/graph/authoring'
 import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/nodes/glsl/math'
-import { Enum, Float, Vec3 } from '@/lib/graph/define/socket-types'
 
 type V = [number, number, number]
 const map = (a: V, fn: (x: number, i: number) => number): V => [fn(a[0], 0), fn(a[1], 1), fn(a[2], 2)]

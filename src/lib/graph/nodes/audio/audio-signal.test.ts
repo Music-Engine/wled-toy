@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { FrameRunner } from '@/lib/graph/compile/frame'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { FrameRunner, generateGlsl, itemFor } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
-import { itemFor } from '@/lib/graph/registry'
 
 const features = (patch: { level?: number; rms?: number; peak?: number }) => ({ level: 0, rms: 0, peak: 0, ...patch }) as never
 

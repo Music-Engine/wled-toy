@@ -1,4 +1,4 @@
-import type { GlslChunk } from '@/lib/graph/define/context'
+import type { GlslChunk } from '@/lib/graph/authoring'
 
 /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation
  *

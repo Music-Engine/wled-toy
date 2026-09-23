@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Enum, Float } from '@/lib/graph/define/socket-types'
+import { defineNode, Enum, Float } from '@/lib/graph/authoring'
 import { seconds } from './shared'
 
 const MODES = [{ value: 'adsr', label: 'ADSR (follows the gate)' }, { value: 'ad', label: 'AD (one shot)' }] as const

@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Bool, Float } from '@/lib/graph/define/socket-types'
+import { Bool, defineNode, Float } from '@/lib/graph/authoring'
 
 export const rangeSelectNode = defineNode('rangeSelect', {
   title: 'Range Select',

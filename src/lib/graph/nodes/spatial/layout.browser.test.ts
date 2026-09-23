@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Layout } from '@/lib/engine/layout'
-import { createDefaultGraph } from '@/lib/graph/model/doc'
+import { createDefaultGraph } from '@/lib/graph'
 import { graph, node, renderGraph } from '@/lib/graph/testing'
 
 const uvToColor = graph([node('uv', 'uv'), node('o', 'output')], [['uv.uv', 'o.color']])

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4, GRAPH_VERSION, canCast, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
+import { GRAPH_VERSION, canCast, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
+import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4 } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { GLSL_TYPES } from '@/lib/shader/glsl'
 import { GRAPH_FS } from '@/lib/graph/menu/fs'

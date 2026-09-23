@@ -9,7 +9,7 @@ import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
 import { config } from '@/lib/app/config'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile } from '@/lib/graph/model/file'
+import { readGraphFile } from '@/lib/graph/model/file'
 import { preferences, resetPreferences } from '@/lib/app/preferences'
 import { workspace } from '@/lib/app/workspace'
 import type { FileBackend } from '@/lib/documents/documents'
@@ -177,7 +177,7 @@ interface CaseResult extends Record<string, Measurement | number> {
 }
 
 async function measure(name: string): Promise<CaseResult> {
-  const doc = parseGraphFile(graphText[name])
+  const doc = readGraphFile(graphText[name]).doc
   config.graph = doc
   workspace.mode = 'graph'
   preferences.autosave = false

@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Int, Text } from '@/lib/graph/define/socket-types'
+import { defineNode, Float, Int, Text } from '@/lib/graph/authoring'
 
 export const knobNode = defineNode('knob', {
   title: 'Knob',

@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/socket-types'
+import { defineNode, Float } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 export const sampleHoldNode = defineNode('sampleHold', {

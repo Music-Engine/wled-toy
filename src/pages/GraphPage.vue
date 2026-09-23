@@ -20,7 +20,6 @@ import { useEngine } from '@/lib/engine/engine'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from '@/components/graph/graph-context'
 import { createGraphDocument, graphFileBackendKey, type GraphSession } from '@/lib/graph/model/document'
-import { storedDoc } from '@/lib/graph/model/doc'
 import { createHistory } from '@/lib/documents/history'
 import { frozenNotice, graphCodeNotice } from '@/lib/shader/shader-export'
 import { filterFs, type MenuPreset } from '@/lib/shader/menu-fs'
@@ -29,7 +28,7 @@ import { graphImageDrop } from '@/lib/app/file-drop'
 import { classifyWheel, type WheelGesture } from './wheel-source'
 import {
   GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, itemFor,
-  newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedShape,
+  newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
   type NodeGraph, type GraphIssue, type GraphNodeData, type LinkType, type NodeItem, type StoredEdge,
 } from '@/lib/graph'
 

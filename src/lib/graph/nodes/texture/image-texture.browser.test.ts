@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { generateGlsl } from '@/lib/graph'
 import { graph, node, toByte } from '@/lib/graph/testing'
 
 /** A 2 x 2 picture: red, green on top; blue, white (half transparent) below. */

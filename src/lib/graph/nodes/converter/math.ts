@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
+import { Bool, defineNode, Enum, GenType } from '@/lib/graph/authoring'
 import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/nodes/glsl/math'
-import { Bool, Enum, GenType } from '@/lib/graph/define/socket-types'
 
 interface MathOp {
   label: string

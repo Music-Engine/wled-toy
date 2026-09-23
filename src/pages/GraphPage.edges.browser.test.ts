@@ -6,7 +6,7 @@ import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
 import { config } from '@/lib/app/config'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile } from '@/lib/graph/model/file'
+import { readGraphFile } from '@/lib/graph/model/file'
 import { preferences, resetPreferences } from '@/lib/app/preferences'
 import { workspace } from '@/lib/app/workspace'
 import chainFile from '../../graphs/bench/bench-control-chain.wledgraph?raw'
@@ -57,7 +57,7 @@ async function settle(timeout = 20000) {
 }
 
 it('adding and removing a link on a 344-node graph settles, without re-rendering the canvas', { timeout: 120000 }, async () => {
-  const doc = parseGraphFile(chainFile)
+  const doc = readGraphFile(chainFile).doc
   config.graph = doc
   workspace.mode = 'graph'
   preferences.autosave = false

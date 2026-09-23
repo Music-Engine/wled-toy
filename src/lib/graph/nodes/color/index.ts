@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { brightnessContrastNode, gammaNode, invertNode } from './adjust'
 import { colorNode } from './color'
 import { colorMixNode } from './color-mix'

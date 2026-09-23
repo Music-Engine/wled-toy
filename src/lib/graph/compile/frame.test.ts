@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { FrameRunner, castFrameValue, generateGlsl, type FramePlan } from '@/lib/graph'
+import { FrameRunner, generateGlsl, type FramePlan } from '@/lib/graph'
+import { castFrameValue } from './frame'
 import { defineNode } from '@/lib/graph/define/define'
 import { Float } from '@/lib/graph/define/socket-types'
 import { graph, node } from '@/lib/graph/testing'

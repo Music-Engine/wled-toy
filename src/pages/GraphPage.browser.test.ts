@@ -7,7 +7,7 @@ import { config } from '@/lib/app/config'
 import type { FileBackend } from '@/lib/documents/documents'
 import { createDefaultGraph, type NodeGraph } from '@/lib/graph'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
+import { readGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
 import { logs } from '@/lib/app/logs'
 import { preferences, resetPreferences } from '@/lib/app/preferences'
 import { workspace } from '@/lib/app/workspace'
@@ -66,7 +66,7 @@ const dialog = () => document.querySelector<HTMLElement>('.graph-document-dialog
 const choose = (choice: string) => dialog()!.querySelector<HTMLButtonElement>(`[data-choice="${choice}"]`)!.click()
 const recentIds = () => commands.value.filter((command) => command.id.startsWith('file.recent.')).map((command) => command.id)
 
-const sample = parseGraphFile(sampleFile)
+const sample = readGraphFile(sampleFile).doc
 const defaultNodes = createDefaultGraph().nodes.length
 
 /** What another tab's save or an import does to this editor: the working copy changes under it. */
@@ -111,8 +111,8 @@ it('opens a file, marks an edit, and saves the edit back into the file', async (
 
   runCommand('file.save')
   await expect.poll(titleBarText).toBe('music.wledgraph')
-  expect(parseGraphFile(disk.files['music.wledgraph']).nodes[0].position).toEqual(edited.nodes[0].position)
-  expect(parseGraphFile(disk.files['music.wledgraph']).edges).toHaveLength(sample.edges.length)
+  expect(readGraphFile(disk.files['music.wledgraph']).doc.nodes[0].position).toEqual(edited.nodes[0].position)
+  expect(readGraphFile(disk.files['music.wledgraph']).doc.edges).toHaveLength(sample.edges.length)
 })
 
 it('Save on an Untitled document goes through Save As and names the document', async () => {
@@ -121,8 +121,8 @@ it('Save on an Untitled document goes through Save As and names the document', a
   await expect.poll(titleBarText).toBe('Untitled')
   runCommand('file.save')
   await expect.poll(titleBarText).toBe('graph.wledgraph')
-  expect(parseGraphFile(disk.files['graph.wledgraph']).nodes).toHaveLength(defaultNodes)
-  expect(parseGraphFile(disk.files['graph.wledgraph']).edges).toHaveLength(createDefaultGraph().edges.length)
+  expect(readGraphFile(disk.files['graph.wledgraph']).doc.nodes).toHaveLength(defaultNodes)
+  expect(readGraphFile(disk.files['graph.wledgraph']).doc.edges).toHaveLength(createDefaultGraph().edges.length)
 })
 
 it('Revert asks, then goes back to the last save', async () => {
@@ -181,7 +181,7 @@ it('asks before New replaces unsaved work: Cancel keeps it, Save stores it first
   choose('save')
   await expect.poll(titleBarText).toBe('Untitled')
   await expect.poll(nodeCount).toBe(defaultNodes)
-  expect(parseGraphFile(disk.files['music.wledgraph']).nodes[0].position).toEqual(edited.nodes[0].position)
+  expect(readGraphFile(disk.files['music.wledgraph']).doc.nodes[0].position).toEqual(edited.nodes[0].position)
 
   editFromOutside(createDefaultGraph())
   await expect.poll(titleBarText).toBe('Untitled · Edited')

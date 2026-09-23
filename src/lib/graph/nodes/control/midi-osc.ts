@@ -1,6 +1,5 @@
 import type { FrameBinding } from '@/lib/graph/compile/frame'
-import { defineNode } from '@/lib/graph/define/define'
-import { Enum, Float, Int, Text } from '@/lib/graph/define/socket-types'
+import { defineNode, Enum, Float, Int, Text } from '@/lib/graph/authoring'
 
 const KINDS = [{ value: 'cc', label: 'Controller (CC)' }, { value: 'note', label: 'Note' }] as const
 

@@ -1,4 +1,4 @@
-import type { GlslChunk } from '@/lib/graph/define/context'
+import type { GlslChunk } from '@/lib/graph/authoring'
 import { commonChunk } from './common'
 
 /** Value noise in one, two and three dimensions. After https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83 */

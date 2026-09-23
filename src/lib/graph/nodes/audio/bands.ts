@@ -1,7 +1,5 @@
 import type { Features } from '@/lib/audio/dsp'
-import { defineNode } from '@/lib/graph/define/define'
-import type { FrameInfo } from '@/lib/graph/define/context'
-import { Enum, Float, SpectrumStream } from '@/lib/graph/define/socket-types'
+import { defineNode, Enum, Float, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
 
 const COUNTS = [{ value: '4', label: '4 bands' }, { value: '8', label: '8 bands' }, { value: '16', label: '16 bands' }] as const
 

@@ -1,8 +1,6 @@
 import { rangePeak, type Features } from '@/lib/audio/dsp'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSettings } from '@/lib/audio/service'
-import { defineNode } from '@/lib/graph/define/define'
-import type { FrameInfo } from '@/lib/graph/define/context'
-import { AudioStream, Enum, Float, Int, SpectrumStream } from '@/lib/graph/define/socket-types'
+import { AudioStream, defineNode, Enum, Float, Int, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
 
 const SOURCES = [{ value: 'file', label: 'Song' }, { value: 'device', label: 'Capture Device' }, { value: 'loopback', label: 'System audio' }] as const
 const CHANNELS = [{ value: 'mono', label: 'Mono Sum' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }] as const

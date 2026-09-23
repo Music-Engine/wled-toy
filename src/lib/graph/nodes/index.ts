@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { AUDIO_NODES } from './audio'
 import { COLOR_NODES } from './color'
 import { CONTROL_NODES } from './control'

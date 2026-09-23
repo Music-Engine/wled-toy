@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Int } from '@/lib/graph/define/socket-types'
+import { defineNode, Float, Int } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 export const counterNode = defineNode('counter', {

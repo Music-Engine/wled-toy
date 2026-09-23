@@ -21,8 +21,6 @@ export function serializeGraphFile(doc: NodeGraph): string {
   return JSON.stringify(envelope, null, 2)
 }
 
-export const parseGraphFile = (text: string): NodeGraph => readGraphFile(text).doc
-
 /** The graph in a `.wledgraph` file, plus what lintDoc found in it before the parser tidied it. */
 export function readGraphFile(text: string): { doc: NodeGraph; problems: string[] } {
   let parsed: unknown

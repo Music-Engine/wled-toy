@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { Color, allItems, canCast, generateGlsl, type CompileOptions, type GeneratedShader, type NodeItem } from '@/lib/graph'
+import { allItems, canCast, generateGlsl, type GeneratedShader, type NodeItem } from '@/lib/graph'
+import { Color } from '@/lib/graph/define/socket-types'
+import type { CompileOptions } from './compile'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { graph, node } from '@/lib/graph/testing'

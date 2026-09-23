@@ -1,7 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { GlslChunk } from '@/lib/graph/define/context'
+import { Color, defineNode, Enum, enumIndex, Float, type GlslChunk } from '@/lib/graph/authoring'
 import { commonChunk } from '@/lib/graph/nodes/glsl/common'
-import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 /** Blender gradient texture (node_gradient_texture.osl) in GLSL. */

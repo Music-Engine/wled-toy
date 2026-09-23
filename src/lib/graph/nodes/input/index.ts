@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { uvNode } from './uv'
 import { valueNode } from './value'
 import { vector2Node } from './vector2'

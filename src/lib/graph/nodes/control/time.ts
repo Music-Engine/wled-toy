@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/socket-types'
+import { defineNode, Float } from '@/lib/graph/authoring'
 
 export const timeNode = defineNode('time', {
   title: 'Time',

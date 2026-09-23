@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Features } from '@/lib/audio/dsp'
 import { AudioTextures } from '@/lib/audio/textures'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { FrameRunner } from '@/lib/graph/compile/frame'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node, toByte } from '@/lib/graph/testing'
 
 const BANDS = 16

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { NodeItem } from '@/lib/graph/define/shape'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import type { NodeItem } from '@/lib/graph/authoring'
+import { generateGlsl } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
 import { counterNode, toggleNode } from './counter'
 import { curveNode } from './curve'

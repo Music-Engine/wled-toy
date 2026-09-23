@@ -7,7 +7,7 @@ import { commands } from 'vitest/browser'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { PRELUDE } from '@/lib/shader/glsl'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { generateGlsl } from '@/lib/graph'
 import { readGraphFile } from '@/lib/graph/model/file'
 
 const RUN = import.meta.env.VITE_PERF_GPU === '1'

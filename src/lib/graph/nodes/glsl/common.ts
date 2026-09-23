@@ -1,4 +1,4 @@
-import type { GlslChunk } from '@/lib/graph/define/context'
+import type { GlslChunk } from '@/lib/graph/authoring'
 
 /** Constants and the hash the noise functions build on. Named node_hash because the shader prelude owns `hash`. */
 export const commonChunk: GlslChunk = {

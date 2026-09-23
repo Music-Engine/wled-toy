@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { generateGlsl } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
 
 const code = (values: object, extra: ReturnType<typeof node>[] = [], links: [string, string][] = []) =>

@@ -1,7 +1,5 @@
 import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/glsl'
-import { defineNode } from '@/lib/graph/define/define'
-import type { GlslChunk } from '@/lib/graph/define/context'
-import { Color, Enum, Float, Reference } from '@/lib/graph/define/socket-types'
+import { Color, defineNode, Enum, Float, Reference, type GlslChunk } from '@/lib/graph/authoring'
 import { textureVector } from './vector'
 
 /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation

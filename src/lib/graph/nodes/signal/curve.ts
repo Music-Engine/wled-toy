@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Enum, Float } from '@/lib/graph/define/socket-types'
+import { defineNode, Enum, Float } from '@/lib/graph/authoring'
 
 // each curve maps 0..1 to 0..1; `glsl` and `js` are the same formula in both languages
 const CURVES = [

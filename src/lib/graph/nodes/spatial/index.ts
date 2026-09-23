@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { previousFrameNode, stripBlurNode, trailsNode } from './feedback'
 import { fromCenterNode } from './from-center'
 import { ledLayoutNode } from './led-layout'

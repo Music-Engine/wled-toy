@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { audioNode, audioSourceNode, bandSplitNode, fftNode } from './audio'
 import { audioSignalNode } from './audio-signal'
 import { bandsNode } from './bands'

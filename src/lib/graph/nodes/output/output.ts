@@ -1,6 +1,5 @@
 import { DEFAULT_OUTPUT } from '@/lib/engine/output'
-import { defineNode } from '@/lib/graph/define/define'
-import { Color, Enum, Float, Int } from '@/lib/graph/define/socket-types'
+import { Color, defineNode, Enum, Float, Int } from '@/lib/graph/authoring'
 
 const PROTOCOLS = [
   { value: 'settings', label: 'Protocol from Settings' }, { value: 'ddp', label: 'DDP' }, { value: 'dnrgb', label: 'WLED DNRGB' },

@@ -1,7 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { GlslChunk } from '@/lib/graph/define/context'
+import { Color, defineNode, Float, Int, type GlslChunk } from '@/lib/graph/authoring'
 import { commonChunk } from '@/lib/graph/nodes/glsl/common'
-import { Color, Float, Int } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 /** Blender magic texture (node_magic_texture.osl) in GLSL. */

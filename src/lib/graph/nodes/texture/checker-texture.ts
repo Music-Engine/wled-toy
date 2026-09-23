@@ -1,6 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { GlslChunk } from '@/lib/graph/define/context'
-import { Color, Float } from '@/lib/graph/define/socket-types'
+import { Color, defineNode, Float, type GlslChunk } from '@/lib/graph/authoring'
 import { textureVector } from './vector'
 
 /** Blender checker texture (node_checker_texture.osl) in GLSL. */

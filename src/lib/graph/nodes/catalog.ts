@@ -1,8 +1,5 @@
 import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/glsl'
-import { defineNode, type LinkedInputDef } from '@/lib/graph/define/define'
-import type { NodeItem } from '@/lib/graph/define/shape'
-import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4 } from '@/lib/graph/define/socket-types'
-import type { GlslTypeDef } from '@/lib/graph/define/types'
+import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, type GlslTypeDef, type LinkedInputDef, type NodeItem } from '@/lib/graph/authoring'
 
 const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : typeForGlsl(param.type))
 

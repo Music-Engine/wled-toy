@@ -1,6 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { FrameInfo } from '@/lib/graph/define/context'
-import { Enum, Float } from '@/lib/graph/define/socket-types'
+import { defineNode, Enum, Float, type FrameInfo } from '@/lib/graph/authoring'
 
 const SHAPES = [
   { value: 'sine', label: 'Sine' }, { value: 'triangle', label: 'Triangle' }, { value: 'saw', label: 'Saw' }, { value: 'square', label: 'Square' },

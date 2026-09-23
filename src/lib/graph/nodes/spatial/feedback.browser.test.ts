@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { FrameRunner } from '@/lib/graph/compile/frame'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node, toByte } from '@/lib/graph/testing'
 
 /** Renders `frames` LED frames at `fps`; `knob(frame)` sets the graph's knob each frame. Returns the red byte of every LED per frame. */

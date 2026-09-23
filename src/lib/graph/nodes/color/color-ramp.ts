@@ -1,8 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { NodeContext } from '@/lib/graph/define/context'
-import { Color, Float } from '@/lib/graph/define/socket-types'
-import type { DataType, EnumOption } from '@/lib/graph/define/types'
-import { fmt, vectorLiteral, type Value } from '@/lib/graph/define/value'
+import { Color, defineNode, Float, fmt, vectorLiteral, type DataType, type EnumOption, type NodeContext, type Value } from '@/lib/graph/authoring'
 
 export type RampInterpolation = 'linear' | 'ease' | 'constant' | 'spline'
 

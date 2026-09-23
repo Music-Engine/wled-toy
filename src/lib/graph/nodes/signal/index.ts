@@ -1,4 +1,4 @@
-import type { NodeItem } from '@/lib/graph/define/shape'
+import type { NodeItem } from '@/lib/graph/authoring'
 import { clockDividerNode } from './clock-divider'
 import { counterNode, toggleNode } from './counter'
 import { curveNode } from './curve'
