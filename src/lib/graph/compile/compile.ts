@@ -1,7 +1,7 @@
 // generateGlsl: compiles a graph into a shader plus the plan for what runs per frame on the CPU.
-// Generic widths are inferred first (./width), streams are settled (./streams), per-frame nodes are planned
-// (./control-plan), and nodes that run in the shader are emitted (./emit); this file only walks the graph's sinks and
-// packs the result.
+// Each node is placed per frame or per pixel first (./placement), then generic widths are inferred (./width), streams
+// are settled (./streams), per-frame nodes are planned (./control-plan), and nodes that run in the shader are emitted
+// (./emit); this file only walks the graph's sinks and packs the result.
 import type { OutputSettings } from '@/lib/engine/output'
 import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
@@ -9,6 +9,7 @@ import { Compilation, GraphError, type CompileOptions, type FrozenValue, type Gr
 import type { FramePlan } from './frame'
 import { planControl } from './control-plan'
 import { assemble, evaluate } from './emit'
+import { placeNodes } from './placement'
 import { resolveNode } from './streams'
 import { inferWidths } from './width'
 
@@ -36,17 +37,21 @@ export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): Gene
 
   const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput)
   if (!sinks.some((n) => c.lookup(n.id).shape.exec)) return finish('Add an Output node to see anything.', null)
+  const ids = sinks.map((n) => n.id)
   try {
-    inferWidths(c, sinks.map((n) => n.id))
-    // a sink that only runs per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part
-    for (const sink of sinks) {
-      const { shape } = c.lookup(sink.id)
-      if (shape.exec) evaluate(c, sink.id)
-      else if (shape.run) planControl(c, sink.id)
-      else resolveNode(c, sink.id)
-    }
+    placeNodes(c, ids)
+    inferWidths(c, ids)
+    for (const id of ids) compileSink(c, id)
     return finish(null, null)
   } catch (e) {
     return finish((e as Error).message, e instanceof GraphError ? e.nodeId : null)
   }
+}
+
+/** A sink that only runs per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part. */
+function compileSink(c: Compilation, id: string): void {
+  const { shape } = c.lookup(id)
+  if (!shape.exec && !shape.run) resolveNode(c, id)
+  else if (c.placedAt(id) === 'frame') planControl(c, id)
+  else evaluate(c, id)
 }

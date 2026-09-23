@@ -1,38 +1,12 @@
 // The per-frame side: which nodes run on the CPU, in what order, with which inputs, and how the shader reads their
 // results from the uniform block (or, when compiling standalone, as GLSL of their own or a frozen literal).
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
-import { fallsBackToImplicit, hasFrameValue, isLinkable, isStreamSocket, type NodeShape } from '@/lib/graph/define/shape'
+import { fallsBackToImplicit, isLinkable, isStreamSocket, type NodeShape } from '@/lib/graph/define/shape'
 import { isGlslType } from '@/lib/graph/define/types'
 import { componentCount, floatLiteral, vectorType, vectorLiteral, type Value } from '@/lib/graph/define/value'
 import { GraphError, isGenericSocket, type Compilation } from './compilation'
 import type { FrameBinding } from './frame'
 import { settledInputs } from './streams'
-
-/** Can this node be computed once per frame? Only if it has `run` and nothing per-pixel reaches it. */
-function controlCapable(c: Compilation, id: string, trail = new Set<string>()): boolean {
-  const known = c.capable.get(id)
-  if (known !== undefined) return known
-  if (trail.has(id)) return false
-  trail.add(id)
-  const { node, shape } = c.lookup(id)
-  const result = shape.run !== undefined && shape.inputs.filter(isLinkable).every((socket) => {
-    const source = c.linkSource(id, socket)
-    if (source) return controlCapable(c, source.id, trail)
-    // an unlinked socket that falls back to `uv.x` or `iTime` only exists in the shader
-    return !fallsBackToImplicit(node.data.values, socket) || hasFrameValue(socket)
-  })
-  c.capable.set(id, result)
-  return result
-}
-
-/** A node that can run either way goes to the CPU as soon as something is linked in and all of it is per-frame. */
-export function runsOnCpu(c: Compilation, id: string): boolean {
-  const { shape } = c.lookup(id)
-  if (!shape.exec) return true
-  if (c.standalone) return false
-  if (!shape.run) return false
-  return shape.inputs.filter(isLinkable).some((socket) => c.linkSource(id, socket)) && controlCapable(c, id)
-}
 
 /** Adds the node (and what feeds it) to the CPU plan; returns its step index. */
 export function planControl(c: Compilation, id: string): number {
@@ -52,7 +26,7 @@ export function planControl(c: Compilation, id: string): number {
     }
     const source = c.linkSource(id, socket)
     if (source) {
-      if (!controlCapable(c, source.id)) {
+      if (c.changesPerPixel.has(source.id)) {
         throw new GraphError(`${socket.label} needs one value per frame, but ${c.lookup(source.id).shape.title} changes per pixel`, id)
       }
       inputs[socket.name] = { step: planControl(c, source.id), output: source.output }

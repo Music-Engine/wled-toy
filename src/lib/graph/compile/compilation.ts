@@ -59,10 +59,12 @@ export class Compilation {
   // per stage, by node id: what ./streams settled
   readonly resolved = new Map<string, Record<string, unknown>>()
   readonly resolving = new Set<string>()
+  // what ./placement decided
+  readonly placement = new Map<string, 'frame' | 'pixel'>()
+  readonly changesPerPixel = new Set<string>()
   // what ./width inferred
   readonly widths = new Map<string, GlslType>()
   // what ./control-plan decided
-  readonly capable = new Map<string, boolean>()
   readonly steps = new Map<string, number>()
   readonly dims = new Map<string, Record<string, number>>()
   readonly exported = new Map<string, Value>()
@@ -108,6 +110,13 @@ export class Compilation {
   linkSource(nodeId: string, socket: InputSocket): { id: string; output: string } | undefined {
     const edge = this.incoming.get(`${nodeId}:${socket.name}`)
     return edge?.sourceHandle && this.nodes.has(edge.source) ? { id: edge.source, output: edge.sourceHandle } : undefined
+  }
+
+  /** Where a pixel consumer reads the node from, as ./placement decided; a node it never reached is a compiler bug. */
+  placedAt(id: string): 'frame' | 'pixel' {
+    const placement = this.placement.get(id)
+    if (!placement) throw new GraphError(`Node "${id}" was not placed`, id)
+    return placement
   }
 
   /** The value stored on the node for a socket, or its default; an invalid value is reported and replaced. */

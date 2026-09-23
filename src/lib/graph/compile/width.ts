@@ -6,7 +6,6 @@ import { isGlslType } from '@/lib/graph/define/types'
 import { componentCount, vectorType } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { isGenericSocket, storedOrDefault, type Compilation } from './compilation'
-import { runsOnCpu } from './control-plan'
 
 type Rate = 'pixel' | 'frame'
 type Link = { id: string; output: string }
@@ -39,7 +38,7 @@ function inferNode(c: Compilation, id: string, rate: Rate, trail: Set<string>): 
 /** A frame consumer reads a planned step; a pixel consumer reads emitted GLSL, a uniform, or, standalone, a frozen value. */
 function sourceRate(c: Compilation, id: string, rate: Rate): Rate | 'baked' {
   if (rate === 'frame') return 'frame'
-  if (!runsOnCpu(c, id)) return 'pixel'
+  if (c.placedAt(id) === 'pixel') return 'pixel'
   return c.standalone ? 'baked' : 'frame'
 }
 

@@ -6,7 +6,7 @@ import { isGlslType } from '@/lib/graph/define/types'
 import { castTo, type Value } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { GraphError, isGenericSocket, type Compilation } from './compilation'
-import { controlOutput, runsOnCpu } from './control-plan'
+import { controlOutput } from './control-plan'
 import { settledInputs } from './streams'
 
 function context(c: Compilation, nodeId: string, gen: GlslType): NodeContext {
@@ -35,7 +35,7 @@ function linkedValue(c: Compilation, nodeId: string, data: GraphNodeData, socket
   const source = c.linkSource(nodeId, socket)
   const from = source && c.lookup(source.id).shape.outputs.find((out) => out.name === source.output)
   if (from && !isGlslType(from.type)) throw new GraphError(`${socket.label} needs a number or a color, not ${from.type.label}`, nodeId)
-  const linked = source && (runsOnCpu(c, source.id) ? controlOutput(c, source.id, source.output) : evaluate(c, source.id)[source.output])
+  const linked = source && (c.placedAt(source.id) === 'frame' ? controlOutput(c, source.id, source.output) : evaluate(c, source.id)[source.output])
   if (linked) return linked
   if (fallsBackToImplicit(data.values, socket)) {
     return { expr: socket.default.expr, type: socket.type.glsl === 'genType' ? 'float' : socket.type.glsl }
