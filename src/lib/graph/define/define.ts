@@ -1,8 +1,7 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
-import type { FrameInfo, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
+import type { FrameInfo, GlslChunk, NodeContext, ResolveEnv } from './context'
 import { implicitDefault, isImplicit, type InputSocket, type NodeItem, type NodePreset, type NodeShape, type OutputSocket, type WidgetProps } from './shape'
 import { isGlslType, isStreamType, type DataType, type GlslTypeDef, type ImplicitDefault, type LinkType, type StreamType } from './types'
-import type { Value } from './value'
 
 interface SocketOptions {
   /** Shown next to the socket; an empty string hides the label. Defaults to the socket name in Title Case. */
@@ -20,18 +19,14 @@ export type StreamInputDef = SocketOptions & { type: StreamType<any> }
 export type InputDef = LinkType | LinkedInputDef | StoredInputDef | StreamInputDef
 export type OutputDef = LinkType | { type: LinkType; label?: string }
 
-type StreamOf<S> = S extends { type: StreamType<infer T> } ? T | null : S extends StreamType<infer T> ? T | null : never
-type InputOf<S> = [StreamOf<S>] extends [never] ? (S extends { connectable: false; type: DataType<infer T> } ? T : Value) : StreamOf<S>
-export type InputsOf<I> = { [K in keyof I]: InputOf<I[K]> }
-export type OutputsOf<O> = { [K in keyof O]: Value }
-
-type ControlOf<T> = [T] extends [number] ? number : [T] extends [number[]] ? number[] : FrameValue
-type ControlInputOf<S> = [StreamOf<S>] extends [never] ? NumericControlInputOf<S> : StreamOf<S>
-type NumericControlInputOf<S> = S extends { connectable: false; type: DataType<infer T> } ? T
-  : S extends { type: GlslTypeDef<infer T> } ? ControlOf<T>
-    : S extends GlslTypeDef<infer T> ? ControlOf<T> : FrameValue
-export type ControlInputsOf<I> = { [K in keyof I]: ControlInputOf<I[K]> }
-export type ControlOutputsOf<O> = { [K in keyof O]: FrameValue }
+type SocketType<D> = Required<D extends { type: infer T extends DataType<any, any, any> } ? T : Extract<D, DataType<any, any, any>>>
+/** A stored-only socket has no GLSL form, so both bodies receive its stored value. */
+export type Inputs<I, V extends 'js' | 'glsl'> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { connectable: false } ? '_js' : `_${V}`] }
+/**
+ * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `run` may
+ * return either. A union rather than `Readonly` alone, which turns `any` into an object type.
+ */
+export type Outputs<O, V extends 'js' | 'glsl'> = { [K in keyof O]: { js: SocketType<O[K]>['_js'] | Readonly<SocketType<O[K]>['_js']>; glsl: SocketType<O[K]>['_glsl'] }[V] }
 
 export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S = undefined> {
   title: string
@@ -51,17 +46,17 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
   input: I
   output: O
   /** Per pixel: emits GLSL. A node with only `exec` runs in the shader. */
-  exec?(input: InputsOf<I>, ctx: NodeContext): OutputsOf<O>
+  exec?(input: Inputs<I, 'glsl'>, ctx: NodeContext): Outputs<O, 'glsl'>
   /**
    * Once per frame, on the CPU. A node with only `run` is control-rate: it can hold `state`, and its inputs must not vary
    * per pixel. A node with both runs on the CPU whenever everything linked into it does, and in the shader otherwise.
    */
-  run?(input: ControlInputsOf<I>, state: S, frame: FrameInfo): ControlOutputsOf<O>
+  run?(input: Inputs<I, 'js'>, state: S, frame: FrameInfo): Outputs<O, 'js'>
   /**
    * While the graph compiles: what this node puts on its stream outputs (Audio, Spectrum), from its stored values and
    * the streams linked into it. Anything else it returns is handed to `exec` and `run` alongside their inputs.
    */
-  resolve?(input: InputsOf<I>, env: ResolveEnv): Record<string, unknown>
+  resolve?(input: Inputs<I, 'glsl'>, env: ResolveEnv): Record<string, unknown>
   /** Fresh state for a control-rate node. It survives recompiles for as long as the node exists. */
   state?(): S
   presets?: NodePreset[]

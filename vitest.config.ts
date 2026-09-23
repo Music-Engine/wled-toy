@@ -31,7 +31,7 @@ export default defineConfig({
           environment: 'node',
           include: ['src/**/*.test.ts', '*.test.ts'],
           exclude: ['src/**/*.browser.test.ts', 'project-three/**', 'node_modules/**'],
-          typecheck: { enabled: true },
+          typecheck: { enabled: true, include: ['src/**/*.types.test.ts'], checker: 'vue-tsc' },
         },
       },
       {

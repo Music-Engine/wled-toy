@@ -8,8 +8,14 @@ export interface ImplicitDefault {
   frame?: 'time'
 }
 
-/** A type a node stores in its values. `T` is the stored (JSON) shape. */
-export interface DataType<T = unknown> {
+/**
+ * A type a node stores in its values. `T` is the stored (JSON) shape; `Js` and `Glsl` are what a node body receives and
+ * returns for it once per frame and per pixel.
+ */
+export interface DataType<T = unknown, Js = T, Glsl = T> {
+  /** Type-only views read by the node API; never set at runtime, optional so a node can declare its own stored type. */
+  readonly _js?: Js
+  readonly _glsl?: Glsl
   id: string
   label: string
   check(raw: unknown): raw is T
@@ -19,7 +25,7 @@ export interface DataType<T = unknown> {
 }
 
 /** A data type that also exists in GLSL, so sockets of it can be linked. */
-export interface GlslTypeDef<T = unknown> extends DataType<T> {
+export interface GlslTypeDef<T = unknown> extends DataType<T, T, Value> {
   glsl: GlslType
   color: string
   castableFrom: readonly string[]
