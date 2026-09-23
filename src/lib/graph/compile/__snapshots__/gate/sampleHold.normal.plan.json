@@ -1,0 +1,35 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "constant": 0
+        },
+        "trigger": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "value",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

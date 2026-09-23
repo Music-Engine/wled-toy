@@ -1,0 +1,116 @@
+{
+  "steps": [
+    {
+      "nodeId": "time",
+      "kind": "time",
+      "inputs": {},
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "drift",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 0,
+          "output": "time"
+        },
+        "b": {
+          "constant": 0.05
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "audio",
+      "kind": "audio",
+      "inputs": {
+        "audio": {
+          "constant": {
+            "source": true
+          }
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "burstWidth",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 2,
+          "output": "kick"
+        },
+        "b": {
+          "constant": 0.35
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 1,
+      "output": "result",
+      "slot": 0,
+      "dim": 1
+    },
+    {
+      "step": 2,
+      "output": "kick",
+      "slot": 1,
+      "dim": 1
+    },
+    {
+      "step": 3,
+      "output": "result",
+      "slot": 2,
+      "dim": 1
+    }
+  ],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "constant": 0
+        },
+        "attack": {
+          "constant": 0.01
+        },
+        "release": {
+          "constant": 0.3
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "envelope",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

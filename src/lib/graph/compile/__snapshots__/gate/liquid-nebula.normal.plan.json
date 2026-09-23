@@ -1,0 +1,770 @@
+{
+  "steps": [
+    {
+      "nodeId": "audio",
+      "kind": "audio",
+      "inputs": {
+        "audio": {
+          "constant": {
+            "source": true
+          }
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "airFollower",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 0,
+          "output": "air"
+        },
+        "attack": {
+          "constant": 0.5
+        },
+        "release": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "heat",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 1,
+          "output": "envelope"
+        },
+        "inLow": {
+          "constant": 0.03
+        },
+        "inHigh": {
+          "constant": 0.14
+        },
+        "outLow": {
+          "constant": 0
+        },
+        "outHigh": {
+          "constant": 1
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "bassFollower",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 0,
+          "output": "kick"
+        },
+        "attack": {
+          "constant": 0.08
+        },
+        "release": {
+          "constant": 0.45
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "bassFlow",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 3,
+          "output": "envelope"
+        },
+        "b": {
+          "constant": 0.4
+        },
+        "c": {
+          "constant": 0.15
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "heatFlow",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 2,
+          "output": "result"
+        },
+        "b": {
+          "constant": 0.35
+        },
+        "c": {
+          "step": 4,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "flowSpeed",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Flow Speed"
+        },
+        "value": {
+          "constant": 1
+        },
+        "min": {
+          "constant": 0
+        },
+        "max": {
+          "constant": 3
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "flowRate",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 5,
+          "output": "result"
+        },
+        "b": {
+          "step": 6,
+          "output": "value"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "flowPhase",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": false
+        },
+        "rate": {
+          "step": 7,
+          "output": "result"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "swirlTurn",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 8,
+          "output": "value"
+        },
+        "b": {
+          "constant": 0.05
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kickShape",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 0,
+          "output": "kick"
+        },
+        "inLow": {
+          "constant": 0.55
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 0
+        },
+        "outHigh": {
+          "constant": 1
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kickPulse",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 10,
+          "output": "result"
+        },
+        "attack": {
+          "constant": 0.05
+        },
+        "release": {
+          "constant": 0.16
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kickZoom",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 11,
+          "output": "envelope"
+        },
+        "b": {
+          "constant": -0.12
+        },
+        "c": {
+          "constant": 1
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "flowVector",
+      "kind": "vectorMath",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "a": {
+          "step": 8,
+          "output": "value"
+        },
+        "b": {
+          "constant": [
+            0.3,
+            0.12,
+            0.7
+          ]
+        }
+      },
+      "dims": {
+        "a": 3,
+        "b": 3
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "warpEnergy",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 2,
+          "output": "result"
+        },
+        "b": {
+          "constant": 0.6
+        },
+        "c": {
+          "constant": 0.45
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "warpKick",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 11,
+          "output": "envelope"
+        },
+        "b": {
+          "constant": 0.2
+        },
+        "c": {
+          "step": 14,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "warpAmount",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Warp Amount"
+        },
+        "value": {
+          "constant": 0.65
+        },
+        "min": {
+          "constant": 0
+        },
+        "max": {
+          "constant": 1.5
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "warpStrength",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 15,
+          "output": "result"
+        },
+        "b": {
+          "step": 16,
+          "output": "value"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "heatBias",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Heat Bias"
+        },
+        "value": {
+          "constant": 0
+        },
+        "min": {
+          "constant": -0.4
+        },
+        "max": {
+          "constant": 0.4
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "heatOffset",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 2,
+          "output": "result"
+        },
+        "b": {
+          "constant": 0.5
+        },
+        "c": {
+          "step": 18,
+          "output": "value"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "bandGap",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 3,
+          "output": "envelope"
+        },
+        "b": {
+          "constant": 0.45
+        },
+        "c": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "bandPhase",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 8,
+          "output": "value"
+        },
+        "b": {
+          "constant": 6
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "vocalFollower",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 0,
+          "output": "vocal"
+        },
+        "attack": {
+          "constant": 0.03
+        },
+        "release": {
+          "constant": 0.25
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "cellReach",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 22,
+          "output": "envelope"
+        },
+        "b": {
+          "constant": 0.9
+        },
+        "c": {
+          "constant": 0.55
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kickLift",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 11,
+          "output": "envelope"
+        },
+        "b": {
+          "constant": 0.45
+        },
+        "c": {
+          "constant": 0.65
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "trailLength",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Trail Length (s)"
+        },
+        "value": {
+          "constant": 0.35
+        },
+        "min": {
+          "constant": 0.05
+        },
+        "max": {
+          "constant": 2
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 9,
+      "output": "result",
+      "slot": 0,
+      "dim": 1
+    },
+    {
+      "step": 12,
+      "output": "result",
+      "slot": 1,
+      "dim": 1
+    },
+    {
+      "step": 13,
+      "output": "vector",
+      "slot": 2,
+      "dim": 3
+    },
+    {
+      "step": 17,
+      "output": "result",
+      "slot": 5,
+      "dim": 1
+    },
+    {
+      "step": 19,
+      "output": "result",
+      "slot": 6,
+      "dim": 1
+    },
+    {
+      "step": 20,
+      "output": "result",
+      "slot": 7,
+      "dim": 1
+    },
+    {
+      "step": 21,
+      "output": "result",
+      "slot": 8,
+      "dim": 1
+    },
+    {
+      "step": 23,
+      "output": "result",
+      "slot": 9,
+      "dim": 1
+    },
+    {
+      "step": 24,
+      "output": "result",
+      "slot": 10,
+      "dim": 1
+    },
+    {
+      "step": 25,
+      "output": "value",
+      "slot": 11,
+      "dim": 1
+    }
+  ],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

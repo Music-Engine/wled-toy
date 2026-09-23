@@ -1,0 +1,91 @@
+{
+  "steps": [],
+  "exports": [],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": [
+    {
+      "nodeId": "hueShift",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "sparkFlash",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "sparkSeed",
+      "title": "Sample and Hold",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "meteorGlow",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "meteorFlight",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "highEnv",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "barBallistics",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "dropTension",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "barReach",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "peakGravity",
+      "title": "Slew Limiter",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "tailLength",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    }
+  ]
+}

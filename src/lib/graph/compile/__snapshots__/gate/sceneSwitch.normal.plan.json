@@ -1,0 +1,35 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "sceneSwitch",
+      "inputs": {
+        "index": {
+          "constant": 0
+        },
+        "fade": {
+          "constant": 0.5
+        }
+      },
+      "dims": {
+        "index": 1,
+        "fade": 1
+      },
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "scene",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

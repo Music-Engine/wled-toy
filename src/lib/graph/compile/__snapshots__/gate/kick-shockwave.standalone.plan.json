@@ -1,0 +1,97 @@
+{
+  "steps": [],
+  "exports": [],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": [
+    {
+      "nodeId": "baseDrift",
+      "title": "Integrator",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "padEnv",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kickPresence",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "hueHoldA",
+      "title": "Sample and Hold",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "energyEnv",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "ringAgeA",
+      "title": "Integrator",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kickPunch",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "hueHoldB",
+      "title": "Sample and Hold",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "ringAgeB",
+      "title": "Integrator",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "spokeSpin",
+      "title": "Integrator",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "snareEnv",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "wakeDecay",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    }
+  ]
+}

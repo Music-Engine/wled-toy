@@ -1,0 +1,115 @@
+{
+  "steps": [],
+  "exports": [],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": [
+    {
+      "nodeId": "snareFlash",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "snareSide",
+      "title": "Toggle",
+      "output": "State",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "drumsOn",
+      "title": "Peak Hold",
+      "output": "Peak",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "dropAmount",
+      "title": "Slew Limiter",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "paletteShift",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "angleSeq",
+      "title": "Step Sequencer",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "mirrorGlide",
+      "title": "Slew Limiter",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "blockCountSeq",
+      "title": "Step Sequencer",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "stepCounter",
+      "title": "Counter",
+      "output": "Count",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "rigFloor",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kickPunch",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "stepPunch",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "snareBand",
+      "title": "Band Split",
+      "output": "Level",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "hatBand",
+      "title": "Band Split",
+      "output": "Level",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "afterglow",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    }
+  ]
+}

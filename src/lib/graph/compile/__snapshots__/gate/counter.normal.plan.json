@@ -1,0 +1,38 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "counter",
+      "inputs": {
+        "steps": {
+          "constant": 4
+        },
+        "trigger": {
+          "constant": 0
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "count",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

@@ -1,0 +1,16 @@
+{
+  "steps": [],
+  "exports": [],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": [
+    {
+      "nodeId": "n",
+      "title": "Peak Hold",
+      "output": "Peak",
+      "value": "0.5"
+    }
+  ]
+}

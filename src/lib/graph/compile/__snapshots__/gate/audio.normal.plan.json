@@ -1,0 +1,29 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "audio",
+      "inputs": {
+        "audio": {
+          "constant": null
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "level",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

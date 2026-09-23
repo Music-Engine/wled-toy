@@ -1,0 +1,66 @@
+{
+  "steps": [],
+  "exports": [],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ],
+    "analysis": [
+      {
+        "windowSize": 4096,
+        "hop": 256,
+        "window": "hann",
+        "bands": 128,
+        "scale": "mel",
+        "fmin": 40,
+        "fmax": 16000
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": [
+    {
+      "nodeId": "kc0s11",
+      "title": "Integrator",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kc1s11",
+      "title": "Clock Divider",
+      "output": "Phase",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kc2s11",
+      "title": "Toggle",
+      "output": "State",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kc3s11",
+      "title": "Envelope",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "split1",
+      "title": "Band Split",
+      "output": "Level",
+      "value": "0.5"
+    }
+  ]
+}

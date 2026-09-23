@@ -1,0 +1,39 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "constant": 0
+        },
+        "low": {
+          "constant": 0.4
+        },
+        "high": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "gate",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}
