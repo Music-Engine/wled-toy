@@ -60,6 +60,7 @@ export const imageTextureNode = defineNode('imageTexture', {
   },
   pixel: ({ interpolation, extension, colorSpace, alphaMode, vector, ...resolved }, ctx) => {
     const { layer } = resolved as unknown as { layer: number }
+    ctx.require('glsl')
     const p = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr
     const st = ctx.declare('vec2', extension === 'repeat' ? `fract(${p})` : extension === 'mirror' ? `1.0 - abs(mod(${p}, 2.0) - 1.0)` : `clamp(${p}, 0.0, 1.0)`, 'st').expr
     // images are stored top row first, the shader's y points up

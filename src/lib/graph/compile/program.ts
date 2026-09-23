@@ -46,6 +46,8 @@ export interface ProgramNode {
   resolved: Record<string, unknown>
   /** The type generic sockets resolved to; null for a node the width pass never reached (a frozen output's source). */
   width: GlslType | null
+  /** What the pixel body declared through `ctx.require`; the GLSL backend records it as it runs the body, absent when nothing. */
+  requires?: 'glsl'[]
 }
 
 export type ProgramStep = Omit<FrameStep, 'kind' | 'frame' | 'state' | 'resolved'>

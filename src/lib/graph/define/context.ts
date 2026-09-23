@@ -53,6 +53,11 @@ export interface NodeContext {
   /** Calls a GLSL function that returns through `out` parameters, declared here and listed last in the call. */
   call<O extends Record<string, GlslType>>(fn: string, args: string[], outs: O): { [K in keyof O]: Value }
   issue(message: string): void
+  /**
+   * Says the body's GLSL uses something outside the C-family subset (a texture sampler, a derivative), so a C++ build
+   * leaves the node out. Emits nothing.
+   */
+  require(target: 'glsl'): void
   /** For the Output node: how the finished colors are processed and sent. The first Output in a graph decides. */
   output(settings: OutputSettings): void
 }

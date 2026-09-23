@@ -2,6 +2,9 @@ import { layoutPositions, type Layout } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl, type GeneratedShader } from '@/lib/graph/compile/compile'
 import { FrameRunner } from '@/lib/graph/compile/frame'
+import type { NodeItem } from '@/lib/graph/define/shape'
+import { Color } from '@/lib/graph/define/socket-types'
+import { canCast } from '@/lib/graph/define/types'
 import { GRAPH_NODE_TYPE, GRAPH_VERSION, type NodeGraph, type SocketValue, type StoredEdge, type StoredNode } from '@/lib/graph/model/doc'
 
 export const node = (id: string, kind: string, values: Record<string, SocketValue> = {}): StoredNode =>
@@ -16,6 +19,14 @@ export function link(from: string, to: string): StoredEdge {
 
 export const graph = (nodes: StoredNode[], links: [string, string][] = []): NodeGraph =>
   ({ version: GRAPH_VERSION, nodes, edges: links.map(([from, to]) => link(from, to)) })
+
+/** A node of one kind on its own, wired to an Output when its first output can be drawn: how the gate compiles every kind. */
+export function alone(item: NodeItem): NodeGraph {
+  if (item.id === 'output') return graph([node('n', 'output')])
+  const out = item.base.outputs[0]
+  const drawable = out && canCast(out.type, Color)
+  return graph([node('n', item.id), node('o', 'output')], drawable ? [[`n.${out.name}`, 'o.color']] : [])
+}
 
 /** A 0..1 channel as the byte an LED would get with no post-processing. */
 export const toByte = (channel: number) => Math.round(Math.min(1, Math.max(0, channel)) * 255)

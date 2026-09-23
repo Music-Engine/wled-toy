@@ -6,7 +6,10 @@ export const previousFrameNode = defineNode('previousFrame', {
   category: 'output',
   input: { offset: { type: Float, label: 'Offset (LEDs)', default: 0, props: { step: 1, decimals: 0 } } },
   output: { color: Color },
-  pixel: ({ offset }, ctx) => ({ color: ctx.declare('vec3', `previousFrame(${offset.expr})`) }),
+  pixel: ({ offset }, ctx) => {
+    ctx.require('glsl')
+    return { color: ctx.declare('vec3', `previousFrame(${offset.expr})`) }
+  },
 })
 
 export const trailsNode = defineNode('trails', {
@@ -20,9 +23,10 @@ export const trailsNode = defineNode('trails', {
   },
   output: { color: Color },
   // exp(-dt / decay) per frame is the same fade per second at any frame rate
-  pixel: ({ color, decay, offset }, ctx) => ({
-    color: ctx.declare('vec3', `max(${color.expr}, previousFrame(${offset.expr}) * exp(-iTimeDelta / max(${decay.expr}, 0.0001)))`),
-  }),
+  pixel: ({ color, decay, offset }, ctx) => {
+    ctx.require('glsl')
+    return { color: ctx.declare('vec3', `max(${color.expr}, previousFrame(${offset.expr}) * exp(-iTimeDelta / max(${decay.expr}, 0.0001)))`) }
+  },
 })
 
 export const stripBlurNode = defineNode('stripBlur', {
@@ -36,6 +40,7 @@ export const stripBlurNode = defineNode('stripBlur', {
   },
   output: { color: Color },
   pixel: ({ color, spread, decay }, ctx) => {
+    ctx.require('glsl')
     const s = ctx.declare('float', spread.expr, 'spread').expr
     // a 1-2-1 kernel: an average, so the blurred frame never holds more light than the frame it came from
     const blurred = ctx.declare('vec3', `0.25 * previousFrame(-${s}) + 0.5 * previousFrame(0.0) + 0.25 * previousFrame(${s})`, 'blurred').expr

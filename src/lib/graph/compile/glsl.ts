@@ -1,4 +1,5 @@
-// The GLSL backend: turns a Program's pixel entries into the shader, in the order the Program lists them.
+// The GLSL backend: turns a Program's pixel entries into the shader, in the order the Program lists them. Bodies run only
+// here, so what one declares through `ctx.require` is written back onto its Program node as plain data.
 import type { OutputSettings } from '@/lib/engine/output'
 import type { GlslType } from '@/lib/shader/glsl'
 import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
@@ -128,7 +129,8 @@ function freeze(e: Emission, id: string, output: string, value: number | number[
   e.frozenValues.set(`${id}:${output}`, baked)
 }
 
-function context(e: Emission, { id: nodeId, width, resolved }: ProgramNode): NodeContext {
+function context(e: Emission, node: ProgramNode): NodeContext {
+  const { id: nodeId, width, resolved } = node
   const base = `n_${nodeId.replace(/\W/g, '_')}`
   const variable = (suffix?: string) => (suffix ? `${base}_${suffix}` : base)
   const emit = (text: string) => e.body.push({ text, node: nodeId })
@@ -146,6 +148,8 @@ function context(e: Emission, { id: nodeId, width, resolved }: ProgramNode): Nod
     },
     include: (chunk) => e.chunks.add(chunk),
     issue: (message) => e.issues.push({ nodeId, message }),
+    // 'glsl' is the only requirement there is, so a repeated call leaves the same one entry
+    require: (target) => (node.requires = [target]),
     output: (settings) => (e.output ??= settings),
   }
 }

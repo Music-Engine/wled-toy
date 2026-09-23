@@ -1,7 +1,8 @@
 // generateGlsl: compiles a graph into a shader plus the plan for what is evaluated once per frame in JS.
 // The front end places each node per frame or per pixel (./placement), infers generic widths (./width), settles streams
 // (./streams), and walks the sinks into a plain-data Program (./frame-plan, ./pixel-plan, ./uniforms). The GLSL backend
-// (./glsl) and the JS backend (./js) read only that Program.
+// (./glsl) and the JS backend (./js) read only that Program; the GLSL backend also records on it what each pixel body
+// declared through `ctx.require`, since bodies run only there.
 import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import type { FramePlan } from './frame'

@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { allItems, canCast, generateGlsl, type GeneratedShader, type NodeItem } from '@/lib/graph'
-import { Color } from '@/lib/graph/define/socket-types'
+import { allItems, generateGlsl, type GeneratedShader } from '@/lib/graph'
 import type { CompileOptions } from './compile'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
-import { graph, node } from '@/lib/graph/testing'
+import { alone } from '@/lib/graph/testing'
 
 const files = import.meta.glob('/graphs/**/*.wledgraph', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 const graphs = Object.entries(files).map(([path, text]) => [path.split('/').pop()!.replace('.wledgraph', ''), text] as const)
@@ -13,13 +12,6 @@ const kinds = allItems()
 const modes: Record<string, CompileOptions> = {
   normal: {},
   standalone: { standalone: true, controls: () => 0.5 },
-}
-
-function alone(item: NodeItem): NodeGraph {
-  if (item.id === 'output') return graph([node('n', 'output')])
-  const out = item.base.outputs[0]
-  const drawable = out && canCast(out.type, Color)
-  return graph([node('n', item.id), node('o', 'output')], drawable ? [[`n.${out.name}`, 'o.color']] : [])
 }
 
 function planJson({ frame: { steps, exports, resources }, issues, error, errorNode, frozen }: GeneratedShader): string {
