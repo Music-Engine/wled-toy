@@ -66,7 +66,7 @@
           "constant": "sine"
         },
         "input": {
-          "frame": true
+          "frame": "time"
         },
         "frequency": {
           "constant": 0.25

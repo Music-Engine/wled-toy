@@ -1,4 +1,4 @@
-import { defineNode, Enum, Float, type FrameInfo } from '@/lib/graph/authoring'
+import { defineNode, Enum, Float } from '@/lib/graph/authoring'
 
 const SHAPES = [
   { value: 'sine', label: 'Sine' }, { value: 'triangle', label: 'Triangle' }, { value: 'saw', label: 'Saw' }, { value: 'square', label: 'Square' },
@@ -21,7 +21,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
   category: 'signal',
   input: {
     shape: { type: Enum(SHAPES), label: '', default: 'sine', connectable: false, props: { label: 'Shape' } },
-    input: { type: Float, default: { expr: 'iTime', label: 'time', frame: (frame: FrameInfo) => frame.time } },
+    input: { type: Float, default: { expr: 'iTime', label: 'time', frame: 'time' } },
     frequency: { type: Float, default: 1, props: { step: 0.1, decimals: 3 } },
     phase: { type: Float, default: 0, props: { decimals: 3 } },
     ...(shape === 'square' && { duty: { type: Float, default: 0.5, props: { min: 0, max: 1 } } }),

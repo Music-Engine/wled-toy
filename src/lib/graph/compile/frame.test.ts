@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { FrameRunner, generateGlsl, type FramePlan } from '@/lib/graph'
-import { castFrameValue } from './frame'
+import { createDefaultGraph, FrameRunner, generateGlsl, type FramePlan } from '@/lib/graph'
+import { castFrameValue, type FrameBinding } from './frame'
 import { defineNode } from '@/lib/graph/define/define'
 import { Float } from '@/lib/graph/define/socket-types'
 import { graph, node } from '@/lib/graph/testing'
@@ -48,6 +48,21 @@ describe('FrameRunner', () => {
     expect(runner.step(frame(1))[5]).toBe(1)
     runner.reset()
     expect(runner.step(frame(2))[5]).toBe(1)
+  })
+
+  it('refuses a plan that names an unknown frame builtin', () => {
+    const unknown = { ...plan(1), steps: [{ ...plan(1).steps[0], inputs: { step: { frame: 'tick' } as unknown as FrameBinding } }] }
+    expect(() => new FrameRunner().load(unknown)).toThrow('"tick"')
+  })
+
+  it('every input binding survives JSON, including a frame builtin', () => {
+    const wave = graph([node('k', 'knob'), node('w', 'wave'), node('o', 'output')], [['k.value', 'w.frequency'], ['w.value', 'o.color']])
+    for (const doc of [createDefaultGraph(), wave]) {
+      const { steps } = generateGlsl(doc).control
+      const parsed: FramePlan = JSON.parse(JSON.stringify({ steps }))
+      steps.forEach((step, i) => expect(parsed.steps[i].inputs).toEqual(step.inputs))
+    }
+    expect(generateGlsl(wave).control.steps.flatMap((step) => Object.values(step.inputs))).toContainEqual({ frame: 'time' })
   })
 })
 

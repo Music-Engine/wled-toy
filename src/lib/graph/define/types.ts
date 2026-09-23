@@ -1,12 +1,11 @@
 import type { GlslType } from '@/lib/shader/glsl'
-import type { FrameInfo } from './context'
 import type { Value } from './value'
 
 export interface ImplicitDefault {
   expr: string
   label: string
   /** The same value once per frame, for a node that runs on the CPU; without it the socket needs a link there. */
-  frame?: (frame: FrameInfo) => number
+  frame?: 'time'
 }
 
 /** A type a node stores in its values. `T` is the stored (JSON) shape. */

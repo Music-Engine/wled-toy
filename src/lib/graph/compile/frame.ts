@@ -2,8 +2,8 @@ import { CONTROL_VECTORS } from '@/lib/shader/glsl'
 import type { FrameValue, FrameInfo } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
 
-/** Where a control step takes an input from: a value stored on the node, or an earlier step's output. */
-export type FrameBinding = { constant: unknown } | { step: number; output: string } | { frame: (frame: FrameInfo) => number }
+/** Where a control step takes an input from: a value stored on the node, an earlier step's output, or a frame builtin by name. */
+export type FrameBinding = { constant: unknown } | { step: number; output: string } | { frame: 'time' }
 
 export interface FrameStep {
   nodeId: string
@@ -30,9 +30,14 @@ export function castFrameValue(value: FrameValue, dim: number): FrameValue {
   return Array.from({ length: dim }, (_, i) => value[i] ?? (i === 3 ? 1 : 0))
 }
 
+/** A binding as the runner reads it: a frame builtin is resolved to its reader when the plan is loaded. */
+type LoadedBinding = Exclude<FrameBinding, { frame: string }> | { read: (frame: FrameInfo) => number }
+type LoadedStep = Omit<FrameStep, 'inputs'> & { inputs: [string, LoadedBinding][] }
+
 /** Runs a plan once per frame and keeps each node's state across plans for as long as the node exists. */
 export class FrameRunner {
   private plan: FramePlan = { steps: [], exports: [], resources: {} }
+  private steps: LoadedStep[] = []
   private states = new Map<string, unknown>()
   private readonly block = new Float32Array(CONTROL_VECTORS * 4)
   private results: Record<string, FrameValue>[] = []
@@ -43,6 +48,7 @@ export class FrameRunner {
       const key = `${nodeId}:${kind}`
       if (state) states.set(key, this.states.get(key) ?? state())
     }
+    this.steps = plan.steps.map((step) => ({ ...step, inputs: Object.entries(step.inputs).map(([name, binding]) => [name, loadBinding(binding)]) }))
     this.states = states
     this.plan = plan
   }
@@ -62,14 +68,14 @@ export class FrameRunner {
   step(frame: FrameInfo): Float32Array {
     const results: Record<string, FrameValue>[] = []
     this.results = results
-    for (const { nodeId, kind, run, inputs, dims } of this.plan.steps) {
-      const input = Object.fromEntries(Object.entries(inputs).map(([name, binding]) => {
-        if ('constant' in binding) return [name, name in dims ? castFrameValue(binding.constant as FrameValue, dims[name]) : binding.constant]
-        if ('frame' in binding) return [name, castFrameValue(binding.frame(frame), dims[name])]
-        return [name, castFrameValue(results[binding.step][binding.output] ?? 0, dims[name])]
-      }))
+    for (const { nodeId, kind, run, inputs, dims } of this.steps) {
+      const input = Object.fromEntries(inputs.map(([name, binding]) => [name, bindingValue(binding, results, frame, dims[name])]))
       results.push(run(input, this.states.get(`${nodeId}:${kind}`), frame))
     }
+    return this.packExports(results)
+  }
+
+  private packExports(results: Record<string, FrameValue>[]): Float32Array {
     this.block.fill(0)
     for (const { step, output, slot, dim } of this.plan.exports) {
       const value = castFrameValue(results[step][output] ?? 0, dim)
@@ -78,4 +84,17 @@ export class FrameRunner {
     }
     return this.block
   }
+}
+
+function loadBinding(binding: FrameBinding): LoadedBinding {
+  if (!('frame' in binding)) return binding
+  if (binding.frame !== 'time') throw new Error(`unknown frame builtin "${binding.frame}"`)
+  return { read: (frame) => frame.time }
+}
+
+/** A constant is cast only when its socket is linkable; linked and frame inputs always have a dim. */
+function bindingValue(binding: LoadedBinding, results: Record<string, FrameValue>[], frame: FrameInfo, dim: number | undefined): unknown {
+  if ('constant' in binding) return dim === undefined ? binding.constant : castFrameValue(binding.constant as FrameValue, dim)
+  if ('read' in binding) return castFrameValue(binding.read(frame), dim!)
+  return castFrameValue(results[binding.step][binding.output] ?? 0, dim!)
 }
