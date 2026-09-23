@@ -55,7 +55,7 @@ export const VECTOR_OPS = {
 } satisfies Record<string, VectorOp>
 
 export type VectorOpName = keyof typeof VECTOR_OPS
-export const VECTOR_OP_OPTIONS = Object.entries(VECTOR_OPS).map(([value, op]) => ({ value: value as VectorOpName, label: op.label, group: op.group }))
+const VECTOR_OP_OPTIONS = Object.entries(VECTOR_OPS).map(([value, op]) => ({ value: value as VectorOpName, label: op.label, group: op.group }))
 
 const asVector = (v: number | number[]): V => (Array.isArray(v) ? [v[0] ?? 0, v[1] ?? 0, v[2] ?? 0] : [v, v, v])
 
@@ -68,6 +68,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
     title: 'Vector Math',
     description: 'Operations on whole vectors: add, scale, cross and dot products, distance, projection, wrap and snap. Combine XYZ builds a vector from numbers.',
     category: 'converter',
+    presets: VECTOR_OP_OPTIONS.map((o) => ({ title: o.label, values: { op: o.value } })),
     input: {
       op: { type: Enum(VECTOR_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
       a: vec([0.5, 0.5, 0]),

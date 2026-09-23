@@ -57,6 +57,14 @@ export interface NodeItem {
   shape(values: Record<string, unknown>): NodeShape
   /** The shape with nothing set: what the menu lists and previews. */
   base: NodeShape
+  presets?: NodePreset[]
+}
+
+/** The node started with `values`, listed in the menu as an entry of its own; `group` files it under a sub-directory. */
+export interface NodePreset {
+  title: string
+  group?: string
+  values: Record<string, unknown>
 }
 
 /** Where a node's values live: `frame` sockets are drawn as diamonds and refuse per-pixel links. */

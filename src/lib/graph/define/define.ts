@@ -1,6 +1,6 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
 import type { FrameInfo, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
-import { isImplicit, type InputSocket, type NodeItem, type NodeShape, type OutputSocket, type WidgetProps } from './shape'
+import { isImplicit, type InputSocket, type NodeItem, type NodePreset, type NodeShape, type OutputSocket, type WidgetProps } from './shape'
 import { isGlslType, isStreamType, type DataType, type GlslTypeDef, type ImplicitDefault, type LinkType, type StreamType } from './types'
 import type { Value } from './value'
 
@@ -64,6 +64,7 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
   resolve?(input: InputsOf<I>, env: ResolveEnv): Record<string, unknown>
   /** Fresh state for a control-rate node. It survives recompiles for as long as the node exists. */
   state?(): S
+  presets?: NodePreset[]
 }
 
 /**
@@ -77,9 +78,9 @@ export function defineNode<const I extends Record<string, InputDef>, const O ext
 ): NodeItem {
   const options = typeof definition === 'function' ? definition : () => definition
   const base = toShape(id, options({}))
-  const { description, category } = options({})
+  const { description, category, presets } = options({})
   return {
-    id, description, category, base,
+    id, description, category, base, presets,
     title: base.title,
     shape: typeof definition === 'function' ? (values) => toShape(id, options(values)) : () => base,
   }
