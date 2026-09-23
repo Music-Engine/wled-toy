@@ -1,5 +1,5 @@
 import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/glsl'
-import { Color, defineNode, Enum, Float, Reference, type GlslChunk } from '@/lib/graph/authoring'
+import { Color, defineNode, Enum, Float, Reference, resourceIndex, type GlslChunk } from '@/lib/graph/authoring'
 import { textureVector } from './vector'
 
 /* SPDX-FileCopyrightText: 2011-2022 Blender Foundation
@@ -52,14 +52,14 @@ export const imageTextureNode = defineNode('imageTexture', {
     vector: textureVector,
   },
   output: { color: Color, alpha: Float },
-  resolve: ({ filename }, env) => {
-    const layer = env.intern('image', filename)
-    if (layer < IMAGE_LAYERS) return { layer }
-    env.issue(`A graph can show ${IMAGE_LAYERS} different images; this one shows the first instead`)
-    return { layer: 0 }
+  resolve: ({ filename }, resources) => {
+    const requires = [{ kind: 'image', config: filename }]
+    const layer = resourceIndex(resources, 'image', filename)
+    if (layer < IMAGE_LAYERS) return { requires, data: { layer } }
+    return { requires, data: { layer: 0 }, issues: [`A graph can show ${IMAGE_LAYERS} different images; this one shows the first instead`] }
   },
-  pixel: ({ interpolation, extension, colorSpace, alphaMode, vector, ...resolved }, ctx) => {
-    const { layer } = resolved as unknown as { layer: number }
+  pixel: ({ interpolation, extension, colorSpace, alphaMode, vector }, ctx) => {
+    const layer = ctx.resolved.layer as number
     ctx.require('glsl')
     const p = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr
     const st = ctx.declare('vec2', extension === 'repeat' ? `fract(${p})` : extension === 'mirror' ? `1.0 - abs(mod(${p}, 2.0) - 1.0)` : `clamp(${p}, 0.0, 1.0)`, 'st').expr

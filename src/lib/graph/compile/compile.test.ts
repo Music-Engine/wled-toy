@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
+import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, itemFor, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4 } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { GLSL_TYPES } from '@/lib/shader/glsl'
@@ -56,11 +56,10 @@ describe('generateGlsl', () => {
     expect(code).toContain('float n_m = clamp(0.5 + 0.5, 0.0, 1.0);')
   })
 
-  it('falls back to defaults on invalid stored values and says so', () => {
-    const result = toOutput(graph([node('m', 'math', { op: 'nope', a: 'x' }), node('o', 'output')], [['m.result', 'o.color']]))
-    expect(result.error).toBeNull()
-    expect(result.issues.map((i) => i.nodeId)).toEqual(['m', 'm'])
-    expect(result.code).toContain('float n_m = 0.5 + 0.5;')
+  it('an invalid stored value is an error on its node that names the socket and the value', () => {
+    const drawn = (values: object) => toOutput(graph([node('m', 'math', values as never), node('o', 'output')], [['m.result', 'o.color']]))
+    expect(drawn({ a: 'x' })).toMatchObject({ errorNode: 'm', error: 'Value is "x", not a valid Number or vector' })
+    expect(drawn({ op: 'nope' })).toMatchObject({ errorNode: 'm', error: 'op is "nope", not a valid Option' })
   })
 
   it('reports an uncastable link on the node that receives it', () => {
@@ -87,6 +86,19 @@ describe('streams', () => {
   it('a stream linked into a number socket is a graph error on the receiving node', () => {
     const result = generateGlsl(graph([node('f', 'fft'), node('o', 'output')], [['f.spectrum', 'o.color']]))
     expect(result).toMatchObject({ errorNode: 'o', error: 'Color needs a number or a color, not Spectrum' })
+  })
+})
+
+describe('resolve', () => {
+  it('hands its data to the bodies as resolved, never over an input of the same name', () => {
+    const spectrum = itemFor('spectrum')!.base
+    spectrum.resolve = () => ({ data: { spectrum: { slot: 3 } } })
+    try {
+      const doc = graph([node('f', 'fft', { fmin: 100 }), node('s', 'spectrum'), node('o', 'output')], [['f.spectrum', 's.spectrum'], ['s.level', 'o.color']])
+      expect(generateGlsl(doc).code).toContain('historyAt(1, ')
+    } finally {
+      delete spectrum.resolve
+    }
   })
 })
 

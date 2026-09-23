@@ -1,9 +1,8 @@
 // What the front-end passes share while they build a Program: the graph, loop detection, what each pass settled per
 // node, and the Program as far as it is built. The backends never see it.
 import type { GlslType } from '@/lib/shader/glsl'
-import type { FrameValue } from '@/lib/graph/define/context'
+import type { FrameValue, ResolveResult } from '@/lib/graph/define/context'
 import type { NodeShape, Socket } from '@/lib/graph/define/shape'
-import { isImplicit } from '@/lib/graph/define/types'
 import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
 import { GraphError, type PixelSource, type Program } from './program'
@@ -20,20 +19,20 @@ export interface CompileOptions {
 
 export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
 
-/** The value stored on the node for a socket, or its default; an invalid value is replaced and `valid` says so. */
-export function storedOrDefault(data: GraphNodeData, socket: Socket): { value: unknown; valid: boolean } {
+/** The value stored on the node for a socket, or its default; an invalid one is an error on the node. */
+export function storedValue(nodeId: string, data: GraphNodeData, socket: Socket): unknown {
   const raw = data.values[socket.name] ?? socket.default
-  if (socket.type.check(raw)) return { value: raw, valid: true }
-  return { value: isImplicit(socket.default) ? socket.type.initial() : socket.default, valid: false }
+  if (!socket.type.check(raw)) throw new GraphError(`${socket.label || socket.name} is ${JSON.stringify(raw)}, not a valid ${socket.type.label}`, nodeId)
+  return raw
 }
 
 export class FrontEnd {
-  readonly program: Program = { nodes: {}, pixel: [], frame: [], uniforms: [], state: [], resources: {}, issues: [], error: null, errorNode: null }
+  readonly program: Program = { nodes: {}, pixel: [], frame: [], uniforms: [], state: [], resources: {}, output: null, issues: [], error: null, errorNode: null }
   /** Nodes on the current walk, for loop detection. */
   readonly visiting = new Set<string>()
 
   // per pass, by node id: what ./streams settled
-  readonly resolved = new Map<string, Record<string, unknown>>()
+  readonly resolved = new Map<string, ResolveResult>()
   readonly resolving = new Set<string>()
   // what ./placement decided
   readonly placement = new Map<string, 'frame' | 'pixel'>()
@@ -94,16 +93,9 @@ export class FrontEnd {
     return placement
   }
 
-  /** The value stored on the node for a socket, or its default; an invalid value is reported and replaced. */
-  storedValue(nodeId: string, data: GraphNodeData, socket: Socket): unknown {
-    const { value, valid } = storedOrDefault(data, socket)
-    if (!valid) this.program.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
-    return value
-  }
-
   /** Puts the node into the Program the first time a backend needs it. */
   record(id: string) {
     const { data } = this.lookup(id).node
-    this.program.nodes[id] ??= { id, kind: data.kind, values: data.values, resolved: this.resolved.get(id) ?? {}, width: this.widths.get(id) ?? null }
+    this.program.nodes[id] ??= { id, kind: data.kind, values: data.values, resolved: this.resolved.get(id)?.data ?? {}, width: this.widths.get(id) ?? null }
   }
 }

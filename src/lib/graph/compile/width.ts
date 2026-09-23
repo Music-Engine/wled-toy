@@ -5,7 +5,7 @@ import type { Socket } from '@/lib/graph/define/shape'
 import { componentCount, vectorType } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { fallsBackToImplicit, valueInputs } from '@/lib/graph/registry'
-import { isGenericSocket, storedOrDefault, type FrontEnd } from './front-end'
+import { isGenericSocket, storedValue, type FrontEnd } from './front-end'
 import { glslForm, standaloneExpr } from './glsl'
 
 type Rate = 'pixel' | 'frame'
@@ -51,7 +51,7 @@ function inputType(c: FrontEnd, id: string, data: GraphNodeData, socket: Socket,
   // planning reads a missing or non-numeric output as one component; emission falls back as if unlinked
   if (source && rate === 'frame') return 'float'
   if (fallsBackToImplicit(data.values, socket)) return 'float'
-  return glslForm(socket.type).literal(storedOrDefault(data, socket).value).type
+  return glslForm(socket.type).literal(storedValue(id, data, socket)).type
 }
 
 function outputType(c: FrontEnd, source: Link, glsl: GlslType, from: Rate | 'baked'): GlslType {

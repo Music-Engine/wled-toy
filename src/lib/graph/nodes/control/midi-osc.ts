@@ -1,4 +1,3 @@
-import type { FrameBinding } from '@/lib/graph/compile/frame'
 import { defineNode, Enum, Float, Int, Text } from '@/lib/graph/authoring'
 
 const KINDS = [{ value: 'cc', label: 'Controller (CC)' }, { value: 'note', label: 'Note' }] as const
@@ -28,11 +27,14 @@ export const oscInNode = defineNode('oscIn', {
     address: { type: Text, label: 'Address', default: '/1/fader1', linkable: false, props: { placeholder: '/1/fader1' } },
   },
   output: { value: Float, second: { type: Float, label: 'Argument 2' }, third: { type: Float, label: 'Argument 3' } },
+  // one listener serves every OSC In, so the first port asked for is the one opened
+  resolve: ({ port }, resources) => {
+    const open = resources.osc?.[0]
+    if (open !== undefined && open !== port) return { issues: [`Another OSC In listens on port ${open}; one port is open at a time, so this one reads that port`] }
+    return { requires: [{ kind: 'osc', config: port }] }
+  },
   frame: ({ address }, { osc }) => {
     const [value = 0, second = 0, third = 0] = osc?.(address) ?? []
     return { value, second, third }
   },
 })
-
-/** The port an OSC In node asks the bridge to listen on. One listener serves every OSC node, so the first decides. */
-export const oscPortFrom = (inputs: Record<string, FrameBinding>) => (inputs.port as { constant: number }).constant

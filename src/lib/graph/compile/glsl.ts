@@ -37,7 +37,6 @@ interface Emission {
   frozenValues: Map<string, Value>
   issues: GraphIssue[]
   frozen: FrozenValue[]
-  output: OutputSettings | null
 }
 
 /**
@@ -45,9 +44,9 @@ interface Emission {
  * Issues keep the front end's first and the bodies' after them.
  */
 export function glsl(program: Program): GlslShader {
-  const e: Emission = { program, body: [], chunks: new Set(), values: new Map(), frozenValues: new Map(), issues: [...program.issues], frozen: [], output: null }
+  const e: Emission = { program, body: [], chunks: new Set(), values: new Map(), frozenValues: new Map(), issues: [...program.issues], frozen: [] }
   const { error, errorNode } = emitAll(e) ?? program
-  return { ...assemble(e), output: e.output, issues: e.issues, frozen: e.frozen, error, errorNode }
+  return { ...assemble(e), output: program.output, issues: e.issues, frozen: e.frozen, error, errorNode }
 }
 
 function emitAll(e: Emission): { error: string; errorNode: string | null } | undefined {
@@ -62,16 +61,10 @@ function emitEntry(e: Emission, entry: PixelEntry): void {
   if ('frozen' in entry) return freeze(e, entry.frozen, entry.output, entry.value)
   const node = e.program.nodes[entry.node]
   const shape = shapeOf(node)
-  const input: Record<string, unknown> = extras(node, shape)
+  const input: Record<string, unknown> = {}
   for (const socket of shape.inputs) input[socket.name] = bodyInput(e, node, shape, socket, entry.inputs[socket.name])
   shape.includes.forEach((chunk) => e.chunks.add(chunk))
   e.values.set(node.id, shape.pixel!(input, context(e, node)))
-}
-
-/** What `resolve` returned beside the stream outputs rides along with the inputs. */
-function extras(node: ProgramNode, shape: NodeShape): Record<string, unknown> {
-  const outputs = new Set(shape.outputs.map((out) => out.name))
-  return Object.fromEntries(Object.entries(node.resolved).filter(([name]) => !outputs.has(name)))
 }
 
 function bodyInput(e: Emission, node: ProgramNode, shape: NodeShape, socket: Socket, input: PixelInput): unknown {
@@ -150,7 +143,6 @@ function context(e: Emission, node: ProgramNode): NodeContext {
     issue: (message) => e.issues.push({ nodeId, message }),
     // 'glsl' is the only requirement there is, so a repeated call leaves the same one entry
     require: (target) => (node.requires = [target]),
-    output: (settings) => (e.output ??= settings),
   }
 }
 

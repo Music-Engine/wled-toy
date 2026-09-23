@@ -1,5 +1,5 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
-import type { FrameContext, GlslChunk, NodeContext, ResolveEnv } from './context'
+import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { NodeItem, NodePreset, NodeShape, OutputSocket, Socket, WidgetProps } from './shape'
 import { isImplicit, type DataType } from './types'
 
@@ -49,10 +49,11 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
    */
   frame?(input: Inputs<I, 'frame'>, info: FrameContext<S>): Outputs<O, 'frame'>
   /**
-   * While the graph compiles: what this node puts on its stream outputs (Audio, Spectrum), from its stored values and
-   * the streams linked into it. Anything else it returns is handed to `pixel` and `frame` alongside their inputs.
+   * While the graph compiles, from its stored values and the streams linked into it: what this node puts on its stream
+   * outputs (Audio, Spectrum), what its bodies get as `resolved`, what the engine has to provide, and what is wrong.
+   * `resources` is what earlier nodes registered, for a node whose result depends on the index its config gets.
    */
-  resolve?(input: Inputs<I, 'pixel'>, env: ResolveEnv): Record<string, unknown>
+  resolve?(input: Inputs<I, 'pixel'>, resources: Resources): ResolveResult
   /** Fresh state for a frame-only node. It survives recompiles for as long as the node exists. */
   state?(): S
   presets?: NodePreset[]

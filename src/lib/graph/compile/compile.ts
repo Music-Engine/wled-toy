@@ -34,11 +34,16 @@ export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): Gene
 export function buildProgram(doc: NodeGraph, options: CompileOptions): Program {
   const c = new FrontEnd(doc, options)
   const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput).map((n) => n.id)
-  if (!sinks.some((id) => c.lookup(id).shape.pixel)) return fail(c, 'Add an Output node to see anything.', null)
+  const [output, ...others] = sinks.filter((id) => c.lookup(id).shape.pixel)
+  if (!output) return fail(c, 'Add an Output node to see anything.', null)
+  // an Output left out is not compiled at all, so its color cannot replace the first one's either
+  const built = sinks.filter((id) => !others.includes(id))
+  for (const id of others) c.program.issues.push({ nodeId: id, message: `Only the first Output ("${output}") drives the LEDs; this one is left out` })
   try {
-    placeNodes(c, sinks)
-    inferWidths(c, sinks)
-    for (const id of sinks) buildSink(c, id)
+    placeNodes(c, built)
+    inferWidths(c, built)
+    for (const id of built) buildSink(c, id)
+    c.program.output = resolveNode(c, output).output ?? null
     return c.program
   } catch (e) {
     return fail(c, (e as Error).message, e instanceof GraphError ? e.nodeId : null)

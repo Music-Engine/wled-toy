@@ -58,15 +58,36 @@ export interface NodeContext {
    * leaves the node out. Emits nothing.
    */
   require(target: 'glsl'): void
-  /** For the Output node: how the finished colors are processed and sent. The first Output in a graph decides. */
-  output(settings: OutputSettings): void
 }
 
-export interface ResolveEnv {
-  /**
-   * Registers something the engine has to provide for this graph (an audio source, an analysis) and returns its index.
-   * Equal configs share one index.
-   */
-  intern(kind: string, config: unknown): number
-  issue(message: string): void
+/** Something the engine provides for a graph: an audio source, an analysis, an image layer, an OSC port. */
+export interface Requirement {
+  kind: string
+  config: unknown
+}
+
+/** What a node's `resolve` settles while the graph compiles. The front end registers `requires` and reports `issues` on the node. */
+export interface ResolveResult {
+  /** What each stream output carries. */
+  streams?: Record<string, unknown>
+  /** Handed to the bodies as `resolved`, never merged into their inputs. */
+  data?: Record<string, unknown>
+  requires?: Requirement[]
+  issues?: string[]
+  /** The Output node's wire settings: how the finished colors are processed and sent. */
+  output?: OutputSettings
+}
+
+/** What the nodes resolved before this one registered, by kind, in the order the front end met them. */
+export type Resources = Readonly<Record<string, readonly unknown[] | undefined>>
+
+/**
+ * The index `config` has among the registered configs of `kind`, or the one registering it gives: equal configs share
+ * one. The front end registers with it, so a node that needs its index before then computes the same one.
+ */
+export function resourceIndex(resources: Resources, kind: string, config: unknown): number {
+  const list = resources[kind] ?? []
+  const key = JSON.stringify(config)
+  const index = list.findIndex((other) => JSON.stringify(other) === key)
+  return index >= 0 ? index : list.length
 }

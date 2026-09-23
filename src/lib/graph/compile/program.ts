@@ -1,5 +1,6 @@
 // The Program: what the front end decided about a graph, as plain data, and all the backends read. It holds no
 // functions and no class instances; a node's bodies and socket types resolve through the registry at build version.
+import type { OutputSettings } from '@/lib/engine/output'
 import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
@@ -32,6 +33,8 @@ export interface Program {
   state: never[]
   /** What nodes registered while compiling, by kind: the audio source the graph wants, the analyses it reads. */
   resources: Record<string, unknown[]>
+  /** Wire settings from the graph's Output node; null when it has none. */
+  output: OutputSettings | null
   issues: GraphIssue[]
   /** Where the front end stopped; the entries before it are still built, as far as it got. */
   error: string | null
@@ -42,7 +45,7 @@ export interface ProgramNode {
   id: string
   kind: string
   values: Record<string, unknown>
-  /** What `resolve` returned: stream outputs, and extras handed to the bodies beside their inputs. */
+  /** The `data` its `resolve` returned, for the bodies. */
   resolved: Record<string, unknown>
   /** The type generic sockets resolved to; null for a node the width pass never reached (a frozen output's source). */
   width: GlslType | null

@@ -48,6 +48,17 @@ describe('OSC In', () => {
     expect(second()).toBe(0.75)
     expect(other()).toBe(0)
   })
+
+  it('asks for its port; of two on different ports the first is opened and the other says so', () => {
+    const one = generateGlsl(graph([node('i', 'oscIn'), node('o', 'output')], [['i.value', 'o.color']]))
+    const two = generateGlsl(graph(
+      [node('i', 'oscIn'), node('j', 'oscIn', { port: 9001 }), node('m', 'math'), node('o', 'output')],
+      [['i.value', 'm.a'], ['j.value', 'm.b'], ['m.result', 'o.color']],
+    ))
+    expect(one.frame.resources.osc).toEqual([9000])
+    expect(two.frame.resources.osc).toEqual([9000])
+    expect(two.issues).toEqual([{ nodeId: 'j', message: 'Another OSC In listens on port 9000; one port is open at a time, so this one reads that port' }])
+  })
 })
 
 describe('Knob', () => {

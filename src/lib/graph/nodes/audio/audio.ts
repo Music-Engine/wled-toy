@@ -1,15 +1,12 @@
 import { rangePeak, type Features } from '@/lib/audio/dsp'
-import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSettings } from '@/lib/audio/service'
-import { AudioStream, defineNode, Enum, Float, Int, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
+import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/service'
+import { AudioStream, defineNode, Enum, Float, Int, resourceIndex, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
 
 const SOURCES = [{ value: 'file', label: 'Song' }, { value: 'device', label: 'Capture Device' }, { value: 'loopback', label: 'System audio' }] as const
 const CHANNELS = [{ value: 'mono', label: 'Mono Sum' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }] as const
 const WINDOWS = [{ value: 'hann', label: 'Hann' }, { value: 'hamming', label: 'Hamming' }, { value: 'blackman', label: 'Blackman' }] as const
 const SCALES = [{ value: 'mel', label: 'Mel Bands' }, { value: 'log', label: 'Log Bands' }] as const
 const sizes = (values: number[]) => values.map((n) => ({ value: String(n), label: `${n} samples` }))
-
-/** Which device is captured is not a node value: devices differ per machine, so the node's body picks it on the spot. */
-export type AudioSourceRequest = Omit<AudioSettings, 'deviceId'>
 
 export const audioSourceNode = defineNode('audioSource', {
   title: 'Audio Source',
@@ -26,12 +23,13 @@ export const audioSourceNode = defineNode('audioSource', {
     gateHold: { type: Float, label: 'Gate Hold (s)', default: DEFAULT_AUDIO.gate.hold, linkable: false, props: { min: 0, max: 5, decimals: 2 } },
   },
   output: { audio: AudioStream },
-  resolve: ({ source, channel, agcRelease, floorDb, gateDb, gateHold }, env) => {
+  resolve: ({ source, channel, agcRelease, floorDb, gateDb, gateHold }, resources) => {
     const request: AudioSourceRequest = { source, channel, agc: { release: agcRelease, floorDb }, gate: { thresholdDb: gateDb, hold: gateHold } }
-    if (env.intern('audioSource', request) > 0) env.issue('Another Audio Source with different settings is live; one source runs at a time')
+    const issues = []
+    if (resourceIndex(resources, 'audioSource', request) > 0) issues.push('Another Audio Source with different settings is live; one source runs at a time')
     const blocked = source === 'loopback' && systemAudioBlocked()
-    if (blocked) env.issue(blocked)
-    return { audio: { source: true } }
+    if (blocked) issues.push(blocked)
+    return { streams: { audio: { source: true } }, requires: [{ kind: 'audioSource', config: request }], issues }
   },
 })
 
@@ -50,15 +48,16 @@ export const fftNode = defineNode('fft', {
     fmax: { type: Float, label: 'Highest (Hz)', default: DEFAULT_ANALYSIS.fmax, linkable: false, props: { min: 1000, max: 22000, decimals: 0 } },
   },
   output: { spectrum: SpectrumStream },
-  resolve: ({ windowSize, hop, window, scale, bands, fmin, fmax }, env) => {
+  resolve: ({ windowSize, hop, window, scale, bands, fmin, fmax }, resources) => {
     // spread over the default so the keys keep its order: equal settings must serialize equally to share a slot
     const settings: AnalysisSettings = { ...DEFAULT_ANALYSIS, windowSize: Number(windowSize), hop: Number(hop), window, scale, bands, fmin, fmax }
-    if (JSON.stringify(settings) === JSON.stringify(DEFAULT_ANALYSIS)) return { spectrum: { slot: 0 } }
+    if (JSON.stringify(settings) === JSON.stringify(DEFAULT_ANALYSIS)) return { streams: { spectrum: { slot: 0 } } }
+    const requires = [{ kind: 'analysis', config: settings }]
     // slot 0 is the default analysis, so the first distinct FFT is slot 1
-    const slot = env.intern('analysis', settings) + 1
-    if (slot < MAX_ANALYSES) return { spectrum: { slot } }
-    env.issue(`Only ${MAX_ANALYSES - 1} FFT settings besides the default can be active at once; this one falls back to the default`)
-    return { spectrum: { slot: 0 } }
+    const slot = resourceIndex(resources, 'analysis', settings) + 1
+    if (slot < MAX_ANALYSES) return { streams: { spectrum: { slot } }, requires }
+    const issue = `Only ${MAX_ANALYSES - 1} FFT settings besides the default can be active at once; this one falls back to the default`
+    return { streams: { spectrum: { slot: 0 } }, requires, issues: [issue] }
   },
 })
 

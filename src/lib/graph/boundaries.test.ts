@@ -5,9 +5,6 @@ const GRAPH = 'src/lib/graph'
 const FIXTURES = `${GRAPH}/boundaries.fixtures`
 const DEFINE_OUTSIDE = ['@/lib/shader/glsl', '@/lib/audio/dsp', '@/lib/engine/midi', '@/lib/engine/output']
 
-// midi-osc reads FrameBinding until program/pure-resolve-7 moves it out of compile/
-const ALLOWED = ['nodes: nodes/control/midi-osc.ts imports @/lib/graph/compile/frame']
-
 function nodesAllow(file: string, from: string): boolean {
   if (from.startsWith('./')) return true
   if (from.startsWith('.')) return false
@@ -43,8 +40,7 @@ const violations = (root: string) =>
   )
 
 it('graph files import only across the boundaries the module allows', () => {
-  expect(violations(GRAPH)).toEqual(ALLOWED)
-  expect(ALLOWED).toHaveLength(1)
+  expect(violations(GRAPH)).toEqual([])
 })
 
 it('reports a forbidden import in a node file', () => {

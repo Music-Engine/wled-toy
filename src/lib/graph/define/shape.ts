@@ -1,5 +1,5 @@
 import type { CategoryId } from '@/lib/shader/glsl'
-import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
+import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { DataType, ImplicitDefault } from './types'
 import type { Value } from './value'
 
@@ -31,7 +31,7 @@ export interface NodeShape {
   outputs: OutputSocket[]
   pixel?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
   frame?(input: Record<string, any>, info: FrameContext): Record<string, FrameValue>
-  resolve?(input: Record<string, any>, env: ResolveEnv): Record<string, unknown>
+  resolve?(input: Record<string, any>, resources: Resources): ResolveResult
   state?(): unknown
 }
 

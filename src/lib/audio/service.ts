@@ -15,6 +15,9 @@ export interface AudioSettings extends Pick<AnalyzerConfig, 'agc' | 'gate'> {
   channel: AudioChannel
 }
 
+/** What a graph's Audio Source asks for. Which device is captured is not part of it: devices differ per machine. */
+export type AudioSourceRequest = Omit<AudioSettings, 'deviceId'>
+
 /** How one FFT looks at the live source. Several can run side by side, e.g. a fast coarse one and a slow fine one. */
 export type AnalysisSettings = Omit<AnalyzerConfig, 'sampleRate' | 'agc' | 'gate'>
 

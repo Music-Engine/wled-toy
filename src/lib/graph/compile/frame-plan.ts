@@ -4,9 +4,9 @@ import { componentCount } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { fallsBackToImplicit, valueInputs } from '@/lib/graph/registry'
 import type { FrameBinding } from './frame'
-import { isGenericSocket, type FrontEnd } from './front-end'
+import { isGenericSocket, storedValue, type FrontEnd } from './front-end'
 import { GraphError } from './program'
-import { settledInputs } from './streams'
+import { settledStreams } from './streams'
 
 /** Adds the node (and what feeds it) to the frame steps; returns its step index. */
 export function planStep(c: FrontEnd, id: string): number {
@@ -15,9 +15,9 @@ export function planStep(c: FrontEnd, id: string): number {
   const { node, shape } = c.lookup(id)
   c.enter(id)
   const inputs: Record<string, FrameBinding> = {}
-  for (const [name, constant] of Object.entries(settledInputs(c, id, shape))) inputs[name] = { constant }
+  for (const [name, constant] of Object.entries(settledStreams(c, id, shape))) inputs[name] = { constant }
   for (const socket of shape.inputs.filter((socket) => socket.type.kind !== 'stream')) {
-    inputs[socket.name] = socket.linkable ? linkedBinding(c, id, node.data, socket) : { constant: c.storedValue(id, node.data, socket) }
+    inputs[socket.name] = socket.linkable ? linkedBinding(c, id, node.data, socket) : { constant: storedValue(id, node.data, socket) }
   }
   const gen = componentCount(c.widths.get(id)!)!
   c.dims.set(id, outputDims(shape, gen))
@@ -34,7 +34,7 @@ function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Soc
     throw new GraphError(`${socket.label} needs one value per frame, but ${c.lookup(source.id).shape.title} changes per pixel`, id)
   }
   if (source) return { step: planStep(c, source.id), output: source.output }
-  if (!fallsBackToImplicit(data.values, socket)) return { constant: c.storedValue(id, data, socket) }
+  if (!fallsBackToImplicit(data.values, socket)) return { constant: storedValue(id, data, socket) }
   if (socket.default.frame) return { frame: socket.default.frame }
   throw new GraphError(`${socket.label} needs a value or a link; its default (${socket.default.label}) only exists per pixel`, id)
 }

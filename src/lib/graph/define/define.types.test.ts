@@ -1,4 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import { DEFAULT_OUTPUT } from '@/lib/engine/output'
+import type { ResolveResult } from './context'
 import type { NodeItemOptions } from './define'
 import { AudioStream, Enum, Float, GenType, Vec3 } from './socket-types'
 import type { Value } from './value'
@@ -66,6 +68,14 @@ describe('what a node body returns', () => {
   it('returns a number for a Float and a number or a possibly readonly vector for a GenType per frame', () => {
     expectTypeOf<ReturnType<Frame>>().toEqualTypeOf<{ level: number; result: number | number[] | readonly number[] }>()
   })
+})
+
+it('checks the wire settings an Output resolves to against OutputSettings', () => {
+  const resolved: ResolveResult = {
+    // @ts-expect-error gamma is a number
+    output: { ...DEFAULT_OUTPUT, gamma: 'high' },
+  }
+  expectTypeOf(resolved.output).not.toBeUndefined()
 })
 
 it('keeps the views out of the runtime value', () => {
