@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { NodeItem } from '@/lib/graph/define/node'
+import type { NodeItem } from '@/lib/graph/define/shape'
 import { generateGlsl } from '@/lib/graph/compile/compile'
 import { graph, node } from '@/lib/graph/testing'
 import { counterNode, toggleNode } from './counter'

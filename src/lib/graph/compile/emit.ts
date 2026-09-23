@@ -1,13 +1,12 @@
 // The per-pixel side: turns nodes that run in the shader into GLSL lines, and assembles the finished shader.
 import type { GlslType } from '@/lib/shader/glsl'
-import type { LinkedInputSocket, NodeContext } from '@/lib/graph/define/node'
-import { isImplicit, isLinkable, isStreamSocket } from '@/lib/graph/define/sockets'
+import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
+import { isImplicit, isLinkable, isStreamSocket, type LinkedInputSocket } from '@/lib/graph/define/shape'
 import { isGlslType } from '@/lib/graph/define/types'
 import { castTo, componentCount, vectorType, type Value } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { GraphError, isGenericSocket, type Compilation } from './compilation'
 import { controlOutput, runsOnCpu } from './control-plan'
-import { resolveChunks } from './glsl/chunk'
 import { settledInputs } from './streams'
 
 function context(c: Compilation, nodeId: string, gen: GlslType): NodeContext {
@@ -86,4 +85,16 @@ export function assemble(c: Compilation): { code: string; lineNodes: (string | n
     code: [...header, ...c.body.map((l) => `  ${l.text}`), '}', ''].join('\n'),
     lineNodes: [null, ...header.map(() => null), ...c.body.map((l) => l.node), null],
   }
+}
+
+/** `chunks` and everything they require, each once, dependencies first. */
+function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
+  const ordered: GlslChunk[] = []
+  const visit = (chunk: GlslChunk) => {
+    if (ordered.includes(chunk)) return
+    chunk.requires.forEach(visit)
+    ordered.push(chunk)
+  }
+  for (const chunk of chunks) visit(chunk)
+  return ordered
 }

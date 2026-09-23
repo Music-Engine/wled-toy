@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { FrameRunner, castFrameValue, generateGlsl, type FramePlan } from '@/lib/graph'
 import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { Float } from '@/lib/graph/define/socket-types'
 import { graph, node } from '@/lib/graph/testing'
 
 const frame = (n: number) => ({ time: n / 30, dt: 1 / 30, frameIndex: n })

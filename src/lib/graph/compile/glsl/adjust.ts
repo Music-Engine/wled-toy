@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 
 /** Small color adjustments from Blender: invert, gamma, brightness/contrast. */
 export const adjustChunk: GlslChunk = {

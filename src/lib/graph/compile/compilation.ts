@@ -1,12 +1,11 @@
 // What every compile stage reads and writes: the graph, the code being built, the per-frame plan, and the issues found.
 import type { OutputSettings } from '@/lib/engine/output'
-import type { FrameValue, InputSocket, NodeShape } from '@/lib/graph/define/node'
-import { isImplicit, isLinkable } from '@/lib/graph/define/sockets'
-import { itemFor } from '@/lib/graph/define/registry'
+import type { FrameValue, GlslChunk } from '@/lib/graph/define/context'
+import { isImplicit, isLinkable, type InputSocket, type NodeShape } from '@/lib/graph/define/shape'
+import { itemFor } from '@/lib/graph/registry'
 import type { Value } from '@/lib/graph/define/value'
 import type { NodeGraph, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
 import type { FramePlan } from './frame'
-import type { GlslChunk } from './glsl/chunk'
 
 export interface GraphIssue {
   nodeId: string | null

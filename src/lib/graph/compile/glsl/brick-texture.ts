@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 
 /** Blender brick texture (node_brick_texture.osl) in GLSL. */
 export const brickTextureChunk: GlslChunk = {

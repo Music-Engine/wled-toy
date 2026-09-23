@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { adjustChunk } from '@/lib/graph/compile/glsl/adjust'
-import { Color, Float } from '@/lib/graph/define/types'
+import { Color, Float } from '@/lib/graph/define/socket-types'
 
 const signed = { min: -1, max: 1, decimals: 2 }
 

@@ -8,7 +8,7 @@ import { generateGlsl } from './compile'
 import { FrameRunner } from './frame'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
-import { storedShape } from '@/lib/graph/define/registry'
+import { storedShape } from '@/lib/graph/registry'
 import { graph, node } from '@/lib/graph/testing'
 import { BEAT, BREAKDOWN, FPS, SAMPLE_RATE, SECONDS, feedSlots, openSlots, section, synthTrack } from '@/lib/graph/testing/offline'
 

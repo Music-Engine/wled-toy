@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { waveTextureChunk } from '@/lib/graph/compile/glsl/wave-texture'
-import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/types'
+import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 const TYPES = [{ value: 'bands', label: 'Bands' }, { value: 'rings', label: 'Rings' }] as const

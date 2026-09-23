@@ -1,5 +1,6 @@
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
-import type { FrameValue, FrameInfo, NodeShape } from '@/lib/graph/define/node'
+import type { FrameValue, FrameInfo } from '@/lib/graph/define/context'
+import type { NodeShape } from '@/lib/graph/define/shape'
 
 /** Where a control step takes an input from: a value stored on the node, or an earlier step's output. */
 export type FrameBinding = { constant: unknown } | { step: number; output: string } | { frame: (frame: FrameInfo) => number }

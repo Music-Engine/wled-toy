@@ -1,7 +1,6 @@
 // Streams (Audio, Spectrum) are settled while compiling: a node's `resolve` says what its stream outputs carry,
 // given its stored values and the streams linked into it. Numbers linked into it are not known yet and are left out.
-import type { NodeShape, StreamInputSocket } from '@/lib/graph/define/node'
-import { isLinkable, isStreamSocket } from '@/lib/graph/define/sockets'
+import { isLinkable, isStreamSocket, type NodeShape, type StreamInputSocket } from '@/lib/graph/define/shape'
 import { canCast } from '@/lib/graph/define/types'
 import { GraphError, type Compilation } from './compilation'
 

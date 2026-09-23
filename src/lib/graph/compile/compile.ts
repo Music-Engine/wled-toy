@@ -2,7 +2,7 @@
 // Streams are settled first (./streams), per-frame nodes are planned (./control-plan), and nodes that run in the
 // shader are emitted (./emit); this file only walks the graph's sinks and packs the result.
 import type { OutputSettings } from '@/lib/engine/output'
-import { itemFor } from '@/lib/graph/define/registry'
+import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { Compilation, GraphError, type CompileOptions, type FrozenValue, type GraphIssue } from './compilation'
 import type { FramePlan } from './frame'

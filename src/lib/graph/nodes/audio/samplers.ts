@@ -1,6 +1,6 @@
 import { HISTORY_ROWS } from '@/lib/audio/textures'
 import { defineNode } from '@/lib/graph/define/define'
-import { AudioStream, Float, SpectrumStream } from '@/lib/graph/define/types'
+import { AudioStream, Float, SpectrumStream } from '@/lib/graph/define/socket-types'
 
 const alongStrip = { type: Float, default: { expr: 'uv.x', label: 'uv.x' } } as const
 

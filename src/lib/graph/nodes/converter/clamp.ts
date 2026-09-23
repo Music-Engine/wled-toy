@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Enum, GenType } from '@/lib/graph/define/types'
+import { Enum, GenType } from '@/lib/graph/define/socket-types'
 
 const TYPES = [{ value: 'minMax', label: 'Min Max' }, { value: 'range', label: 'Range' }] as const
 

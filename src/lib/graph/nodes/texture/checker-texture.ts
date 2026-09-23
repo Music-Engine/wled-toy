@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { checkerTextureChunk } from '@/lib/graph/compile/glsl/checker-texture'
-import { Color, Float } from '@/lib/graph/define/types'
+import { Color, Float } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 export const checkerTextureNode = defineNode('checkerTexture', {

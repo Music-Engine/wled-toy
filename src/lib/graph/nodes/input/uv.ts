@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Float, Vec2 } from '@/lib/graph/define/types'
+import { Float, Vec2 } from '@/lib/graph/define/socket-types'
 import { swizzle, type Value } from '@/lib/graph/define/value'
 
 const uv: Value = { expr: 'uv', type: 'vec2' }

@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Bool, Color, Enum, Float } from '@/lib/graph/define/types'
+import { Bool, Color, Enum, Float } from '@/lib/graph/define/socket-types'
 import { emitRamp, type ColorRamp } from './color-ramp'
 
 const hex = (color: string) => [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16) / 255)

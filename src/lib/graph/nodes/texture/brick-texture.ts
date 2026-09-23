@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { brickTextureChunk } from '@/lib/graph/compile/glsl/brick-texture'
-import { Color, Float, Int } from '@/lib/graph/define/types'
+import { Color, Float, Int } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 const amount = { min: 0, step: 0.01, decimals: 2 }

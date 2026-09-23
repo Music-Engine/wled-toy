@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { magicTextureChunk } from '@/lib/graph/compile/glsl/magic-texture'
-import { Color, Float, Int } from '@/lib/graph/define/types'
+import { Color, Float, Int } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 export const magicTextureNode = defineNode('magicTexture', {

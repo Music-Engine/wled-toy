@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { hslToRgbChunk, hsvToRgbChunk, rgbToHslChunk, rgbToHsvChunk } from '@/lib/graph/compile/glsl/color'
-import { Color, Enum, Float } from '@/lib/graph/define/types'
+import { Color, Enum, Float } from '@/lib/graph/define/socket-types'
 import { swizzle } from '@/lib/graph/define/value'
 
 const MODES = [{ value: 'rgb', label: 'RGB' }, { value: 'hsv', label: 'HSV' }, { value: 'hsl', label: 'HSL' }] as const

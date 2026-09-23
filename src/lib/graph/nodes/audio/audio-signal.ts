@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { AudioStream, Enum, Float } from '@/lib/graph/define/types'
+import { AudioStream, Enum, Float } from '@/lib/graph/define/socket-types'
 import { approach, seconds } from '@/lib/graph/nodes/signal/shared'
 
 const MODES = [

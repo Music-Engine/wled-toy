@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 import { noiseChunk } from './noise'
 
 /** Blender wave texture (node_wave_texture.osl, node_noise.h) in GLSL. */

@@ -1,7 +1,8 @@
-import { NODES, type Param, type ShaderNode } from '@/lib/shader/glsl'
-import { defineNode } from '@/lib/graph/define/define'
-import type { LinkedInputDef, NodeItem } from '@/lib/graph/define/node'
-import { Color, typeForGlsl } from '@/lib/graph/define/types'
+import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/glsl'
+import { defineNode, type LinkedInputDef } from '@/lib/graph/define/define'
+import type { NodeItem } from '@/lib/graph/define/shape'
+import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4 } from '@/lib/graph/define/socket-types'
+import type { GlslTypeDef } from '@/lib/graph/define/types'
 
 const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : typeForGlsl(param.type))
 
@@ -57,3 +58,9 @@ const replaced = [
 ]
 
 export const CATALOG_FUNCTIONS: NodeItem[] = NODES.filter((node) => node.kind === 'function' && !replaced.includes(node.name)).map(functionItem)
+
+function typeForGlsl(glsl: GlslType): GlslTypeDef<any> {
+  const type = [Float, Int, Vec2, Vec3, Vec4, Sampler2D, GenType].find((t) => t.glsl === glsl)
+  if (!type) throw new Error(`No graph type for GLSL type ${glsl}`)
+  return type
+}

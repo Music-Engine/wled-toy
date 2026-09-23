@@ -1,7 +1,7 @@
 import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/glsl'
 import { defineNode } from '@/lib/graph/define/define'
 import { colorChunk } from '@/lib/graph/compile/glsl/color'
-import { Color, Enum, Float, Reference } from '@/lib/graph/define/types'
+import { Color, Enum, Float, Reference } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 const INTERPOLATIONS = [{ value: 'linear', label: 'Linear' }, { value: 'closest', label: 'Closest' }] as const

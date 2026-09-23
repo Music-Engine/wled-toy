@@ -1,8 +1,8 @@
 import { CATALOG_FUNCTIONS, CATALOG_UNIFORMS } from '@/lib/graph/nodes/catalog'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
-import type { InputSocket, NodeItem, NodeShape, OutputSocket } from './node'
+import type { InputSocket, NodeItem, NodeShape, OutputSocket } from '@/lib/graph/define/shape'
 import * as nodes from '@/lib/graph/nodes'
-import { canCast, type LinkType } from './types'
+import { canCast, type LinkType } from '@/lib/graph/define/types'
 
 const items = new Map<string, NodeItem>()
 const isNodeItem = (value: unknown): value is NodeItem => typeof value === 'object' && value !== null && 'shape' in value && 'base' in value

@@ -1,7 +1,7 @@
 // The per-frame side: which nodes run on the CPU, in what order, with which inputs, and how the shader reads their
 // results from the uniform block (or, when compiling standalone, as GLSL of their own or a frozen literal).
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
-import { isImplicit, isLinkable, isStreamSocket } from '@/lib/graph/define/sockets'
+import { isImplicit, isLinkable, isStreamSocket } from '@/lib/graph/define/shape'
 import { isGlslType } from '@/lib/graph/define/types'
 import { componentCount, floatLiteral, vectorType, vectorLiteral, type Value } from '@/lib/graph/define/value'
 import { GraphError, isGenericSocket, type Compilation } from './compilation'

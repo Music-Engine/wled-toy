@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 import { commonChunk } from './common'
 
 /** Blender gradient texture (node_gradient_texture.osl) in GLSL. */

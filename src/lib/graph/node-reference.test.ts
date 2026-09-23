@@ -1,13 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { it } from 'vitest'
 import { CATEGORIES } from '@/lib/shader/glsl'
-import type { InputSocket, NodeItem, NodeShape } from './node'
-import { isImplicit, placement } from './sockets'
+import { isImplicit, placement, type InputSocket, type NodeItem, type NodeShape } from './define/shape'
 import { allItems } from './registry'
-import type { EnumOption } from './types'
+import type { EnumOption } from './define/types'
 
 const FILE = 'graphs/AUTHORING.md'
-const MARKER = '<!-- generated: node reference. Everything below is rewritten by src/lib/graph/define/node-reference.test.ts -->'
+const MARKER = '<!-- generated: node reference. Everything below is rewritten by src/lib/graph/node-reference.test.ts -->'
 
 const optionsOf = (socket: InputSocket) => ((socket.type.props?.options ?? []) as EnumOption[]).map((o) => o.value)
 
@@ -38,7 +37,7 @@ function variants(item: NodeItem): string[] {
 }
 
 function reference(): string {
-  const lines = ['## Node reference', '', 'Generated from the registry (`allItems()` in `src/lib/graph/define/registry.ts`). The heading is the `data.kind` to write. Socket names are the handles edges use and the keys of `data.values`.', '']
+  const lines = ['## Node reference', '', 'Generated from the registry (`allItems()` in `src/lib/graph/registry.ts`). The heading is the `data.kind` to write. Socket names are the handles edges use and the keys of `data.values`.', '']
   for (const category of CATEGORIES) {
     const items = allItems().filter((item) => item.category === category.id)
     if (!items.length) continue

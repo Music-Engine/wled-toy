@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Vec2 } from '@/lib/graph/define/types'
+import { Vec2 } from '@/lib/graph/define/socket-types'
 
 export const vector2Node = defineNode('vector2', {
   title: 'Vector 2',

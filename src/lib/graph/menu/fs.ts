@@ -1,7 +1,7 @@
 import { categoryById, type CategoryId } from '@/lib/shader/glsl'
 import { directory, leaf, separator, type MenuDirectory, type MenuEntry, type MenuFs, type MenuItem, type MenuPreset } from '@/lib/shader/menu-fs'
 import { CATALOG_FUNCTIONS, CATALOG_UNIFORMS } from '@/lib/graph/nodes/catalog'
-import type { NodeItem } from '@/lib/graph/define/node'
+import type { NodeItem } from '@/lib/graph/define/shape'
 import * as nodes from '@/lib/graph/nodes'
 import { MATH_OP_OPTIONS } from '@/lib/graph/nodes/converter/math'
 import { VECTOR_OP_OPTIONS } from '@/lib/graph/nodes/converter/vector-math'

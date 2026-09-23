@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Enum, Float, Vec2 } from '@/lib/graph/define/types'
+import { Enum, Float, Vec2 } from '@/lib/graph/define/socket-types'
 import { swizzle } from '@/lib/graph/define/value'
 
 const uvInput = { type: Vec2, label: 'UV', default: { expr: 'uv', label: 'uv' } } as const

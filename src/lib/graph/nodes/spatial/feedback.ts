@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Color, Float } from '@/lib/graph/define/types'
+import { Color, Float } from '@/lib/graph/define/socket-types'
 
 export const previousFrameNode = defineNode('previousFrame', {
   title: 'Previous Frame',

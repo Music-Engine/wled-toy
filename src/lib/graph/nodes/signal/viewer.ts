@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { Float } from '@/lib/graph/define/socket-types'
 
 export const viewerNode = defineNode('viewer', {
   title: 'Viewer',

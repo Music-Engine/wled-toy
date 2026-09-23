@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 import { commonChunk } from './common'
 
 /** Blender magic texture (node_magic_texture.osl) in GLSL. */

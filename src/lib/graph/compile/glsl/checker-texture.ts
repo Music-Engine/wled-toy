@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 
 /** Blender checker texture (node_checker_texture.osl) in GLSL. */
 export const checkerTextureChunk: GlslChunk = {

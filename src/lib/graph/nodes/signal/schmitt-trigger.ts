@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { Float } from '@/lib/graph/define/socket-types'
 
 const level = (fallback: number) => ({ type: Float, default: fallback, props: { decimals: 3 } })
 

@@ -1,4 +1,4 @@
-import type { GlslChunk } from './chunk'
+import type { GlslChunk } from '@/lib/graph/define/context'
 
 export type MathType = 'float' | 'vec2' | 'vec3' | 'vec4'
 

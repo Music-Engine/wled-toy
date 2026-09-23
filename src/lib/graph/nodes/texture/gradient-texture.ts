@@ -1,6 +1,6 @@
 import { defineNode } from '@/lib/graph/define/define'
 import { gradientTextureChunk } from '@/lib/graph/compile/glsl/gradient-texture'
-import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/types'
+import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/socket-types'
 import { textureVector } from './vector'
 
 const TYPES = [

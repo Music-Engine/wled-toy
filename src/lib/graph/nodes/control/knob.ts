@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Float, Int, Text } from '@/lib/graph/define/types'
+import { Float, Int, Text } from '@/lib/graph/define/socket-types'
 
 export const knobNode = defineNode('knob', {
   title: 'Knob',

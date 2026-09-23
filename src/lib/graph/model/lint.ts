@@ -1,4 +1,4 @@
-import { inputSocket, outputSocket, storedShape } from '@/lib/graph/define/registry'
+import { inputSocket, outputSocket, storedShape } from '@/lib/graph/registry'
 import { canCast } from '@/lib/graph/define/types'
 import { GRAPH_NODE_TYPE, type NodeGraph } from './doc'
 

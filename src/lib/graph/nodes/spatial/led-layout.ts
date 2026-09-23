@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import { Float, Vec2, Vec3 } from '@/lib/graph/define/types'
+import { Float, Vec2, Vec3 } from '@/lib/graph/define/socket-types'
 import { swizzle } from '@/lib/graph/define/value'
 
 export const ledLayoutNode = defineNode('ledLayout', {
