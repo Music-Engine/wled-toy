@@ -6,7 +6,7 @@ export const integratorNode = defineNode('integrator', {
   description: 'Adds Rate times the frame time every frame: a phase that keeps turning at whatever speed Rate has now. Drive a texture or a wave with it instead of Time times a speed, and changing the speed no longer jumps.',
   category: 'signal',
   input: {
-    wrap: { type: Bool, default: true, connectable: false },
+    wrap: { type: Bool, default: true, linkable: false },
     rate: { type: Float, default: 1, props: { step: 0.1, decimals: 3 } },
     reset: { type: Float, default: 0 },
   },

@@ -69,5 +69,5 @@ describe('what a node body returns', () => {
 })
 
 it('keeps the views out of the runtime value', () => {
-  expect(Object.keys(Float)).toEqual(['id', 'label', 'glsl', 'check', 'initial', 'literal', 'color', 'castableFrom', 'cast'])
+  expect(Object.keys(Float)).toEqual(['id', 'label', 'kind', 'check', 'initial', 'castableFrom', 'dim'])
 })

@@ -67,7 +67,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
     category: 'converter',
     presets: VECTOR_OP_OPTIONS.map((o) => ({ title: o.label, values: { op: o.value } })),
     input: {
-      op: { type: Enum(VECTOR_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
+      op: { type: Enum(VECTOR_OP_OPTIONS), label: '', default: 'add', linkable: false, props: { label: 'Operation' } },
       a: vec([0.5, 0.5, 0]),
       ...(def.vectors > 1 && { b: vec(op === 'wrap' ? [0, 0, 0] : [0.5, 0.5, 0.5]) }),
       ...(def.vectors > 2 && { c: vec(op === 'wrap' ? [1, 1, 1] : [0, 0, 0]) }),

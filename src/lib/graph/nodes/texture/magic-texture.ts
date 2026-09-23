@@ -102,7 +102,7 @@ export const magicTextureNode = defineNode('magicTexture', {
   category: 'noise',
   includes: [magicTextureChunk],
   input: {
-    depth: { type: Int, default: 2, connectable: false, props: { min: 0, max: 10, step: 1, decimals: 0 } },
+    depth: { type: Int, default: 2, linkable: false, props: { min: 0, max: 10, step: 1, decimals: 0 } },
     vector: textureVector,
     scale: { type: Float, default: 5, props: { step: 0.1, decimals: 2 } },
     distortion: { type: Float, default: 1, props: { step: 0.1, decimals: 2 } },

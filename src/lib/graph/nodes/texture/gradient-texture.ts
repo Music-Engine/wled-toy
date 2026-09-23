@@ -77,7 +77,7 @@ export const gradientTextureNode = defineNode('gradientTexture', {
   category: 'noise',
   includes: [gradientTextureChunk],
   input: {
-    type: { type: Enum(TYPES), label: '', connectable: false, props: { label: 'Gradient' } },
+    type: { type: Enum(TYPES), label: '', linkable: false, props: { label: 'Gradient' } },
     vector: textureVector,
   },
   output: { fac: Float, color: Color },

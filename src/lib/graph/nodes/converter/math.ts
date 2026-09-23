@@ -89,8 +89,8 @@ export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName })
     // every operation is its own menu entry, so "sine" or "ping-pong" finds Math set to it
     presets: MATH_OP_OPTIONS.map((o) => ({ title: o.label, group: o.group, values: { op: o.value } })),
     input: {
-      op: { type: Enum(MATH_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
-      clamp: { type: Bool, default: false, connectable: false },
+      op: { type: Enum(MATH_OP_OPTIONS), label: '', default: 'add', linkable: false, props: { label: 'Operation' } },
+      clamp: { type: Bool, default: false, linkable: false },
       a: { type: GenType, label: a, default: 0.5 },
       ...(b && { b: { type: GenType, label: b, default: def.defaults?.[0] ?? 0.5 } }),
       ...(c && { c: { type: GenType, label: c, default: def.defaults?.[1] ?? 0.5 } }),

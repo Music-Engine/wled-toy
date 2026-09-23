@@ -1,7 +1,7 @@
 // A node can be both planned per frame and emitted per pixel today (Time feeding an Integrator and a shader node), so
 // this pass answers both questions and the Program lists such a node on both sides; settling each node on one
 // placement would change which nodes run, so it is left to a later decision.
-import { fallsBackToImplicit, hasFrameValue, isLinkable } from '@/lib/graph/define/shape'
+import { fallsBackToImplicit, hasFrameValue, valueInputs } from '@/lib/graph/registry'
 import type { FrontEnd } from './front-end'
 
 interface Walk {
@@ -65,7 +65,7 @@ function canRunPerFrame(walk: Walk, id: string, trail = new Set<string>()): bool
   if (trail.has(id)) return false
   trail.add(id)
   const { node, shape } = walk.c.lookup(id)
-  const result = shape.run !== undefined && shape.inputs.filter(isLinkable).every((socket) => {
+  const result = shape.run !== undefined && valueInputs(shape).every((socket) => {
     const source = walk.c.linkSource(id, socket)
     if (source) return canRunPerFrame(walk, source.id, trail)
     // an unlinked socket that falls back to `uv.x` or `iTime` only exists in the shader
@@ -77,5 +77,5 @@ function canRunPerFrame(walk: Walk, id: string, trail = new Set<string>()): bool
 }
 
 function linkedSources(c: FrontEnd, id: string): string[] {
-  return c.lookup(id).shape.inputs.filter(isLinkable).flatMap((socket) => c.linkSource(id, socket)?.id ?? [])
+  return valueInputs(c.lookup(id).shape).flatMap((socket) => c.linkSource(id, socket)?.id ?? [])
 }

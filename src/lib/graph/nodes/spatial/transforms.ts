@@ -24,8 +24,8 @@ export const mirrorNode = defineNode('mirror', {
   description: 'Fold space at a center so both sides show the same thing. The result runs 0 to 1 between the center and the far edge.',
   category: 'math',
   input: {
-    axis: { type: Enum(MIRROR_AXES), label: '', connectable: false, props: { label: 'Axis' } },
-    mode: { type: Enum(MIRROR_MODES), label: '', connectable: false, props: { label: 'Mode' } },
+    axis: { type: Enum(MIRROR_AXES), label: '', linkable: false, props: { label: 'Axis' } },
+    mode: { type: Enum(MIRROR_MODES), label: '', linkable: false, props: { label: 'Mode' } },
     uv: uvInput,
     center,
   },

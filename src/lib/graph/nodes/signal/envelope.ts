@@ -8,7 +8,7 @@ export const envelopeNode = defineNode('envelope', {
   description: 'Shapes a gate into attack, decay, sustain and release. AD fires a full attack and decay on every trigger and ignores how long the gate stays up.',
   category: 'signal',
   input: {
-    mode: { type: Enum(MODES), label: '', connectable: false, props: { label: 'Mode' } },
+    mode: { type: Enum(MODES), label: '', linkable: false, props: { label: 'Mode' } },
     gate: { type: Float, default: 0 },
     attack: seconds(0.01),
     decay: seconds(0.2),

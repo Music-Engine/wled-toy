@@ -2,7 +2,8 @@
 // node, and the Program as far as it is built. The backends never see it.
 import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue } from '@/lib/graph/define/context'
-import { isImplicit, isLinkable, type InputSocket, type NodeShape } from '@/lib/graph/define/shape'
+import type { NodeShape, Socket } from '@/lib/graph/define/shape'
+import { isImplicit } from '@/lib/graph/define/types'
 import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
 import { GraphError, type PixelSource, type Program } from './program'
@@ -10,17 +11,17 @@ import { GraphError, type PixelSource, type Program } from './program'
 export interface CompileOptions {
   /**
    * Compile for shader mode or an exported .glsl file, where nothing feeds the uniform block: every node with GLSL
-   * runs in the shader, per-frame-only nodes use their `standalone` GLSL or are baked from `controls` as literals.
+   * runs in the shader, per-frame-only nodes use a stand-in from the GLSL backend or are baked from `controls` as literals.
    */
   standalone?: boolean
   /** The last value a per-frame node produced, for baking. */
   controls?: (nodeId: string, output: string) => FrameValue | undefined
 }
 
-export const isGenericSocket = (socket: InputSocket) => isLinkable(socket) && socket.type.glsl === 'genType'
+export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
 
 /** The value stored on the node for a socket, or its default; an invalid value is replaced and `valid` says so. */
-export function storedOrDefault(data: GraphNodeData, socket: InputSocket): { value: unknown; valid: boolean } {
+export function storedOrDefault(data: GraphNodeData, socket: Socket): { value: unknown; valid: boolean } {
   const raw = data.values[socket.name] ?? socket.default
   if (socket.type.check(raw)) return { value: raw, valid: true }
   return { value: isImplicit(socket.default) ? socket.type.initial() : socket.default, valid: false }
@@ -81,7 +82,7 @@ export class FrontEnd {
   }
 
   /** Where a socket's link comes from, when it has one and the source node exists. */
-  linkSource(nodeId: string, socket: InputSocket): { id: string; output: string } | undefined {
+  linkSource(nodeId: string, socket: Socket): { id: string; output: string } | undefined {
     const edge = this.incoming.get(`${nodeId}:${socket.name}`)
     return edge?.sourceHandle && this.nodes.has(edge.source) ? { id: edge.source, output: edge.sourceHandle } : undefined
   }
@@ -94,7 +95,7 @@ export class FrontEnd {
   }
 
   /** The value stored on the node for a socket, or its default; an invalid value is reported and replaced. */
-  storedValue(nodeId: string, data: GraphNodeData, socket: InputSocket): unknown {
+  storedValue(nodeId: string, data: GraphNodeData, socket: Socket): unknown {
     const { value, valid } = storedOrDefault(data, socket)
     if (!valid) this.program.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
     return value

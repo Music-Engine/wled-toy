@@ -13,7 +13,7 @@ export const separateColorNode = defineNode('separateColor', ({ mode = 'rgb' }: 
     description: 'A color as three numbers: red, green, blue, or hue, saturation and value or lightness.',
     category: 'converter',
     includes: mode === 'hsv' ? [rgbToHsvChunk] : mode === 'hsl' ? [rgbToHslChunk] : [],
-    input: { mode: { type: Enum(MODES), label: '', default: 'rgb', connectable: false, props: { label: 'Mode' } }, color: { type: Color, default: [1, 0.45, 0.1] } },
+    input: { mode: { type: Enum(MODES), label: '', default: 'rgb', linkable: false, props: { label: 'Mode' } }, color: { type: Color, default: [1, 0.45, 0.1] } },
     output: { a: { type: Float, label: a }, b: { type: Float, label: b }, c: { type: Float, label: c } },
     exec: ({ color }, ctx) => {
       const v = ctx.declare('vec3', mode === 'hsv' ? `rgb_to_hsv(${color.expr})` : mode === 'hsl' ? `rgb_to_hsl(${color.expr})` : color.expr)
@@ -30,7 +30,7 @@ export const combineColorNode = defineNode('combineColor', ({ mode = 'rgb' }: { 
     description: 'A color from three numbers, as red, green, blue, or hue, saturation and value or lightness.',
     category: 'converter',
     includes: mode === 'hsv' ? [hsvToRgbChunk] : mode === 'hsl' ? [hslToRgbChunk] : [],
-    input: { mode: { type: Enum(MODES), label: '', default: 'rgb', connectable: false, props: { label: 'Mode' } }, a: channel(a, mode === 'rgb' ? 1 : 0), b: channel(b, mode === 'rgb' ? 0.45 : 1), c: channel(c, mode === 'rgb' ? 0.1 : mode === 'hsl' ? 0.5 : 1) },
+    input: { mode: { type: Enum(MODES), label: '', default: 'rgb', linkable: false, props: { label: 'Mode' } }, a: channel(a, mode === 'rgb' ? 1 : 0), b: channel(b, mode === 'rgb' ? 0.45 : 1), c: channel(c, mode === 'rgb' ? 0.1 : mode === 'hsl' ? 0.5 : 1) },
     output: { color: Color },
     exec: (input, ctx) => {
       const v = `vec3(${input.a.expr}, ${input.b.expr}, ${input.c.expr})`

@@ -1,9 +1,9 @@
 // Where a pixel consumer reads a per-frame output: a slot in the uniform block, allocated in the order the walk first
-// reads each output, or, standalone, the node's own GLSL for that output or its last value frozen into the code.
+// reads each output, or, standalone, the GLSL backend's stand-in for that output or its last value frozen into the code.
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
-import { isGlslType } from '@/lib/graph/define/types'
 import type { FrontEnd } from './front-end'
 import { planStep } from './frame-plan'
+import { standaloneExpr } from './glsl'
 import { GraphError, type PixelSource } from './program'
 
 /** Only outputs the shader links to get a slot; undefined when the output carries no number. */
@@ -28,11 +28,11 @@ function uniformSource(c: FrontEnd, id: string, output: string): PixelSource | u
 }
 
 function bakedSource(c: FrontEnd, id: string, output: string): PixelSource | undefined {
-  const { shape } = c.lookup(id)
+  const { node, shape } = c.lookup(id)
   const out = shape.outputs.find((o) => o.name === output)
-  if (!out || !isGlslType(out.type)) return undefined
+  if (!out || out.type.kind !== 'value') return undefined
   c.record(id)
-  if (shape.standalone[output]) return { standalone: id, output }
+  if (standaloneExpr(node.data.kind, output)) return { standalone: id, output }
   c.program.pixel.push({ frozen: id, output, value: c.options.controls?.(id, output) ?? 0 })
   return { frozen: id, output }
 }

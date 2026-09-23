@@ -7,7 +7,7 @@ export const clampNode = defineNode('clamp', {
   description: 'Constrain a value between two bounds. Range accepts the bounds in either order.',
   category: 'converter',
   input: {
-    type: { type: Enum(TYPES), label: '', connectable: false, props: { label: 'Clamp' } },
+    type: { type: Enum(TYPES), label: '', linkable: false, props: { label: 'Clamp' } },
     value: { type: GenType, default: { expr: 'uv.x', label: 'uv.x' } },
     min: { type: GenType, default: 0 },
     max: { type: GenType, default: 1 },

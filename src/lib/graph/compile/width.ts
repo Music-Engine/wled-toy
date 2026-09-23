@@ -1,11 +1,12 @@
 // Generic widths: before anything is emitted, each node's `gen` type is settled from the widest type linked or stored
 // on its generic sockets, walking from the sinks in the order emission and planning will.
 import type { GlslType } from '@/lib/shader/glsl'
-import { fallsBackToImplicit, isLinkable, type LinkedInputSocket } from '@/lib/graph/define/shape'
-import { isGlslType } from '@/lib/graph/define/types'
+import type { Socket } from '@/lib/graph/define/shape'
 import { componentCount, vectorType } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
+import { fallsBackToImplicit, valueInputs } from '@/lib/graph/registry'
 import { isGenericSocket, storedOrDefault, type FrontEnd } from './front-end'
+import { glslForm, standaloneExpr } from './glsl'
 
 type Rate = 'pixel' | 'frame'
 type Link = { id: string; output: string }
@@ -25,13 +26,13 @@ function inferNode(c: FrontEnd, id: string, rate: Rate, trail: Set<string>): voi
   if (c.widths.has(id) || trail.has(id)) return
   trail.add(id)
   const { node, shape } = c.lookup(id)
-  for (const socket of shape.inputs.filter(isLinkable)) {
+  for (const socket of valueInputs(shape)) {
     const source = c.linkSource(id, socket)
     if (!source) continue
     const from = sourceRate(c, source.id, rate)
     if (from !== 'baked') inferNode(c, source.id, from, trail)
   }
-  const counts = shape.inputs.filter(isLinkable).filter(isGenericSocket).map((socket) => componentCount(inputType(c, id, node.data, socket, rate)) ?? 1)
+  const counts = valueInputs(shape).filter(isGenericSocket).map((socket) => componentCount(inputType(c, id, node.data, socket, rate)) ?? 1)
   c.widths.set(id, vectorType(Math.max(1, ...counts)))
 }
 
@@ -43,14 +44,14 @@ function sourceRate(c: FrontEnd, id: string, rate: Rate): Rate | 'baked' {
 }
 
 /** The type a socket arrives as, before it is cast to the node's width. */
-function inputType(c: FrontEnd, id: string, data: GraphNodeData, socket: LinkedInputSocket, rate: Rate): GlslType {
+function inputType(c: FrontEnd, id: string, data: GraphNodeData, socket: Socket, rate: Rate): GlslType {
   const source = c.linkSource(id, socket)
   const out = source && c.lookup(source.id).shape.outputs.find((o) => o.name === source.output)
-  if (source && out && isGlslType(out.type)) return outputType(c, source, out.type.glsl, sourceRate(c, source.id, rate))
+  if (source && out && out.type.kind === 'value') return outputType(c, source, glslForm(out.type).type, sourceRate(c, source.id, rate))
   // planning reads a missing or non-numeric output as one component; emission falls back as if unlinked
   if (source && rate === 'frame') return 'float'
   if (fallsBackToImplicit(data.values, socket)) return 'float'
-  return socket.type.literal(storedOrDefault(data, socket).value).type
+  return glslForm(socket.type).literal(storedOrDefault(data, socket).value).type
 }
 
 function outputType(c: FrontEnd, source: Link, glsl: GlslType, from: Rate | 'baked'): GlslType {
@@ -62,7 +63,7 @@ function outputType(c: FrontEnd, source: Link, glsl: GlslType, from: Rate | 'bak
 
 /** A frozen output is its standalone GLSL, else the literal of its last value. */
 function bakedType(c: FrontEnd, { id, output }: Link, glsl: GlslType): GlslType {
-  if (c.lookup(id).shape.standalone[output]) return glsl === 'genType' ? 'float' : glsl
+  if (standaloneExpr(c.lookup(id).node.data.kind, output)) return glsl === 'genType' ? 'float' : glsl
   const value = c.options.controls?.(id, output) ?? 0
   return Array.isArray(value) ? vectorType(value.length) : 'float'
 }

@@ -7,7 +7,7 @@ export const mapRangeNode = defineNode('remap', {
   description: 'Linearly map a value from one range onto another, optionally clamped to the target range.',
   category: 'converter',
   input: {
-    clamp: { type: Bool, default: true, connectable: false },
+    clamp: { type: Bool, default: true, linkable: false },
     value: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
     inLow: bound(0), inHigh: bound(1), outLow: bound(0), outHigh: bound(1),
   },

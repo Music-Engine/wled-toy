@@ -19,6 +19,7 @@ import { log } from '@/lib/app/logs'
 import { useEngine } from '@/lib/engine/engine'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from '@/components/graph/graph-context'
+import { socketColor } from '@/components/graph/sockets'
 import { createGraphDocument, graphFileBackendKey, type GraphSession } from '@/lib/graph/model/document'
 import { createHistory } from '@/lib/documents/history'
 import { frozenNotice, graphCodeNotice } from '@/lib/shader/shader-export'
@@ -29,14 +30,14 @@ import { classifyWheel, type WheelGesture } from './wheel-source'
 import {
   GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, itemFor,
   newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
-  type NodeGraph, type GraphIssue, type GraphNodeData, type LinkType, type NodeItem, type StoredEdge,
+  type DataType, type NodeGraph, type GraphIssue, type GraphNodeData, type NodeItem, type StoredEdge,
 } from '@/lib/graph'
 
 interface PendingLink {
   nodeId: string
   handleId: string
   handleType: 'source' | 'target'
-  type: LinkType
+  type: DataType<any>
 }
 
 const FLOW_ID = 'wledtoy-graph'
@@ -186,7 +187,7 @@ function styledEdges(doc: NodeGraph): Edge[] {
   const byId = new Map(doc.nodes.map((n) => [n.id, n.data]))
   return doc.edges.map((e) => {
     const from = e.style?.stroke ? undefined : outputSocket(byId.get(e.source), e.sourceHandle)
-    return from ? { ...e, style: { stroke: from.type.color, strokeWidth: 2 } } : e
+    return from ? { ...e, style: { stroke: socketColor(from.type), strokeWidth: 2 } } : e
   }) as Edge[]
 }
 
@@ -293,7 +294,7 @@ function connectLink(c: Connection): boolean {
   addEdges([{
     ...c,
     id: `e-${c.source}-${c.sourceHandle}-${c.target}-${c.targetHandle}-${Date.now().toString(36)}`,
-    style: { stroke: from.type.color, strokeWidth: 2 },
+    style: { stroke: socketColor(from.type), strokeWidth: 2 },
   }])
   return true
 }
@@ -737,7 +738,7 @@ onBeforeUnmount(() => {
       <button type="button" class="app-button ms-1" @click="sendToShader">Send to Shader Mode</button>
     </Teleport>
 
-    <NodeMenu v-model:open="nodeMenu.open" :position="nodeMenu.position" :fs="menuFs" :describe="describeNodeItem" @select="addNode" />
+    <NodeMenu v-model:open="nodeMenu.open" :position="nodeMenu.position" :fs="menuFs" :describe="(item: NodeItem, preset?: MenuPreset) => describeNodeItem(item, preset, socketColor)" @select="addNode" />
     <GraphDocumentDialogs v-if="graphDocument" :document="graphDocument" />
     <CommandScope
       :handlers="{

@@ -2,7 +2,7 @@ import { allItems, GRAPH_NODE_TYPE, newNodeData, type EnumOption, type GraphNode
 
 const socketsOf = (item: NodeItem, values: GraphNodeData['values']) => {
   const shape = item.shape(values)
-  return JSON.stringify([shape.inputs.map((s) => [s.name, s.label, s.type.id, s.connectable]), shape.outputs.map((s) => [s.name, s.label, s.type.id])])
+  return JSON.stringify([shape.inputs.map((s) => [s.name, s.label, s.type.id, s.linkable]), shape.outputs.map((s) => [s.name, s.label, s.type.id])])
 }
 
 /** The default values, then one set per enum option that gives the node sockets no earlier set gave it. */

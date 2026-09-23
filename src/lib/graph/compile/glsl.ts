@@ -2,9 +2,9 @@
 import type { OutputSettings } from '@/lib/engine/output'
 import type { GlslType } from '@/lib/shader/glsl'
 import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
-import type { InputSocket, LinkedInputSocket, NodeShape } from '@/lib/graph/define/shape'
-import type { GlslTypeDef, ImplicitDefault } from '@/lib/graph/define/types'
-import { castTo, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
+import type { NodeShape, Socket } from '@/lib/graph/define/shape'
+import type { DataType, ImplicitDefault } from '@/lib/graph/define/types'
+import { castTo, componentCount, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
 import { GraphError, shapeOf, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode } from './program'
 
 export interface FrozenValue {
@@ -73,25 +73,24 @@ function extras(node: ProgramNode, shape: NodeShape): Record<string, unknown> {
   return Object.fromEntries(Object.entries(node.resolved).filter(([name]) => !outputs.has(name)))
 }
 
-function bodyInput(e: Emission, node: ProgramNode, shape: NodeShape, socket: InputSocket, input: PixelInput): unknown {
+function bodyInput(e: Emission, node: ProgramNode, shape: NodeShape, socket: Socket, input: PixelInput): unknown {
   if ('value' in input) return input.value
-  // the front end gives only linkable sockets a source to cast
-  const { type } = socket as LinkedInputSocket
-  const value = sourceValue(e, socket as LinkedInputSocket, input.from)
+  // the front end gives only linkable value sockets a source to cast
+  const value = sourceValue(e, socket, input.from)
   try {
-    return castTo(type.cast(value), input.cast)
+    return castTo(glslForm(socket.type).cast(value), input.cast)
   } catch (err) {
     throw new GraphError(`${shape.title}: ${(err as Error).message}`, node.id)
   }
 }
 
-function sourceValue(e: Emission, socket: LinkedInputSocket, from: PixelSource): Value {
+function sourceValue(e: Emission, socket: Socket, from: PixelSource): Value {
   if ('link' in from) return linkedOutput(e, from.link, from.output)
   if ('uniform' in from) return uniformRead(from.uniform, from.dim)
   if ('frozen' in from) return e.frozenValues.get(`${from.frozen}:${from.output}`)!
   if ('standalone' in from) return standaloneOutput(e.program.nodes[from.standalone], from.output)
   if ('implicit' in from) return implicitValue(socket)
-  return socket.type.literal(from.literal)
+  return glslForm(socket.type).literal(from.literal)
 }
 
 /** Every body returns every numeric output it declares; one that does not is a bug in that node. */
@@ -106,17 +105,16 @@ function uniformRead(slot: number, dim: number): Value {
   return { expr: dim === 1 ? reads[0] : `${vectorType(dim)}(${reads.join(', ')})`, type: vectorType(dim) }
 }
 
-/** The front end only points here for a numeric output with standalone GLSL. */
+/** The front end only points here for a numeric output with a stand-in. */
 function standaloneOutput(node: ProgramNode, output: string): Value {
-  const shape = shapeOf(node)
-  const { type } = shape.outputs.find((o) => o.name === output)! as { type: GlslTypeDef<unknown> }
-  return { expr: shape.standalone[output]!, type: concreteType(type.glsl) }
+  const { type } = shapeOf(node).outputs.find((o) => o.name === output)!
+  return { expr: standaloneExpr(node.kind, output)!, type: concreteType(glslForm(type).type) }
 }
 
 /** The front end only points here for a linkable socket that falls back to its implicit expression. */
-function implicitValue(socket: LinkedInputSocket): Value {
+function implicitValue(socket: Socket): Value {
   const { expr } = socket.default as ImplicitDefault
-  return { expr, type: concreteType(socket.type.glsl) }
+  return { expr, type: concreteType(glslForm(socket.type).type) }
 }
 
 const concreteType = (glsl: GlslType): GlslType => (glsl === 'genType' ? 'float' : glsl)
@@ -172,3 +170,56 @@ function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
   for (const chunk of chunks) visit(chunk)
   return ordered
 }
+
+/** A value type as GLSL writes it: its type name, a stored value as a literal, and a linked value cast to it. */
+interface GlslForm {
+  type: GlslType
+  literal(raw: unknown): Value
+  cast(value: Value): Value
+}
+
+/** The front end asks only about value types; any other reaching here is a compiler bug. */
+export function glslForm(type: DataType<any>): GlslForm {
+  const form = GLSL[type.id]
+  if (!form) throw new Error(`${type.label} has no GLSL form`)
+  return form
+}
+
+const GLSL: Record<string, GlslForm> = {
+  float: numeric('float', floatLiteral),
+  int: numeric('int', (raw) => ({ expr: String(raw), type: 'int' })),
+  vec2: numeric('vec2', vectorLiteral),
+  vec3: numeric('vec3', vectorLiteral),
+  color: numeric('vec3', vectorLiteral),
+  vec4: numeric('vec4', vectorLiteral),
+  // the front end resolves a generic socket to the node's width, so a cast here only rejects what is not a number at all
+  genType: {
+    type: 'genType',
+    literal: (raw: number | number[]) => (Array.isArray(raw) ? vectorLiteral(raw) : floatLiteral(raw)),
+    cast: (value) => {
+      if (componentCount(value.type) === undefined) throw new Error(`Cannot cast ${value.type} to a number or vector`)
+      return value
+    },
+  },
+  sampler2D: {
+    type: 'sampler2D',
+    literal: () => ({ expr: 'iImage', type: 'sampler2D' }),
+    cast: (value) => {
+      if (value.type !== 'sampler2D') throw new Error(`Cannot cast ${value.type} to sampler2D`)
+      return value
+    },
+  },
+}
+
+function numeric(type: GlslType, literal: GlslForm['literal']): GlslForm {
+  return { type, literal, cast: (value) => castTo(value, type) }
+}
+
+/** Exported or sent to shader mode there is no analyzer and no uniform block, so what the prelude's audio helpers give stands in. */
+const STANDALONE: Record<string, Record<string, string>> = {
+  audio: { level: 'energy()', kick: 'bass()', sub: 'bass()', lowMid: 'mid()', vocal: 'mid()', presence: 'treble()', air: 'treble()', beat: 'beat(0.5)' },
+  audioSignal: { signal: 'energy()' },
+}
+
+/** What stands in for a per-frame output of a node of `kind` in standalone code; without one the output is frozen. */
+export const standaloneExpr = (kind: string, output: string): string | undefined => STANDALONE[kind]?.[output]

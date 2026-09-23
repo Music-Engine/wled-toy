@@ -17,7 +17,7 @@ export const curveNode = defineNode('curve', {
   description: 'Reshape a 0 to 1 value with an easing curve. The input is clamped first.',
   category: 'converter',
   input: {
-    curve: { type: Enum(CURVES), label: '', connectable: false, props: { label: 'Curve' } },
+    curve: { type: Enum(CURVES), label: '', linkable: false, props: { label: 'Curve' } },
     value: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { result: Float },

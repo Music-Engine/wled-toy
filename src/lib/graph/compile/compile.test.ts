@@ -36,7 +36,7 @@ describe('normalizeDoc', () => {
 describe('socket names', () => {
   it('every socket says what it carries, never a GLSL type or a bare lowercase letter', () => {
     const vague = flattenFs(GRAPH_FS.items).flatMap(({ node: item }) =>
-      [...item.base.inputs.filter((s) => s.connectable), ...item.base.outputs]
+      [...item.base.inputs.filter((s) => s.linkable), ...item.base.outputs]
         .filter((s) => [...GLSL_TYPES, 'genType', 'out', 'result'].includes(s.label) || /^[a-z]?$/.test(s.label))
         .map((s) => `${item.id}.${s.name}`))
     expect(vague).toEqual([])

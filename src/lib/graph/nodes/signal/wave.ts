@@ -20,7 +20,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
   description: 'A 0 to 1 wave of the given shape: Frequency cycles per unit of Input, shifted by Phase. Random Steps holds a new random value each cycle; Smooth Random glides between them.',
   category: 'signal',
   input: {
-    shape: { type: Enum(SHAPES), label: '', default: 'sine', connectable: false, props: { label: 'Shape' } },
+    shape: { type: Enum(SHAPES), label: '', default: 'sine', linkable: false, props: { label: 'Shape' } },
     input: { type: Float, default: { expr: 'iTime', label: 'time', frame: 'time' } },
     frequency: { type: Float, default: 1, props: { step: 0.1, decimals: 3 } },
     phase: { type: Float, default: 0, props: { decimals: 3 } },

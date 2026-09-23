@@ -15,7 +15,7 @@ function compute(op: VectorOpName, values: Record<string, unknown>) {
 
 describe('Vector Math', () => {
   it('shapes its sockets by operation', () => {
-    const names = (op: VectorOpName) => vectorMathNode.shape({ op }).inputs.filter((s) => s.connectable).map((s) => s.name)
+    const names = (op: VectorOpName) => vectorMathNode.shape({ op }).inputs.filter((s) => s.linkable).map((s) => s.name)
     expect(names('length')).toEqual(['a'])
     expect(names('scale')).toEqual(['a', 'scale'])
     expect(names('wrap')).toEqual(['a', 'b', 'c'])

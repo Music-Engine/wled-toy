@@ -1,27 +1,27 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
 import { CATEGORIES } from '@/lib/shader/glsl'
-import { isImplicit, placement, type InputSocket, type NodeItem, type NodeShape } from './define/shape'
+import { placement, type NodeItem, type NodeShape, type Socket } from './define/shape'
 import { allItems } from './registry'
-import type { EnumOption } from './define/types'
+import { isImplicit, type EnumOption } from './define/types'
 
 const FILE = 'graphs/AUTHORING.md'
 const MARKER = '<!-- generated: node reference. Everything below is rewritten by src/lib/graph/node-reference.test.ts -->'
 
-const optionsOf = (socket: InputSocket) => ((socket.type.props?.options ?? []) as EnumOption[]).map((o) => o.value)
+const optionsOf = (socket: Socket) => ((socket.type.props?.options ?? []) as EnumOption[]).map((o) => o.value)
 
-function inputLine(socket: InputSocket, values: Record<string, unknown>): string {
+function inputLine(socket: Socket, values: Record<string, unknown>): string {
   const props = typeof socket.props === 'function' ? socket.props(values) : socket.props
   const range = ['min', 'max', 'step'].filter((key) => typeof props[key] === 'number').map((key) => `${key} ${props[key]}`).join(', ')
   const fallback = isImplicit(socket.default) ? `unlinked it reads \`${socket.default.label}\`` : `default \`${JSON.stringify(socket.default)}\``
   const kind = socket.type.id === 'enum' ? `one of ${optionsOf(socket).map((v) => `\`${v}\``).join(' ')}` : socket.type.label
-  return `  - in \`${socket.name}\`${socket.label && socket.label.toLowerCase() !== socket.name.toLowerCase() ? ` "${socket.label}"` : ''}: ${kind}, ${socket.connectable ? 'linkable' : 'stored only'}, ${fallback}${range ? `, ${range}` : ''}`
+  return `  - in \`${socket.name}\`${socket.label && socket.label.toLowerCase() !== socket.name.toLowerCase() ? ` "${socket.label}"` : ''}: ${kind}, ${socket.linkable ? 'linkable' : 'stored only'}, ${fallback}${range ? `, ${range}` : ''}`
 }
 
 const rate = (shape: NodeShape) => (!shape.exec && !shape.run ? 'settled while compiling (streams only)'
   : { pixel: 'GLSL per pixel (exec)', frame: `control-rate, CPU once per frame (run)${shape.state ? ', stateful' : ''}`, either: 'either: CPU per frame when something is linked in and every link is per frame, else GLSL per pixel (exec + run)' }[placement(shape)])
 
-const sockets = (shape: NodeShape, base: NodeShape) => `${shape.inputs.filter((s) => s.connectable || !base.inputs.some((known) => known.name === s.name)).map((s) => `${s.name}${s.label ? ` "${s.label}"` : ''}${isImplicit(s.default) ? '' : `=${JSON.stringify(s.default)}`}`).join(', ')} -> ${shape.outputs.map((s) => s.name).join(', ')}`
+const sockets = (shape: NodeShape, base: NodeShape) => `${shape.inputs.filter((s) => s.linkable || !base.inputs.some((known) => known.name === s.name)).map((s) => `${s.name}${s.label ? ` "${s.label}"` : ''}${isImplicit(s.default) ? '' : `=${JSON.stringify(s.default)}`}`).join(', ')} -> ${shape.outputs.map((s) => s.name).join(', ')}`
 
 /** Options of each stored Option input that give the node other sockets than its defaults do, grouped by the sockets they give. */
 function variants(item: NodeItem): string[] {
@@ -59,4 +59,12 @@ it.runIf(process.env.GRAPH_REFERENCE === '1')('writes the node reference into th
 
 it('registers every node kind and catalog item', () => {
   expect(allItems()).toHaveLength(91)
+})
+
+it('gives every socket type one of the three kinds', () => {
+  for (const item of allItems()) {
+    for (const socket of [...item.base.inputs, ...item.base.outputs]) {
+      expect(['value', 'param', 'stream'], `${item.id}.${socket.name}`).toContain(socket.type.kind)
+    }
+  }
 })

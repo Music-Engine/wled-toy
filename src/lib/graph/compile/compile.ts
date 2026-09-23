@@ -16,7 +16,7 @@ import { resolveNode } from './streams'
 import { inferWidths } from './width'
 
 export type { CompileOptions } from './front-end'
-export type { FrozenValue } from './glsl'
+export { glslForm, type FrozenValue } from './glsl'
 export type { GraphIssue } from './program'
 
 export interface GeneratedShader extends GlslShader {

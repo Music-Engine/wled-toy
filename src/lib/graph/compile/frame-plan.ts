@@ -1,8 +1,8 @@
 // The per-frame side of the Program: which nodes run once per frame, in what order, and with which inputs.
-import { fallsBackToImplicit, isLinkable, isStreamSocket, type LinkedInputSocket, type NodeShape } from '@/lib/graph/define/shape'
-import { isGlslType } from '@/lib/graph/define/types'
+import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import { componentCount } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
+import { fallsBackToImplicit, valueInputs } from '@/lib/graph/registry'
 import type { FrameBinding } from './frame'
 import { isGenericSocket, type FrontEnd } from './front-end'
 import { GraphError } from './program'
@@ -16,8 +16,8 @@ export function planStep(c: FrontEnd, id: string): number {
   c.enter(id)
   const inputs: Record<string, FrameBinding> = {}
   for (const [name, constant] of Object.entries(settledInputs(c, id, shape))) inputs[name] = { constant }
-  for (const socket of shape.inputs.filter((socket) => !isStreamSocket(socket))) {
-    inputs[socket.name] = isLinkable(socket) ? linkedBinding(c, id, node.data, socket) : { constant: c.storedValue(id, node.data, socket) }
+  for (const socket of shape.inputs.filter((socket) => socket.type.kind !== 'stream')) {
+    inputs[socket.name] = socket.linkable ? linkedBinding(c, id, node.data, socket) : { constant: c.storedValue(id, node.data, socket) }
   }
   const gen = componentCount(c.widths.get(id)!)!
   c.dims.set(id, outputDims(shape, gen))
@@ -28,7 +28,7 @@ export function planStep(c: FrontEnd, id: string): number {
   return index
 }
 
-function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: LinkedInputSocket): FrameBinding {
+function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Socket): FrameBinding {
   const source = c.linkSource(id, socket)
   if (source && c.changesPerPixel.has(source.id)) {
     throw new GraphError(`${socket.label} needs one value per frame, but ${c.lookup(source.id).shape.title} changes per pixel`, id)
@@ -42,8 +42,8 @@ function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Lin
 /** Component count each linked input is cast to before `run` sees it; generic sockets come last, as planning always listed them. */
 function inputDims(shape: NodeShape, gen: number): Record<string, number> {
   const dims: Record<string, number> = {}
-  for (const socket of shape.inputs.filter(isLinkable)) {
-    if (!isGenericSocket(socket)) dims[socket.name] = componentCount(socket.type.glsl) ?? 1
+  for (const socket of valueInputs(shape)) {
+    if (!isGenericSocket(socket)) dims[socket.name] = socket.type.dim ?? 1
   }
   for (const socket of shape.inputs.filter(isGenericSocket)) dims[socket.name] = gen
   return dims
@@ -53,8 +53,8 @@ function inputDims(shape: NodeShape, gen: number): Record<string, number> {
 function outputDims(shape: NodeShape, gen: number): Record<string, number> {
   const dims: Record<string, number> = {}
   for (const out of shape.outputs) {
-    if (!isGlslType(out.type)) continue
-    dims[out.name] = out.type.glsl === 'genType' ? gen : componentCount(out.type.glsl) ?? 1
+    if (out.type.kind !== 'value') continue
+    dims[out.name] = out.type.id === 'genType' ? gen : out.type.dim ?? 1
   }
   return dims
 }

@@ -1,7 +1,7 @@
 export { FrameRunner, type FramePlan, type FrameStep } from './compile/frame'
 export { generateGlsl, type FrozenValue, type GeneratedShader, type GraphIssue } from './compile/compile'
-export { canCast, isStreamType, type DataType, type EnumOption, type LinkType } from './define/types'
-export { isImplicit, linkType, placement, type InputSocket, type NodeItem, type NodeShape, type OutputSocket } from './define/shape'
+export { canCast, isImplicit, type DataType, type EnumOption } from './define/types'
+export { placement, type NodeItem, type NodeShape, type OutputSocket, type Socket } from './define/shape'
 export { GRAPH_FS, describeNodeItem } from './menu/fs'
 export {
   GRAPH_NODE_TYPE,

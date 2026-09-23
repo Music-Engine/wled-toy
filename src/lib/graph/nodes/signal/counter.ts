@@ -6,7 +6,7 @@ export const counterNode = defineNode('counter', {
   description: 'Counts triggers and wraps at Steps. Phase is the count as 0 to 1, handy for stepping through a palette.',
   category: 'signal',
   input: {
-    steps: { type: Int, default: 4, connectable: false, props: { min: 1, step: 1, decimals: 0 } },
+    steps: { type: Int, default: 4, linkable: false, props: { min: 1, step: 1, decimals: 0 } },
     trigger: { type: Float, default: 0 },
     reset: { type: Float, default: 0 },
   },

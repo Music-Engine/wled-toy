@@ -72,6 +72,8 @@ const isStop = (raw: unknown): raw is RampStop => {
 export const Ramp: DataType<ColorRamp> = {
   id: 'ramp',
   label: 'Color ramp',
+  kind: 'param',
+  castableFrom: [],
   check: (raw): raw is ColorRamp => {
     const ramp = raw as Partial<ColorRamp> | null
     return !!ramp && RAMP_INTERPOLATIONS.some((i) => i.value === ramp.interpolation) && Array.isArray(ramp.stops) && ramp.stops.every(isStop)
@@ -124,7 +126,7 @@ export const colorRampNode = defineNode('colorRamp', {
   category: 'color',
   signature: 'vec3 colorRamp(float fac)',
   input: {
-    ramp: { type: Ramp, label: '', connectable: false },
+    ramp: { type: Ramp, label: '', linkable: false },
     fac: { type: Float, label: 'Factor', default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { color: Color },

@@ -44,11 +44,11 @@ export const imageTextureNode = defineNode('imageTexture', {
   includes: [colorChunk],
   input: {
     // the library id of the image; the node's file selector edits it, so no widget. Empty is the built-in image.
-    filename: { type: Reference, label: '', default: '', connectable: false },
-    interpolation: { type: Enum(INTERPOLATIONS), label: 'Interpolation', connectable: false, props: { label: 'Interpolation' } },
-    extension: { type: Enum(EXTENSIONS), label: 'Extension', connectable: false, props: { label: 'Extension' } },
-    colorSpace: { type: Enum(COLOR_SPACES), label: 'Color Space', connectable: false, props: { label: 'Color Space' } },
-    alphaMode: { type: Enum(ALPHA_MODES), label: 'Alpha', connectable: false, props: { label: 'Alpha' } },
+    filename: { type: Reference, label: '', default: '', linkable: false },
+    interpolation: { type: Enum(INTERPOLATIONS), label: 'Interpolation', linkable: false, props: { label: 'Interpolation' } },
+    extension: { type: Enum(EXTENSIONS), label: 'Extension', linkable: false, props: { label: 'Extension' } },
+    colorSpace: { type: Enum(COLOR_SPACES), label: 'Color Space', linkable: false, props: { label: 'Color Space' } },
+    alphaMode: { type: Enum(ALPHA_MODES), label: 'Alpha', linkable: false, props: { label: 'Alpha' } },
     vector: textureVector,
   },
   output: { color: Color, alpha: Float },

@@ -14,7 +14,7 @@ const byte = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 255)
 
 describe('Math', () => {
   it('takes the sockets its operation needs, with their names', () => {
-    const labels = (op: MathOpName) => mathNode.shape({ op }).inputs.filter((s) => s.connectable).map((s) => s.label)
+    const labels = (op: MathOpName) => mathNode.shape({ op }).inputs.filter((s) => s.linkable).map((s) => s.label)
     expect(labels('sine')).toEqual(['Value'])
     expect(labels('power')).toEqual(['Base', 'Exponent'])
     expect(labels('wrap')).toEqual(['Value', 'Min', 'Max'])

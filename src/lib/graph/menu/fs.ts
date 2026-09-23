@@ -1,8 +1,9 @@
 import { categoryById, type CategoryId } from '@/lib/shader/glsl'
 import { directory, leaf, separator, type MenuDirectory, type MenuEntry, type MenuFs, type MenuItem, type MenuPreset } from '@/lib/shader/menu-fs'
+import { glslForm } from '@/lib/graph/compile/compile'
 import type { NodeItem } from '@/lib/graph/define/shape'
 import { itemFor } from '@/lib/graph/registry'
-import { isGlslType, type LinkType } from '@/lib/graph/define/types'
+import type { DataType } from '@/lib/graph/define/types'
 
 function kind(id: string): NodeItem {
   const item = itemFor(id)
@@ -65,7 +66,8 @@ export const GRAPH_FS: MenuFs<NodeItem> = {
 
 const uniforms = new Set(UNIFORMS)
 
-export function describeNodeItem(item: NodeItem, preset?: MenuPreset): MenuEntry {
+/** `socketColor` comes from the editor, which owns how a socket type is drawn. */
+export function describeNodeItem(item: NodeItem, preset: MenuPreset | undefined, socketColor: (type: DataType<any>) => string): MenuEntry {
   const category = categoryById.get(item.category)!
   const shape = preset ? item.shape(preset.values) : item.base
   return {
@@ -77,8 +79,8 @@ export function describeNodeItem(item: NodeItem, preset?: MenuPreset): MenuEntry
     keywords: item.id,
     color: category.color,
     icon: category.icon,
-    inputs: shape.inputs.map((s) => ({ label: s.label || s.type.label, type: isGlslType(s.type) ? s.type.glsl : s.type.label, color: s.connectable ? (s.type as LinkType).color : '' })),
-    outputs: shape.outputs.map((s) => ({ label: s.label, color: s.type.color })),
+    inputs: shape.inputs.map((s) => ({ label: s.label || s.type.label, type: s.type.kind === 'value' ? glslForm(s.type).type : s.type.label, color: s.linkable ? socketColor(s.type) : '' })),
+    outputs: shape.outputs.map((s) => ({ label: s.label, color: socketColor(s.type) })),
     note: uniforms.has(item.id) ? 'uniform' : undefined,
   }
 }

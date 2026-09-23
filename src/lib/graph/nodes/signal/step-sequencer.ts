@@ -8,7 +8,7 @@ export const stepSequencerNode = defineNode('stepSequencer', {
   description: 'A list of values, one per trigger: "1 0 0.5 0" gives four steps. Each trigger moves to the next value and wraps around; Reset goes back to the first.',
   category: 'signal',
   input: {
-    steps: { type: Text, label: 'Steps', default: '1 0 0.5 0', connectable: false, props: { placeholder: '1 0 0.5 0' } },
+    steps: { type: Text, label: 'Steps', default: '1 0 0.5 0', linkable: false, props: { placeholder: '1 0 0.5 0' } },
     trigger: { type: Float, default: 0 },
     reset: { type: Float, default: 0 },
   },

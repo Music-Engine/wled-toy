@@ -1,6 +1,3 @@
-import type { GlslType } from '@/lib/shader/glsl'
-import type { Value } from './value'
-
 export interface ImplicitDefault {
   expr: string
   label: string
@@ -8,52 +5,31 @@ export interface ImplicitDefault {
   frame?: 'time'
 }
 
+export const isImplicit = (value: unknown): value is ImplicitDefault =>
+  typeof value === 'object' && value !== null && ['expr', 'label'].every((key) => key in value)
+
 /**
- * A type a node stores in its values. `T` is the stored (JSON) shape; `Js` and `Glsl` are what a node body receives and
- * returns for it once per frame and per pixel.
+ * A type a node stores in its values. `T` is the stored (JSON) shape; `Frame` and `Pixel` are what a node body receives
+ * and returns for it once per frame and per pixel. `kind` says what a link of it carries: a number or vector (`value`),
+ * nothing because the socket only stores (`param`), or a stream settled while the graph compiles (`stream`).
  */
-export interface DataType<T = unknown, Js = T, Glsl = T> {
+export interface DataType<T = unknown, Frame = T, Pixel = T> {
   /** Type-only views read by the node API; never set at runtime, optional so a node can declare its own stored type. */
-  readonly _js?: Js
-  readonly _glsl?: Glsl
+  readonly _frame?: Frame
+  readonly _pixel?: Pixel
   id: string
   label: string
+  kind: 'value' | 'param' | 'stream'
   check(raw: unknown): raw is T
   initial(): T
   /** Passed to every widget that edits this type. */
   props?: Record<string, unknown>
-}
-
-/** A data type that also exists in GLSL, so sockets of it can be linked. */
-export interface GlslTypeDef<T = unknown> extends DataType<T, T, Value> {
-  glsl: GlslType
-  color: string
   castableFrom: readonly string[]
-  cast(value: Value): Value
-  literal(raw: T): Value
-  /** What an unlinked socket evaluates to when the type has no editable literal. */
-  implicit?: ImplicitDefault
+  /** Components of a number or vector; absent where the width is not fixed (generic) or not a number. */
+  dim?: number
 }
 
-/**
- * A type that is linked but never becomes a number: an audio stream, a spectrum. What flows along such a link is decided
- * while the graph compiles (see `resolve` in defineNode), so it costs nothing per frame. `T` is what the receiving node gets.
- */
-export interface StreamType<T = unknown> extends DataType<T | null> {
-  struct: true
-  color: string
-  castableFrom: readonly string[]
-  /** Shown on an unlinked socket: what it uses when nothing is linked. */
-  unlinked: string
-}
-
-/** Anything a link can carry. */
-export type LinkType = GlslTypeDef<any> | StreamType<any>
-
-export const isGlslType = (type: DataType<any>): type is GlslTypeDef<any> => 'glsl' in type
-export const isStreamType = (type: DataType<any>): type is StreamType<any> => 'struct' in type
-
-export function canCast(from: LinkType, to: LinkType): boolean {
+export function canCast(from: DataType<any>, to: DataType<any>): boolean {
   return from.id === to.id || to.castableFrom.includes(from.id)
 }
 

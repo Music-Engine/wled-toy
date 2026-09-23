@@ -1,5 +1,5 @@
 import type { Component } from 'vue'
-import type { InputSocket } from '@/lib/graph'
+import type { Socket } from '@/lib/graph'
 import AudioPreview from './bodies/AudioPreview.vue'
 import ImagePicker from './bodies/ImagePicker.vue'
 import MidiLearn from './bodies/MidiLearn.vue'
@@ -48,7 +48,7 @@ export const nodeBodies: Record<string, Component> = {
 }
 
 /** A generic socket holds a number or a vector, so its value decides the widget. */
-export function handlerFor(socket: InputSocket, value: unknown): TypeHandler | undefined {
+export function handlerFor(socket: Socket, value: unknown): TypeHandler | undefined {
   if (socket.type.id === 'genType') return Array.isArray(value) ? handlers.vec3 : handlers.float
   return handlers[socket.type.id]
 }

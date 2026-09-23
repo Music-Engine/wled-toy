@@ -7,8 +7,8 @@ export const mixNode = defineNode('mix', {
   description: 'Blends A toward B by Factor; Switch picks B once Factor reaches 0.5. Numbers, vectors and colors alike; Color Mix has the blend modes.',
   category: 'converter',
   input: {
-    mode: { type: Enum(MODES), label: '', default: 'mix', connectable: false, props: { label: 'Mode' } },
-    clampFactor: { type: Bool, default: true, connectable: false },
+    mode: { type: Enum(MODES), label: '', default: 'mix', linkable: false, props: { label: 'Mode' } },
+    clampFactor: { type: Bool, default: true, linkable: false },
     factor: { type: GenType, default: { expr: 'uv.x', label: 'uv.x' } },
     a: { type: GenType, label: 'A', default: 0 },
     b: { type: GenType, label: 'B', default: 1 },

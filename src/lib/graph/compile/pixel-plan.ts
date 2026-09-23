@@ -1,9 +1,10 @@
 // The per-pixel side of the Program: which nodes the shader emits, in the order it emits them, and where each of their
 // inputs comes from.
-import { fallsBackToImplicit, isLinkable, isStreamSocket, type InputSocket, type LinkedInputSocket } from '@/lib/graph/define/shape'
-import { isGlslType } from '@/lib/graph/define/types'
+import type { Socket } from '@/lib/graph/define/shape'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
+import { fallsBackToImplicit } from '@/lib/graph/registry'
 import { isGenericSocket, type FrontEnd } from './front-end'
+import { glslForm } from './glsl'
 import { GraphError, type PixelInput, type PixelSource } from './program'
 import { settledInputs } from './streams'
 import { perFrameSource } from './uniforms'
@@ -23,18 +24,18 @@ export function emitPixel(c: FrontEnd, id: string): void {
 }
 
 /** What `exec` gets on a socket: the settled stream, the stored value, or a linkable value cast to the socket's type. */
-function pixelInput(c: FrontEnd, id: string, data: GraphNodeData, settled: Record<string, unknown>, socket: InputSocket): PixelInput {
-  if (isStreamSocket(socket)) return { value: settled[socket.name] }
-  if (!isLinkable(socket)) return { value: c.storedValue(id, data, socket) }
+function pixelInput(c: FrontEnd, id: string, data: GraphNodeData, settled: Record<string, unknown>, socket: Socket): PixelInput {
+  if (socket.type.kind === 'stream') return { value: settled[socket.name] }
+  if (!socket.linkable) return { value: c.storedValue(id, data, socket) }
   const from = linkedSource(c, id, data, socket)
-  return { from, cast: isGenericSocket(socket) ? c.widths.get(id)! : socket.type.glsl }
+  return { from, cast: isGenericSocket(socket) ? c.widths.get(id)! : glslForm(socket.type).type }
 }
 
 /** From the link, else the socket's implicit expression, else its stored literal. */
-function linkedSource(c: FrontEnd, nodeId: string, data: GraphNodeData, socket: LinkedInputSocket): PixelSource {
+function linkedSource(c: FrontEnd, nodeId: string, data: GraphNodeData, socket: Socket): PixelSource {
   const source = c.linkSource(nodeId, socket)
   const out = source && c.lookup(source.id).shape.outputs.find((o) => o.name === source.output)
-  if (out && !isGlslType(out.type)) throw new GraphError(`${socket.label} needs a number or a color, not ${out.type.label}`, nodeId)
+  if (out && out.type.kind !== 'value') throw new GraphError(`${socket.label} needs a number or a color, not ${out.type.label}`, nodeId)
   const linked = source && readSource(c, source.id, source.output)
   if (linked) return linked
   if (fallsBackToImplicit(data.values, socket)) return { implicit: true }

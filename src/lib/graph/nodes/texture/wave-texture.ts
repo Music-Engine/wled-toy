@@ -88,11 +88,11 @@ export const waveTextureNode = defineNode('waveTexture', {
   category: 'noise',
   includes: [waveTextureChunk],
   input: {
-    type: { type: Enum(TYPES), label: '', connectable: false, props: { label: 'Type' } },
+    type: { type: Enum(TYPES), label: '', linkable: false, props: { label: 'Type' } },
     // the shader reads one direction per type, so each type keeps its own choice
-    bandsDirection: { type: Enum(BANDS_DIRECTIONS), label: 'Bands Direction', connectable: false },
-    ringsDirection: { type: Enum(RINGS_DIRECTIONS), label: 'Rings Direction', connectable: false },
-    profile: { type: Enum(PROFILES), label: '', connectable: false, props: { label: 'Profile' } },
+    bandsDirection: { type: Enum(BANDS_DIRECTIONS), label: 'Bands Direction', linkable: false },
+    ringsDirection: { type: Enum(RINGS_DIRECTIONS), label: 'Rings Direction', linkable: false },
+    profile: { type: Enum(PROFILES), label: '', linkable: false, props: { label: 'Profile' } },
     vector: textureVector,
     scale: { type: Float, default: 5, props: amount },
     distortion: { type: Float, default: 0, props: amount },

@@ -18,12 +18,12 @@ export const audioSourceNode = defineNode('audioSource', {
   // it sets the graph's input whether or not anything is linked to it
   isOutput: true,
   input: {
-    source: { type: Enum(SOURCES), label: '', default: DEFAULT_AUDIO.source, connectable: false, props: { label: 'Source' } },
-    channel: { type: Enum(CHANNELS), label: '', default: DEFAULT_AUDIO.channel, connectable: false, props: { label: 'Channel' } },
-    agcRelease: { type: Float, label: 'Gain Release (s)', default: DEFAULT_AUDIO.agc.release, connectable: false, props: { min: 0.1, max: 60, decimals: 1 } },
-    floorDb: { type: Float, label: 'Gain Floor (dB)', default: DEFAULT_AUDIO.agc.floorDb, connectable: false, props: { min: -90, max: 0, decimals: 0 } },
-    gateDb: { type: Float, label: 'Silence Gate (dB)', default: DEFAULT_AUDIO.gate.thresholdDb, connectable: false, props: { min: -90, max: 0, decimals: 0 } },
-    gateHold: { type: Float, label: 'Gate Hold (s)', default: DEFAULT_AUDIO.gate.hold, connectable: false, props: { min: 0, max: 5, decimals: 2 } },
+    source: { type: Enum(SOURCES), label: '', default: DEFAULT_AUDIO.source, linkable: false, props: { label: 'Source' } },
+    channel: { type: Enum(CHANNELS), label: '', default: DEFAULT_AUDIO.channel, linkable: false, props: { label: 'Channel' } },
+    agcRelease: { type: Float, label: 'Gain Release (s)', default: DEFAULT_AUDIO.agc.release, linkable: false, props: { min: 0.1, max: 60, decimals: 1 } },
+    floorDb: { type: Float, label: 'Gain Floor (dB)', default: DEFAULT_AUDIO.agc.floorDb, linkable: false, props: { min: -90, max: 0, decimals: 0 } },
+    gateDb: { type: Float, label: 'Silence Gate (dB)', default: DEFAULT_AUDIO.gate.thresholdDb, linkable: false, props: { min: -90, max: 0, decimals: 0 } },
+    gateHold: { type: Float, label: 'Gate Hold (s)', default: DEFAULT_AUDIO.gate.hold, linkable: false, props: { min: 0, max: 5, decimals: 2 } },
   },
   output: { audio: AudioStream },
   resolve: ({ source, channel, agcRelease, floorDb, gateDb, gateHold }, env) => {
@@ -41,13 +41,13 @@ export const fftNode = defineNode('fft', {
   category: 'audio',
   input: {
     audio: AudioStream,
-    windowSize: { type: Enum(sizes([512, 1024, 2048, 4096, 8192])), label: 'Window', default: String(DEFAULT_ANALYSIS.windowSize), connectable: false },
-    hop: { type: Enum(sizes([128, 256, 512, 1024, 2048])), label: 'Hop', default: String(DEFAULT_ANALYSIS.hop), connectable: false },
-    window: { type: Enum(WINDOWS), label: 'Window Shape', default: DEFAULT_ANALYSIS.window, connectable: false },
-    scale: { type: Enum(SCALES), label: 'Band Spacing', default: DEFAULT_ANALYSIS.scale, connectable: false },
-    bands: { type: Int, default: DEFAULT_ANALYSIS.bands, connectable: false, props: { min: 12, max: 256, step: 4, decimals: 0 } },
-    fmin: { type: Float, label: 'Lowest (Hz)', default: DEFAULT_ANALYSIS.fmin, connectable: false, props: { min: 20, max: 2000, decimals: 0 } },
-    fmax: { type: Float, label: 'Highest (Hz)', default: DEFAULT_ANALYSIS.fmax, connectable: false, props: { min: 1000, max: 22000, decimals: 0 } },
+    windowSize: { type: Enum(sizes([512, 1024, 2048, 4096, 8192])), label: 'Window', default: String(DEFAULT_ANALYSIS.windowSize), linkable: false },
+    hop: { type: Enum(sizes([128, 256, 512, 1024, 2048])), label: 'Hop', default: String(DEFAULT_ANALYSIS.hop), linkable: false },
+    window: { type: Enum(WINDOWS), label: 'Window Shape', default: DEFAULT_ANALYSIS.window, linkable: false },
+    scale: { type: Enum(SCALES), label: 'Band Spacing', default: DEFAULT_ANALYSIS.scale, linkable: false },
+    bands: { type: Int, default: DEFAULT_ANALYSIS.bands, linkable: false, props: { min: 12, max: 256, step: 4, decimals: 0 } },
+    fmin: { type: Float, label: 'Lowest (Hz)', default: DEFAULT_ANALYSIS.fmin, linkable: false, props: { min: 20, max: 2000, decimals: 0 } },
+    fmax: { type: Float, label: 'Highest (Hz)', default: DEFAULT_ANALYSIS.fmax, linkable: false, props: { min: 1000, max: 22000, decimals: 0 } },
   },
   output: { spectrum: SpectrumStream },
   resolve: ({ windowSize, hop, window, scale, bands, fmin, fmax }, env) => {
@@ -81,8 +81,6 @@ export const audioNode = defineNode('audio', {
     centroid: { type: Float, label: 'Brightness' }, flatness: { type: Float, label: 'Noisiness' },
     sub: Float, kick: Float, lowMid: Float, vocal: Float, presence: Float, air: Float,
   },
-  // sent to shader mode there is no analyzer; the prelude's own audio helpers stand in where they can
-  standalone: { level: 'energy()', kick: 'bass()', sub: 'bass()', lowMid: 'mid()', vocal: 'mid()', presence: 'treble()', air: 'treble()', beat: 'beat(0.5)' },
   run: (_, __, frame) => {
     const f = analysis(frame)
     if (!f) return { level: 0, rms: 0, peak: 0, gate: 0, onset: 0, beat: 0, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0, sub: 0, kick: 0, lowMid: 0, vocal: 0, presence: 0, air: 0 }

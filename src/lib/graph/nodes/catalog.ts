@@ -1,13 +1,19 @@
 import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/glsl'
-import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, type GlslTypeDef, type LinkedInputDef, type NodeItem } from '@/lib/graph/authoring'
+import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, type DataType, type InputDef, type NodeItem } from '@/lib/graph/authoring'
 
 const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : typeForGlsl(param.type))
 
-function inputFor(param: Param): LinkedInputDef {
-  // a default that is not a literal is GLSL the socket evaluates to while unlinked, e.g. `uv.x` or `iTime`
-  const fallback = typeof param.default === 'string' ? { expr: param.default, label: param.default } : param.default
+function inputFor(param: Param): InputDef {
   const range = param.min === undefined ? undefined : { min: param.min, max: param.max }
-  return { type: paramType(param), label: param.label, default: fallback, props: range }
+  return { type: paramType(param), label: param.label, default: unlinkedDefault(param), props: range }
+}
+
+function unlinkedDefault(param: Param): unknown {
+  // a default that is not a literal is GLSL the socket evaluates to while unlinked, e.g. `uv.x` or `iTime`
+  if (typeof param.default === 'string') return { expr: param.default, label: param.default }
+  // a texture with nothing linked samples the loaded image
+  if (param.default === undefined && param.type === 'sampler2D') return { expr: 'iImage', label: 'image' }
+  return param.default
 }
 
 function functionItem(fn: ShaderNode): NodeItem {
@@ -56,8 +62,9 @@ const replaced = [
 
 export const CATALOG_FUNCTIONS: NodeItem[] = NODES.filter((node) => node.kind === 'function' && !replaced.includes(node.name)).map(functionItem)
 
-function typeForGlsl(glsl: GlslType): GlslTypeDef<any> {
-  const type = [Float, Int, Vec2, Vec3, Vec4, Sampler2D, GenType].find((t) => t.glsl === glsl)
+/** Every GLSL type the catalog uses has a graph type of the same id. */
+function typeForGlsl(glsl: GlslType): DataType<any, any, any> {
+  const type = [Float, Int, Vec2, Vec3, Vec4, Sampler2D, GenType].find((t) => t.id === glsl)
   if (!type) throw new Error(`No graph type for GLSL type ${glsl}`)
   return type
 }

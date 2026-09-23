@@ -6,7 +6,7 @@ export const clockDividerNode = defineNode('clockDivider', {
   description: 'Passes every Nth trigger. Feed it the beat to get a bar; Phase counts the triggers in between as 0 to 1.',
   category: 'signal',
   input: {
-    divide: { type: Int, default: 4, connectable: false, props: { min: 1, max: 64, step: 1, decimals: 0 } },
+    divide: { type: Int, default: 4, linkable: false, props: { min: 1, max: 64, step: 1, decimals: 0 } },
     trigger: { type: Float, default: 0 },
     reset: { type: Float, default: 0 },
   },

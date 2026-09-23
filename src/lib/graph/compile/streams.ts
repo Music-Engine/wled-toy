@@ -1,7 +1,7 @@
 // Streams (Audio, Spectrum) are settled while compiling: a node's `resolve` says what its stream outputs carry,
 // given its stored values and the streams linked into it. Numbers linked into it are not known yet and are left out.
 import type { ResolveEnv } from '@/lib/graph/define/context'
-import { isLinkable, isStreamSocket, type NodeShape, type StreamInputSocket } from '@/lib/graph/define/shape'
+import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import { canCast } from '@/lib/graph/define/types'
 import type { FrontEnd } from './front-end'
 import { GraphError } from './program'
@@ -15,11 +15,11 @@ export function resolveNode(c: FrontEnd, id: string): Record<string, unknown> {
   c.resolving.add(id)
   const input: Record<string, unknown> = {}
   for (const socket of shape.inputs) {
-    if (isStreamSocket(socket)) {
+    if (socket.type.kind === 'stream') {
       input[socket.name] = streamInput(c, id, socket)
       continue
     }
-    if (!isLinkable(socket)) input[socket.name] = c.storedValue(id, node.data, socket)
+    if (!socket.linkable) input[socket.name] = c.storedValue(id, node.data, socket)
   }
   const result = shape.resolve(input, resolveEnv(c, id))
   c.resolving.delete(id)
@@ -40,7 +40,7 @@ function resolveEnv(c: FrontEnd, id: string): ResolveEnv {
 }
 
 /** What arrives on a stream input: the linked node's stream, or null when nothing is linked. */
-function streamInput(c: FrontEnd, nodeId: string, socket: StreamInputSocket): unknown {
+function streamInput(c: FrontEnd, nodeId: string, socket: Socket): unknown {
   const source = c.linkSource(nodeId, socket)
   if (!source) return null
   const from = c.lookup(source.id).shape.outputs.find((out) => out.name === source.output)
@@ -50,7 +50,7 @@ function streamInput(c: FrontEnd, nodeId: string, socket: StreamInputSocket): un
 
 /** Inputs that do not depend on where the node runs: streams, and whatever else `resolve` hands on. */
 export function settledInputs(c: FrontEnd, id: string, shape: NodeShape): Record<string, unknown> {
-  const streams = Object.fromEntries(shape.inputs.filter(isStreamSocket).map((socket) => [socket.name, streamInput(c, id, socket)]))
+  const streams = Object.fromEntries(shape.inputs.filter((socket) => socket.type.kind === 'stream').map((socket) => [socket.name, streamInput(c, id, socket)]))
   const outputs = new Set(shape.outputs.map((out) => out.name))
   const extras = Object.fromEntries(Object.entries(resolveNode(c, id)).filter(([name]) => !outputs.has(name)))
   return { ...streams, ...extras }
