@@ -11,8 +11,14 @@ export function resolveNode(c: Compilation, id: string): Record<string, unknown>
   if (!shape.resolve) return {}
   if (c.resolving.has(id)) throw new GraphError('The graph has a loop. Remove one of the links in the cycle.', id)
   c.resolving.add(id)
-  const input = Object.fromEntries(shape.inputs.flatMap((socket) =>
-    (isStreamSocket(socket) ? [[socket.name, streamInput(c, id, socket)]] : isLinkable(socket) ? [] : [[socket.name, c.storedValue(id, node.data, socket)]])))
+  const input: Record<string, unknown> = {}
+  for (const socket of shape.inputs) {
+    if (isStreamSocket(socket)) {
+      input[socket.name] = streamInput(c, id, socket)
+      continue
+    }
+    if (!isLinkable(socket)) input[socket.name] = c.storedValue(id, node.data, socket)
+  }
   const result = shape.resolve(input, {
     intern: (kind, config) => {
       const list = (c.plan.resources[kind] ??= [])
@@ -28,7 +34,7 @@ export function resolveNode(c: Compilation, id: string): Record<string, unknown>
 }
 
 /** What arrives on a stream input: the linked node's stream, or null when nothing is linked. */
-export function streamInput(c: Compilation, nodeId: string, socket: StreamInputSocket): unknown {
+function streamInput(c: Compilation, nodeId: string, socket: StreamInputSocket): unknown {
   const source = c.linkSource(nodeId, socket)
   if (!source) return null
   const from = c.lookup(source.id).shape.outputs.find((out) => out.name === source.output)

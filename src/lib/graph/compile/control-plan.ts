@@ -1,25 +1,25 @@
 // The per-frame side: which nodes run on the CPU, in what order, with which inputs, and how the shader reads their
 // results from the uniform block (or, when compiling standalone, as GLSL of their own or a frozen literal).
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
-import { isImplicit, isLinkable, isStreamSocket } from '@/lib/graph/define/shape'
+import { fallsBackToImplicit, hasFrameValue, isLinkable, isStreamSocket, type NodeShape } from '@/lib/graph/define/shape'
 import { isGlslType } from '@/lib/graph/define/types'
 import { componentCount, floatLiteral, vectorType, vectorLiteral, type Value } from '@/lib/graph/define/value'
 import { GraphError, isGenericSocket, type Compilation } from './compilation'
-import { controlDim, type FrameBinding } from './frame'
+import type { FrameBinding } from './frame'
 import { settledInputs } from './streams'
 
 /** Can this node be computed once per frame? Only if it has `run` and nothing per-pixel reaches it. */
-export function controlCapable(c: Compilation, id: string, trail = new Set<string>()): boolean {
+function controlCapable(c: Compilation, id: string, trail = new Set<string>()): boolean {
   const known = c.capable.get(id)
   if (known !== undefined) return known
   if (trail.has(id)) return false
   trail.add(id)
   const { node, shape } = c.lookup(id)
-  const result = !!shape.run && shape.inputs.filter(isLinkable).every((socket) => {
+  const result = shape.run !== undefined && shape.inputs.filter(isLinkable).every((socket) => {
     const source = c.linkSource(id, socket)
     if (source) return controlCapable(c, source.id, trail)
     // an unlinked socket that falls back to `uv.x` or `iTime` only exists in the shader
-    return node.data.values[socket.name] !== undefined || !isImplicit(socket.default) || !!socket.default.frame
+    return !fallsBackToImplicit(node.data.values, socket) || hasFrameValue(socket)
   })
   c.capable.set(id, result)
   return result
@@ -28,8 +28,10 @@ export function controlCapable(c: Compilation, id: string, trail = new Set<strin
 /** A node that can run either way goes to the CPU as soon as something is linked in and all of it is per-frame. */
 export function runsOnCpu(c: Compilation, id: string): boolean {
   const { shape } = c.lookup(id)
-  if (c.standalone) return !shape.exec
-  return !shape.exec || (!!shape.run && shape.inputs.filter(isLinkable).some((socket) => c.linkSource(id, socket)) && controlCapable(c, id))
+  if (!shape.exec) return true
+  if (c.standalone) return false
+  if (!shape.run) return false
+  return shape.inputs.filter(isLinkable).some((socket) => c.linkSource(id, socket)) && controlCapable(c, id)
 }
 
 /** Adds the node (and what feeds it) to the CPU plan; returns its step index. */
@@ -57,28 +59,37 @@ export function planControl(c: Compilation, id: string): number {
       }
       inputs[socket.name] = { step: planControl(c, source.id), output: source.output }
       dim = c.dims.get(source.id)?.[source.output] ?? 1
-    } else if (node.data.values[socket.name] === undefined && isImplicit(socket.default) && socket.default.frame) {
+    } else if (fallsBackToImplicit(node.data.values, socket) && socket.default.frame) {
       inputs[socket.name] = { frame: socket.default.frame }
       dim = 1
-    } else if (node.data.values[socket.name] === undefined && isImplicit(socket.default)) {
+    } else if (fallsBackToImplicit(node.data.values, socket)) {
       throw new GraphError(`${socket.label} needs a value or a link; its default (${socket.default.label}) only exists per pixel`, id)
     } else {
       const constant = c.storedValue(id, node.data, socket)
       inputs[socket.name] = { constant }
-      dim = controlDim(constant)
+      dim = Array.isArray(constant) ? constant.length : 1
     }
     if (isGenericSocket(socket)) genericDims.push(dim)
     else inputDims[socket.name] = componentCount(socket.type.glsl) ?? 1
   }
   const gen = Math.max(1, ...genericDims)
   for (const socket of shape.inputs.filter(isGenericSocket)) inputDims[socket.name] = gen
-  // stream outputs are not numbers and never reach the uniform block
-  c.dims.set(id, Object.fromEntries(shape.outputs.flatMap((out) => (isGlslType(out.type) ? [[out.name, out.type.glsl === 'genType' ? gen : componentCount(out.type.glsl) ?? 1]] : []))))
+  c.dims.set(id, outputDims(shape, gen))
 
   c.leave(id)
   const index = c.plan.steps.push({ nodeId: id, kind: node.data.kind, run: shape.run!, state: shape.state, inputs, dims: inputDims }) - 1
   c.steps.set(id, index)
   return index
+}
+
+/** Components per numeric output; stream outputs are not numbers and never reach the uniform block. */
+function outputDims(shape: NodeShape, gen: number): Record<string, number> {
+  const dims: Record<string, number> = {}
+  for (const out of shape.outputs) {
+    if (!isGlslType(out.type)) continue
+    dims[out.name] = out.type.glsl === 'genType' ? gen : componentCount(out.type.glsl) ?? 1
+  }
+  return dims
 }
 
 /**

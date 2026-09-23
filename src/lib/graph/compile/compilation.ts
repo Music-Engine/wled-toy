@@ -105,7 +105,8 @@ export class Compilation {
     const raw = data.values[socket.name] ?? socket.default
     if (socket.type.check(raw)) return raw
     this.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
-    return isImplicit(socket.default) ? socket.type.initial() : socket.default
+    if (isImplicit(socket.default)) return socket.type.initial()
+    return socket.default
   }
 
   emit(nodeId: string, text: string) {

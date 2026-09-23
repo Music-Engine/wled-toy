@@ -46,6 +46,7 @@ export function castTo(value: Value, to: GlslType): Value {
   if (f === undefined || t === undefined) throw new Error(`Cannot cast ${from} to ${to}`)
   if (f === 1) return { expr: `${to}(${expr})`, type: to }
   if (f > t) return swizzle(value, 'xyzw'.slice(0, t))
-  const pad = t === 4 ? (f === 2 ? ', 0.0, 1.0' : ', 1.0') : ', 0.0'
+  if (t !== 4) return { expr: `${to}(${expr}, 0.0)`, type: to }
+  const pad = f === 2 ? ', 0.0, 1.0' : ', 1.0'
   return { expr: `${to}(${expr}${pad})`, type: to }
 }

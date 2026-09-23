@@ -1,6 +1,6 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
 import type { FrameInfo, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
-import { isImplicit, type InputSocket, type NodeItem, type NodePreset, type NodeShape, type OutputSocket, type WidgetProps } from './shape'
+import { implicitDefault, isImplicit, type InputSocket, type NodeItem, type NodePreset, type NodeShape, type OutputSocket, type WidgetProps } from './shape'
 import { isGlslType, isStreamType, type DataType, type GlslTypeDef, type ImplicitDefault, type LinkType, type StreamType } from './types'
 import type { Value } from './value'
 
@@ -108,12 +108,13 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
 }
 
 function buildInputSocket(item: string, name: string, def: InputDef): InputSocket {
-  const options = ('type' in def ? def : { type: def }) as LinkedInputDef | StoredInputDef | StreamInputDef
+  const options: SocketOptions & { type: DataType<any>; connectable?: boolean; default?: unknown } = 'type' in def ? def : { type: def }
   const { type } = options
-  const connectable = !('connectable' in options && options.connectable === false)
+  const connectable = options.connectable !== false
   if (connectable && !isGlslType(type) && !isStreamType(type)) throw new Error(`${item}.${name}: ${type.label} has no GLSL form, so the socket must set connectable: false`)
-  const fallback = ('default' in options ? options.default : undefined) ?? (isGlslType(type) && type.implicit ? type.implicit : type.initial())
-  if (isImplicit(fallback) ? !connectable : !type.check(fallback)) throw new Error(`${item}.${name}: default does not fit ${type.label}`)
+  const fallback = options.default ?? implicitDefault(type) ?? type.initial()
+  if (isImplicit(fallback) && !connectable) throw new Error(`${item}.${name}: default does not fit ${type.label}`)
+  if (!isImplicit(fallback) && !type.check(fallback)) throw new Error(`${item}.${name}: default does not fit ${type.label}`)
   return { name, label: options.label ?? titleCase(name), type, connectable, default: fallback, props: options.props ?? {} }
 }
 

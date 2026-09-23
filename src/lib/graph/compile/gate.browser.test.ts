@@ -23,7 +23,7 @@ function alone(item: NodeItem): NodeGraph {
 }
 
 function planJson({ control, issues, error, errorNode, frozen }: GeneratedShader): string {
-  const steps = control.steps.map(({ nodeId, kind, inputs, dims, run, state }) => ({ nodeId, kind, inputs, dims, run: !!run, state: !!state }))
+  const steps = control.steps.map(({ nodeId, kind, inputs, dims, run, state }) => ({ nodeId, kind, inputs, dims, run: run !== undefined, state: state !== undefined }))
   const plan = { steps, exports: control.exports, resources: control.resources, issues, error, errorNode, frozen }
   // a `frame` input binding is a function too; like `run`, only its presence is recorded
   return `${JSON.stringify(plan, (_, value) => (typeof value === 'function' ? true : value), 2)}\n`

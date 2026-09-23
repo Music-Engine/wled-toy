@@ -1,7 +1,7 @@
 // The per-pixel side: turns nodes that run in the shader into GLSL lines, and assembles the finished shader.
 import type { GlslType } from '@/lib/shader/glsl'
 import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
-import { isImplicit, isLinkable, isStreamSocket, type LinkedInputSocket } from '@/lib/graph/define/shape'
+import { fallsBackToImplicit, isLinkable, isStreamSocket, type InputSocket, type LinkedInputSocket } from '@/lib/graph/define/shape'
 import { isGlslType } from '@/lib/graph/define/types'
 import { castTo, componentCount, vectorType, type Value } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
@@ -37,7 +37,7 @@ function linkedValue(c: Compilation, nodeId: string, data: GraphNodeData, socket
   if (from && !isGlslType(from.type)) throw new GraphError(`${socket.label} needs a number or a color, not ${from.type.label}`, nodeId)
   const linked = source && (runsOnCpu(c, source.id) ? controlOutput(c, source.id, source.output) : evaluate(c, source.id)[source.output])
   if (linked) return linked
-  if (data.values[socket.name] === undefined && isImplicit(socket.default)) {
+  if (fallsBackToImplicit(data.values, socket)) {
     return { expr: socket.default.expr, type: socket.type.glsl === 'genType' ? 'float' : socket.type.glsl }
   }
   return socket.type.literal(c.storedValue(nodeId, data, socket))
@@ -52,7 +52,7 @@ export function evaluate(c: Compilation, id: string): Record<string, Value> {
 
   c.enter(id)
   const settled = settledInputs(c, id, shape)
-  const resolved = shape.inputs.map((socket) => (isStreamSocket(socket) ? settled[socket.name] : isLinkable(socket) ? linkedValue(c, id, node.data, socket) : c.storedValue(id, node.data, socket)))
+  const resolved = shape.inputs.map((socket) => pixelInput(c, id, node.data, settled, socket))
   const widest = Math.max(1, ...shape.inputs.map((socket, i) => (isGenericSocket(socket) ? componentCount((resolved[i] as Value).type) ?? 1 : 1)))
   const gen = vectorType(widest)
 
@@ -75,6 +75,13 @@ export function evaluate(c: Compilation, id: string): Record<string, Value> {
   c.leave(id)
   c.emitted.set(id, result)
   return result
+}
+
+/** What `exec` gets on a socket before casting: the settled stream, the linked GLSL value, or the stored value. */
+function pixelInput(c: Compilation, id: string, data: GraphNodeData, settled: Record<string, unknown>, socket: InputSocket): unknown {
+  if (isStreamSocket(socket)) return settled[socket.name]
+  if (isLinkable(socket)) return linkedValue(c, id, data, socket)
+  return c.storedValue(id, data, socket)
 }
 
 /** The shader text: the chunks the graph used, then mainImage with every emitted line. Returns the node behind each line too. */

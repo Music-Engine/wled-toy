@@ -68,10 +68,24 @@ export interface NodePreset {
 }
 
 /** Where a node's values live: `frame` sockets are drawn as diamonds and refuse per-pixel links. */
-export const placement = (shape: NodeShape): 'frame' | 'pixel' | 'either' => (shape.run && !shape.exec ? 'frame' : shape.exec && !shape.run ? 'pixel' : 'either')
+export function placement(shape: NodeShape): 'frame' | 'pixel' | 'either' {
+  if (shape.run && !shape.exec) return 'frame'
+  if (shape.exec && !shape.run) return 'pixel'
+  return 'either'
+}
 
 export const isImplicit = (value: unknown): value is ImplicitDefault =>
-  typeof value === 'object' && value !== null && 'expr' in value && 'label' in value
+  typeof value === 'object' && value !== null && ['expr', 'label'].every((key) => key in value)
+
+/** What an unlinked socket of this type reads when its definition gives no default. */
+export const implicitDefault = (type: DataType<any>): ImplicitDefault | undefined => (isGlslType(type) ? type.implicit : undefined)
+
+/** Nothing is stored for the socket, so unlinked it reads its implicit expression. */
+export const fallsBackToImplicit = (values: Record<string, unknown>, socket: InputSocket): socket is InputSocket & { default: ImplicitDefault } =>
+  values[socket.name] === undefined && isImplicit(socket.default)
+
+/** The socket's implicit expression also exists once per frame, so a node on the CPU can read it unlinked. */
+export const hasFrameValue = (socket: InputSocket): boolean => isImplicit(socket.default) && socket.default.frame !== undefined
 
 /** Linked to a number or vector, in the shader or per frame. */
 export const isLinkable = (socket: InputSocket): socket is LinkedInputSocket => socket.connectable && isGlslType(socket.type)

@@ -77,7 +77,7 @@ function play(doc: NodeGraph, track: Float32Array): Run {
     run.audio.push({
       level: f?.level ?? 0,
       kick: f?.gate ? Math.sqrt(Math.min(1, rangePeak(f.spectrum, SAMPLE_RATE, f.spectrum.length * 2, 60, 150) * f.gain)) : 0,
-      beat: !!f?.beat,
+      beat: f?.beat ?? false,
       bands: Float32Array.from(f?.bands ?? new Float32Array(DEFAULT_ANALYSIS.bands)),
       chroma: Float32Array.from(f?.chroma ?? new Float32Array(12)),
     })

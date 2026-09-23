@@ -15,7 +15,9 @@ const leaves = (ids: string[]) => ids.map((id) => leaf(kind(id)))
 /** A directory themed after a category: the graph's own nodes, a separator, then the injected GLSL functions and sub-directories. */
 function categoryDirectory(id: CategoryId, own: string[], rest: MenuItem<NodeItem>[] = []): MenuDirectory<NodeItem> {
   const category = categoryById.get(id)!
-  const items = own.length && rest.length ? [...leaves(own), separator, ...rest] : [...leaves(own), ...rest]
+  const items: MenuItem<NodeItem>[] = leaves(own)
+  if (own.length && rest.length) items.push(separator)
+  items.push(...rest)
   return directory(category.label, items, { icon: category.icon, color: category.color })
 }
 

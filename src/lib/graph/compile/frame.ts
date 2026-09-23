@@ -30,8 +30,6 @@ export function castFrameValue(value: FrameValue, dim: number): FrameValue {
   return Array.from({ length: dim }, (_, i) => value[i] ?? (i === 3 ? 1 : 0))
 }
 
-export const controlDim = (value: unknown) => (Array.isArray(value) ? value.length : 1)
-
 /** Runs a plan once per frame and keeps each node's state across plans for as long as the node exists. */
 export class FrameRunner {
   private plan: FramePlan = { steps: [], exports: [], resources: {} }
