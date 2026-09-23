@@ -42,5 +42,5 @@ export const valueInputs = (shape: NodeShape): Socket[] => shape.inputs.filter((
 export const fallsBackToImplicit = (values: Record<string, unknown>, socket: Socket): socket is Socket & { default: ImplicitDefault } =>
   values[socket.name] === undefined && isImplicit(socket.default)
 
-/** The socket's implicit expression also exists once per frame, so a node on the CPU can read it unlinked. */
+/** The socket's implicit expression also exists once per frame, so a frame body can read it unlinked. */
 export const hasFrameValue = (socket: Socket): boolean => isImplicit(socket.default) && socket.default.frame !== undefined

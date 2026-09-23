@@ -1,4 +1,4 @@
-// generateGlsl: compiles a graph into a shader plus the plan for what runs per frame on the CPU.
+// generateGlsl: compiles a graph into a shader plus the plan for what is evaluated once per frame in JS.
 // The front end places each node per frame or per pixel (./placement), infers generic widths (./width), settles streams
 // (./streams), and walks the sinks into a plain-data Program (./frame-plan, ./pixel-plan, ./uniforms). The GLSL backend
 // (./glsl) and the JS backend (./js) read only that Program.
@@ -20,20 +20,20 @@ export { glslForm, type FrozenValue } from './glsl'
 export type { GraphIssue } from './program'
 
 export interface GeneratedShader extends GlslShader {
-  /** What runs on the CPU each frame, and which of its results the shader reads from `iControl`. */
-  control: FramePlan
+  /** What is evaluated in JS each frame, and which of its results the shader reads from `iControl`. */
+  frame: FramePlan
 }
 
 export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): GeneratedShader {
   const program = buildProgram(doc, options)
-  return { ...glsl(program), control: js(program) }
+  return { ...glsl(program), frame: js(program) }
 }
 
 /** Walks the sinks depth-first in document order, each socket in declaration order, as the snapshots expect. */
 export function buildProgram(doc: NodeGraph, options: CompileOptions): Program {
   const c = new FrontEnd(doc, options)
   const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput).map((n) => n.id)
-  if (!sinks.some((id) => c.lookup(id).shape.exec)) return fail(c, 'Add an Output node to see anything.', null)
+  if (!sinks.some((id) => c.lookup(id).shape.pixel)) return fail(c, 'Add an Output node to see anything.', null)
   try {
     placeNodes(c, sinks)
     inferWidths(c, sinks)
@@ -48,10 +48,10 @@ function fail(c: FrontEnd, error: string, errorNode: string | null): Program {
   return Object.assign(c.program, { error, errorNode })
 }
 
-/** A sink that only runs per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part. */
+/** A sink evaluated only per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part. */
 function buildSink(c: FrontEnd, id: string): void {
   const { shape } = c.lookup(id)
-  if (!shape.exec && !shape.run) resolveNode(c, id)
+  if (!shape.pixel && !shape.frame) resolveNode(c, id)
   else if (c.placedAt(id) === 'frame') planStep(c, id)
   else emitPixel(c, id)
 }

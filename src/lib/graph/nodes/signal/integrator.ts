@@ -12,7 +12,7 @@ export const integratorNode = defineNode('integrator', {
   },
   output: { value: Float },
   state: () => ({ value: 0, high: false }),
-  run: ({ wrap, rate, reset }, state, { dt }) => {
+  frame: ({ wrap, rate, reset }, { state, dt }) => {
     if (risingEdge(state, reset)) state.value = 0
     state.value += rate * dt
     // wrapped, it stays a 0 to 1 phase however long it runs

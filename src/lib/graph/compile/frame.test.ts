@@ -22,10 +22,10 @@ describe('FrameRunner', () => {
     input: { step: { type: Float, default: 1 } },
     output: { count: Float },
     state: () => ({ count: 0 }),
-    run: ({ step }, state) => ({ count: (state.count += step as number) }),
+    frame: ({ step }, { state }) => ({ count: (state.count += step as number) }),
   })
   const plan = (step: number): FramePlan => ({
-    steps: [{ nodeId: 'c', kind: counter.id, run: counter.base.run!, state: counter.base.state, inputs: { step: { constant: step } }, dims: { step: 1 } }],
+    steps: [{ nodeId: 'c', kind: counter.id, frame: counter.base.frame!, state: counter.base.state, resolved: {}, inputs: { step: { constant: step } }, dims: { step: 1 } }],
     exports: [{ step: 0, output: 'count', slot: 5, dim: 1 }],
     resources: {},
   })
@@ -58,11 +58,11 @@ describe('FrameRunner', () => {
   it('every input binding survives JSON, including a frame builtin', () => {
     const wave = graph([node('k', 'knob'), node('w', 'wave'), node('o', 'output')], [['k.value', 'w.frequency'], ['w.value', 'o.color']])
     for (const doc of [createDefaultGraph(), wave]) {
-      const { steps } = generateGlsl(doc).control
+      const { steps } = generateGlsl(doc).frame
       const parsed: FramePlan = JSON.parse(JSON.stringify({ steps }))
       steps.forEach((step, i) => expect(parsed.steps[i].inputs).toEqual(step.inputs))
     }
-    expect(generateGlsl(wave).control.steps.flatMap((step) => Object.values(step.inputs))).toContainEqual({ frame: 'time' })
+    expect(generateGlsl(wave).frame.steps.flatMap((step) => Object.values(step.inputs))).toContainEqual({ frame: 'time' })
   })
 })
 
@@ -74,41 +74,41 @@ describe('domains', () => {
     expect(a.error).toBeNull()
     expect(a.code).toBe(b.code)
     expect(a.code).toContain('c = vec4(vec3(iControl[0].x), 1.0);')
-    expect(a.control.exports).toEqual([{ step: 0, output: 'value', slot: 0, dim: 1 }])
+    expect(a.frame.exports).toEqual([{ step: 0, output: 'value', slot: 0, dim: 1 }])
   })
 
-  it('math fed only by control values runs on the CPU; fed by uv it stays in the shader and reads the knob from a uniform', () => {
-    const cpu = generateGlsl(graph([node('k', 'knob'), node('m', 'math', { op: 'add', b: 0.25 }), node('o', 'output')], [['k.value', 'm.a'], ['m.result', 'o.color']]))
-    expect(cpu.control.steps.map((s) => s.nodeId)).toEqual(['k', 'm'])
-    expect(cpu.control.exports).toHaveLength(1)
-    expect(cpu.code).not.toContain('n_m')
+  it('math fed only by per-frame values is evaluated per frame; fed by uv it stays in the shader and reads the knob from a uniform', () => {
+    const perFrame = generateGlsl(graph([node('k', 'knob'), node('m', 'math', { op: 'add', b: 0.25 }), node('o', 'output')], [['k.value', 'm.a'], ['m.result', 'o.color']]))
+    expect(perFrame.frame.steps.map((s) => s.nodeId)).toEqual(['k', 'm'])
+    expect(perFrame.frame.exports).toHaveLength(1)
+    expect(perFrame.code).not.toContain('n_m')
 
-    const gpu = generateGlsl(graph([node('k', 'knob'), node('uv', 'uv'), node('m', 'math', { op: 'add' }), node('o', 'output')], [['k.value', 'm.a'], ['uv.x', 'm.b'], ['m.result', 'o.color']]))
-    expect(gpu.control.steps.map((s) => s.nodeId)).toEqual(['k'])
-    expect(gpu.code).toContain('float n_m = iControl[0].x + uv.x;')
+    const perPixel = generateGlsl(graph([node('k', 'knob'), node('uv', 'uv'), node('m', 'math', { op: 'add' }), node('o', 'output')], [['k.value', 'm.a'], ['uv.x', 'm.b'], ['m.result', 'o.color']]))
+    expect(perPixel.frame.steps.map((s) => s.nodeId)).toEqual(['k'])
+    expect(perPixel.code).toContain('float n_m = iControl[0].x + uv.x;')
   })
 
-  it('a CPU chain exports only the value the shader reads', () => {
-    const { code, control } = generateGlsl(graph(
+  it('a per-frame chain exports only the value the shader reads', () => {
+    const { code, frame: plan } = generateGlsl(graph(
       [node('k', 'knob'), node('t', 'time'), node('m', 'math', { op: 'add' }), node('uv', 'uv'), node('m2', 'math'), node('o', 'output')],
       [['t.delta', 'm.a'], ['k.value', 'm.b'], ['m.result', 'm2.a'], ['uv.x', 'm2.b'], ['m2.result', 'o.color']],
     ))
-    expect(control.exports).toEqual([{ step: 2, output: 'result', slot: 0, dim: 1 }])
+    expect(plan.exports).toEqual([{ step: 2, output: 'result', slot: 0, dim: 1 }])
     expect(code).toContain('iControl[0].x + uv.x')
   })
 })
 
-describe('control-rate sinks', () => {
+describe('frame-only sinks', () => {
   it('a Scene Switch runs although nothing links from it to the Output, and its index can be read back', () => {
-    const { control, error } = generateGlsl(graph(
+    const { frame: plan, error } = generateGlsl(graph(
       [node('k', 'knob', { value: 2.4, max: 8 }), node('s', 'sceneSwitch'), node('c', 'color'), node('o', 'output')],
       [['k.value', 's.index'], ['c.color', 'o.color']],
     ))
     expect(error).toBeNull()
-    expect(control.steps.map((s) => s.nodeId)).toEqual(['k', 's'])
-    expect(control.exports).toEqual([])
+    expect(plan.steps.map((s) => s.nodeId)).toEqual(['k', 's'])
+    expect(plan.exports).toEqual([])
     const runner = new FrameRunner()
-    runner.load(control)
+    runner.load(plan)
     runner.step(frame(0))
     expect(runner.output('s', 'scene')).toBe(2)
     expect(runner.output('missing', 'scene')).toBeUndefined()

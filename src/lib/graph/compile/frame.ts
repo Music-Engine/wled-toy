@@ -1,17 +1,18 @@
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
-import type { FrameValue, FrameInfo } from '@/lib/graph/define/context'
+import type { FrameContext, FrameValue, FrameInfo } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
 
-/** Where a control step takes an input from: a value stored on the node, an earlier step's output, or a frame builtin by name. */
+/** Where a frame step takes an input from: a value stored on the node, an earlier step's output, or a frame builtin by name. */
 export type FrameBinding = { constant: unknown } | { step: number; output: string } | { frame: 'time' }
 
 export interface FrameStep {
   nodeId: string
   kind: string
-  run: NonNullable<NodeShape['run']>
+  frame: NonNullable<NodeShape['frame']>
   state?: NodeShape['state']
+  resolved: Record<string, unknown>
   inputs: Record<string, FrameBinding>
-  /** Component count each linked input is cast to before `run` sees it. */
+  /** Component count each linked input is cast to before `frame` sees it. */
   dims: Record<string, number>
 }
 
@@ -41,6 +42,8 @@ export class FrameRunner {
   private states = new Map<string, unknown>()
   private readonly block = new Float32Array(CONTROL_VECTORS * 4)
   private results: Record<string, FrameValue>[] = []
+  // one object handed to every body and refilled in place, so stepping allocates no context per node or frame
+  private readonly info: FrameContext = { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }
 
   load(plan: FramePlan) {
     const states = new Map<string, unknown>()
@@ -53,7 +56,7 @@ export class FrameRunner {
     this.plan = plan
   }
 
-  /** What a node put out on the last step, for the parts of the app that act on control values (scene recall). */
+  /** What a node put out on the last step, for the parts of the app that act on per-frame values (scene recall). */
   output(nodeId: string, output: string): FrameValue | undefined {
     const index = this.plan.steps.findIndex((step) => step.nodeId === nodeId)
     return this.results[index]?.[output]
@@ -68,11 +71,26 @@ export class FrameRunner {
   step(frame: FrameInfo): Float32Array {
     const results: Record<string, FrameValue>[] = []
     this.results = results
-    for (const { nodeId, kind, run, inputs, dims } of this.steps) {
-      const input = Object.fromEntries(inputs.map(([name, binding]) => [name, bindingValue(binding, results, frame, dims[name])]))
-      results.push(run(input, this.states.get(`${nodeId}:${kind}`), frame))
+    const info = this.enter(frame)
+    for (const step of this.steps) {
+      const input = Object.fromEntries(step.inputs.map(([name, binding]) => [name, bindingValue(binding, results, frame, step.dims[name])]))
+      info.state = this.states.get(`${step.nodeId}:${step.kind}`)
+      info.resolved = step.resolved
+      results.push(step.frame(input, info))
     }
     return this.packExports(results)
+  }
+
+  // field by field rather than Object.assign: a key the caller left out this frame must not keep last frame's value
+  private enter(frame: FrameInfo): FrameContext {
+    const { info } = this
+    info.time = frame.time
+    info.dt = frame.dt
+    info.frameIndex = frame.frameIndex
+    info.audio = frame.audio
+    info.midi = frame.midi
+    info.osc = frame.osc
+    return info
   }
 
   private packExports(results: Record<string, FrameValue>[]): Float32Array {

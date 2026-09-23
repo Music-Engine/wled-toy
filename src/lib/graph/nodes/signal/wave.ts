@@ -13,7 +13,7 @@ const hash = (n: number) => {
 
 /**
  * One node for every periodic 0..1 signal: a per-pixel wave along the strip or over time, and the LFO of a per-frame chain.
- * Per pixel it defaults to the shader's time; on the CPU to the engine clock; link a position for a wave along the strip.
+ * Per pixel it defaults to the shader's time; per frame to the engine clock; link a position for a wave along the strip.
  */
 export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape }) => ({
   title: 'Wave',
@@ -28,7 +28,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
     ...(shape === 'pulse' && { width: { type: Float, default: 0.1, props: { min: 0.001, max: 1, decimals: 3 } } }),
   },
   output: { value: Float },
-  exec: (input, ctx) => {
+  pixel: (input, ctx) => {
     const cycle = ctx.declare('float', `${input.input.expr} * ${input.frequency.expr} + ${input.phase.expr}`, 'cycle').expr
     const p = ctx.declare('float', `fract(${cycle})`, 'p').expr
     const cell = `floor(${cycle})`
@@ -43,7 +43,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
                   : `mix(${random(cell)}, ${random(`(${cell} + 1.0)`)}, ${p} * ${p} * (3.0 - 2.0 * ${p}))`
     return { value: ctx.declare('float', value) }
   },
-  run: (input) => {
+  frame: (input) => {
     const cycle = input.input * input.frequency + input.phase
     const p = cycle - Math.floor(cycle)
     const cell = Math.floor(cycle)

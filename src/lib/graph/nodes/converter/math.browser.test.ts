@@ -21,7 +21,7 @@ describe('Math', () => {
     expect(mathNode.base.inputs.map((s) => s.name)).toEqual(['op', 'clamp', 'a', 'b'])
   })
 
-  it.each(Object.keys(MATH_OPS) as MathOpName[])('%s agrees between the shader and the CPU', (op) => {
+  it.each(Object.keys(MATH_OPS) as MathOpName[])('%s agrees between the pixel and frame bodies', (op) => {
     const def = MATH_OPS[op]
     for (const [a, b, c] of [[0.3, 0.7, 0.2], [0.9, 0.25, 0.5], [0.5, 0, 0.1]]) {
       const expected = def.js(a, b, c)

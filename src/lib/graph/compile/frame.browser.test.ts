@@ -15,14 +15,14 @@ it('turning the knob changes the LEDs on the same compiled program', () => {
   const runner = new FrameRunner()
   renderer.compile(generateGlsl(doc(0.25)).code)
   const red = (value: number) => {
-    runner.load(generateGlsl(doc(value)).control)
+    runner.load(generateGlsl(doc(value)).frame)
     renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0 }))
     return toByte(renderer.renderLeds({ time: 0, frame: 0, ledCount: 1, scanY: 0.5 })[0])
   }
   expect([red(0.25), red(1), red(0)]).toEqual([64, 255, 0])
 })
 
-it('Time reaches the shader as a control value', () => {
+it('Time reaches the shader as a per-frame value', () => {
   const { leds } = renderGraph(graph([node('t', 'time'), node('o', 'output')], [['t.time', 'o.color']]), { leds: 1, time: 0.5 })
   expect(leds[0]).toEqual([128, 128, 128])
 })

@@ -1,5 +1,5 @@
 import type { CategoryId } from '@/lib/shader/glsl'
-import type { FrameInfo, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
+import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
 import type { DataType, ImplicitDefault } from './types'
 import type { Value } from './value'
 
@@ -29,8 +29,8 @@ export interface NodeShape {
   includes: GlslChunk[]
   inputs: Socket[]
   outputs: OutputSocket[]
-  exec?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
-  run?(input: Record<string, any>, state: any, frame: FrameInfo): Record<string, FrameValue>
+  pixel?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
+  frame?(input: Record<string, any>, info: FrameContext): Record<string, FrameValue>
   resolve?(input: Record<string, any>, env: ResolveEnv): Record<string, unknown>
   state?(): unknown
 }
@@ -59,7 +59,7 @@ export interface NodePreset {
 
 /** Where a node's values live: `frame` sockets are drawn as diamonds and refuse per-pixel links. */
 export function placement(shape: NodeShape): 'frame' | 'pixel' | 'either' {
-  if (shape.run && !shape.exec) return 'frame'
-  if (shape.exec && !shape.run) return 'pixel'
+  if (shape.frame && !shape.pixel) return 'frame'
+  if (shape.pixel && !shape.frame) return 'pixel'
   return 'either'
 }

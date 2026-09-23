@@ -13,5 +13,5 @@ export const knobNode = defineNode('knob', {
     cc: { type: Int, label: 'MIDI CC (-1 = none)', default: -1, linkable: false, props: { min: -1, max: 127, step: 1, decimals: 0 } },
   },
   output: { value: Float },
-  run: ({ value, min, max }) => ({ value: Math.min(Math.max(min, max), Math.max(Math.min(min, max), value)) }),
+  frame: ({ value, min, max }) => ({ value: Math.min(Math.max(min, max), Math.max(Math.min(min, max), value)) }),
 })

@@ -25,7 +25,7 @@ export const outputNode = defineNode('output', {
     dithering: { type: Enum(DITHERING), label: '', default: DEFAULT_OUTPUT.dithering, linkable: false, props: { label: 'Dithering' } },
   },
   output: {},
-  exec: ({ color, ...settings }, ctx) => {
+  pixel: ({ color, ...settings }, ctx) => {
     ctx.emit(`c = vec4(${color.expr}, 1.0);`)
     ctx.output(settings)
     return {}

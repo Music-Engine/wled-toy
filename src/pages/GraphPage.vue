@@ -95,14 +95,14 @@ function regenerate(compileNow = true) {
   const pruned = pruneScenes(scenes.value, doc.nodes)
   if (JSON.stringify(pruned) !== JSON.stringify(scenes.value)) scenes.value = pruned
   generated.value = generateGlsl(doc)
-  const { code, control, output, error, lineNodes } = generated.value
+  const { code, frame, output, error, lineNodes } = generated.value
   if (!active.value || error) return
   if (code !== lastCompiled && !compileNow) {
     clearTimeout(regenTimer)
     regenTimer = setTimeout(regenerate, 250)
     return
   }
-  engine.setControlPlan(control)
+  engine.setControlPlan(frame)
   engine.setOutput(output)
   if (code === lastCompiled) return
   const ok = engine.compile(code, 'graph')

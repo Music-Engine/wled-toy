@@ -9,7 +9,7 @@ export const whiteNoiseNode = defineNode('whiteNoise', {
   includes: [commonChunk],
   input: { vector: textureVector },
   output: { fac: Float, color: Color },
-  exec: ({ vector }, ctx) => {
+  pixel: ({ vector }, ctx) => {
     const fac = ctx.declare('float', `node_hash(${vector.expr}.xy + ${vector.expr}.z)`, 'fac')
     const color = ctx.declare('vec3', `vec3(${fac.expr}, node_hash(${vector.expr}.yz + 17.3 + ${vector.expr}.x), node_hash(${vector.expr}.zx + 41.7 + ${vector.expr}.y))`)
     return { fac, color }
@@ -27,7 +27,7 @@ export const voronoiNode = defineNode('voronoi', {
     randomness: { type: Float, default: 1, props: { min: 0, max: 1 } },
   },
   output: { distance: Float, color: Color, position: Vec3 },
-  exec: ({ vector, scale, randomness }, ctx) => {
+  pixel: ({ vector, scale, randomness }, ctx) => {
     const p = ctx.declare('vec2', `${vector.expr}.xy * ${scale.expr}`, 'p').expr
     const cell = ctx.declare('vec2', `floor(${p})`, 'cell').expr
     const best = ctx.variable('best')

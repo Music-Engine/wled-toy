@@ -48,9 +48,9 @@ describe('placeNodes', () => {
       [['t.delta', 'i.rate'], ['i.value', 'cc.a'], ['t.time', 'cc.b'], ['cc.color', 'o.color']],
     )
     expect(place(doc)).toEqual({ placement: { o: 'pixel', cc: 'pixel', i: 'frame', t: 'pixel' }, changesPerPixel: [] })
-    const { code, control } = generateGlsl(doc)
+    const { code, frame: plan } = generateGlsl(doc)
     expect(code).toContain('vec3 n_cc = vec3(iControl[0].x, iTime, 0.1);')
-    expect(control.steps.map((step) => step.nodeId)).toEqual(['t', 'i'])
+    expect(plan.steps.map((step) => step.nodeId)).toEqual(['t', 'i'])
   })
 
   it('reads a per-frame node that a per-pixel value reaches per frame, and its planning reports the per-pixel input', () => {

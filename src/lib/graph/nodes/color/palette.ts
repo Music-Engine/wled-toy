@@ -26,7 +26,7 @@ export const paletteNode = defineNode('gradientPalette', {
     position: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { color: Color },
-  exec: ({ palette, repeat, position }, ctx) => ({
+  pixel: ({ palette, repeat, position }, ctx) => ({
     color: emitRamp(ctx, { interpolation: 'linear', stops: [...PALETTES.find((p) => p.value === palette)!.stops] }, repeat ? `fract(${position.expr})` : position.expr),
   }),
 })

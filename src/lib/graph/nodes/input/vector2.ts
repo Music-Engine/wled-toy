@@ -9,5 +9,5 @@ export const vector2Node = defineNode('vector2', {
     vector: { type: Vec2, label: '', default: [0.5, 0.5], linkable: false },
   },
   output: { vector: Vec2 },
-  exec: ({ vector }) => ({ vector: vectorLiteral(vector) }),
+  pixel: ({ vector }) => ({ vector: vectorLiteral(vector) }),
 })

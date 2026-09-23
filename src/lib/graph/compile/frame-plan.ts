@@ -1,4 +1,4 @@
-// The per-frame side of the Program: which nodes run once per frame, in what order, and with which inputs.
+// The per-frame side of the Program: which nodes are evaluated once per frame, in what order, and with which inputs.
 import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import { componentCount } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
@@ -39,7 +39,7 @@ function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Soc
   throw new GraphError(`${socket.label} needs a value or a link; its default (${socket.default.label}) only exists per pixel`, id)
 }
 
-/** Component count each linked input is cast to before `run` sees it; generic sockets come last, as planning always listed them. */
+/** Component count each linked input is cast to before `frame` sees it; generic sockets come last, as planning always listed them. */
 function inputDims(shape: NodeShape, gen: number): Record<string, number> {
   const dims: Record<string, number> = {}
   for (const socket of valueInputs(shape)) {

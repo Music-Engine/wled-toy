@@ -7,12 +7,12 @@ import { integratorNode } from './integrator'
 import { stepSequencerNode } from './step-sequencer'
 import { waveNode } from './wave'
 
-const frame = (n: number, fps = 30) => ({ time: n / fps, dt: 1 / fps, frameIndex: n })
+const frame = (n: number, fps = 30, state?: unknown) => ({ time: n / fps, dt: 1 / fps, frameIndex: n, state, resolved: {} })
 
 function simulate(item: NodeItem, values: Record<string, unknown>, output: string, input: (t: number) => Record<string, unknown>, seconds: number, fps = 30): number[] {
   const shape = item.shape(values)
   const state = shape.state?.()
-  return Array.from({ length: Math.round(seconds * fps) }, (_, n) => shape.run!({ ...values, ...input((n + 1) / fps) }, state, frame(n + 1, fps))[output] as number)
+  return Array.from({ length: Math.round(seconds * fps) }, (_, n) => shape.frame!({ ...values, ...input((n + 1) / fps) }, frame(n + 1, fps, state))[output] as number)
 }
 
 describe('Wave', () => {
@@ -23,18 +23,18 @@ describe('Wave', () => {
   })
 
   it.each(['sine', 'triangle', 'saw', 'square', 'bounce', 'pulse'])('%s stays within 0..1 and has its period', (shape) => {
-    const run = (input: number) => waveNode.shape({ shape }).run!({ shape, input, frequency: 2, phase: 0, duty: 0.5, width: 0.1 }, undefined, frame(0)).value as number
+    const run = (input: number) => waveNode.shape({ shape }).frame!({ shape, input, frequency: 2, phase: 0, duty: 0.5, width: 0.1 }, frame(0)).value as number
     const samples = Array.from({ length: 200 }, (_, i) => run(i / 100))
     expect(Math.min(...samples)).toBeGreaterThanOrEqual(0)
     expect(Math.max(...samples)).toBeLessThanOrEqual(1)
     expect(run(0.3)).toBeCloseTo(run(0.8), 6)
   })
 
-  it('on the CPU an unlinked Input follows the engine clock', () => {
-    const { control, error } = generateGlsl(graph([node('w', 'wave', { shape: 'saw', frequency: 1 }), node('e', 'envelopeFollower', { attack: 0, release: 0 }), node('o', 'output')], [['w.value', 'e.signal'], ['e.envelope', 'o.color']]))
+  it('per frame an unlinked Input follows the engine clock', () => {
+    const { frame: plan, error } = generateGlsl(graph([node('w', 'wave', { shape: 'saw', frequency: 1 }), node('e', 'envelopeFollower', { attack: 0, release: 0 }), node('o', 'output')], [['w.value', 'e.signal'], ['e.envelope', 'o.color']]))
     expect(error).toBeNull()
     const runner = new FrameRunner()
-    runner.load(control)
+    runner.load(plan)
     expect(runner.step({ time: 0.25, dt: 1 / 30, frameIndex: 1 })[0]).toBeCloseTo(0.25, 5)
   })
 
@@ -60,7 +60,7 @@ describe('Clock Divider', () => {
     // a trigger on every fifth frame, starting with the first
     const shape = clockDividerNode.shape({})
     const state = shape.state!()
-    const out = Array.from({ length: 50 }, (_, n) => shape.run!({ divide: 4, trigger: n % 5 === 0 ? 1 : 0, reset: 0 }, state, frame(n + 1, 10)))
+    const out = Array.from({ length: 50 }, (_, n) => shape.frame!({ divide: 4, trigger: n % 5 === 0 ? 1 : 0, reset: 0 }, frame(n + 1, 10, state)))
     const fired = out.map((o, i) => (o.trigger ? i : -1)).filter((i) => i >= 0)
     expect(fired).toEqual([0, 20, 40])
     expect(out[7].phase).toBe(0.5)
@@ -83,7 +83,7 @@ describe('Bands', () => {
     expect(bands.shape({ count: '4' }).outputs.map((o) => o.label)).toEqual(['Band 1', 'Band 2', 'Band 3', 'Band 4'])
     expect(bands.shape({}).outputs).toHaveLength(8)
     const features = { bands: Float32Array.from({ length: 16 }, (_, i) => i / 15) }
-    const out = bands.shape({ count: '4' }).run!({ spectrum: null, count: '4' }, undefined, { ...frame(0), audio: { analyses: [features as never], sampleRate: 48000 } })
+    const out = bands.shape({ count: '4' }).frame!({ spectrum: null, count: '4' }, { ...frame(0), audio: { analyses: [features as never], sampleRate: 48000 } })
     expect(out.band1).toBeCloseTo(3 / 15)
     expect(out.band4).toBeCloseTo(1)
   })

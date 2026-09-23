@@ -1,5 +1,5 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
-import type { FrameInfo, GlslChunk, NodeContext, ResolveEnv } from './context'
+import type { FrameContext, GlslChunk, NodeContext, ResolveEnv } from './context'
 import type { NodeItem, NodePreset, NodeShape, OutputSocket, Socket, WidgetProps } from './shape'
 import { isImplicit, type DataType } from './types'
 
@@ -24,7 +24,7 @@ export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any
 type SocketType<D> = Required<D extends { type: infer T extends DataType<any, any, any> } ? T : Extract<D, DataType<any, any, any>>>
 export type Inputs<I, V extends 'frame' | 'pixel'> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { linkable: false } ? '_frame' : `_${V}`] }
 /**
- * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `run` may
+ * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `frame` may
  * return either. A union rather than `Readonly` alone, which turns `any` into an object type.
  */
 export type Outputs<O, V extends 'frame' | 'pixel'> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
@@ -41,19 +41,19 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
   includes?: GlslChunk[]
   input: I
   output: O
-  /** Per pixel: emits GLSL. A node with only `exec` runs in the shader. */
-  exec?(input: Inputs<I, 'pixel'>, ctx: NodeContext): Outputs<O, 'pixel'>
+  /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader. */
+  pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext): Outputs<O, 'pixel'>
   /**
-   * Once per frame, on the CPU. A node with only `run` is control-rate: it can hold `state`, and its inputs must not vary
-   * per pixel. A node with both runs on the CPU whenever everything linked into it does, and in the shader otherwise.
+   * Once per frame, in JS. A node with only `frame` can hold `state`, and its inputs must not vary per pixel. A node with
+   * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise.
    */
-  run?(input: Inputs<I, 'frame'>, state: S, frame: FrameInfo): Outputs<O, 'frame'>
+  frame?(input: Inputs<I, 'frame'>, info: FrameContext<S>): Outputs<O, 'frame'>
   /**
    * While the graph compiles: what this node puts on its stream outputs (Audio, Spectrum), from its stored values and
-   * the streams linked into it. Anything else it returns is handed to `exec` and `run` alongside their inputs.
+   * the streams linked into it. Anything else it returns is handed to `pixel` and `frame` alongside their inputs.
    */
   resolve?(input: Inputs<I, 'pixel'>, env: ResolveEnv): Record<string, unknown>
-  /** Fresh state for a control-rate node. It survives recompiles for as long as the node exists. */
+  /** Fresh state for a frame-only node. It survives recompiles for as long as the node exists. */
   state?(): S
   presets?: NodePreset[]
 }
@@ -79,10 +79,10 @@ export function defineNode<const I extends Record<string, InputDef>, const O ext
 
 function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S>(
   id: string,
-  { title, signature, isOutput, includes, input, output, exec, run, state, resolve }: NodeItemOptions<I, O, S>,
+  { title, signature, isOutput, includes, input, output, pixel, frame, state, resolve }: NodeItemOptions<I, O, S>,
 ): NodeShape {
-  if (!exec && !run && !resolve) throw new Error(`${id}: a node needs exec, run or resolve`)
-  if (state && exec) throw new Error(`${id}: only a control-rate node can hold state; the shader has nowhere to keep it`)
+  if (!pixel && !frame && !resolve) throw new Error(`${id}: a node needs pixel, frame or resolve`)
+  if (state && pixel) throw new Error(`${id}: only a frame-only node can hold state; the shader has nowhere to keep it`)
   return {
     title,
     signature: signature ?? '',
@@ -90,8 +90,8 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     includes: includes ?? [],
     inputs: Object.entries(input).map(([name, def]) => buildInputSocket(id, name, def)),
     outputs: Object.entries(output).map(([name, def]) => buildOutputSocket(id, name, def)),
-    exec: exec as NodeShape['exec'],
-    run: run as NodeShape['run'],
+    pixel: pixel as NodeShape['pixel'],
+    frame: frame as NodeShape['frame'],
     resolve: resolve as NodeShape['resolve'],
     state,
   }

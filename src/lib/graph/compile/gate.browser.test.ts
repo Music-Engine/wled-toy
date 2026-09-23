@@ -22,9 +22,10 @@ function alone(item: NodeItem): NodeGraph {
   return graph([node('n', item.id), node('o', 'output')], drawable ? [[`n.${out.name}`, 'o.color']] : [])
 }
 
-function planJson({ control, issues, error, errorNode, frozen }: GeneratedShader): string {
-  const steps = control.steps.map(({ nodeId, kind, inputs, dims, run, state }) => ({ nodeId, kind, inputs, dims, run: run !== undefined, state: state !== undefined }))
-  const plan = { steps, exports: control.exports, resources: control.resources, issues, error, errorNode, frozen }
+function planJson({ frame: { steps, exports, resources }, issues, error, errorNode, frozen }: GeneratedShader): string {
+  // `run` keeps its old key so the plan snapshots stay the fixed point through ctx-lit-6
+  const recorded = steps.map(({ nodeId, kind, inputs, dims, frame, state }) => ({ nodeId, kind, inputs, dims, run: frame !== undefined, state: state !== undefined }))
+  const plan = { steps: recorded, exports, resources, issues, error, errorNode, frozen }
   return `${JSON.stringify(plan, null, 2)}\n`
 }
 

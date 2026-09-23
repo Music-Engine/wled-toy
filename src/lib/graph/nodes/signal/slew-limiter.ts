@@ -9,7 +9,7 @@ export const slewLimiterNode = defineNode('slewLimiter', {
   input: { signal: { type: Float, default: 0 }, rise: rate(4), fall: rate(1) },
   output: { value: Float },
   state: () => ({ value: 0 }),
-  run: ({ signal, rise, fall }, state, { dt }) => {
+  frame: ({ signal, rise, fall }, { state, dt }) => {
     const change = signal - state.value
     state.value += Math.min(rise * dt, Math.max(-fall * dt, change))
     return { value: state.value }

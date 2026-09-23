@@ -13,7 +13,7 @@ import { perFrameSource } from './uniforms'
 export function emitPixel(c: FrontEnd, id: string): void {
   if (c.emitted.has(id)) return
   const { node, shape } = c.lookup(id)
-  if (!shape.exec) throw new GraphError(`${shape.title} runs once per frame and cannot be drawn directly`, id)
+  if (!shape.pixel) throw new GraphError(`${shape.title} runs once per frame and cannot be drawn directly`, id)
   c.enter(id)
   const settled = settledInputs(c, id, shape)
   const inputs = Object.fromEntries(shape.inputs.map((socket) => [socket.name, pixelInput(c, id, node.data, settled, socket)]))
@@ -23,7 +23,7 @@ export function emitPixel(c: FrontEnd, id: string): void {
   c.program.pixel.push({ node: id, inputs })
 }
 
-/** What `exec` gets on a socket: the settled stream, the stored value, or a linkable value cast to the socket's type. */
+/** What `pixel` gets on a socket: the settled stream, the stored value, or a linkable value cast to the socket's type. */
 function pixelInput(c: FrontEnd, id: string, data: GraphNodeData, settled: Record<string, unknown>, socket: Socket): PixelInput {
   if (socket.type.kind === 'stream') return { value: settled[socket.name] }
   if (!socket.linkable) return { value: c.storedValue(id, data, socket) }

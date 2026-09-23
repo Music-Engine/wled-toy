@@ -81,5 +81,5 @@ export const gradientTextureNode = defineNode('gradientTexture', {
     vector: textureVector,
   },
   output: { fac: Float, color: Color },
-  exec: ({ type, vector }, ctx) => ctx.call('gradient_texture', [vector.expr, enumIndex(TYPES, type)], { fac: 'float', color: 'vec3' }),
+  pixel: ({ type, vector }, ctx) => ctx.call('gradient_texture', [vector.expr, enumIndex(TYPES, type)], { fac: 'float', color: 'vec3' }),
 })

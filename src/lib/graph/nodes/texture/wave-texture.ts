@@ -102,7 +102,7 @@ export const waveTextureNode = defineNode('waveTexture', {
     phase: { type: Float, default: 0, props: { step: 1, decimals: 2 } },
   },
   output: { fac: Float, color: Color },
-  exec: (input, ctx) => ctx.call('wave_texture', [
+  pixel: (input, ctx) => ctx.call('wave_texture', [
     enumIndex(TYPES, input.type), enumIndex(BANDS_DIRECTIONS, input.bandsDirection), enumIndex(RINGS_DIRECTIONS, input.ringsDirection), enumIndex(PROFILES, input.profile),
     input.scale.expr, input.distortion.expr, input.detail.expr, input.detailScale.expr, input.detailRoughness.expr, input.phase.expr, input.vector.expr,
   ], { fac: 'float', color: 'vec3' }),

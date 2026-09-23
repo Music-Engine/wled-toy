@@ -9,7 +9,7 @@ export const schmittTriggerNode = defineNode('schmittTrigger', {
   input: { signal: { type: Float, default: 0 }, low: level(0.4), high: level(0.6) },
   output: { gate: Float },
   state: () => ({ on: false }),
-  run: ({ signal, low, high }, state) => {
+  frame: ({ signal, low, high }, { state }) => {
     if (!state.on && signal >= high) state.on = true
     else if (state.on && signal <= low) state.on = false
     return { gate: state.on ? 1 : 0 }

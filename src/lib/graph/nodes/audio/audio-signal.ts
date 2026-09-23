@@ -10,7 +10,7 @@ const approach = (dt: number, span: number) => (span <= 0 ? 1 : 1 - Math.exp(-dt
 
 export const audioSignalNode = defineNode('audioSignal', {
   title: 'Audio to Signal',
-  description: 'The loudness of an audio stream as one per-frame number, smoothed with Attack and Release so it can drive anything a knob can. Level follows gain control and fills 0 to 1; RMS and Peak are the raw values.',
+  description: 'The loudness of an audio stream as one per-frame number, smoothed with Attack and Release so it can drive anything a knob can. Level follows the automatic gain and fills 0 to 1; RMS and Peak are the raw values.',
   category: 'audio',
   input: {
     mode: { type: Enum(MODES), label: '', default: 'level', linkable: false, props: { label: 'Measure' } },
@@ -20,7 +20,7 @@ export const audioSignalNode = defineNode('audioSignal', {
   },
   output: { signal: Float },
   state: () => ({ value: 0 }),
-  run: ({ mode, attack, release }, state, { dt, audio }) => {
+  frame: ({ mode, attack, release }, { state, dt, audio }) => {
     const f = audio?.analyses[0]
     const target = !f ? 0 : mode === 'rms' ? f.rms : mode === 'peak' ? f.peak : f.level
     state.value += (target - state.value) * approach(dt, target > state.value ? attack : release)

@@ -5,7 +5,7 @@ const KINDS = [{ value: 'cc', label: 'Controller (CC)' }, { value: 'note', label
 
 export const midiInNode = defineNode('midiIn', {
   title: 'MIDI In',
-  description: 'A MIDI controller or key as a 0 to 1 value. Press Learn and move the control to fill in its channel and number. Needs a browser with Web MIDI (Chrome, Edge, Firefox).',
+  description: 'A MIDI controller or key as a 0 to 1 value. Press Learn and move the knob, fader or key to fill in its channel and number. Needs a browser with Web MIDI (Chrome, Edge, Firefox).',
   category: 'input',
   input: {
     kind: { type: Enum(KINDS), label: '', linkable: false, props: { label: 'Message' } },
@@ -13,7 +13,7 @@ export const midiInNode = defineNode('midiIn', {
     number: { type: Int, default: 1, linkable: false, props: { min: 0, max: 127, step: 1, decimals: 0 } },
   },
   output: { value: Float, gate: Float },
-  run: ({ kind, channel, number }, _, { midi }) => {
+  frame: ({ kind, channel, number }, { midi }) => {
     const value = midi?.value(kind, channel, number) ?? 0
     return { value, gate: Number(value > 0) }
   },
@@ -28,7 +28,7 @@ export const oscInNode = defineNode('oscIn', {
     address: { type: Text, label: 'Address', default: '/1/fader1', linkable: false, props: { placeholder: '/1/fader1' } },
   },
   output: { value: Float, second: { type: Float, label: 'Argument 2' }, third: { type: Float, label: 'Argument 3' } },
-  run: ({ address }, _, { osc }) => {
+  frame: ({ address }, { osc }) => {
     const [value = 0, second = 0, third = 0] = osc?.(address) ?? []
     return { value, second, third }
   },

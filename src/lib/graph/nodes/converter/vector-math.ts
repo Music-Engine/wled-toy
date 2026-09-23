@@ -74,12 +74,12 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
       ...(def.scalar && { scale: { type: Float, label: def.scalar, default: 1 } }),
     },
     output: def.out === 'vector' ? { vector: Vec3 } : { value: Float },
-    exec: (input: Record<string, any>, ctx): Record<string, Value> => {
+    pixel: (input: Record<string, any>, ctx): Record<string, Value> => {
       if (def.helper) ctx.include(mathHelper(def.helper, def.helperType ?? 'vec3'))
       const expr = def.glsl(input.a.expr, input.b?.expr ?? 'vec3(0.0)', input.c?.expr ?? 'vec3(0.0)', input.scale?.expr ?? '1.0')
       return def.out === 'vector' ? { vector: ctx.declare('vec3', expr) } : { value: ctx.declare('float', expr) }
     },
-    run: (input: Record<string, any>): Record<string, FrameValue> => {
+    frame: (input: Record<string, any>): Record<string, FrameValue> => {
       const result = def.js(asVector(input.a), asVector(input.b ?? 0), asVector(input.c ?? 0), (input.scale as number) ?? 1)
       return def.out === 'vector' ? { vector: result as V } : { value: result as number }
     },

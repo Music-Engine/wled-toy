@@ -12,7 +12,7 @@ export const mappingNode = defineNode('mapping', {
     pivot: { type: Vec3, default: [0.5, 0.5, 0] },
   },
   output: { vector: Vec3 },
-  exec: ({ vector, location, rotation, scale, pivot }, ctx) => {
+  pixel: ({ vector, location, rotation, scale, pivot }, ctx) => {
     const p = ctx.declare('vec3', `(${vector.expr} - ${pivot.expr}) * ${scale.expr}`, 'p').expr
     const a = ctx.declare('float', `${rotation.expr} * 6.2831853`, 'a').expr
     // turning the lookup by -a turns the picture by +a

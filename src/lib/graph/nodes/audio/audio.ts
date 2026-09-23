@@ -37,7 +37,7 @@ export const audioSourceNode = defineNode('audioSource', {
 
 export const fftNode = defineNode('fft', {
   title: 'FFT',
-  description: `Splits audio into frequency bands. A larger window resolves bass notes and reacts slower; a smaller hop updates more often. Up to ${MAX_ANALYSES - 1} FFT nodes with different settings can run next to the default one.`,
+  description: `Splits audio into frequency bands. A larger window resolves bass notes and reacts slower; a smaller hop updates more often. Up to ${MAX_ANALYSES - 1} FFT nodes with different settings can work next to the default one.`,
   category: 'audio',
   input: {
     audio: AudioStream,
@@ -57,7 +57,7 @@ export const fftNode = defineNode('fft', {
     // slot 0 is the default analysis, so the first distinct FFT is slot 1
     const slot = env.intern('analysis', settings) + 1
     if (slot < MAX_ANALYSES) return { spectrum: { slot } }
-    env.issue(`Only ${MAX_ANALYSES - 1} FFT settings besides the default can run at once; this one falls back to the default`)
+    env.issue(`Only ${MAX_ANALYSES - 1} FFT settings besides the default can be active at once; this one falls back to the default`)
     return { spectrum: { slot: 0 } }
   },
 })
@@ -81,10 +81,10 @@ export const audioNode = defineNode('audio', {
     centroid: { type: Float, label: 'Brightness' }, flatness: { type: Float, label: 'Noisiness' },
     sub: Float, kick: Float, lowMid: Float, vocal: Float, presence: Float, air: Float,
   },
-  run: (_, __, frame) => {
-    const f = analysis(frame)
+  frame: (_, info) => {
+    const f = analysis(info)
     if (!f) return { level: 0, rms: 0, peak: 0, gate: 0, onset: 0, beat: 0, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0, sub: 0, kick: 0, lowMid: 0, vocal: 0, presence: 0, air: 0 }
-    const range = ([low, high]: readonly [number, number]) => rangeLevel(f, frame.audio!.sampleRate, low, high)
+    const range = ([low, high]: readonly [number, number]) => rangeLevel(f, info.audio!.sampleRate, low, high)
     return {
       level: f.level, rms: f.rms, peak: f.peak, gate: Number(f.gate), onset: Number(f.onset), beat: Number(f.beat), beatPhase: f.beatPhase, bpm: f.bpm,
       centroid: f.centroid, flatness: f.flatness,
@@ -103,8 +103,8 @@ export const bandSplitNode = defineNode('bandSplit', {
     high: { type: Float, label: 'High (Hz)', default: 150, props: { min: 20, max: 20000, decimals: 0 } },
   },
   output: { level: Float },
-  run: ({ spectrum, low, high }, _, frame) => {
-    const f = analysis(frame, spectrum?.slot)
-    return { level: f ? rangeLevel(f, frame.audio!.sampleRate, low, high) : 0 }
+  frame: ({ spectrum, low, high }, info) => {
+    const f = analysis(info, spectrum?.slot)
+    return { level: f ? rangeLevel(f, info.audio!.sampleRate, low, high) : 0 }
   },
 })

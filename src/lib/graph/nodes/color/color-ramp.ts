@@ -29,8 +29,8 @@ export const defaultRamp = (): ColorRamp => ({
 
 const sorted = (ramp: ColorRamp) => [...ramp.stops].sort((a, b) => a.position - b.position)
 
-// Uniform cubic B-spline through evenly spaced control colors: smooth, and like Blender's it only approaches the stops.
-// The first and last control points are mirrored so the curve starts and ends on the outer stops.
+// Uniform cubic B-spline through evenly spaced colors: smooth, and like Blender's it only approaches the stops.
+// The first and last colors are mirrored so the curve starts and ends on the outer stops.
 function splineControls(colors: number[][]): number[][] {
   if (colors.length < 2) return colors
   const mirror = (a: number[], b: number[]) => a.map((c, k) => 2 * c - b[k])
@@ -130,5 +130,5 @@ export const colorRampNode = defineNode('colorRamp', {
     fac: { type: Float, label: 'Factor', default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { color: Color },
-  exec: ({ ramp, fac }, ctx) => ({ color: emitRamp(ctx, ramp, fac.expr) }),
+  pixel: ({ ramp, fac }, ctx) => ({ color: emitRamp(ctx, ramp, fac.expr) }),
 })

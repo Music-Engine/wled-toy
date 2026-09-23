@@ -12,13 +12,13 @@ import { sampleHoldNode } from './sample-hold'
 import { schmittTriggerNode } from './schmitt-trigger'
 import { slewLimiterNode } from './slew-limiter'
 
-/** Runs a control node at a fixed frame rate; `input(t)` gives its inputs at time t. Returns one output per frame. */
+/** Runs a frame body at a fixed frame rate; `input(t)` gives its inputs at time t. Returns one output per frame. */
 function simulate(item: NodeItem, output: string, input: (t: number) => Record<string, unknown>, seconds: number, fps = 30): number[] {
-  const { run, state: fresh } = item.base
+  const { frame: body, state: fresh } = item.base
   const state = fresh?.()
   return Array.from({ length: Math.round(seconds * fps) }, (_, frame) => {
     const time = (frame + 1) / fps
-    return run!(input(time), state, { time, dt: 1 / fps, frameIndex: frame })[output] as number
+    return body!(input(time), { time, dt: 1 / fps, frameIndex: frame, state, resolved: {} })[output] as number
   })
 }
 
@@ -92,13 +92,13 @@ describe('triggers', () => {
 
 describe('stateless nodes compute the same thing on both sides', () => {
   it('map range and curve', () => {
-    expect(mapRangeNode.base.run!({ clamp: true, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, undefined, { time: 0, dt: 0, frameIndex: 0 }).result).toBe(20)
-    expect(mapRangeNode.base.run!({ clamp: false, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, undefined, { time: 0, dt: 0, frameIndex: 0 }).result).toBe(25)
-    expect(curveNode.base.run!({ curve: 'smooth', value: 0.5 }, undefined, { time: 0, dt: 0, frameIndex: 0 }).result).toBe(0.5)
+    expect(mapRangeNode.base.frame!({ clamp: true, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }).result).toBe(20)
+    expect(mapRangeNode.base.frame!({ clamp: false, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }).result).toBe(25)
+    expect(curveNode.base.frame!({ curve: 'smooth', value: 0.5 }, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }).result).toBe(0.5)
   })
 })
 
-describe('what may feed a control-rate node', () => {
+describe('what may feed a frame-only node', () => {
   it('a per-pixel link is refused with both node names in the message', () => {
     const result = generateGlsl(graph(
       [node('uv', 'uv'), node('env', 'envelopeFollower'), node('o', 'output')],
@@ -116,13 +116,13 @@ describe('what may feed a control-rate node', () => {
     expect(result.error).toBe('Signal needs one value per frame, but Math changes per pixel')
   })
 
-  it('knob -> curve -> envelope follower all run on the CPU, and only the envelope reaches the shader', () => {
-    const { control, error } = generateGlsl(graph(
+  it('knob -> curve -> envelope follower are all evaluated per frame, and only the envelope reaches the shader', () => {
+    const { frame: plan, error } = generateGlsl(graph(
       [node('k', 'knob'), node('c', 'curve'), node('env', 'envelopeFollower'), node('o', 'output')],
       [['k.value', 'c.value'], ['c.result', 'env.signal'], ['env.envelope', 'o.color']],
     ))
     expect(error).toBeNull()
-    expect(control.steps.map((s) => s.nodeId)).toEqual(['k', 'c', 'env'])
-    expect(control.exports).toHaveLength(1)
+    expect(plan.steps.map((s) => s.nodeId)).toEqual(['k', 'c', 'env'])
+    expect(plan.exports).toHaveLength(1)
   })
 })

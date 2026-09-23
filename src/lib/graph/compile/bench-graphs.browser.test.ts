@@ -65,7 +65,7 @@ function timing(values: number[]): Timing {
   return { median: round(at(0.5)), p95: round(at(0.95)), max: round(sorted[sorted.length - 1] ?? 0), samples: sorted.length }
 }
 
-/** The GPU the numbers came from, so SwiftShader results are never read as hardware results. */
+/** The graphics adapter the numbers came from, so SwiftShader results are never read as hardware results. */
 function rendererString(): string {
   const gl = document.createElement('canvas').getContext('webgl2')
   if (!gl) return 'no webgl2'
@@ -139,9 +139,9 @@ function benchmark(name: string, text: string) {
   }
 
   const runner = new FrameRunner()
-  runner.load(shader.control)
+  runner.load(shader.frame)
   const track = synthTrack(Math.ceil(FRAMES / FPS) + 1)
-  const slots = openSlots(shader.control, SAMPLE_RATE)
+  const slots = openSlots(shader.frame, SAMPLE_RATE)
 
   const analysis: number[] = []
   const perHop: number[] = []
@@ -229,9 +229,9 @@ function benchmark(name: string, text: string) {
     edges: doc.edges.length,
     glslChars: shader.code.length,
     glslLines: lines,
-    controlSteps: shader.control.steps.length,
-    controlExports: shader.control.exports.length,
-    controlUniformFloats: shader.control.exports.reduce((sum, e) => sum + e.dim, 0),
+    controlSteps: shader.frame.steps.length,
+    controlExports: shader.frame.exports.length,
+    controlUniformFloats: shader.frame.exports.reduce((sum, e) => sum + e.dim, 0),
     analysisSlots: slots.length,
     previewPixels: [canvas.width, canvas.height],
     usesFeedback: /\b(iPrevFrame|previousFrame)\b/.test(shader.code),

@@ -12,7 +12,7 @@ export const rangeSelectNode = defineNode('rangeSelect', {
     softness: { type: Float, default: 0, props: { min: 0, decimals: 3 } },
   },
   output: { mask: Float },
-  exec: ({ invert, value, from, to, softness }, ctx) => {
+  pixel: ({ invert, value, from, to, softness }, ctx) => {
     const edge = ctx.declare('float', `max(${softness.expr}, 0.0001) * 0.5`, 'edge').expr
     const lo = ctx.declare('float', `min(${from.expr}, ${to.expr})`, 'lo').expr
     const hi = ctx.declare('float', `max(${from.expr}, ${to.expr})`, 'hi').expr

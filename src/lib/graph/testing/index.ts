@@ -39,7 +39,7 @@ export function renderGraph(doc: NodeGraph, { leds = 8, time = 0, frame = 0, sca
   }
   renderer.setLayout(layout && layoutPositions(layout))
   const runner = new FrameRunner()
-  runner.load(shader.control)
+  runner.load(shader.frame)
   renderer.setControls(runner.step({ time, dt, frameIndex: frame }))
   const colors = renderer.renderLeds({ time, frame, ledCount: leds, scanY })
   renderer.dispose()

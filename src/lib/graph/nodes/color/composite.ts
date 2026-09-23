@@ -18,7 +18,7 @@ export const layerMixNode = defineNode('layerMix', ({ mode = 'mix' }: { mode?: B
       mask: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
     },
     output: { color: Color },
-    exec: ({ base, layer, opacity, mask }, ctx) =>
+    pixel: ({ base, layer, opacity, mask }, ctx) =>
       ({ color: ctx.declare('vec3', `clamp(${fn}(clamp(${opacity.expr} * ${mask.expr}, 0.0, 1.0), ${base.expr}, ${layer.expr}), 0.0, 1.0)`) }),
   }
 })
@@ -34,7 +34,7 @@ export const maskNode = defineNode('mask', {
     softness: { type: Float, default: 0.05, props: { min: 0, decimals: 3 } },
   },
   output: { mask: Float },
-  exec: ({ invert, value, threshold, softness }, ctx) => {
+  pixel: ({ invert, value, threshold, softness }, ctx) => {
     // a zero-width smoothstep is undefined, so the edge never gets narrower than this
     const edge = ctx.declare('float', `max(${softness.expr}, 0.0001) * 0.5`, 'edge').expr
     const mask = `smoothstep(${threshold.expr} - ${edge}, ${threshold.expr} + ${edge}, ${value.expr})`
@@ -51,7 +51,7 @@ export const brightnessCeilingNode = defineNode('brightnessCeiling', {
     ceiling: { type: Float, default: 0.8, props: { min: 0, max: 1, decimals: 2 } },
   },
   output: { color: Color },
-  exec: ({ color, ceiling }, ctx) => {
+  pixel: ({ color, ceiling }, ctx) => {
     const c = ctx.declare('vec3', color.expr, 'in').expr
     return { color: ctx.declare('vec3', `${c} * min(1.0, ${ceiling.expr} / max(max(${c}.r, max(${c}.g, ${c}.b)), 0.0001))`) }
   },

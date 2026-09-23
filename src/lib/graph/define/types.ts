@@ -1,7 +1,7 @@
 export interface ImplicitDefault {
   expr: string
   label: string
-  /** The same value once per frame, for a node that runs on the CPU; without it the socket needs a link there. */
+  /** The same value once per frame, for a node evaluated per frame; without it the socket needs a link there. */
   frame?: 'time'
 }
 

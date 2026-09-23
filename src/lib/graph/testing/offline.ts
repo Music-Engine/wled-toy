@@ -61,9 +61,9 @@ export interface Slot {
 }
 
 /** As AudioService does it: slot 0 is the default analysis, FFT nodes add slots, the Audio Source sets gain and gate. */
-export function openSlots(control: FramePlan, sampleRate = SAMPLE_RATE): Slot[] {
-  const [source = DEFAULT_AUDIO] = (control.resources.audioSource ?? []) as AudioSourceRequest[]
-  return [DEFAULT_ANALYSIS, ...(control.resources.analysis ?? []) as AnalysisSettings[]].slice(0, MAX_ANALYSES).map((wanted) => {
+export function openSlots(plan: FramePlan, sampleRate = SAMPLE_RATE): Slot[] {
+  const [source = DEFAULT_AUDIO] = (plan.resources.audioSource ?? []) as AudioSourceRequest[]
+  return [DEFAULT_ANALYSIS, ...(plan.resources.analysis ?? []) as AnalysisSettings[]].slice(0, MAX_ANALYSES).map((wanted) => {
     const settings = { ...wanted, bands: Math.max(12, Math.round(wanted.bands)), hop: Math.min(wanted.hop, wanted.windowSize) }
     return {
       hop: settings.hop,
@@ -77,7 +77,7 @@ export function openSlots(control: FramePlan, sampleRate = SAMPLE_RATE): Slot[] 
 }
 
 /**
- * Analyzes every hop up to `time` and returns what the control nodes see, as AudioService.takeFeatures does it: a
+ * Analyzes every hop up to `time` and returns what the frame bodies see, as AudioService.takeFeatures does it: a
  * pulse raised by any hop since the last call reaches them. Returns the number of hops analyzed for the caller's timing.
  */
 export function feedSlots(slots: Slot[], track: Float32Array, time: number, sampleRate = SAMPLE_RATE): { analyses: (Features | null)[]; hops: number } {

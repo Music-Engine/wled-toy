@@ -16,8 +16,8 @@ export function inferWidths(c: FrontEnd, sinks: string[]): void {
   const trail = new Set<string>()
   for (const id of sinks) {
     const { shape } = c.lookup(id)
-    if (shape.exec) inferNode(c, id, 'pixel', trail)
-    else if (shape.run) inferNode(c, id, 'frame', trail)
+    if (shape.pixel) inferNode(c, id, 'pixel', trail)
+    else if (shape.frame) inferNode(c, id, 'frame', trail)
   }
 }
 

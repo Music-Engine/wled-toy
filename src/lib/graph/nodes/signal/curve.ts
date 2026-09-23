@@ -21,9 +21,9 @@ export const curveNode = defineNode('curve', {
     value: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { result: Float },
-  exec: ({ curve, value }, ctx) => {
+  pixel: ({ curve, value }, ctx) => {
     const t = ctx.declare('float', `clamp(${value.expr}, 0.0, 1.0)`, 't').expr
     return { result: ctx.declare('float', CURVES.find((c) => c.value === curve)!.glsl(t)) }
   },
-  run: ({ curve, value }) => ({ result: CURVES.find((c) => c.value === curve)!.js(Math.min(1, Math.max(0, value))) }),
+  frame: ({ curve, value }) => ({ result: CURVES.find((c) => c.value === curve)!.js(Math.min(1, Math.max(0, value))) }),
 })

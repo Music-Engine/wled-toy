@@ -8,7 +8,7 @@ export const sampleHoldNode = defineNode('sampleHold', {
   input: { signal: { type: Float, default: 0 }, trigger: { type: Float, default: 0 } },
   output: { value: Float },
   state: () => ({ held: 0, high: false }),
-  run: ({ signal, trigger }, state) => {
+  frame: ({ signal, trigger }, { state }) => {
     if (risingEdge(state, trigger)) state.held = signal
     return { value: state.held }
   },

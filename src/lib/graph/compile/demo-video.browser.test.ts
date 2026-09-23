@@ -55,8 +55,8 @@ describe.runIf(ENABLED)('demo video', () => {
       matrix.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: MATRIX_SIDE, height: MATRIX_SIDE, serpentine: false, origin: 'top-left' }] }))
 
       const runner = new FrameRunner()
-      runner.load(shader.control)
-      const slots = openSlots(shader.control, SAMPLE_RATE)
+      runner.load(shader.frame)
+      const slots = openSlots(shader.frame, SAMPLE_RATE)
 
       const skipped = Math.round(segment.preroll * manifest.fps)
       const kept = Math.round(segment.seconds * manifest.fps)

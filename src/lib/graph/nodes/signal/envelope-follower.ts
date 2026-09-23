@@ -8,7 +8,7 @@ export const envelopeFollowerNode = defineNode('envelopeFollower', {
   input: { signal: { type: Float, default: 0 }, attack: seconds(0.01), release: seconds(0.3) },
   output: { envelope: Float },
   state: () => ({ value: 0 }),
-  run: ({ signal, attack, release }, state, { dt }) => {
+  frame: ({ signal, attack, release }, { state, dt }) => {
     const target = signal
     state.value += (target - state.value) * approach(dt, (target > state.value ? attack : release))
     return { envelope: state.value }

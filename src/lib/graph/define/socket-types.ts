@@ -44,7 +44,7 @@ export const enumIndex = (options: readonly EnumOption[], value: string) => Stri
 
 /** Marks a link as carrying audio. There is one live input, so the link says where a node listens, not what it hears. */
 export const AudioStream = stream<{ source: true }>('audio', 'Audio')
-/** An analyzed stream: `slot` picks the analysis (its band, history and chroma textures, and its features on the CPU). */
+/** An analyzed stream: `slot` picks the analysis (its band, history and chroma textures, and its features per frame). */
 export const SpectrumStream = stream<{ slot: number }>('spectrum', 'Spectrum')
 
 function numeric<T>(id: string, label: string, dim: number, check: (raw: unknown) => raw is T, initial: () => T): DataType<T, T, Value> {

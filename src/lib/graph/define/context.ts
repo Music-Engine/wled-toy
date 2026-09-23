@@ -14,16 +14,16 @@ export interface GlslChunk {
   source: string
 }
 
-/** What a control-rate node computes with: plain numbers, one evaluation per frame. */
+/** What a frame body computes with: plain numbers, one evaluation per frame. */
 export type FrameValue = number | number[]
 
 export interface FrameInfo {
   /** Seconds since the engine clock was reset. */
   time: number
-  /** Seconds since the previous control step, capped so a hidden tab does not produce one huge step. */
+  /** Seconds since the previous frame step, capped so a hidden tab does not produce one huge step. */
   dt: number
   frameIndex: number
-  /** The latest audio analysis; absent while no audio has run. */
+  /** The latest audio analysis; absent until audio has been analyzed. */
   /** Audio analyses by slot (0 is the default FFT); an entry is null until its first hop. */
   audio?: { analyses: (Features | null)[]; sampleRate: number }
   midi?: MidiReader
@@ -31,8 +31,16 @@ export interface FrameInfo {
   osc?: (address: string) => number[] | undefined
 }
 
+/** What a frame body gets beside its inputs: the frame, the node's state, and what its `resolve` returned. */
+export interface FrameContext<S = any> extends FrameInfo {
+  state: S
+  resolved: Record<string, unknown>
+}
+
 export interface NodeContext {
   nodeId: string
+  /** What the node's `resolve` returned. */
+  resolved: Record<string, unknown>
   /** The type this node's generic sockets resolved to. */
   gen: GlslType
   /** A variable name unique to this node, stable across compiles so unchanged graphs produce unchanged code. */

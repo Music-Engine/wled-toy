@@ -36,7 +36,7 @@ function warnings(doc: NodeGraph): string[] {
 interface FrameAudio {
   level: number
   kick: number
-  /** The analyzer raised `beat` on some hop since the previous frame, which is what the control nodes see. */
+  /** The analyzer raised `beat` on some hop since the previous frame, which is what the frame bodies see. */
   beat: boolean
   bands: Float32Array
   chroma: Float32Array
@@ -66,8 +66,8 @@ function play(doc: NodeGraph, track: Float32Array): Run {
   matrix.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: MATRIX_SIDE, height: MATRIX_SIDE, serpentine: false, origin: 'top-left' }] }))
 
   const runner = new FrameRunner()
-  runner.load(shader.control)
-  const slots = openSlots(shader.control, SAMPLE_RATE)
+  runner.load(shader.frame)
+  const slots = openSlots(shader.frame, SAMPLE_RATE)
 
   const run: Run = { strip: [], matrix: [], audio: [] }
   for (let frame = 0; frame < SECONDS * FPS; frame++) {

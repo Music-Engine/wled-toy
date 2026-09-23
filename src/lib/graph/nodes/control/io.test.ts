@@ -11,7 +11,7 @@ function firstSlot(doc: ReturnType<typeof graph>, extra: object) {
   const shader = generateGlsl(doc)
   expect(shader.error).toBeNull()
   const runner = new FrameRunner()
-  runner.load(shader.control)
+  runner.load(shader.frame)
   return () => runner.step({ ...frame, ...extra })[0]
 }
 

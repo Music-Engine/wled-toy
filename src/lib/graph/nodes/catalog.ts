@@ -24,7 +24,7 @@ function functionItem(fn: ShaderNode): NodeItem {
     signature: fn.signature,
     input: Object.fromEntries(fn.params.map((param) => [param.name, inputFor(param)])),
     output: { out: { type: paramType(fn.output), label: fn.output.label } },
-    exec: (input, ctx) => {
+    pixel: (input, ctx) => {
       const args = fn.params.map((param) => input[param.name].expr)
       return { out: ctx.declare(fn.returns === 'genType' ? ctx.gen : fn.returns, `${fn.name}(${args.join(', ')})`) }
     },
@@ -39,7 +39,7 @@ function uniformItem(uniform: ShaderNode): NodeItem {
     signature: uniform.signature,
     input: {},
     output: { out: { type: typeForGlsl(uniform.returns), label: uniform.output.label } },
-    exec: () => ({ out: { expr: uniform.name, type: uniform.returns } }),
+    pixel: () => ({ out: { expr: uniform.name, type: uniform.returns } }),
   })
 }
 

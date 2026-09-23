@@ -20,7 +20,7 @@ export class GraphError extends Error {
 /**
  * `pixel` lists what the shader emits and `frame` what runs once per frame, each in the order the sinks reach it. A node
  * can sit in both lists: Time feeding an Integrator and a shader node is planned per frame and emitted per pixel.
- * Settling each node on one placement would change which nodes run, so it is left to a later decision.
+ * Settling each node on one placement would change which nodes are evaluated, so it is left to a later decision.
  */
 export interface Program {
   nodes: Record<string, ProgramNode>
@@ -48,7 +48,7 @@ export interface ProgramNode {
   width: GlslType | null
 }
 
-export type ProgramStep = Omit<FrameStep, 'kind' | 'run' | 'state'>
+export type ProgramStep = Omit<FrameStep, 'kind' | 'frame' | 'state' | 'resolved'>
 
 export interface UniformSlot {
   step: number

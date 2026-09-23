@@ -41,9 +41,9 @@ describe('inferWidths', () => {
   it('gives a per-frame node its width, and planning derives its dims from it', () => {
     const doc = graph([node('k', 'knob'), node('m', 'math', { b: [0.2, 0.4, 0.6] }), node('o', 'output')], [['k.value', 'm.a'], ['m.result', 'o.color']])
     expect(widths(doc)).toMatchObject({ k: 'float', m: 'vec3' })
-    const { control } = generateGlsl(doc)
-    expect(control.steps.find((step) => step.nodeId === 'm')?.dims).toEqual({ a: 3, b: 3 })
-    expect(control.exports).toEqual([{ step: 1, output: 'result', slot: 0, dim: 3 }])
+    const { frame: plan } = generateGlsl(doc)
+    expect(plan.steps.find((step) => step.nodeId === 'm')?.dims).toEqual({ a: 3, b: 3 })
+    expect(plan.exports).toEqual([{ step: 1, output: 'result', slot: 0, dim: 3 }])
   })
 
   it('standalone, reads a frozen per-frame output as the literal of its last value', () => {

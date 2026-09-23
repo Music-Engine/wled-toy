@@ -17,7 +17,7 @@ export const envelopeNode = defineNode('envelope', {
   },
   output: { envelope: Float },
   state: () => ({ stage: 'idle' as 'idle' | 'attack' | 'decay' | 'sustain' | 'release', level: 0, high: false }),
-  run: ({ mode, gate, attack, decay, sustain, release }, state, { dt }) => {
+  frame: ({ mode, gate, attack, decay, sustain, release }, { state, dt }) => {
     const high = gate >= 0.5
     if (high && !state.high) state.stage = 'attack'
     if (!high && state.high && mode === 'adsr' && state.stage !== 'idle') state.stage = 'release'

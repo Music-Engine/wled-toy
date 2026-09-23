@@ -58,7 +58,7 @@ export const imageTextureNode = defineNode('imageTexture', {
     env.issue(`A graph can show ${IMAGE_LAYERS} different images; this one shows the first instead`)
     return { layer: 0 }
   },
-  exec: ({ interpolation, extension, colorSpace, alphaMode, vector, ...resolved }, ctx) => {
+  pixel: ({ interpolation, extension, colorSpace, alphaMode, vector, ...resolved }, ctx) => {
     const { layer } = resolved as unknown as { layer: number }
     const p = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr
     const st = ctx.declare('vec2', extension === 'repeat' ? `fract(${p})` : extension === 'mirror' ? `1.0 - abs(mod(${p}, 2.0) - 1.0)` : `clamp(${p}, 0.0, 1.0)`, 'st').expr

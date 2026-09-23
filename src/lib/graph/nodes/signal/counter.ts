@@ -12,7 +12,7 @@ export const counterNode = defineNode('counter', {
   },
   output: { count: Float, phase: Float },
   state: () => ({ count: 0, trigger: { high: false }, reset: { high: false } }),
-  run: ({ steps, trigger, reset }, state) => {
+  frame: ({ steps, trigger, reset }, { state }) => {
     if (risingEdge(state.trigger, trigger)) state.count = (state.count + 1) % steps
     if (risingEdge(state.reset, reset)) state.count = 0
     return { count: state.count, phase: state.count / steps }
@@ -26,7 +26,7 @@ export const toggleNode = defineNode('toggle', {
   input: { trigger: { type: Float, default: 0 } },
   output: { state: Float },
   state: () => ({ on: false, high: false }),
-  run: ({ trigger }, state) => {
+  frame: ({ trigger }, { state }) => {
     if (risingEdge(state, trigger)) state.on = !state.on
     return { state: state.on ? 1 : 0 }
   },

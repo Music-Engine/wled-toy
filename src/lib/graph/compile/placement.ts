@@ -1,6 +1,6 @@
 // A node can be both planned per frame and emitted per pixel today (Time feeding an Integrator and a shader node), so
 // this pass answers both questions and the Program lists such a node on both sides; settling each node on one
-// placement would change which nodes run, so it is left to a later decision.
+// placement would change which nodes are evaluated, so it is left to a later decision.
 import { fallsBackToImplicit, hasFrameValue, valueInputs } from '@/lib/graph/registry'
 import type { FrontEnd } from './front-end'
 
@@ -19,7 +19,7 @@ export function placeNodes(c: FrontEnd, sinks: string[]): void {
   const walk: Walk = { c, emitted: new Set(), planned: new Set(), perFrame: new Map() }
   for (const id of sinks) {
     const { shape } = c.lookup(id)
-    if (!shape.exec && !shape.run) continue
+    if (!shape.pixel && !shape.frame) continue
     if (place(walk, id) === 'frame') planPerFrame(walk, id)
     else readPerPixel(walk, id)
   }
@@ -50,22 +50,22 @@ function place(walk: Walk, id: string): 'frame' | 'pixel' {
   return placement
 }
 
-/** A node that can run either way goes per frame as soon as something is linked in and all of it is per-frame. */
+/** A node with both bodies goes per frame as soon as something is linked in and all of it is per-frame. */
 function readsPerFrame(walk: Walk, id: string): boolean {
   const { shape } = walk.c.lookup(id)
-  if (!shape.exec) return true
-  if (walk.c.standalone || !shape.run) return false
+  if (!shape.pixel) return true
+  if (walk.c.standalone || !shape.frame) return false
   return linkedSources(walk.c, id).length > 0 && canRunPerFrame(walk, id)
 }
 
-/** The node has `run` and nothing per-pixel reaches it; a loop counts as per-pixel. */
+/** The node has a `frame` body and nothing per-pixel reaches it; a loop counts as per-pixel. */
 function canRunPerFrame(walk: Walk, id: string, trail = new Set<string>()): boolean {
   const known = walk.perFrame.get(id)
   if (known !== undefined) return known
   if (trail.has(id)) return false
   trail.add(id)
   const { node, shape } = walk.c.lookup(id)
-  const result = shape.run !== undefined && valueInputs(shape).every((socket) => {
+  const result = shape.frame !== undefined && valueInputs(shape).every((socket) => {
     const source = walk.c.linkSource(id, socket)
     if (source) return canRunPerFrame(walk, source.id, trail)
     // an unlinked socket that falls back to `uv.x` or `iTime` only exists in the shader

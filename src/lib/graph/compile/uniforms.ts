@@ -22,7 +22,7 @@ function uniformSource(c: FrontEnd, id: string, output: string): PixelSource | u
   if (dim === undefined) return undefined
   const last = c.program.uniforms.at(-1)
   const slot = last ? last.slot + last.dim : 0
-  if (slot + dim > CONTROL_VECTORS * 4) throw new GraphError('Too many control values reach the shader', id)
+  if (slot + dim > CONTROL_VECTORS * 4) throw new GraphError('Too many per-frame values reach the shader', id)
   c.program.uniforms.push({ step, output, slot, dim })
   return { uniform: slot, dim }
 }

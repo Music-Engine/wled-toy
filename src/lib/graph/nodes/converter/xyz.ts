@@ -10,8 +10,8 @@ export const combineXyzNode = defineNode('combineXYZ', {
     z: { type: Float, label: 'Z', default: 0 },
   },
   output: { vector: Vec3 },
-  exec: ({ x, y, z }, ctx) => ({ vector: ctx.declare('vec3', `vec3(${x.expr}, ${y.expr}, ${z.expr})`) }),
-  run: ({ x, y, z }) => ({ vector: [x, y, z] }),
+  pixel: ({ x, y, z }, ctx) => ({ vector: ctx.declare('vec3', `vec3(${x.expr}, ${y.expr}, ${z.expr})`) }),
+  frame: ({ x, y, z }) => ({ vector: [x, y, z] }),
 });
 
 export const separateXyzNode = defineNode('separateXYZ', {
@@ -20,9 +20,9 @@ export const separateXyzNode = defineNode('separateXYZ', {
   category: 'converter',
   input: { vector: { type: Vec3, default: { expr: 'vec3(uv, 0.0)', label: 'uv' } } },
   output: { x: { type: Float, label: 'X' }, y: { type: Float, label: 'Y' }, z: { type: Float, label: 'Z' } },
-  exec: ({ vector }, ctx) => {
+  pixel: ({ vector }, ctx) => {
     const v = ctx.declare('vec3', vector.expr);
     return { x: swizzle(v, 'x'), y: swizzle(v, 'y'), z: swizzle(v, 'z') };
   },
-  run: ({ vector }) => ({ x: vector[0], y: vector[1], z: vector[2] }),
+  frame: ({ vector }) => ({ x: vector[0], y: vector[1], z: vector[2] }),
 });

@@ -18,8 +18,8 @@ function inputLine(socket: Socket, values: Record<string, unknown>): string {
   return `  - in \`${socket.name}\`${socket.label && socket.label.toLowerCase() !== socket.name.toLowerCase() ? ` "${socket.label}"` : ''}: ${kind}, ${socket.linkable ? 'linkable' : 'stored only'}, ${fallback}${range ? `, ${range}` : ''}`
 }
 
-const rate = (shape: NodeShape) => (!shape.exec && !shape.run ? 'settled while compiling (streams only)'
-  : { pixel: 'GLSL per pixel (exec)', frame: `control-rate, CPU once per frame (run)${shape.state ? ', stateful' : ''}`, either: 'either: CPU per frame when something is linked in and every link is per frame, else GLSL per pixel (exec + run)' }[placement(shape)])
+const rate = (shape: NodeShape) => (!shape.pixel && !shape.frame ? 'settled while compiling (streams only)'
+  : { pixel: 'GLSL per pixel (pixel)', frame: `JS once per frame (frame)${shape.state ? ', stateful' : ''}`, either: 'either: JS per frame when something is linked in and every link is per frame, else GLSL per pixel (pixel + frame)' }[placement(shape)])
 
 const sockets = (shape: NodeShape, base: NodeShape) => `${shape.inputs.filter((s) => s.linkable || !base.inputs.some((known) => known.name === s.name)).map((s) => `${s.name}${s.label ? ` "${s.label}"` : ''}${isImplicit(s.default) ? '' : `=${JSON.stringify(s.default)}`}`).join(', ')} -> ${shape.outputs.map((s) => s.name).join(', ')}`
 

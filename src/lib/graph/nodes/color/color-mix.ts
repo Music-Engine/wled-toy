@@ -28,7 +28,7 @@ export const colorMixNode = defineNode('colorMix', ({ mode = 'mix' }: { mode?: B
       color2: { type: Color, label: 'Color 2', default: [0, 0, 0] },
     },
     output: { color: Color },
-    exec: ({ clampResult, clampFactor, factor, color1, color2 }, ctx) => {
+    pixel: ({ clampResult, clampFactor, factor, color1, color2 }, ctx) => {
       const f = clampFactor ? `clamp(${factor.expr}, 0.0, 1.0)` : factor.expr
       const blend = `${fn}(${f}, ${color1.expr}, ${color2.expr})`
       return { color: ctx.declare('vec3', clampResult ? `clamp(${blend}, 0.0, 1.0)` : blend) }

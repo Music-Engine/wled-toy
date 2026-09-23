@@ -64,7 +64,7 @@ function emitEntry(e: Emission, entry: PixelEntry): void {
   const input: Record<string, unknown> = extras(node, shape)
   for (const socket of shape.inputs) input[socket.name] = bodyInput(e, node, shape, socket, entry.inputs[socket.name])
   shape.includes.forEach((chunk) => e.chunks.add(chunk))
-  e.values.set(node.id, shape.exec!(input, context(e, node.id, node.width!)))
+  e.values.set(node.id, shape.pixel!(input, context(e, node)))
 }
 
 /** What `resolve` returned beside the stream outputs rides along with the inputs. */
@@ -128,12 +128,13 @@ function freeze(e: Emission, id: string, output: string, value: number | number[
   e.frozenValues.set(`${id}:${output}`, baked)
 }
 
-function context(e: Emission, nodeId: string, gen: GlslType): NodeContext {
+function context(e: Emission, { id: nodeId, width, resolved }: ProgramNode): NodeContext {
   const base = `n_${nodeId.replace(/\W/g, '_')}`
   const variable = (suffix?: string) => (suffix ? `${base}_${suffix}` : base)
   const emit = (text: string) => e.body.push({ text, node: nodeId })
   return {
-    nodeId, gen, variable, emit,
+    nodeId, resolved, variable, emit,
+    gen: width!,
     declare: (type, expr, suffix) => {
       emit(`${type} ${variable(suffix)} = ${expr};`)
       return { expr: variable(suffix), type }

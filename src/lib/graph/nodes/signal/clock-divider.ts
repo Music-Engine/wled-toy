@@ -12,7 +12,7 @@ export const clockDividerNode = defineNode('clockDivider', {
   },
   output: { trigger: Float, phase: Float },
   state: () => ({ count: 0, trigger: { high: false }, reset: { high: false } }),
-  run: ({ divide, trigger, reset }, state) => {
+  frame: ({ divide, trigger, reset }, { state }) => {
     if (risingEdge(state.reset, reset)) state.count = 0
     let fired = 0
     if (risingEdge(state.trigger, trigger)) {

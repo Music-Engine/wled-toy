@@ -76,12 +76,12 @@ describe('Image Texture', () => {
   })
 
   it('each image of a graph gets a layer; two nodes showing the same image share one', () => {
-    const { control, code } = generateGlsl(graph(
+    const { frame: plan, code } = generateGlsl(graph(
       [node('a', 'imageTexture', { filename: 'cat.png' }), node('b', 'imageTexture', { filename: 'dog.png' }), node('c', 'imageTexture', { filename: 'cat.png' }),
         node('m', 'colorMix'), node('n', 'colorMix'), node('o', 'output')],
       [['a.color', 'm.color1'], ['b.color', 'm.color2'], ['m.color', 'n.color1'], ['c.color', 'n.color2'], ['n.color', 'o.color']],
     ))
-    expect(control.resources.image).toEqual(['cat.png', 'dog.png'])
+    expect(plan.resources.image).toEqual(['cat.png', 'dog.png'])
     const layers = [...code.matchAll(/texture\(iImages, vec3\(.*?, (\d)\.0\)\)/g)].map((m) => m[1])
     expect(layers.sort()).toEqual(['0', '0', '1'])
   })

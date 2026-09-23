@@ -96,13 +96,13 @@ export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName })
       ...(c && { c: { type: GenType, label: c, default: def.defaults?.[1] ?? 0.5 } }),
     },
     output: { result: GenType },
-    exec: (input, ctx) => {
+    pixel: (input, ctx) => {
       if (def.helper) ctx.include(mathHelper(def.helper, ctx.gen as MathType))
       const [x, y, z] = [input.a, input.b, input.c].map((v) => v?.expr ?? '0.0')
       const result = def.glsl(x, y, z)
       return { result: ctx.declare(ctx.gen, input.clamp ? `clamp(${result}, 0.0, 1.0)` : result) }
     },
-    run: (input) => {
+    frame: (input) => {
       const result = componentWise(def.js, input.a, input.b ?? 0, input.c ?? 0)
       return { result: input.clamp ? (Array.isArray(result) ? result.map((v) => Math.min(1, Math.max(0, v))) : Math.min(1, Math.max(0, result))) : result }
     },
