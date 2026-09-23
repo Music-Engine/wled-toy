@@ -1,10 +1,12 @@
 // Streams (Audio, Spectrum) are settled while compiling: a node's `resolve` says what its stream outputs carry,
 // given its stored values and the streams linked into it. Numbers linked into it are not known yet and are left out.
+import type { ResolveEnv } from '@/lib/graph/define/context'
 import { isLinkable, isStreamSocket, type NodeShape, type StreamInputSocket } from '@/lib/graph/define/shape'
 import { canCast } from '@/lib/graph/define/types'
-import { GraphError, type Compilation } from './compilation'
+import type { FrontEnd } from './front-end'
+import { GraphError } from './program'
 
-export function resolveNode(c: Compilation, id: string): Record<string, unknown> {
+export function resolveNode(c: FrontEnd, id: string): Record<string, unknown> {
   const known = c.resolved.get(id)
   if (known) return known
   const { node, shape } = c.lookup(id)
@@ -19,22 +21,26 @@ export function resolveNode(c: Compilation, id: string): Record<string, unknown>
     }
     if (!isLinkable(socket)) input[socket.name] = c.storedValue(id, node.data, socket)
   }
-  const result = shape.resolve(input, {
-    intern: (kind, config) => {
-      const list = (c.plan.resources[kind] ??= [])
-      const key = JSON.stringify(config)
-      const index = list.findIndex((other) => JSON.stringify(other) === key)
-      return index >= 0 ? index : list.push(config) - 1
-    },
-    issue: (message) => c.issues.push({ nodeId: id, message }),
-  })
+  const result = shape.resolve(input, resolveEnv(c, id))
   c.resolving.delete(id)
   c.resolved.set(id, result)
   return result
 }
 
+function resolveEnv(c: FrontEnd, id: string): ResolveEnv {
+  return {
+    intern: (kind, config) => {
+      const list = (c.program.resources[kind] ??= [])
+      const key = JSON.stringify(config)
+      const index = list.findIndex((other) => JSON.stringify(other) === key)
+      return index >= 0 ? index : list.push(config) - 1
+    },
+    issue: (message) => c.program.issues.push({ nodeId: id, message }),
+  }
+}
+
 /** What arrives on a stream input: the linked node's stream, or null when nothing is linked. */
-function streamInput(c: Compilation, nodeId: string, socket: StreamInputSocket): unknown {
+function streamInput(c: FrontEnd, nodeId: string, socket: StreamInputSocket): unknown {
   const source = c.linkSource(nodeId, socket)
   if (!source) return null
   const from = c.lookup(source.id).shape.outputs.find((out) => out.name === source.output)
@@ -43,7 +49,7 @@ function streamInput(c: Compilation, nodeId: string, socket: StreamInputSocket):
 }
 
 /** Inputs that do not depend on where the node runs: streams, and whatever else `resolve` hands on. */
-export function settledInputs(c: Compilation, id: string, shape: NodeShape): Record<string, unknown> {
+export function settledInputs(c: FrontEnd, id: string, shape: NodeShape): Record<string, unknown> {
   const streams = Object.fromEntries(shape.inputs.filter(isStreamSocket).map((socket) => [socket.name, streamInput(c, id, socket)]))
   const outputs = new Set(shape.outputs.map((out) => out.name))
   const extras = Object.fromEntries(Object.entries(resolveNode(c, id)).filter(([name]) => !outputs.has(name)))

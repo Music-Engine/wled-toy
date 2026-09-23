@@ -1,24 +1,11 @@
-// What every compile stage reads and writes: the graph, the code being built, the per-frame plan, and the issues found.
-import type { OutputSettings } from '@/lib/engine/output'
+// What the front-end passes share while they build a Program: the graph, loop detection, what each pass settled per
+// node, and the Program as far as it is built. The backends never see it.
 import type { GlslType } from '@/lib/shader/glsl'
-import type { FrameValue, GlslChunk } from '@/lib/graph/define/context'
+import type { FrameValue } from '@/lib/graph/define/context'
 import { isImplicit, isLinkable, type InputSocket, type NodeShape } from '@/lib/graph/define/shape'
 import { itemFor } from '@/lib/graph/registry'
-import type { Value } from '@/lib/graph/define/value'
 import type { NodeGraph, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
-import type { FramePlan } from './frame'
-
-export interface GraphIssue {
-  nodeId: string | null
-  message: string
-}
-
-export interface FrozenValue {
-  nodeId: string
-  title: string
-  output: string
-  value: string
-}
+import { GraphError, type PixelSource, type Program } from './program'
 
 export interface CompileOptions {
   /**
@@ -30,12 +17,6 @@ export interface CompileOptions {
   controls?: (nodeId: string, output: string) => FrameValue | undefined
 }
 
-export class GraphError extends Error {
-  constructor(message: string, readonly nodeId: string) {
-    super(message)
-  }
-}
-
 export const isGenericSocket = (socket: InputSocket) => isLinkable(socket) && socket.type.glsl === 'genType'
 
 /** The value stored on the node for a socket, or its default; an invalid value is replaced and `valid` says so. */
@@ -45,18 +26,12 @@ export function storedOrDefault(data: GraphNodeData, socket: InputSocket): { val
   return { value: isImplicit(socket.default) ? socket.type.initial() : socket.default, valid: false }
 }
 
-export class Compilation {
-  readonly nodes: Map<string, StoredNode>
-  readonly body: { text: string; node: string }[] = []
-  readonly issues: GraphIssue[] = []
-  readonly frozen: FrozenValue[] = []
-  readonly chunks = new Set<GlslChunk>()
-  readonly plan: FramePlan = { steps: [], exports: [], resources: {} }
-  output: OutputSettings | null = null
-  /** Nodes on the current evaluation path, for loop detection. */
+export class FrontEnd {
+  readonly program: Program = { nodes: {}, pixel: [], frame: [], uniforms: [], state: [], resources: {}, issues: [], error: null, errorNode: null }
+  /** Nodes on the current walk, for loop detection. */
   readonly visiting = new Set<string>()
 
-  // per stage, by node id: what ./streams settled
+  // per pass, by node id: what ./streams settled
   readonly resolved = new Map<string, Record<string, unknown>>()
   readonly resolving = new Set<string>()
   // what ./placement decided
@@ -64,18 +39,17 @@ export class Compilation {
   readonly changesPerPixel = new Set<string>()
   // what ./width inferred
   readonly widths = new Map<string, GlslType>()
-  // what ./control-plan decided
+  // what ./frame-plan, ./pixel-plan and ./uniforms recorded
   readonly steps = new Map<string, number>()
   readonly dims = new Map<string, Record<string, number>>()
-  readonly exported = new Map<string, Value>()
-  nextSlot = 0
-  // what ./emit produced
-  readonly emitted = new Map<string, Record<string, Value>>()
+  readonly emitted = new Set<string>()
+  readonly perFrameSources = new Map<string, PixelSource>()
 
+  private readonly nodes: Map<string, StoredNode>
   private readonly incoming: Map<string, NodeGraph['edges'][number]>
   private readonly shapes = new Map<string, NodeShape>()
 
-  constructor(readonly doc: NodeGraph, readonly options: CompileOptions) {
+  constructor(doc: NodeGraph, readonly options: CompileOptions) {
     this.nodes = new Map(doc.nodes.map((n) => [n.id, n]))
     this.incoming = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
   }
@@ -122,11 +96,13 @@ export class Compilation {
   /** The value stored on the node for a socket, or its default; an invalid value is reported and replaced. */
   storedValue(nodeId: string, data: GraphNodeData, socket: InputSocket): unknown {
     const { value, valid } = storedOrDefault(data, socket)
-    if (!valid) this.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
+    if (!valid) this.program.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
     return value
   }
 
-  emit(nodeId: string, text: string) {
-    this.body.push({ text, node: nodeId })
+  /** Puts the node into the Program the first time a backend needs it. */
+  record(id: string) {
+    const { data } = this.lookup(id).node
+    this.program.nodes[id] ??= { id, kind: data.kind, values: data.values, resolved: this.resolved.get(id) ?? {}, width: this.widths.get(id) ?? null }
   }
 }

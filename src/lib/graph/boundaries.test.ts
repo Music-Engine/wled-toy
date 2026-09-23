@@ -20,7 +20,7 @@ const defineAllows = (file: string, from: string) =>
   from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
 const stageAllows = (file: string, from: string) =>
-  file.startsWith('compile/') || !/(^|\/)compile\/(compilation|streams|placement|control-plan|emit|width)$/.test(from)
+  file.startsWith('compile/') || !/(^|\/)compile\/(program|front-end|streams|placement|width|frame-plan|pixel-plan|uniforms|glsl|js)$/.test(from)
 
 const RULES = [
   { rule: 'nodes', covers: (file: string) => file.startsWith('nodes/'), allows: nodesAllow },
@@ -49,7 +49,7 @@ it('graph files import only across the boundaries the module allows', () => {
 
 it('reports a forbidden import in a node file', () => {
   expect(violations(FIXTURES)).toEqual([
-    'nodes: nodes/leak.ts imports @/lib/graph/compile/emit',
-    'compile stages: nodes/leak.ts imports @/lib/graph/compile/emit',
+    'nodes: nodes/leak.ts imports @/lib/graph/compile/glsl',
+    'compile stages: nodes/leak.ts imports @/lib/graph/compile/glsl',
   ])
 })

@@ -1,57 +1,57 @@
 // generateGlsl: compiles a graph into a shader plus the plan for what runs per frame on the CPU.
-// Each node is placed per frame or per pixel first (./placement), then generic widths are inferred (./width), streams
-// are settled (./streams), per-frame nodes are planned (./control-plan), and nodes that run in the shader are emitted
-// (./emit); this file only walks the graph's sinks and packs the result.
-import type { OutputSettings } from '@/lib/engine/output'
+// The front end places each node per frame or per pixel (./placement), infers generic widths (./width), settles streams
+// (./streams), and walks the sinks into a plain-data Program (./frame-plan, ./pixel-plan, ./uniforms). The GLSL backend
+// (./glsl) and the JS backend (./js) read only that Program.
 import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
-import { Compilation, GraphError, type CompileOptions, type FrozenValue, type GraphIssue } from './compilation'
 import type { FramePlan } from './frame'
-import { planControl } from './control-plan'
-import { assemble, evaluate } from './emit'
+import { planStep } from './frame-plan'
+import { FrontEnd, type CompileOptions } from './front-end'
+import { glsl, type GlslShader } from './glsl'
+import { js } from './js'
+import { emitPixel } from './pixel-plan'
 import { placeNodes } from './placement'
+import { GraphError, type Program } from './program'
 import { resolveNode } from './streams'
 import { inferWidths } from './width'
 
-export type { CompileOptions, FrozenValue, GraphIssue } from './compilation'
+export type { CompileOptions } from './front-end'
+export type { FrozenValue } from './glsl'
+export type { GraphIssue } from './program'
 
-export interface GeneratedShader {
-  code: string
+export interface GeneratedShader extends GlslShader {
   /** What runs on the CPU each frame, and which of its results the shader reads from `iControl`. */
   control: FramePlan
-  /** Wire settings from the graph's Output node; null when it has none. */
-  output: OutputSettings | null
-  error: string | null
-  errorNode: string | null
-  issues: GraphIssue[]
-  /** Node id that emitted each line of `code`, indexed by 1-based line number. */
-  lineNodes: (string | null)[]
-  /** Standalone only: per-frame values with no GLSL of their own, written into the code as the number they had. */
-  frozen: FrozenValue[]
 }
 
 export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): GeneratedShader {
-  const c = new Compilation(doc, options)
-  const finish = (error: string | null, errorNode: string | null): GeneratedShader =>
-    ({ ...assemble(c), control: c.plan, output: c.output, error, errorNode, issues: c.issues, frozen: c.frozen })
+  const program = buildProgram(doc, options)
+  return { ...glsl(program), control: js(program) }
+}
 
-  const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput)
-  if (!sinks.some((n) => c.lookup(n.id).shape.exec)) return finish('Add an Output node to see anything.', null)
-  const ids = sinks.map((n) => n.id)
+/** Walks the sinks depth-first in document order, each socket in declaration order, as the snapshots expect. */
+export function buildProgram(doc: NodeGraph, options: CompileOptions): Program {
+  const c = new FrontEnd(doc, options)
+  const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput).map((n) => n.id)
+  if (!sinks.some((id) => c.lookup(id).shape.exec)) return fail(c, 'Add an Output node to see anything.', null)
   try {
-    placeNodes(c, ids)
-    inferWidths(c, ids)
-    for (const id of ids) compileSink(c, id)
-    return finish(null, null)
+    placeNodes(c, sinks)
+    inferWidths(c, sinks)
+    for (const id of sinks) buildSink(c, id)
+    return c.program
   } catch (e) {
-    return finish((e as Error).message, e instanceof GraphError ? e.nodeId : null)
+    return fail(c, (e as Error).message, e instanceof GraphError ? e.nodeId : null)
   }
 }
 
+function fail(c: FrontEnd, error: string, errorNode: string | null): Program {
+  return Object.assign(c.program, { error, errorNode })
+}
+
 /** A sink that only runs per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part. */
-function compileSink(c: Compilation, id: string): void {
+function buildSink(c: FrontEnd, id: string): void {
   const { shape } = c.lookup(id)
   if (!shape.exec && !shape.run) resolveNode(c, id)
-  else if (c.placedAt(id) === 'frame') planControl(c, id)
-  else evaluate(c, id)
+  else if (c.placedAt(id) === 'frame') planStep(c, id)
+  else emitPixel(c, id)
 }

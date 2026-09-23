@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { generateGlsl } from '@/lib/graph'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { graph, node } from '@/lib/graph/testing'
-import { Compilation, type CompileOptions } from './compilation'
+import { FrontEnd, type CompileOptions } from './front-end'
 import { placeNodes } from './placement'
 
 function place(doc: NodeGraph, sinks = ['o'], options: CompileOptions = {}) {
-  const c = new Compilation(doc, options)
+  const c = new FrontEnd(doc, options)
   placeNodes(c, sinks)
   return { placement: Object.fromEntries(c.placement), changesPerPixel: [...c.changesPerPixel] }
 }
@@ -66,7 +66,7 @@ describe('placeNodes', () => {
   })
 
   it('refuses to read the placement of a node the pass did not reach', () => {
-    const c = new Compilation(graph([node('u', 'uv'), node('k', 'knob'), node('o', 'output')], [['u.uv', 'o.color']]), {})
+    const c = new FrontEnd(graph([node('u', 'uv'), node('k', 'knob'), node('o', 'output')], [['u.uv', 'o.color']]), {})
     placeNodes(c, ['o'])
     expect(() => c.placedAt('k')).toThrow('Node "k" was not placed')
   })

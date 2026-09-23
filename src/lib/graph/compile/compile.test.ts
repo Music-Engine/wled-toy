@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { GRAPH_VERSION, canCast, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
+import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4 } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { GLSL_TYPES } from '@/lib/shader/glsl'
 import { GRAPH_FS } from '@/lib/graph/menu/fs'
 import { graph, node } from '@/lib/graph/testing'
+import { buildProgram } from './compile'
 
 describe('canCast', () => {
   it('links any numeric type to any other, in both directions through genType', () => {
@@ -86,5 +87,33 @@ describe('streams', () => {
   it('a stream linked into a number socket is a graph error on the receiving node', () => {
     const result = generateGlsl(graph([node('f', 'fft'), node('o', 'output')], [['f.spectrum', 'o.color']]))
     expect(result).toMatchObject({ errorNode: 'o', error: 'Color needs a number or a color, not Spectrum' })
+  })
+})
+
+describe('buildProgram', () => {
+  const docs = {
+    default: () => createDefaultGraph(),
+    // Time is planned per frame for the Integrator and emitted per pixel for Combine Color
+    dual: () => graph(
+      [node('t', 'time'), node('i', 'integrator'), node('cc', 'combineColor'), node('o', 'output')],
+      [['t.delta', 'i.rate'], ['i.value', 'cc.a'], ['t.time', 'cc.b'], ['cc.color', 'o.color']],
+    ),
+  }
+  const modes = { normal: {}, standalone: { standalone: true, controls: () => [0.1, 0.2] } }
+  const cases = Object.entries(docs).flatMap(([doc, make]) => Object.entries(modes).map(([mode, options]) => [`${doc} ${mode}`, make, options] as const))
+
+  it.each(cases)('%s: the same graph compiles to deep-equal Programs', (_, make, options) => {
+    expect(buildProgram(make(), options)).toEqual(buildProgram(make(), options))
+  })
+
+  it.each(cases)('%s: the Program survives JSON', (_, make, options) => {
+    const program = buildProgram(make(), options)
+    expect(JSON.parse(JSON.stringify(program))).toStrictEqual(program)
+  })
+
+  it('lists a node planned per frame and emitted per pixel in both', () => {
+    const program = buildProgram(docs.dual(), {})
+    expect(program.frame.map((step) => step.nodeId)).toEqual(['t', 'i'])
+    expect(program.pixel.flatMap((entry) => ('node' in entry ? [entry.node] : []))).toEqual(['t', 'cc', 'o'])
   })
 })

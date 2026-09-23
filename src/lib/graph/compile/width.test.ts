@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { generateGlsl } from '@/lib/graph'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { graph, node } from '@/lib/graph/testing'
-import { Compilation, type CompileOptions } from './compilation'
+import { FrontEnd, type CompileOptions } from './front-end'
 import { placeNodes } from './placement'
 import { inferWidths } from './width'
 
 function widths(doc: NodeGraph, options: CompileOptions = {}) {
-  const c = new Compilation(doc, options)
+  const c = new FrontEnd(doc, options)
   placeNodes(c, ['o'])
   inferWidths(c, ['o'])
   return Object.fromEntries(c.widths)

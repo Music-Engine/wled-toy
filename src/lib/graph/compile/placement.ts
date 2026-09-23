@@ -1,10 +1,11 @@
 // A node can be both planned per frame and emitted per pixel today (Time feeding an Integrator and a shader node), so
-// this pass answers both questions; settling each node on one placement is a decision for the Program slice.
+// this pass answers both questions and the Program lists such a node on both sides; settling each node on one
+// placement would change which nodes run, so it is left to a later decision.
 import { fallsBackToImplicit, hasFrameValue, isLinkable } from '@/lib/graph/define/shape'
-import type { Compilation } from './compilation'
+import type { FrontEnd } from './front-end'
 
 interface Walk {
-  c: Compilation
+  c: FrontEnd
   emitted: Set<string>
   planned: Set<string>
   perFrame: Map<string, boolean>
@@ -14,7 +15,7 @@ interface Walk {
  * Fills `c.placement`, where a pixel consumer reads each node from, and `c.changesPerPixel`, the nodes a frame consumer
  * cannot plan, walking from the sinks in the order emission and planning will.
  */
-export function placeNodes(c: Compilation, sinks: string[]): void {
+export function placeNodes(c: FrontEnd, sinks: string[]): void {
   const walk: Walk = { c, emitted: new Set(), planned: new Set(), perFrame: new Map() }
   for (const id of sinks) {
     const { shape } = c.lookup(id)
@@ -75,6 +76,6 @@ function canRunPerFrame(walk: Walk, id: string, trail = new Set<string>()): bool
   return result
 }
 
-function linkedSources(c: Compilation, id: string): string[] {
+function linkedSources(c: FrontEnd, id: string): string[] {
   return c.lookup(id).shape.inputs.filter(isLinkable).flatMap((socket) => c.linkSource(id, socket)?.id ?? [])
 }
