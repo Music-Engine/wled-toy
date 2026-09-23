@@ -8,5 +8,5 @@ export const timeNode = defineNode('time', {
   input: {},
   output: { time: Float, delta: { type: Float, label: 'Delta Time' }, frame: Float },
   exec: () => ({ time: { expr: 'iTime', type: 'float' }, delta: { expr: 'iTimeDelta', type: 'float' }, frame: { expr: 'float(iFrame)', type: 'float' } }),
-  run: (_, __, { time, dt, frame }) => ({ time, delta: dt, frame }),
+  run: (_, __, { time, dt, frameIndex }) => ({ time, delta: dt, frame: frameIndex }),
 })

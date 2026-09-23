@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Features } from '@/lib/audio/dsp'
 import { AudioTextures } from '@/lib/audio/textures'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { ControlRunner } from '@/lib/graph/compile/control'
+import { FrameRunner } from '@/lib/graph/compile/frame'
 import { generateGlsl } from '@/lib/graph/compile/compile'
 import { graph, node, toByte } from '@/lib/graph/testing'
 
@@ -22,13 +22,13 @@ function play(doc: ReturnType<typeof graph>, script: Features[], leds = 1): numb
   expect(shader.error).toBeNull()
   const renderer = new ShaderRenderer(document.createElement('canvas'))
   renderer.compile(shader.code)
-  const runner = new ControlRunner()
+  const runner = new FrameRunner()
   runner.load(shader.control)
   const textures = new AudioTextures(BANDS)
   return script.map((f, frame) => {
     textures.push(new Float32Array(512), f)
     renderer.setAudio(textures)
-    renderer.setControls(runner.step({ time: frame / 30, dt: 1 / 30, frame, audio: { analyses: [f], sampleRate: 48000 } }))
+    renderer.setControls(runner.step({ time: frame / 30, dt: 1 / 30, frameIndex: frame, audio: { analyses: [f], sampleRate: 48000 } }))
     const colors = renderer.renderLeds({ time: frame / 30, frame, ledCount: leds, scanY: 0.5 })
     return Array.from({ length: leds }, (_, i) => toByte(colors[i * 3]))
   })
@@ -125,9 +125,9 @@ describe('Audio Source and FFT', () => {
     const spectrum = new Float32Array(1024)
     spectrum[Math.round(100 / (48000 / 2048))] = 1
     const { control } = generateGlsl(graph([node('f', 'fft', { bands: 16 }), node('b', 'bandSplit'), node('o', 'output')], [['f.spectrum', 'b.spectrum'], ['b.level', 'o.color']]))
-    const runner = new ControlRunner()
+    const runner = new FrameRunner()
     runner.load(control)
-    const step = (analyses: (Features | null)[]) => runner.step({ time: 0, dt: 1 / 30, frame: 0, audio: { analyses, sampleRate: 48000 } })[0]
+    const step = (analyses: (Features | null)[]) => runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, audio: { analyses, sampleRate: 48000 } })[0]
     expect(step([features(), features({ spectrum })])).toBe(1)
     expect(step([features({ spectrum }), features()])).toBe(0)
     expect(step([features({ spectrum }), null])).toBe(0)

@@ -64,7 +64,7 @@ export const fftNode = defineNode('fft', {
   },
 })
 
-const featuresOf = (frame: FrameInfo, slot = 0): Features | undefined => frame.audio?.analyses[slot] ?? undefined
+const analysis = (frame: FrameInfo, slot = 0): Features | undefined => frame.audio?.analyses[slot] ?? undefined
 
 // named ranges of a mix, in Hz; the outputs follow the loudest partial inside each
 const RANGES = { sub: [20, 60], kick: [60, 150], lowMid: [150, 500], vocal: [500, 2000], presence: [2000, 6000], air: [6000, 16000] } as const
@@ -86,7 +86,7 @@ export const audioNode = defineNode('audio', {
   // sent to shader mode there is no analyzer; the prelude's own audio helpers stand in where they can
   standalone: { level: 'energy()', kick: 'bass()', sub: 'bass()', lowMid: 'mid()', vocal: 'mid()', presence: 'treble()', air: 'treble()', beat: 'beat(0.5)' },
   run: (_, __, frame) => {
-    const f = featuresOf(frame)
+    const f = analysis(frame)
     if (!f) return { level: 0, rms: 0, peak: 0, gate: 0, onset: 0, beat: 0, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0, sub: 0, kick: 0, lowMid: 0, vocal: 0, presence: 0, air: 0 }
     const range = ([low, high]: readonly [number, number]) => rangeLevel(f, frame.audio!.sampleRate, low, high)
     return {
@@ -108,7 +108,7 @@ export const bandSplitNode = defineNode('bandSplit', {
   },
   output: { level: Float },
   run: ({ spectrum, low, high }, _, frame) => {
-    const f = featuresOf(frame, spectrum?.slot)
+    const f = analysis(frame, spectrum?.slot)
     return { level: f ? rangeLevel(f, frame.audio!.sampleRate, low, high) : 0 }
   },
 })

@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { ControlRunner, generateGlsl } from '@/lib/graph'
+import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node, renderGraph, toByte } from '@/lib/graph/testing'
 
 it('Knob(0.25) -> Output lights every LED at 64', () => {
@@ -12,11 +12,11 @@ it('Knob(0.25) -> Output lights every LED at 64', () => {
 it('turning the knob changes the LEDs on the same compiled program', () => {
   const doc = (value: number) => graph([node('k', 'knob', { value }), node('o', 'output')], [['k.value', 'o.color']])
   const renderer = new ShaderRenderer(document.createElement('canvas'))
-  const runner = new ControlRunner()
+  const runner = new FrameRunner()
   renderer.compile(generateGlsl(doc(0.25)).code)
   const red = (value: number) => {
     runner.load(generateGlsl(doc(value)).control)
-    renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frame: 0 }))
+    renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0 }))
     return toByte(renderer.renderLeds({ time: 0, frame: 0, ledCount: 1, scanY: 0.5 })[0])
   }
   expect([red(0.25), red(1), red(0)]).toEqual([64, 255, 0])

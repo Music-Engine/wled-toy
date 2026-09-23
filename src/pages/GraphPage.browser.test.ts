@@ -5,7 +5,7 @@ import TitleBar from '@/components/shell/TitleBar.vue'
 import { commands, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import type { FileBackend } from '@/lib/documents/documents'
-import { createDefaultGraph, type GraphDoc } from '@/lib/graph'
+import { createDefaultGraph, type NodeGraph } from '@/lib/graph'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
 import { parseGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
 import { logs } from '@/lib/app/logs'
@@ -70,7 +70,7 @@ const sample = parseGraphFile(sampleFile)
 const defaultNodes = createDefaultGraph().nodes.length
 
 /** What another tab's save or an import does to this editor: the working copy changes under it. */
-function editFromOutside(doc: GraphDoc): GraphDoc {
+function editFromOutside(doc: NodeGraph): NodeGraph {
   const edited = { ...doc, nodes: doc.nodes.map((n, i) => (i === 0 ? { ...n, position: { x: n.position.x + 75, y: n.position.y + 25 } } : n)) }
   config.graph = edited
   return edited

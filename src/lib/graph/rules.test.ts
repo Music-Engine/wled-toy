@@ -6,10 +6,10 @@ const ROOTS = ['src/lib/graph/define', 'src/lib/graph/compile']
 
 // keyed by file, enclosing function and the nested conditional's own text, so a site survives line shifts and any edit to it shows up here
 const ALLOWED = [
-  "src/lib/graph/compile/control-plan.ts planControl: out.type.glsl === 'genType' ? gen : dimOf(out.type.glsl) ?? 1",
+  "src/lib/graph/compile/control-plan.ts planControl: out.type.glsl === 'genType' ? gen : componentCount(out.type.glsl) ?? 1",
   'src/lib/graph/compile/emit.ts evaluate: isLinkable(socket) ? linkedValue(c, id, node.data, socket) : c.storedValue(id, node.data, socket)',
   'src/lib/graph/compile/streams.ts resolveNode: isLinkable(socket) ? [] : [[socket.name, c.storedValue(id, node.data, socket)]]',
-  "src/lib/graph/define/sockets.ts rateOf: shape.exec && !shape.run ? 'pixel' : 'either'",
+  "src/lib/graph/define/sockets.ts placement: shape.exec && !shape.run ? 'pixel' : 'either'",
   "src/lib/graph/define/value.ts castTo: f === 2 ? ', 0.0, 1.0' : ', 1.0'",
 ]
 

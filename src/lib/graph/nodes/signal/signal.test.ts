@@ -18,7 +18,7 @@ function simulate(item: NodeItem, output: string, input: (t: number) => Record<s
   const state = fresh?.()
   return Array.from({ length: Math.round(seconds * fps) }, (_, frame) => {
     const time = (frame + 1) / fps
-    return run!(input(time), state, { time, dt: 1 / fps, frame })[output] as number
+    return run!(input(time), state, { time, dt: 1 / fps, frameIndex: frame })[output] as number
   })
 }
 
@@ -92,9 +92,9 @@ describe('triggers', () => {
 
 describe('stateless nodes compute the same thing on both sides', () => {
   it('map range and curve', () => {
-    expect(mapRangeNode.base.run!({ clamp: true, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, undefined, { time: 0, dt: 0, frame: 0 }).result).toBe(20)
-    expect(mapRangeNode.base.run!({ clamp: false, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, undefined, { time: 0, dt: 0, frame: 0 }).result).toBe(25)
-    expect(curveNode.base.run!({ curve: 'smooth', value: 0.5 }, undefined, { time: 0, dt: 0, frame: 0 }).result).toBe(0.5)
+    expect(mapRangeNode.base.run!({ clamp: true, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, undefined, { time: 0, dt: 0, frameIndex: 0 }).result).toBe(20)
+    expect(mapRangeNode.base.run!({ clamp: false, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, undefined, { time: 0, dt: 0, frameIndex: 0 }).result).toBe(25)
+    expect(curveNode.base.run!({ curve: 'smooth', value: 0.5 }, undefined, { time: 0, dt: 0, frameIndex: 0 }).result).toBe(0.5)
   })
 })
 

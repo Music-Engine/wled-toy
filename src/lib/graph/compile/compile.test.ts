@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4, GRAPH_VERSION, canCast, generateGlsl, inputSocket, normalizeDoc, type GraphDoc } from '@/lib/graph'
+import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4, GRAPH_VERSION, canCast, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { GLSL_TYPES } from '@/lib/shader/glsl'
 import { GRAPH_FS } from '@/lib/graph/menu/fs'
@@ -42,7 +42,7 @@ describe('socket names', () => {
 })
 
 describe('generateGlsl', () => {
-  const toOutput = (doc: GraphDoc) => generateGlsl(doc)
+  const toOutput = (doc: NodeGraph) => generateGlsl(doc)
 
   it('widens generic sockets to the widest linked type', () => {
     const { code } = toOutput(graph([node('c', 'color'), node('m', 'math', { op: 'add', b: 0.5 }), node('o', 'output')], [['c.color', 'm.a'], ['m.result', 'o.color']]))

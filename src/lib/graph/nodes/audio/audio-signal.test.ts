@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ControlRunner } from '@/lib/graph/compile/control'
+import { FrameRunner } from '@/lib/graph/compile/frame'
 import { generateGlsl } from '@/lib/graph/compile/compile'
 import { graph, node } from '@/lib/graph/testing'
 import { fromCenterNode } from '@/lib/graph/nodes/spatial/from-center'
@@ -12,9 +12,9 @@ describe('Audio to Signal', () => {
     const run = (values: object, script: number[]) => {
       const { control, error } = generateGlsl(doc(values))
       expect(error).toBeNull()
-      const runner = new ControlRunner()
+      const runner = new FrameRunner()
       runner.load(control)
-      return script.map((peak, n) => runner.step({ time: n / 30, dt: 1 / 30, frame: n, audio: { analyses: [features({ peak, rms: peak / 2, level: peak })], sampleRate: 48000 } })[0])
+      return script.map((peak, n) => runner.step({ time: n / 30, dt: 1 / 30, frameIndex: n, audio: { analyses: [features({ peak, rms: peak / 2, level: peak })], sampleRate: 48000 } })[0])
     }
     expect(run({ mode: 'peak', attack: 0 }, [0.8])[0]).toBeCloseTo(0.8, 5)
     expect(run({ mode: 'rms', attack: 0 }, [0.8])[0]).toBeCloseTo(0.4, 5)
@@ -33,7 +33,7 @@ describe('Audio to Signal', () => {
 describe('Distance From Center', () => {
   it('is 0 at the center and 1 at the far end, on both sides', () => {
     const run = fromCenterNode.base.run!
-    const at = (position: number, center = 0.5) => run({ position, center }, undefined, { time: 0, dt: 0, frame: 0 }).distance
+    const at = (position: number, center = 0.5) => run({ position, center }, undefined, { time: 0, dt: 0, frameIndex: 0 }).distance
     expect([at(0.5), at(0), at(1), at(0.75)]).toEqual([0, 1, 1, 0.5])
     expect([at(0.25, 0.25), at(1, 0.25), at(0, 0.25)]).toEqual([0, 1, 1 / 3])
     const { code } = generateGlsl(graph([node('f', 'fromCenter'), node('o', 'output')], [['f.distance', 'o.color']]))

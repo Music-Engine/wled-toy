@@ -33,7 +33,7 @@ export interface StoredEdge {
  */
 export const GRAPH_VERSION = 3
 
-export interface GraphDoc {
+export interface NodeGraph {
   version: number
   nodes: StoredNode[]
   edges: StoredEdge[]
@@ -46,12 +46,12 @@ export const GRAPH_NODE_TYPE = 'shader'
 export const newNodeData = (kind: string, values: GraphNodeData['values'] = {}): GraphNodeData => ({ kind, values })
 
 /** A current-version graph, tidied: an input holds one link (the newest wins) and scenes are what parseScenes accepts. */
-export function normalizeDoc(doc: GraphDoc): GraphDoc {
+export function normalizeDoc(doc: NodeGraph): NodeGraph {
   const byInput = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
   return { version: GRAPH_VERSION, nodes: doc.nodes, edges: [...byInput.values()], scenes: parseScenes(doc.scenes) }
 }
 
-export function createDefaultGraph(): GraphDoc {
+export function createDefaultGraph(): NodeGraph {
   const node = (id: string, kind: string, x: number, y: number, values: GraphNodeData['values'] = {}): StoredNode => ({
     id, type: GRAPH_NODE_TYPE, position: { x, y }, data: { kind, values },
   })

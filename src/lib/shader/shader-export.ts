@@ -3,7 +3,7 @@ import { documentSessions } from '@/lib/documents/document-session'
 import { SHADER_FILES, createBrowserBackend, createTauriBackend, type FileBackend } from '@/lib/documents/documents'
 import { useEngine } from '@/lib/engine/engine'
 import { ref } from 'vue'
-import { createDefaultGraph, generateGlsl, normalizeDoc, type GraphDoc } from '@/lib/graph'
+import { createDefaultGraph, generateGlsl, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import type { FrozenValue } from '@/lib/graph/compile/compile'
 import { log } from '@/lib/app/logs'
 import { isTauri } from '@/lib/app/platform'
@@ -27,7 +27,7 @@ export function standaloneGlsl(): { name: string; text: string } {
   const open = documentSessions[workspace.mode]
   const name = `${(open?.store.fileName.value ?? workspace.mode).replace(/\.\w+$/, '')}.standalone${SHADER_FILE_EXTENSION}`
   if (workspace.mode !== 'graph') return { name, text: bundleShader(config.code, name) }
-  const doc = (open?.snapshot() as GraphDoc | undefined) ?? normalizeDoc(config.graph ?? createDefaultGraph())
+  const doc = (open?.snapshot() as NodeGraph | undefined) ?? normalizeDoc(config.graph ?? createDefaultGraph())
   // standalone code reads no iControl slot: what only the CPU knows is baked in as the value it has right now
   const generated = generateGlsl(doc, { standalone: true, controls: (nodeId, output) => useEngine().controlOutput(nodeId, output) })
   if (generated.error) throw new Error(generated.error)

@@ -3,13 +3,13 @@ import { defineNode } from '@/lib/graph/define/define'
 import type { LinkedInputDef, NodeItem } from '@/lib/graph/define/node'
 import { Color, typeForGlsl } from '@/lib/graph/define/types'
 
-const typeOf = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : typeForGlsl(param.type))
+const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : typeForGlsl(param.type))
 
 function inputFor(param: Param): LinkedInputDef {
   // a default that is not a literal is GLSL the socket evaluates to while unlinked, e.g. `uv.x` or `iTime`
   const fallback = typeof param.default === 'string' ? { expr: param.default, label: param.default } : param.default
   const range = param.min === undefined ? undefined : { min: param.min, max: param.max }
-  return { type: typeOf(param), label: param.label, default: fallback, props: range }
+  return { type: paramType(param), label: param.label, default: fallback, props: range }
 }
 
 function functionItem(fn: ShaderNode): NodeItem {
@@ -19,7 +19,7 @@ function functionItem(fn: ShaderNode): NodeItem {
     category: fn.category,
     signature: fn.signature,
     input: Object.fromEntries(fn.params.map((param) => [param.name, inputFor(param)])),
-    output: { out: { type: typeOf(fn.output), label: fn.output.label } },
+    output: { out: { type: paramType(fn.output), label: fn.output.label } },
     exec: (input, ctx) => {
       const args = fn.params.map((param) => input[param.name].expr)
       return { out: ctx.declare(fn.returns === 'genType' ? ctx.gen : fn.returns, `${fn.name}(${args.join(', ')})`) }

@@ -6,7 +6,7 @@ import Socket from './ui/Socket.vue'
 import { handlerFor, nodeBodies, type TypeHandler } from './handlers'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from './graph-context'
-import { isImplicit, isStructType, itemFor, linkTypeOf, rateOf, type GraphNodeData, type InputSocket, type SocketValue } from '@/lib/graph'
+import { isImplicit, isStreamType, itemFor, linkType, placement, type GraphNodeData, type InputSocket, type SocketValue } from '@/lib/graph'
 
 const props = defineProps<NodeProps<GraphNodeData>>()
 const { edges, updateNodeData, updateNodeInternals } = useVueFlow()
@@ -17,9 +17,9 @@ const kind = computed(() => itemFor(props.data.kind))
 // the node's sockets and code follow its values (a Math node changes with its operation)
 const item = computed(() => kind.value?.shape(props.data.values))
 // control-rate sockets are diamonds, like Blender's per-object (not per-point) fields
-const shape = computed(() => (item.value && rateOf(item.value) === 'control' ? 'diamond' : 'circle'))
+const shape = computed(() => (item.value && placement(item.value) === 'frame' ? 'diamond' : 'circle'))
 // so are streams: they are settled before a single pixel is drawn
-const shapeOf = (type: { id: string }) => (shape.value === 'diamond' || isStructType(type as never) ? 'diamond' : 'circle')
+const storedShape = (type: { id: string }) => (shape.value === 'diamond' || isStreamType(type as never) ? 'diamond' : 'circle')
 const NO_LINKS: ReadonlySet<string> = new Set()
 // the page computes this once per edge change; without it (a node mounted on its own) fall back to the edge array
 const connected = computed<ReadonlySet<string>>(() => connectedHandles
@@ -49,7 +49,7 @@ const rows = computed<Row[]>(() => (item.value?.inputs ?? []).map((socket) => {
   const isConnected = socket.connectable && connected.value.has(socket.name)
   const stored = props.data.values[socket.name]
   // a stream socket has nothing to edit; unlinked, it says what it listens to instead
-  const implicit = isStructType(socket.type) ? socket.type.unlinked : stored === undefined && isImplicit(socket.default) ? socket.default.label : ''
+  const implicit = isStreamType(socket.type) ? socket.type.unlinked : stored === undefined && isImplicit(socket.default) ? socket.default.label : ''
   const value = stored ?? socket.default
   const handler = isConnected || implicit ? undefined : handlerFor(socket, value)
   return {
@@ -89,22 +89,22 @@ function markInvalid(socket: InputSocket, invalid: boolean) {
     :wide="item.inputs.some((s) => s.type.id === 'ramp') || data.kind in nodeBodies"
   >
     <template #folded-in>
-      <Socket v-for="socket in item.inputs.filter((s) => s.connectable)" :id="socket.name" :key="socket.name" side="in" :color="linkTypeOf(socket)!.color" :shape="shapeOf(socket.type)" />
+      <Socket v-for="socket in item.inputs.filter((s) => s.connectable)" :id="socket.name" :key="socket.name" side="in" :color="linkType(socket)!.color" :shape="storedShape(socket.type)" />
     </template>
     <template #folded-out>
-      <Socket v-for="out in item.outputs" :id="out.name" :key="out.name" side="out" :color="out.type.color" :shape="shapeOf(out.type)" />
+      <Socket v-for="out in item.outputs" :id="out.name" :key="out.name" side="out" :color="out.type.color" :shape="storedShape(out.type)" />
     </template>
 
     <component :is="nodeBodies[data.kind]" v-if="nodeBodies[data.kind]" :node-id="id" :values="data.values" @update="updateNodeData<GraphNodeData>(id, { values: { ...data.values, ...$event } })" />
 
     <div v-for="out in item.outputs" :key="out.name" class="nui-row is-output">
       <span class="nui-label">{{ out.label }}</span>
-      <Socket :id="out.name" side="out" :color="out.type.color" :shape="shapeOf(out.type)" />
+      <Socket :id="out.name" side="out" :color="out.type.color" :shape="storedShape(out.type)" />
     </div>
 
     <template v-for="row in rows" :key="row.socket.name">
       <div v-if="row.socket.connectable || row.socket.label || row.handler?.layout === 'inline'" class="nui-row">
-        <Socket v-if="row.socket.connectable" :id="row.socket.name" side="in" :color="linkTypeOf(row.socket)!.color" :shape="shapeOf(row.socket.type)" />
+        <Socket v-if="row.socket.connectable" :id="row.socket.name" side="in" :color="linkType(row.socket)!.color" :shape="storedShape(row.socket.type)" />
         <component
           :is="row.handler.component"
           v-if="row.handler?.layout === 'inline'"

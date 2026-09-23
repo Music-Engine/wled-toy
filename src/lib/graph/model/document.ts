@@ -1,7 +1,7 @@
 import { computed, type InjectionKey } from 'vue'
 import { createDocumentSession, documentSessions, type DocumentSession } from '@/lib/documents/document-session'
 import type { FileBackend } from '@/lib/documents/documents'
-import { GRAPH_NODE_TYPE, GRAPH_VERSION, createDefaultGraph, type GraphDoc, type GraphNodeData } from './doc'
+import { GRAPH_NODE_TYPE, GRAPH_VERSION, createDefaultGraph, type NodeGraph, type GraphNodeData } from './doc'
 import { log } from '@/lib/app/logs'
 import { GRAPH_FILE_EXTENSION, readGraphFile, serializeGraphFile } from './file'
 
@@ -28,7 +28,7 @@ interface EdgeLike {
  * The one shape and key order a graph is stored in. The editor's snapshot and a freshly parsed file both go through it,
  * so a file that was just opened serializes to the text it was compared against and does not count as edited.
  */
-export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[], scenes: GraphDoc['scenes']): GraphDoc {
+export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[], scenes: NodeGraph['scenes']): NodeGraph {
   // plain JSON: structuredClone rejects the reactive proxies Vue leaves nested in node data
   return JSON.parse(JSON.stringify({
     nodes: nodes.map((n) => ({ id: n.id, type: n.type ?? GRAPH_NODE_TYPE, position: { x: n.position.x, y: n.position.y }, data: n.data })),
@@ -45,20 +45,20 @@ export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[]
   }))
 }
 
-const canonical = (doc: GraphDoc) => storedDoc(doc.nodes, doc.edges, doc.scenes)
+const canonical = (doc: NodeGraph) => storedDoc(doc.nodes, doc.edges, doc.scenes)
 
 export type { DocumentPrompt, PromptChoice } from '@/lib/documents/document-session'
 
-export interface GraphDocument extends DocumentSession<GraphDoc> {
+export interface GraphSession extends DocumentSession<NodeGraph> {
   newGraph(): Promise<void>
 }
 
 /** The document the graph page edits right now. */
-export const activeGraphDocument = computed(() => (documentSessions.graph ?? null) as GraphDocument | null)
+export const activeGraphDocument = computed(() => (documentSessions.graph ?? null) as GraphSession | null)
 
 /** Call inside a component or an effect scope: the unload guard and the autosave end with it. */
-export function createGraphDocument(options: { backend: FileBackend; getSnapshot: () => GraphDoc; onLoad: (doc: GraphDoc) => void }): GraphDocument {
-  const session = createDocumentSession<GraphDoc>({
+export function createGraphDocument(options: { backend: FileBackend; getSnapshot: () => NodeGraph; onLoad: (doc: NodeGraph) => void }): GraphSession {
+  const session = createDocumentSession<NodeGraph>({
     mode: 'graph',
     extension: GRAPH_FILE_EXTENSION,
     backend: options.backend,

@@ -1,6 +1,6 @@
 import { socketColor, type GlslType } from '@/lib/shader/glsl'
 import type { FrameInfo } from './node'
-import { castTo, dimOf, floatLiteral, vectorLiteral, type Value } from './value'
+import { castTo, componentCount, floatLiteral, vectorLiteral, type Value } from './value'
 
 export interface ImplicitDefault {
   expr: string
@@ -36,7 +36,7 @@ export interface GlslTypeDef<T = unknown> extends DataType<T> {
  * A type that is linked but never becomes a number: an audio stream, a spectrum. What flows along such a link is decided
  * while the graph compiles (see `resolve` in defineNode), so it costs nothing per frame. `T` is what the receiving node gets.
  */
-export interface StructType<T = unknown> extends DataType<T | null> {
+export interface StreamType<T = unknown> extends DataType<T | null> {
   struct: true
   color: string
   castableFrom: readonly string[]
@@ -45,12 +45,12 @@ export interface StructType<T = unknown> extends DataType<T | null> {
 }
 
 /** Anything a link can carry. */
-export type LinkType = GlslTypeDef<any> | StructType<any>
+export type LinkType = GlslTypeDef<any> | StreamType<any>
 
 export const isGlslType = (type: DataType<any>): type is GlslTypeDef<any> => 'glsl' in type
-export const isStructType = (type: DataType<any>): type is StructType<any> => 'struct' in type
+export const isStreamType = (type: DataType<any>): type is StreamType<any> => 'struct' in type
 
-function struct<T>(id: string, label: string, color: string, unlinked: string): StructType<T> {
+function struct<T>(id: string, label: string, color: string, unlinked: string): StreamType<T> {
   return { id, label, color, unlinked, struct: true, castableFrom: [], check: (raw): raw is T | null => raw === null || typeof raw === 'object', initial: () => null }
 }
 
@@ -111,7 +111,7 @@ const isGeneric = (raw: unknown): raw is number | number[] => isFiniteNumber(raw
 export const GenType: GlslTypeDef<number | number[]> = {
   ...numeric('genType', 'Number or vector', 'genType', isGeneric, () => 0.5, (raw) => (Array.isArray(raw) ? vectorLiteral(raw) : floatLiteral(raw))),
   cast: (value) => {
-    if (dimOf(value.type) === undefined) throw new Error(`Cannot cast ${value.type} to a number or vector`)
+    if (componentCount(value.type) === undefined) throw new Error(`Cannot cast ${value.type} to a number or vector`)
     return value
   },
 }

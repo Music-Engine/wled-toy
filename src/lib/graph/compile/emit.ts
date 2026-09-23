@@ -1,11 +1,11 @@
 // The per-pixel side: turns nodes that run in the shader into GLSL lines, and assembles the finished shader.
 import type { GlslType } from '@/lib/shader/glsl'
 import type { LinkedInputSocket, NodeContext } from '@/lib/graph/define/node'
-import { isImplicit, isLinkable, isStructSocket } from '@/lib/graph/define/sockets'
+import { isImplicit, isLinkable, isStreamSocket } from '@/lib/graph/define/sockets'
 import { isGlslType } from '@/lib/graph/define/types'
-import { castTo, dimOf, vecOf, type Value } from '@/lib/graph/define/value'
+import { castTo, componentCount, vectorType, type Value } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
-import { GraphError, isGeneric, type Compilation } from './compilation'
+import { GraphError, isGenericSocket, type Compilation } from './compilation'
 import { controlOutput, runsOnCpu } from './control-plan'
 import { resolveChunks } from './glsl/chunk'
 import { settledInputs } from './streams'
@@ -33,8 +33,8 @@ function context(c: Compilation, nodeId: string, gen: GlslType): NodeContext {
 
 /** The GLSL value on a linked input: from the link, else the socket's implicit expression, else its stored literal. */
 function linkedValue(c: Compilation, nodeId: string, data: GraphNodeData, socket: LinkedInputSocket): Value {
-  const source = c.sourceOf(nodeId, socket)
-  const from = source && c.lookup(source.id).item.outputs.find((out) => out.name === source.output)
+  const source = c.linkSource(nodeId, socket)
+  const from = source && c.lookup(source.id).shape.outputs.find((out) => out.name === source.output)
   if (from && !isGlslType(from.type)) throw new GraphError(`${socket.label} needs a number or a color, not ${from.type.label}`, nodeId)
   const linked = source && (runsOnCpu(c, source.id) ? controlOutput(c, source.id, source.output) : evaluate(c, source.id)[source.output])
   if (linked) return linked
@@ -48,31 +48,31 @@ function linkedValue(c: Compilation, nodeId: string, data: GraphNodeData, socket
 export function evaluate(c: Compilation, id: string): Record<string, Value> {
   const cached = c.emitted.get(id)
   if (cached) return cached
-  const { node, item } = c.lookup(id)
-  if (!item.exec) throw new GraphError(`${item.title} runs once per frame and cannot be drawn directly`, id)
+  const { node, shape } = c.lookup(id)
+  if (!shape.exec) throw new GraphError(`${shape.title} runs once per frame and cannot be drawn directly`, id)
 
   c.enter(id)
-  const settled = settledInputs(c, id, item)
-  const resolved = item.inputs.map((socket) => (isStructSocket(socket) ? settled[socket.name] : isLinkable(socket) ? linkedValue(c, id, node.data, socket) : c.storedValue(id, node.data, socket)))
-  const widest = Math.max(1, ...item.inputs.map((socket, i) => (isGeneric(socket) ? dimOf((resolved[i] as Value).type) ?? 1 : 1)))
-  const gen = vecOf(widest)
+  const settled = settledInputs(c, id, shape)
+  const resolved = shape.inputs.map((socket) => (isStreamSocket(socket) ? settled[socket.name] : isLinkable(socket) ? linkedValue(c, id, node.data, socket) : c.storedValue(id, node.data, socket)))
+  const widest = Math.max(1, ...shape.inputs.map((socket, i) => (isGenericSocket(socket) ? componentCount((resolved[i] as Value).type) ?? 1 : 1)))
+  const gen = vectorType(widest)
 
   const input: Record<string, unknown> = { ...settled }
-  item.inputs.forEach((socket, i) => {
+  shape.inputs.forEach((socket, i) => {
     if (!isLinkable(socket)) {
       input[socket.name] = resolved[i]
       return
     }
     try {
       const value = socket.type.cast(resolved[i] as Value)
-      input[socket.name] = isGeneric(socket) ? castTo(value, gen) : value
+      input[socket.name] = isGenericSocket(socket) ? castTo(value, gen) : value
     } catch (e) {
-      throw new GraphError(`${item.title}: ${(e as Error).message}`, id)
+      throw new GraphError(`${shape.title}: ${(e as Error).message}`, id)
     }
   })
 
-  item.includes.forEach((chunk) => c.chunks.add(chunk))
-  const result = item.exec(input, context(c, id, gen))
+  shape.includes.forEach((chunk) => c.chunks.add(chunk))
+  const result = shape.exec(input, context(c, id, gen))
   c.leave(id)
   c.emitted.set(id, result)
   return result

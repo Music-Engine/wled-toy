@@ -5,7 +5,7 @@ import type { Features } from '@/lib/audio/dsp'
 import type { MidiReader } from '@/lib/engine/midi'
 import type { OutputSettings } from '@/lib/engine/output'
 import type { GlslChunk } from '@/lib/graph/compile/glsl/chunk'
-import type { DataType, GlslTypeDef, ImplicitDefault, LinkType, StructType } from './types'
+import type { DataType, GlslTypeDef, ImplicitDefault, LinkType, StreamType } from './types'
 import type { Value } from './value'
 
 export type WidgetProps = Record<string, unknown> | ((values: Record<string, unknown>) => Record<string, unknown>)
@@ -22,31 +22,31 @@ export type LinkedInputDef = SocketOptions & { type: GlslTypeDef<any>; connectab
 /** An input that only lives on the node: `exec` receives the stored value instead of a GLSL expression. */
 export type StoredInputDef = SocketOptions & { type: DataType<any>; connectable: false; default?: unknown }
 /** An input linked to a stream; the node receives what `resolve` of the linked node produced, or null when unlinked. */
-export type StructInputDef = SocketOptions & { type: StructType<any> }
-export type InputDef = LinkType | LinkedInputDef | StoredInputDef | StructInputDef
+export type StreamInputDef = SocketOptions & { type: StreamType<any> }
+export type InputDef = LinkType | LinkedInputDef | StoredInputDef | StreamInputDef
 export type OutputDef = LinkType | { type: LinkType; label?: string }
 
-type StreamOf<S> = S extends { type: StructType<infer T> } ? T | null : S extends StructType<infer T> ? T | null : never
+type StreamOf<S> = S extends { type: StreamType<infer T> } ? T | null : S extends StreamType<infer T> ? T | null : never
 type InputOf<S> = [StreamOf<S>] extends [never] ? (S extends { connectable: false; type: DataType<infer T> } ? T : Value) : StreamOf<S>
 export type InputsOf<I> = { [K in keyof I]: InputOf<I[K]> }
 export type OutputsOf<O> = { [K in keyof O]: Value }
 
 /** What a control-rate node computes with: plain numbers, one evaluation per frame. */
-export type ControlValue = number | number[]
-type ControlOf<T> = [T] extends [number] ? number : [T] extends [number[]] ? number[] : ControlValue
+export type FrameValue = number | number[]
+type ControlOf<T> = [T] extends [number] ? number : [T] extends [number[]] ? number[] : FrameValue
 type ControlInputOf<S> = [StreamOf<S>] extends [never] ? NumericControlInputOf<S> : StreamOf<S>
 type NumericControlInputOf<S> = S extends { connectable: false; type: DataType<infer T> } ? T
   : S extends { type: GlslTypeDef<infer T> } ? ControlOf<T>
-    : S extends GlslTypeDef<infer T> ? ControlOf<T> : ControlValue
+    : S extends GlslTypeDef<infer T> ? ControlOf<T> : FrameValue
 export type ControlInputsOf<I> = { [K in keyof I]: ControlInputOf<I[K]> }
-export type ControlOutputsOf<O> = { [K in keyof O]: ControlValue }
+export type ControlOutputsOf<O> = { [K in keyof O]: FrameValue }
 
 export interface FrameInfo {
   /** Seconds since the engine clock was reset. */
   time: number
   /** Seconds since the previous control step, capped so a hidden tab does not produce one huge step. */
   dt: number
-  frame: number
+  frameIndex: number
   /** The latest audio analysis; absent while no audio has run. */
   /** Audio analyses by slot (0 is the default FFT); an entry is null until its first hop. */
   audio?: { analyses: (Features | null)[]; sampleRate: number }
@@ -129,8 +129,8 @@ export interface LinkedInputSocket extends InputSocket {
   connectable: true
 }
 
-export interface StructInputSocket extends InputSocket {
-  type: StructType<any>
+export interface StreamInputSocket extends InputSocket {
+  type: StreamType<any>
   connectable: true
 }
 
@@ -149,7 +149,7 @@ export interface NodeShape {
   inputs: InputSocket[]
   outputs: OutputSocket[]
   exec?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
-  run?(input: Record<string, any>, state: any, frame: FrameInfo): Record<string, ControlValue>
+  run?(input: Record<string, any>, state: any, frame: FrameInfo): Record<string, FrameValue>
   resolve?(input: Record<string, any>, env: ResolveEnv): Record<string, unknown>
   state?(): unknown
   standalone: Partial<Record<string, string>>

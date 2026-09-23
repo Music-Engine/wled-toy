@@ -1,5 +1,5 @@
 import { defineNode } from '@/lib/graph/define/define'
-import type { ControlValue, InputDef, NodeItemOptions, OutputDef } from '@/lib/graph/define/node'
+import type { FrameValue, InputDef, NodeItemOptions, OutputDef } from '@/lib/graph/define/node'
 import type { Value } from '@/lib/graph/define/value'
 import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/compile/glsl/math'
 import { Enum, Float, Vec3 } from '@/lib/graph/define/types'
@@ -81,7 +81,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
       const expr = def.glsl(input.a.expr, input.b?.expr ?? 'vec3(0.0)', input.c?.expr ?? 'vec3(0.0)', input.scale?.expr ?? '1.0')
       return def.out === 'vector' ? { vector: ctx.declare('vec3', expr) } : { value: ctx.declare('float', expr) }
     },
-    run: (input: Record<string, any>): Record<string, ControlValue> => {
+    run: (input: Record<string, any>): Record<string, FrameValue> => {
       const result = def.js(asVector(input.a), asVector(input.b ?? 0), asVector(input.c ?? 0), (input.scale as number) ?? 1)
       return def.out === 'vector' ? { vector: result as V } : { value: result as number }
     },

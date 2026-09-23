@@ -1,4 +1,4 @@
-import type { ControlBinding } from '@/lib/graph/compile/control'
+import type { FrameBinding } from '@/lib/graph/compile/frame'
 import { defineNode } from '@/lib/graph/define/define'
 import { Enum, Float, Int, Text } from '@/lib/graph/define/types'
 
@@ -36,4 +36,4 @@ export const oscInNode = defineNode('oscIn', {
 })
 
 /** The port an OSC In node asks the bridge to listen on. One listener serves every OSC node, so the first decides. */
-export const oscPortFrom = (inputs: Record<string, ControlBinding>) => (inputs.port as { constant: number }).constant
+export const oscPortFrom = (inputs: Record<string, FrameBinding>) => (inputs.port as { constant: number }).constant

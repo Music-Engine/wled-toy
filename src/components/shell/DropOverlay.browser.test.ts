@@ -11,7 +11,7 @@ import { logs } from '@/lib/app/logs'
 import { workspace } from '@/lib/app/workspace'
 import { documentSessions } from '@/lib/documents/document-session'
 import { useEngine } from '@/lib/engine/engine'
-import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type GraphDoc, type GraphNodeData } from '@/lib/graph'
+import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph, type GraphNodeData } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { serializeGraphFile } from '@/lib/graph/model/file'
 import '@vue-flow/core/dist/style.css'
@@ -25,7 +25,7 @@ document.head.append(layout)
 let unmount: (() => void) | undefined
 let pushed: string[] = []
 
-function mount(graph: GraphDoc | null) {
+function mount(graph: NodeGraph | null) {
   config.graph = graph
   const root = document.createElement('div')
   document.body.append(root)
@@ -41,7 +41,7 @@ function mount(graph: GraphDoc | null) {
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })
-const small = (): GraphDoc => ({ ...createDefaultGraph(), nodes: [node('a', 'uv', 0, 0), node('b', 'time', 400, 200)], edges: [], scenes: [] })
+const small = (): NodeGraph => ({ ...createDefaultGraph(), nodes: [node('a', 'uv', 0, 0), node('b', 'time', 400, 200)], edges: [], scenes: [] })
 
 beforeEach(async () => {
   await page.viewport(1200, 800)
@@ -198,7 +198,7 @@ it('an image dropped on the canvas becomes a selected Image Texture node there, 
 it('a .wledgraph opens through the graph document: named after the file, clean, and out of the recent list', async () => {
   mount(small())
   await ready(2)
-  const incoming: GraphDoc = { ...createDefaultGraph(), nodes: [node('only', 'time', 10, 10)], edges: [], scenes: [] }
+  const incoming: NodeGraph = { ...createDefaultGraph(), nodes: [node('only', 'time', 10, 10)], edges: [], scenes: [] }
   dropFiles([new File([serializeGraphFile(incoming)], 'aurora.wledgraph')])
   await expect.poll(() => flow().getNodes.value.map((n) => n.id)).toEqual(['only'])
   const session = documentSessions.graph!
@@ -212,7 +212,7 @@ it('a .wledgraph opens through the graph document: named after the file, clean, 
 it('a saved graph that was renamed to .json still opens as a graph, and a settings export still imports', async () => {
   mount(small())
   await ready(2)
-  const incoming: GraphDoc = { ...createDefaultGraph(), nodes: [node('only', 'time', 10, 10)], edges: [], scenes: [] }
+  const incoming: NodeGraph = { ...createDefaultGraph(), nodes: [node('only', 'time', 10, 10)], edges: [], scenes: [] }
   dropFiles([new File([serializeGraphFile(incoming)], 'aurora.json', { type: 'application/json' })])
   await expect.poll(() => flow().getNodes.value.map((n) => n.id)).toEqual(['only'])
   expect(documentSessions.graph!.name.value).toBe('aurora.json')

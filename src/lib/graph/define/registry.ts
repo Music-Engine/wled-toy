@@ -21,15 +21,15 @@ export type LinkableInput = InputSocket & { type: LinkType }
 const linkable = (shape: NodeShape) => shape.inputs.filter((s): s is LinkableInput => s.connectable)
 
 /** The shape a stored node has right now; undefined for an unknown kind. */
-export const shapeOf = (data: GraphNodeData | undefined): NodeShape | undefined => data && itemFor(data.kind)?.shape(data.values)
+export const storedShape = (data: GraphNodeData | undefined): NodeShape | undefined => data && itemFor(data.kind)?.shape(data.values)
 
 export function inputSocket(data: GraphNodeData | undefined, handle: string | null | undefined): LinkableInput | undefined {
-  const shape = shapeOf(data)
+  const shape = storedShape(data)
   return shape && linkable(shape).find((s) => s.name === handle)
 }
 
 export function outputSocket(data: GraphNodeData | undefined, handle: string | null | undefined): OutputSocket | undefined {
-  return shapeOf(data)?.outputs.find((s) => s.name === handle)
+  return storedShape(data)?.outputs.find((s) => s.name === handle)
 }
 
 /** First socket of a node `shape` (the menu uses a kind's base shape) that can link to a dragged socket of `type`. */

@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { it } from 'vitest'
 import { CATEGORIES } from '@/lib/shader/glsl'
 import type { InputSocket, NodeItem, NodeShape } from './node'
-import { isImplicit, rateOf } from './sockets'
+import { isImplicit, placement } from './sockets'
 import { allItems } from './registry'
 import type { EnumOption } from './types'
 
@@ -20,7 +20,7 @@ function inputLine(socket: InputSocket, values: Record<string, unknown>): string
 }
 
 const rate = (shape: NodeShape) => (!shape.exec && !shape.run ? 'settled while compiling (streams only)'
-  : { pixel: 'GLSL per pixel (exec)', control: `control-rate, CPU once per frame (run)${shape.state ? ', stateful' : ''}`, either: 'either: CPU per frame when something is linked in and every link is per frame, else GLSL per pixel (exec + run)' }[rateOf(shape)])
+  : { pixel: 'GLSL per pixel (exec)', frame: `control-rate, CPU once per frame (run)${shape.state ? ', stateful' : ''}`, either: 'either: CPU per frame when something is linked in and every link is per frame, else GLSL per pixel (exec + run)' }[placement(shape)])
 
 const sockets = (shape: NodeShape, base: NodeShape) => `${shape.inputs.filter((s) => s.connectable || !base.inputs.some((known) => known.name === s.name)).map((s) => `${s.name}${s.label ? ` "${s.label}"` : ''}${isImplicit(s.default) ? '' : `=${JSON.stringify(s.default)}`}`).join(', ')} -> ${shape.outputs.map((s) => s.name).join(', ')}`
 

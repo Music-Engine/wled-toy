@@ -6,7 +6,7 @@ import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
 import { isMac, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
-import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type GraphDoc } from '@/lib/graph'
+import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { workspace } from '@/lib/app/workspace'
 import { logs } from '@/lib/app/logs'
@@ -21,7 +21,7 @@ document.head.append(layout)
 
 let unmount: (() => void) | undefined
 
-function mount(graph: GraphDoc | null) {
+function mount(graph: NodeGraph | null) {
   config.graph = graph
   const root = document.createElement('div')
   document.body.append(root)
@@ -38,7 +38,7 @@ function mount(graph: GraphDoc | null) {
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })
 
 /** Three nodes far apart, so a box can touch one without coming near another; the knob has a text field. */
-const spread = (): GraphDoc => ({ ...createDefaultGraph(), nodes: [node('a', 'uv', 0, 0), node('b', 'time', 900, 0), node('knob', 'knob', 0, 500)], edges: [], scenes: [] })
+const spread = (): NodeGraph => ({ ...createDefaultGraph(), nodes: [node('a', 'uv', 0, 0), node('b', 'time', 900, 0), node('knob', 'knob', 0, 500)], edges: [], scenes: [] })
 
 beforeEach(async () => {
   // the default test frame is narrower than the page, and a press outside the frame never arrives
@@ -266,7 +266,7 @@ it('Send to Shader Mode writes code that stands alone: nothing in it reads the c
 })
 
 it('Send to Shader Mode says which values it had to freeze, and says nothing when every node has GLSL of its own', async () => {
-  const knob: GraphDoc = {
+  const knob: NodeGraph = {
     ...createDefaultGraph(),
     nodes: [node('knob', 'knob', 0, 0), node('out', 'output', 400, 0)],
     edges: [{ id: 'e', source: 'knob', sourceHandle: 'value', target: 'out', targetHandle: 'color' }],
