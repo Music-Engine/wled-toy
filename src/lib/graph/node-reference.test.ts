@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { it } from 'vitest'
+import { expect, it } from 'vitest'
 import { CATEGORIES } from '@/lib/shader/glsl'
 import { isImplicit, placement, type InputSocket, type NodeItem, type NodeShape } from './define/shape'
 import { allItems } from './registry'
@@ -55,4 +55,8 @@ function reference(): string {
 it.runIf(process.env.GRAPH_REFERENCE === '1')('writes the node reference into the authoring guide', () => {
   const head = existsSync(FILE) ? readFileSync(FILE, 'utf8').split(MARKER)[0] : ''
   writeFileSync(FILE, `${head}${MARKER}\n\n${reference()}`)
+})
+
+it('registers every node kind and catalog item', () => {
+  expect(allItems()).toHaveLength(91)
 })

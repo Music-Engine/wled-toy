@@ -3,7 +3,7 @@ import type { NodeItem } from '@/lib/graph/define/shape'
 import { generateGlsl } from '@/lib/graph/compile/compile'
 import { FrameRunner } from '@/lib/graph/compile/frame'
 import { graph, node } from '@/lib/graph/testing'
-import { bandsNode } from '@/lib/graph/nodes/audio/bands'
+import { itemFor } from '@/lib/graph/registry'
 import { clockDividerNode } from './clock-divider'
 import { integratorNode } from './integrator'
 import { stepSequencerNode } from './step-sequencer'
@@ -81,10 +81,11 @@ describe('Step Sequencer', () => {
 
 describe('Bands', () => {
   it('has as many outputs as asked and folds the analysis bands into them', () => {
-    expect(bandsNode.shape({ count: '4' }).outputs.map((o) => o.label)).toEqual(['Band 1', 'Band 2', 'Band 3', 'Band 4'])
-    expect(bandsNode.shape({}).outputs).toHaveLength(8)
+    const bands = itemFor('bands')!
+    expect(bands.shape({ count: '4' }).outputs.map((o) => o.label)).toEqual(['Band 1', 'Band 2', 'Band 3', 'Band 4'])
+    expect(bands.shape({}).outputs).toHaveLength(8)
     const features = { bands: Float32Array.from({ length: 16 }, (_, i) => i / 15) }
-    const out = bandsNode.shape({ count: '4' }).run!({ spectrum: null, count: '4' }, undefined, { ...frame(0), audio: { analyses: [features as never], sampleRate: 48000 } })
+    const out = bands.shape({ count: '4' }).run!({ spectrum: null, count: '4' }, undefined, { ...frame(0), audio: { analyses: [features as never], sampleRate: 48000 } })
     expect(out.band1).toBeCloseTo(3 / 15)
     expect(out.band4).toBeCloseTo(1)
   })

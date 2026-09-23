@@ -6,7 +6,7 @@ import GradientEditor from './GradientEditor.vue'
 import RangeField from './RangeField.vue'
 import { click, dragBy } from '@/test/pointer'
 import { mountField } from '@/test/mount'
-import { defaultRamp, type ColorRamp } from '@/lib/graph'
+import { defaultRamp, type ColorRamp } from '@/lib/graph/nodes/color/color-ramp'
 
 let mounted: { unmount(): void } | undefined
 afterEach(() => mounted?.unmount())

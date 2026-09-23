@@ -1,13 +1,12 @@
 import { CATALOG_FUNCTIONS, CATALOG_UNIFORMS } from '@/lib/graph/nodes/catalog'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import type { InputSocket, NodeItem, NodeShape, OutputSocket } from '@/lib/graph/define/shape'
-import * as nodes from '@/lib/graph/nodes'
+import { NODE_KINDS } from '@/lib/graph/nodes'
 import { canCast, type LinkType } from '@/lib/graph/define/types'
 
 const items = new Map<string, NodeItem>()
-const isNodeItem = (value: unknown): value is NodeItem => typeof value === 'object' && value !== null && 'shape' in value && 'base' in value
 
-for (const item of [...CATALOG_UNIFORMS, ...CATALOG_FUNCTIONS, ...Object.values(nodes).filter(isNodeItem)]) {
+for (const item of [...CATALOG_UNIFORMS, ...CATALOG_FUNCTIONS, ...NODE_KINDS]) {
   if (items.has(item.id)) throw new Error(`Duplicate graph node id "${item.id}"`)
   items.set(item.id, item)
 }

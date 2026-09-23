@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import ColorSwatch from './ColorSwatch.vue'
 import DropdownField from './DropdownField.vue'
 import RangeField from './RangeField.vue'
-import { RAMP_INTERPOLATIONS, sampleRamp, type ColorRamp, type RampInterpolation, type RampStop } from '@/lib/graph'
+import { RAMP_INTERPOLATIONS, sampleRamp, type ColorRamp, type RampInterpolation, type RampStop } from '@/lib/graph/nodes/color/color-ramp'
 
 const props = defineProps<{ modelValue: ColorRamp }>()
 const emit = defineEmits<{ 'update:modelValue': [value: ColorRamp] }>()
