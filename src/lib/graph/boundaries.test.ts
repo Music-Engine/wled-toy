@@ -20,7 +20,7 @@ const defineAllows = (file: string, from: string) =>
   from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
 const stageAllows = (file: string, from: string) =>
-  file.startsWith('compile/') || !/(^|\/)compile\/(compilation|streams|control-plan|emit)$/.test(from)
+  file.startsWith('compile/') || !/(^|\/)compile\/(compilation|streams|control-plan|emit|width)$/.test(from)
 
 const RULES = [
   { rule: 'nodes', covers: (file: string) => file.startsWith('nodes/'), allows: nodesAllow },

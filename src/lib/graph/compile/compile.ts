@@ -1,6 +1,7 @@
 // generateGlsl: compiles a graph into a shader plus the plan for what runs per frame on the CPU.
-// Streams are settled first (./streams), per-frame nodes are planned (./control-plan), and nodes that run in the
-// shader are emitted (./emit); this file only walks the graph's sinks and packs the result.
+// Generic widths are inferred first (./width), streams are settled (./streams), per-frame nodes are planned
+// (./control-plan), and nodes that run in the shader are emitted (./emit); this file only walks the graph's sinks and
+// packs the result.
 import type { OutputSettings } from '@/lib/engine/output'
 import { itemFor } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
@@ -9,6 +10,7 @@ import type { FramePlan } from './frame'
 import { planControl } from './control-plan'
 import { assemble, evaluate } from './emit'
 import { resolveNode } from './streams'
+import { inferWidths } from './width'
 
 export type { CompileOptions, FrozenValue, GraphIssue } from './compilation'
 
@@ -35,6 +37,7 @@ export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): Gene
   const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput)
   if (!sinks.some((n) => c.lookup(n.id).shape.exec)) return finish('Add an Output node to see anything.', null)
   try {
+    inferWidths(c, sinks.map((n) => n.id))
     // a sink that only runs per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part
     for (const sink of sinks) {
       const { shape } = c.lookup(sink.id)

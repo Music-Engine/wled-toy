@@ -3,7 +3,7 @@ import type { GlslType } from '@/lib/shader/glsl'
 import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
 import { fallsBackToImplicit, isLinkable, isStreamSocket, type InputSocket, type LinkedInputSocket } from '@/lib/graph/define/shape'
 import { isGlslType } from '@/lib/graph/define/types'
-import { castTo, componentCount, vectorType, type Value } from '@/lib/graph/define/value'
+import { castTo, type Value } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { GraphError, isGenericSocket, type Compilation } from './compilation'
 import { controlOutput, runsOnCpu } from './control-plan'
@@ -53,8 +53,7 @@ export function evaluate(c: Compilation, id: string): Record<string, Value> {
   c.enter(id)
   const settled = settledInputs(c, id, shape)
   const resolved = shape.inputs.map((socket) => pixelInput(c, id, node.data, settled, socket))
-  const widest = Math.max(1, ...shape.inputs.map((socket, i) => (isGenericSocket(socket) ? componentCount((resolved[i] as Value).type) ?? 1 : 1)))
-  const gen = vectorType(widest)
+  const gen = c.widths.get(id)!
 
   const input: Record<string, unknown> = { ...settled }
   shape.inputs.forEach((socket, i) => {

@@ -1,5 +1,6 @@
 // What every compile stage reads and writes: the graph, the code being built, the per-frame plan, and the issues found.
 import type { OutputSettings } from '@/lib/engine/output'
+import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue, GlslChunk } from '@/lib/graph/define/context'
 import { isImplicit, isLinkable, type InputSocket, type NodeShape } from '@/lib/graph/define/shape'
 import { itemFor } from '@/lib/graph/registry'
@@ -37,6 +38,13 @@ export class GraphError extends Error {
 
 export const isGenericSocket = (socket: InputSocket) => isLinkable(socket) && socket.type.glsl === 'genType'
 
+/** The value stored on the node for a socket, or its default; an invalid value is replaced and `valid` says so. */
+export function storedOrDefault(data: GraphNodeData, socket: InputSocket): { value: unknown; valid: boolean } {
+  const raw = data.values[socket.name] ?? socket.default
+  if (socket.type.check(raw)) return { value: raw, valid: true }
+  return { value: isImplicit(socket.default) ? socket.type.initial() : socket.default, valid: false }
+}
+
 export class Compilation {
   readonly nodes: Map<string, StoredNode>
   readonly body: { text: string; node: string }[] = []
@@ -51,6 +59,8 @@ export class Compilation {
   // per stage, by node id: what ./streams settled
   readonly resolved = new Map<string, Record<string, unknown>>()
   readonly resolving = new Set<string>()
+  // what ./width inferred
+  readonly widths = new Map<string, GlslType>()
   // what ./control-plan decided
   readonly capable = new Map<string, boolean>()
   readonly steps = new Map<string, number>()
@@ -102,11 +112,9 @@ export class Compilation {
 
   /** The value stored on the node for a socket, or its default; an invalid value is reported and replaced. */
   storedValue(nodeId: string, data: GraphNodeData, socket: InputSocket): unknown {
-    const raw = data.values[socket.name] ?? socket.default
-    if (socket.type.check(raw)) return raw
-    this.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
-    if (isImplicit(socket.default)) return socket.type.initial()
-    return socket.default
+    const { value, valid } = storedOrDefault(data, socket)
+    if (!valid) this.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
+    return value
   }
 
   emit(nodeId: string, text: string) {

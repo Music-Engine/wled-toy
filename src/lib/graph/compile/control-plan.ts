@@ -43,7 +43,6 @@ export function planControl(c: Compilation, id: string): number {
 
   const inputs: Record<string, FrameBinding> = {}
   const inputDims: Record<string, number> = {}
-  const genericDims: number[] = []
   for (const [name, constant] of Object.entries(settledInputs(c, id, shape))) inputs[name] = { constant }
   for (const socket of shape.inputs) {
     if (isStreamSocket(socket)) continue
@@ -52,27 +51,21 @@ export function planControl(c: Compilation, id: string): number {
       continue
     }
     const source = c.linkSource(id, socket)
-    let dim: number
     if (source) {
       if (!controlCapable(c, source.id)) {
         throw new GraphError(`${socket.label} needs one value per frame, but ${c.lookup(source.id).shape.title} changes per pixel`, id)
       }
       inputs[socket.name] = { step: planControl(c, source.id), output: source.output }
-      dim = c.dims.get(source.id)?.[source.output] ?? 1
     } else if (fallsBackToImplicit(node.data.values, socket) && socket.default.frame) {
       inputs[socket.name] = { frame: socket.default.frame }
-      dim = 1
     } else if (fallsBackToImplicit(node.data.values, socket)) {
       throw new GraphError(`${socket.label} needs a value or a link; its default (${socket.default.label}) only exists per pixel`, id)
     } else {
-      const constant = c.storedValue(id, node.data, socket)
-      inputs[socket.name] = { constant }
-      dim = Array.isArray(constant) ? constant.length : 1
+      inputs[socket.name] = { constant: c.storedValue(id, node.data, socket) }
     }
-    if (isGenericSocket(socket)) genericDims.push(dim)
-    else inputDims[socket.name] = componentCount(socket.type.glsl) ?? 1
+    if (!isGenericSocket(socket)) inputDims[socket.name] = componentCount(socket.type.glsl) ?? 1
   }
-  const gen = Math.max(1, ...genericDims)
+  const gen = componentCount(c.widths.get(id)!)!
   for (const socket of shape.inputs.filter(isGenericSocket)) inputDims[socket.name] = gen
   c.dims.set(id, outputDims(shape, gen))
 
