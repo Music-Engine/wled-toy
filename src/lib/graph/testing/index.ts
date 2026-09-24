@@ -52,7 +52,7 @@ export function renderGraph(doc: NodeGraph, { leds = 8, time = 0, frame = 0, sca
   renderer.setLayout(layout && layoutPositions(layout))
   const runner = new FrameRunner()
   runner.load(shader.frame)
-  renderer.setControls(runner.step({ time, dt, frameIndex: frame }))
+  renderer.setControls(runner.step({ time, dt, frameIndex: frame, audio: undefined, midi: undefined, osc: undefined }))
   const colors = renderer.renderLeds({ time, frame, ledCount: leds, scanY })
   renderer.dispose()
   return { shader, compileError: null, leds: Array.from({ length: leds }, (_, i) => [...colors.subarray(i * 3, i * 3 + 3)].map(toByte)) }

@@ -27,7 +27,7 @@ function play(doc: ReturnType<typeof graph>, script: Features[], leds = 1): numb
   return script.map((f, frame) => {
     textures.push(new Float32Array(512), f)
     renderer.setAudio(textures)
-    renderer.setControls(runner.step({ time: frame / 30, dt: 1 / 30, frameIndex: frame, audio: { analyses: [f], sampleRate: 48000 } }))
+    renderer.setControls(runner.step({ time: frame / 30, dt: 1 / 30, frameIndex: frame, midi: undefined, osc: undefined, audio: { analyses: [f], sampleRate: 48000 } }))
     const colors = renderer.renderLeds({ time: frame / 30, frame, ledCount: leds, scanY: 0.5 })
     return Array.from({ length: leds }, (_, i) => toByte(colors[i * 3]))
   })
@@ -126,7 +126,7 @@ describe('Audio Source and FFT', () => {
     const { frame: plan } = generateGlsl(graph([node('f', 'fft', { bands: 16 }), node('b', 'bandSplit'), node('o', 'output')], [['f.spectrum', 'b.spectrum'], ['b.level', 'o.color']]))
     const runner = new FrameRunner()
     runner.load(plan)
-    const step = (analyses: (Features | null)[]) => runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, audio: { analyses, sampleRate: 48000 } })[0]
+    const step = (analyses: (Features | null)[]) => runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, midi: undefined, osc: undefined, audio: { analyses, sampleRate: 48000 } })[0]
     expect(step([features(), features({ spectrum })])).toBe(1)
     expect(step([features({ spectrum }), features()])).toBe(0)
     expect(step([features({ spectrum }), null])).toBe(0)

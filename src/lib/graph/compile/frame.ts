@@ -25,16 +25,19 @@ export interface FramePlan {
   resources: Record<string, unknown[]>
 }
 
-/** Same rules as castTo, on numbers: scalars spread, long vectors truncate, short ones pad with 0 and alpha 1. */
-export function castFrameValue(value: FrameValue, dim: number): FrameValue {
-  if (!Array.isArray(value)) return dim === 1 ? value : Array(dim).fill(value)
+/** Same rules as castTo, on numbers: scalars spread, long vectors truncate, short ones pad with 0 and alpha 1. A vector is written into `into` when given. */
+export function castFrameValue(value: FrameValue, dim: number, into?: number[]): FrameValue {
+  if (!Array.isArray(value)) return dim === 1 ? value : (into ?? Array(dim)).fill(value)
   if (dim === 1) return value[0] ?? 0
-  return Array.from({ length: dim }, (_, i) => value[i] ?? (i === 3 ? 1 : 0))
+  const out = into ?? Array(dim)
+  for (let i = 0; i < dim; i++) out[i] = value[i] ?? (i === 3 ? 1 : 0)
+  return out
 }
 
 /** A binding as the runner reads it: a frame builtin is resolved to its reader when the plan is loaded. */
 type LoadedBinding = Exclude<FrameBinding, { frame: string }> | { read: (frame: FrameInfo) => number }
-type LoadedStep = Omit<FrameStep, 'inputs'> & { inputs: [string, LoadedBinding][] }
+type LoadedInput = { name: string; binding: LoadedBinding; dim: number | undefined; buffer: number[] | undefined }
+type LoadedStep = Omit<FrameStep, 'inputs'> & { stateKey: string; inputs: LoadedInput[]; input: Record<string, unknown> }
 
 /** Runs a plan once per frame and keeps each node's state across plans for as long as the node exists. */
 export class FrameRunner {
@@ -42,9 +45,10 @@ export class FrameRunner {
   private steps: LoadedStep[] = []
   private states = new Map<string, Record<string, unknown>>()
   private readonly block = new Float32Array(CONTROL_VECTORS * 4)
-  private results: Record<string, FrameValue>[] = []
+  private readonly results: Record<string, FrameValue>[] = []
+  private exportBuffers: number[][] = []
   // one object handed to every body and refilled in place, so stepping allocates no context per node or frame
-  private readonly info: FrameContext = { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }
+  private readonly info: FrameContext = { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} }
 
   load(plan: FramePlan) {
     const states = new Map<string, Record<string, unknown>>()
@@ -53,7 +57,8 @@ export class FrameRunner {
       const kept = this.states.get(key)
       if (state) states.set(key, kept ? fillMissingSlots(kept, state) : initialState(state))
     }
-    this.steps = plan.steps.map((step) => ({ ...step, inputs: Object.entries(step.inputs).map(([name, binding]) => [name, loadBinding(binding)]) }))
+    this.steps = plan.steps.map(loadStep)
+    this.exportBuffers = plan.exports.map(({ dim }) => Array(dim).fill(0))
     this.states = states
     this.plan = plan
   }
@@ -71,38 +76,36 @@ export class FrameRunner {
   }
 
   step(frame: FrameInfo): Float32Array {
-    const results: Record<string, FrameValue>[] = []
-    this.results = results
-    const info = this.enter(frame)
-    for (const step of this.steps) {
-      const input = Object.fromEntries(step.inputs.map(([name, binding]) => [name, bindingValue(binding, results, frame, step.dims[name])]))
-      info.state = this.states.get(`${step.nodeId}:${step.kind}`)
+    const { info, results, steps } = this
+    Object.assign(info, frame)
+    results.length = steps.length
+    for (let s = 0; s < steps.length; s++) {
+      const step = steps[s]
+      for (let i = 0; i < step.inputs.length; i++) {
+        const { name, binding, dim, buffer } = step.inputs[i]
+        step.input[name] = bindingValue(binding, results, info, dim, buffer)
+      }
+      info.state = this.states.get(step.stateKey)
       info.resolved = step.resolved
-      results.push(step.frame(input, info))
+      results[s] = step.frame(step.input, info)
     }
     return this.packExports(results)
   }
 
-  // field by field rather than Object.assign: a key the caller left out this frame must not keep last frame's value
-  private enter(frame: FrameInfo): FrameContext {
-    const { info } = this
-    info.time = frame.time
-    info.dt = frame.dt
-    info.frameIndex = frame.frameIndex
-    info.audio = frame.audio
-    info.midi = frame.midi
-    info.osc = frame.osc
-    return info
-  }
-
   private packExports(results: Record<string, FrameValue>[]): Float32Array {
-    this.block.fill(0)
-    for (const { step, output, slot, dim } of this.plan.exports) {
-      const value = castFrameValue(results[step][output] ?? 0, dim)
-      const components = Array.isArray(value) ? value : [value]
-      components.forEach((c, i) => (this.block[slot + i] = Number.isFinite(c) ? c : 0))
+    const { block, exportBuffers } = this
+    const { exports } = this.plan
+    block.fill(0)
+    for (let e = 0; e < exports.length; e++) {
+      const { step, output, slot, dim } = exports[e]
+      const value = castFrameValue(results[step][output] ?? 0, dim, exportBuffers[e])
+      if (!Array.isArray(value)) {
+        block[slot] = Number.isFinite(value) ? value : 0
+        continue
+      }
+      for (let i = 0; i < dim; i++) block[slot + i] = Number.isFinite(value[i]) ? value[i] : 0
     }
-    return this.block
+    return block
   }
 }
 
@@ -129,6 +132,16 @@ export function zeroValue(type: DataType<any>): unknown {
   throw new Error(`${type.label} cannot hold node state`)
 }
 
+// bodies get the same input record and vector buffers every frame, so a body that keeps an input past its call must copy it
+function loadStep(step: FrameStep): LoadedStep {
+  const inputs = Object.entries(step.inputs).map(([name, binding]): LoadedInput => {
+    const dim = step.dims[name]
+    return { name, binding: loadBinding(binding), dim, buffer: dim !== undefined && dim > 1 ? Array(dim).fill(0) : undefined }
+  })
+  const input = Object.fromEntries(inputs.map(({ name }) => [name, undefined]))
+  return { ...step, stateKey: `${step.nodeId}:${step.kind}`, inputs, input }
+}
+
 function loadBinding(binding: FrameBinding): LoadedBinding {
   if (!('frame' in binding)) return binding
   if (binding.frame !== 'time') throw new Error(`unknown frame builtin "${binding.frame}"`)
@@ -136,8 +149,8 @@ function loadBinding(binding: FrameBinding): LoadedBinding {
 }
 
 /** A constant is cast only when its socket is linkable; linked and frame inputs always have a dim. */
-function bindingValue(binding: LoadedBinding, results: Record<string, FrameValue>[], frame: FrameInfo, dim: number | undefined): unknown {
-  if ('constant' in binding) return dim === undefined ? binding.constant : castFrameValue(binding.constant as FrameValue, dim)
-  if ('read' in binding) return castFrameValue(binding.read(frame), dim!)
-  return castFrameValue(results[binding.step][binding.output] ?? 0, dim!)
+function bindingValue(binding: LoadedBinding, results: Record<string, FrameValue>[], frame: FrameInfo, dim: number | undefined, buffer: number[] | undefined): unknown {
+  if ('constant' in binding) return dim === undefined ? binding.constant : castFrameValue(binding.constant as FrameValue, dim, buffer)
+  if ('read' in binding) return castFrameValue(binding.read(frame), dim!, buffer)
+  return castFrameValue(results[binding.step][binding.output] ?? 0, dim!, buffer)
 }

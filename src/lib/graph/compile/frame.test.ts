@@ -5,7 +5,7 @@ import { defineNode } from '@/lib/graph/define/define'
 import { Float, GenType, Int, Vec3 } from '@/lib/graph/define/socket-types'
 import { graph, node } from '@/lib/graph/testing'
 
-const frame = (n: number) => ({ time: n / 30, dt: 1 / 30, frameIndex: n })
+const frame = (n: number) => ({ time: n / 30, dt: 1 / 30, frameIndex: n, audio: undefined, midi: undefined, osc: undefined })
 
 describe('castFrameValue', () => {
   it('follows the GLSL cast rules on plain numbers', () => {
@@ -69,6 +69,21 @@ describe('FrameRunner', () => {
     expect(runner.step(frame(1))[5]).toBe(1)
     runner.reset()
     expect(runner.step(frame(2))[5]).toBe(1)
+  })
+
+  it('hands a body the same input record and vector buffer every frame', () => {
+    const seen: Record<string, unknown>[] = []
+    const runner = new FrameRunner()
+    runner.load({
+      steps: [{ nodeId: 'v', kind: 'testVector', frame: (input) => (seen.push(input), {}), resolved: {}, inputs: { vector: { constant: [1, 2] } }, dims: { vector: 3 } }],
+      exports: [],
+      resources: {},
+    })
+    runner.step(frame(0))
+    runner.step(frame(1))
+    expect(seen[1]).toBe(seen[0])
+    expect(seen[1].vector).toBe(seen[0].vector)
+    expect(seen[1].vector).toEqual([1, 2, 0])
   })
 
   it('refuses a plan that names an unknown frame builtin', () => {

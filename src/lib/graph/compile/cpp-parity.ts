@@ -82,7 +82,7 @@ function opTable(op: ParityOp): string[] {
 function frameResult(kind: string, values: Record<string, SocketValue>): number[] {
   const shape = itemFor(kind)!.shape(values)
   const input = Object.fromEntries(shape.inputs.map((socket) => [socket.name, values[socket.name] ?? socket.default]))
-  const result: FrameValue = shape.frame!(input, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} })[shape.outputs[0].name]
+  const result: FrameValue = shape.frame!(input, { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} })[shape.outputs[0].name]
   return Array.isArray(result) ? result : [result]
 }
 

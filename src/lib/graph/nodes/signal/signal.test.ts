@@ -21,7 +21,7 @@ function simulate(item: NodeItem, output: string, input: (t: number) => Record<s
   const state = slots && initialState(slots)
   return Array.from({ length: Math.round(seconds * fps) }, (_, frame) => {
     const time = (frame + 1) / fps
-    return body!(input(time), { time, dt: 1 / fps, frameIndex: frame, state, resolved: {} })[output] as number
+    return body!(input(time), { time, dt: 1 / fps, frameIndex: frame, audio: undefined, midi: undefined, osc: undefined, state, resolved: {} })[output] as number
   })
 }
 
@@ -113,9 +113,9 @@ it.each(([
 
 describe('stateless nodes compute the same thing on both sides', () => {
   it('map range and curve', () => {
-    expect(mapRangeNode.base.frame!({ clamp: true, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }).result).toBe(20)
-    expect(mapRangeNode.base.frame!({ clamp: false, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }).result).toBe(25)
-    expect(curveNode.base.frame!({ curve: 'smooth', value: 0.5 }, { time: 0, dt: 0, frameIndex: 0, state: undefined, resolved: {} }).result).toBe(0.5)
+    expect(mapRangeNode.base.frame!({ clamp: true, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} }).result).toBe(20)
+    expect(mapRangeNode.base.frame!({ clamp: false, value: 3, inLow: 0, inHigh: 2, outLow: 10, outHigh: 20 }, { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} }).result).toBe(25)
+    expect(curveNode.base.frame!({ curve: 'smooth', value: 0.5 }, { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} }).result).toBe(0.5)
   })
 })
 

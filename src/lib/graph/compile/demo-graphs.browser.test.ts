@@ -82,7 +82,7 @@ function play(doc: NodeGraph, track: Float32Array): Run {
       chroma: Float32Array.from(f?.chroma ?? new Float32Array(12)),
     })
 
-    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
     for (const renderer of [strip, matrix]) {
       renderer.setControls(controls)
       if (f) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))

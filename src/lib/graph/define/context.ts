@@ -23,12 +23,11 @@ export interface FrameInfo {
   /** Seconds since the previous frame step, capped so a hidden tab does not produce one huge step. */
   dt: number
   frameIndex: number
-  /** The latest audio analysis; absent until audio has been analyzed. */
-  /** Audio analyses by slot (0 is the default FFT); an entry is null until its first hop. */
-  audio?: { analyses: (Features | null)[]; sampleRate: number }
-  midi?: MidiReader
+  /** Audio analyses by slot (0 is the default FFT); undefined until audio has been analyzed, an entry null until its first hop. */
+  audio: { analyses: (Features | null)[]; sampleRate: number } | undefined
+  midi: MidiReader | undefined
   /** Numeric arguments of the latest OSC message sent to an address. */
-  osc?: (address: string) => number[] | undefined
+  osc: ((address: string) => number[] | undefined) | undefined
 }
 
 /** What a frame body gets beside its inputs: the frame, the node's state, and what its `resolve` returned. */

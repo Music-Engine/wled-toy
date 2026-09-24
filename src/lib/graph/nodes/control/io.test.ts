@@ -5,7 +5,7 @@ import { graph, node } from '@/lib/graph/testing'
 vi.stubGlobal('navigator', {})
 const { MidiService } = await import('@/lib/engine/midi')
 
-const frame = { time: 0, dt: 1 / 30, frameIndex: 0 }
+const frame = { time: 0, dt: 1 / 30, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined }
 
 function firstSlot(doc: ReturnType<typeof graph>, extra: object) {
   const shader = generateGlsl(doc)

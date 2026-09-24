@@ -43,7 +43,7 @@ function sequence(renderer: ShaderRenderer, doc: NodeGraph, dts: number[]): numb
   let time = 0
   return dts.map((dt, frame) => {
     time += dt
-    renderer.setControls(runner.step({ time, dt, frameIndex: frame }))
+    renderer.setControls(runner.step({ time, dt, frameIndex: frame, audio: undefined, midi: undefined, osc: undefined }))
     return renderer.renderLeds({ time, dt, frame, ledCount: 1, scanY: 0.5 })[0]
   })
 }

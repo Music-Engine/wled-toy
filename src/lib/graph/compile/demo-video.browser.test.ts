@@ -69,7 +69,7 @@ describe.runIf(ENABLED)('demo video', () => {
         const tick = { time, dt: 1 / manifest.fps, frame }
         const { analyses } = feedSlots(slots, track, time, SAMPLE_RATE)
         const f = analyses[0]
-        const controls = runner.step({ time, dt: tick.dt, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+        const controls = runner.step({ time, dt: tick.dt, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
         for (const renderer of [strip, matrix]) {
           renderer.setControls(controls)
           if (f) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))

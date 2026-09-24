@@ -164,7 +164,7 @@ function benchmark(name: string, text: string) {
     const f = analyses[0]
 
     const t1 = performance.now()
-    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
     const stepMs = performance.now() - t1
 
     const t2 = performance.now()
@@ -208,8 +208,8 @@ function benchmark(name: string, text: string) {
   const heapEnd = heapUsed()
 
   // the stages whose per-frame numbers sit under the 0.1 ms clock quantum, measured again over a batch
-  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, audio: undefined })
-  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, audio: undefined }) })
+  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, midi: undefined, osc: undefined, audio: undefined })
+  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, midi: undefined, osc: undefined, audio: undefined }) })
   const batchedSetControls = batched(BATCH, () => primary.setControls(lastControls))
   const extraTextures = slots.slice(1).map((slot) => slot.textures)
   const batchedSetAudio = batched(BATCH, () => primary.setAudio(slots[0].textures, extraTextures))

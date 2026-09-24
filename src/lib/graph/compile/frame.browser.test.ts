@@ -16,7 +16,7 @@ it('turning the knob changes the LEDs on the same compiled program', () => {
   renderer.compile(generateGlsl(doc(0.25)).code)
   const red = (value: number) => {
     runner.load(generateGlsl(doc(value)).frame)
-    renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0 }))
+    renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined }))
     return toByte(renderer.renderLeds({ time: 0, frame: 0, ledCount: 1, scanY: 0.5 })[0])
   }
   expect([red(0.25), red(1), red(0)]).toEqual([64, 255, 0])

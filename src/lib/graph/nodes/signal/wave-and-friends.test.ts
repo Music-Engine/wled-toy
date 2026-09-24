@@ -7,7 +7,7 @@ import { integratorNode } from './integrator'
 import { stepSequencerNode } from './step-sequencer'
 import { waveNode } from './wave'
 
-const frame = (n: number, fps = 30, state?: unknown, resolved = {}) => ({ time: n / fps, dt: 1 / fps, frameIndex: n, state, resolved })
+const frame = (n: number, fps = 30, state?: unknown, resolved = {}) => ({ time: n / fps, dt: 1 / fps, frameIndex: n, audio: undefined, midi: undefined, osc: undefined, state, resolved })
 
 function simulate(item: NodeItem, values: Record<string, unknown>, output: string, input: (t: number) => Record<string, unknown>, seconds: number, fps = 30): number[] {
   const shape = item.shape(values)
@@ -36,7 +36,7 @@ describe('Wave', () => {
     expect(error).toBeNull()
     const runner = new FrameRunner()
     runner.load(plan)
-    expect(runner.step({ time: 0.25, dt: 1 / 30, frameIndex: 1 })[0]).toBeCloseTo(0.25, 5)
+    expect(runner.step({ time: 0.25, dt: 1 / 30, frameIndex: 1, audio: undefined, midi: undefined, osc: undefined })[0]).toBeCloseTo(0.25, 5)
   })
 
   it('in the shader it uses iTime by default', () => {
