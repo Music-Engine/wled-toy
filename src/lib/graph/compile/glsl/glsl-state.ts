@@ -9,6 +9,8 @@ export function stateLayers(program: Program): number {
   return offsets.reduce((layers, offset) => Math.max(layers, Math.floor(offset / 4) + 1), 0)
 }
 
+// The shader declares iState itself because it is not a prelude uniform: a host that renders this shader without
+// binding the previous frame's state array reads 0 in every slot, which the bundle's contract cannot promise for it.
 export function stateTargets(layers: number): string[] {
   if (layers === 0) return []
   return ['uniform highp sampler2DArray iState;', ...Array.from({ length: layers }, (_, i) => `layout(location = ${i + 1}) out vec4 outState${i + 1};`), '']
