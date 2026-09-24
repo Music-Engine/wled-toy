@@ -205,10 +205,31 @@ inline vec3 cross(vec3 a, vec3 b) { return vec3(a.y * b.z - a.z * b.y, a.z * b.x
 // A pixel state slot of two or more floats, which GLSL writes as a run of one state layer's components (outState1.yzw),
 // read as a vector and assigned in place. A proxy, not a swizzle member: a union member's assignment has to stay trivial,
 // so assigning one swizzle to another of its type would copy the whole layer.
+// A slot's components as references into its layer, as many as it has, so a body can read or write one
+// (outState1.yzw.x) as GLSL allows.
+template <int N>
+struct slotComponents;
+template <>
+struct slotComponents<2> {
+  float &x, &y;
+  slotComponents(vec4& layer, int first) : x(layer.c[first]), y(layer.c[first + 1]) {}
+};
+template <>
+struct slotComponents<3> {
+  float &x, &y, &z;
+  slotComponents(vec4& layer, int first) : x(layer.c[first]), y(layer.c[first + 1]), z(layer.c[first + 2]) {}
+};
+template <>
+struct slotComponents<4> {
+  float &x, &y, &z, &w;
+  slotComponents(vec4& layer, int first) : x(layer.c[first]), y(layer.c[first + 1]), z(layer.c[first + 2]), w(layer.c[first + 3]) {}
+};
+
 template <class V>
-struct stateSlot {
+struct stateSlot : slotComponents<components<V>()> {
   vec4& layer;
   int first;
+  stateSlot(vec4& layer, int first) : slotComponents<components<V>()>(layer, first), layer(layer), first(first) {}
   operator V() const {
     V v;
     for (int i = 0; i < components<V>(); i++) v.c[i] = layer.c[first + i];

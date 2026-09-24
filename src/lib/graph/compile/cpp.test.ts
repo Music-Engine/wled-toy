@@ -14,7 +14,7 @@ import { GraphError } from './program'
 // the registry has no hook for kinds of its own, so the test kinds are served beside the catalog
 vi.mock('@/lib/graph/registry', async (importOriginal) => {
   const registry = await importOriginal<typeof import('@/lib/graph/registry')>()
-  const { Color, defineNode, Float } = await import('@/lib/graph/authoring')
+  const { Color, defineNode, Float, swizzle } = await import('@/lib/graph/authoring')
   const kinds = [
     defineNode('stateFloat', {
       title: 'State Float', description: 'test', category: 'signal', stateScope: 'pixel',
@@ -30,6 +30,15 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
       pixel: ({ color }, ctx) => {
         ctx.emit(`${ctx.state.tint.expr} = mix(${ctx.state.tint.expr}, ${color.expr}, 0.5);`)
         return { color: ctx.state.tint }
+      },
+    }),
+    // the float slot pushes the color to .yzw, so a component of it is a component of a run
+    defineNode('stateComponent', {
+      title: 'State Component', description: 'test', category: 'signal', stateScope: 'pixel',
+      input: { rate: Float }, output: { value: Float }, state: { count: Float, tint: Color },
+      pixel: ({ rate }, ctx) => {
+        ctx.emit(`${ctx.state.tint.expr}.y += ${rate.expr};`)
+        return { value: swizzle(ctx.state.tint, 'x') }
       },
     }),
   ]
@@ -84,6 +93,15 @@ describe('cpp', () => {
     expect(code).toContain('vec4 pixelState[ledCount][1] = {};')
     expect(code).not.toMatch(/iState|outState\d+;/)
     const { status, output } = buildCpp(code.replace('#include "../wledtoy.h"', '#include "wledtoy.h"'), { run: false })
+    expect(status, output).toBe(0)
+  })
+
+  it.skipIf(!cppCompiler)('reads and writes one component of a multi-float state slot (needs g++ or c++ on PATH)', () => {
+    const doc = graph([node('s', 'stateComponent'), node('o', 'output')], [['s.value', 'o.color']])
+    const code = cpp(buildProgram(doc, {}), { leds: 60 })
+    expect(code).toContain('stateSlot<vec3>{outState1, 1}.y += ')
+    expect(code).toContain('stateSlot<vec3>{outState1, 1}.x')
+    const { status, output } = buildCpp(code, { run: false })
     expect(status, output).toBe(0)
   })
 
