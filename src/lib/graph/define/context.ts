@@ -37,8 +37,13 @@ export interface FrameContext<S = any> extends FrameInfo {
   resolved: Record<string, unknown>
 }
 
-export interface NodeContext {
+export interface NodeContext<S = Record<string, Value>> {
   nodeId: string
+  /**
+   * A pixel-scope node's slots, each a GLSL lvalue holding the value the slot had last frame until the body assigns
+   * it: read it as any value, write it with `emit`.
+   */
+  state: S
   /** What the node's `resolve` returned. */
   resolved: Record<string, unknown>
   /** The type this node's generic sockets resolved to. */

@@ -2,6 +2,7 @@ import { titleCase, type CategoryId } from '@/lib/shader/glsl'
 import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { NodeItem, NodePreset, NodeShape, OutputSocket, Socket, WidgetProps } from './shape'
 import { isImplicit, type DataType } from './types'
+import type { Value } from './value'
 
 /**
  * A type alone, or a type with options. Unlinked, a socket uses `default`: a literal the user can edit or an implicit
@@ -33,6 +34,8 @@ export type Outputs<O, V extends 'frame' | 'pixel'> = { [K in keyof O]: { frame:
 export type StateDef = Record<string, DataType<any, any, any>>
 /** What a frame body finds in `info.state` for a slot declaration. */
 export type State<S extends StateDef> = { -readonly [K in keyof S]: Required<S[K]>['_frame'] }
+/** What a pixel body finds in `ctx.state` for a slot declaration. */
+export type PixelState<S extends StateDef> = { readonly [K in keyof S]: Value }
 
 export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
   title: string
@@ -46,8 +49,8 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
   includes?: GlslChunk[]
   input: I
   output: O
-  /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader. */
-  pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext): Outputs<O, 'pixel'>
+  /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader, and can hold pixel-scope `state`. */
+  pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext<PixelState<S>>): Outputs<O, 'pixel'>
   /**
    * Once per frame, in JS. A node with only `frame` can hold frame-scope `state`, and its inputs must not vary per pixel. A node with
    * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise.
@@ -59,9 +62,12 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
    * `resources` is what earlier nodes registered, for a node whose result depends on the index its config gets.
    */
   resolve?(input: Inputs<I, 'pixel'>, resources: Resources): ResolveResult
-  /** Slots that start at their type's zero. Frame-scope state survives recompiles for as long as the node exists. */
+  /**
+   * Slots that start at their type's zero. Frame-scope state survives recompiles for as long as the node exists;
+   * pixel-scope state starts over on every recompile, resize and clock reset.
+   */
   state?: S
-  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED. */
+  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). */
   stateScope?: 'frame' | 'pixel'
   presets?: NodePreset[]
 }
@@ -90,8 +96,7 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
   { title, signature, isOutput, includes, input, output, pixel, frame, state, stateScope = 'frame', resolve }: NodeItemOptions<I, O, S>,
 ): NodeShape {
   if (!pixel && !frame && !resolve) throw new Error(`${id}: a node needs pixel, frame or resolve`)
-  if (state && stateScope === 'pixel') throw new Error(`${id}: pixel-scope state is not implemented`)
-  if (state && pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; the shader has nowhere to keep it`)
+  if (state) checkState(id, state, stateScope, { pixel, frame })
   return {
     title,
     signature: signature ?? '',
@@ -106,6 +111,18 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     stateScope: state && stateScope,
   }
 }
+
+function checkState(id: string, state: StateDef, scope: 'frame' | 'pixel', bodies: { pixel?: unknown; frame?: unknown }): void {
+  if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; the shader has nowhere to keep it`)
+  if (scope === 'frame') return
+  if (bodies.frame || !bodies.pixel) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
+  for (const [name, type] of Object.entries(state)) {
+    if (!keepsPerPixel(type)) throw new Error(`${id}.${name}: pixel-scope state holds a number or a vector of 1 to 4 components, not ${type.label}`)
+  }
+}
+
+// the state targets hold floats only, four to a layer
+const keepsPerPixel = (type: DataType<any>) => type.kind === 'value' && type.dim !== undefined && type.dim >= 1 && type.dim <= 4
 
 function buildInputSocket(item: string, name: string, def: InputDef): Socket {
   const options: SocketDef = 'type' in def ? def : { type: def }

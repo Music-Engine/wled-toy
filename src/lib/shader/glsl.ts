@@ -1,6 +1,9 @@
 /** Size of the uniform block graph mode fills from the CPU each frame: this many vec4, four floats each. */
 export const CONTROL_VECTORS = 64
 
+/** Layers of per-pixel state a shader can write, as `outState1` on: WebGL2 guarantees 4 draw buffers and the color takes one. */
+export const STATE_TARGETS = 3
+
 /** Analyses a graph can run besides the default one; each has its own band and history texture. */
 export const AUDIO_EXTRA_SLOTS = 3
 

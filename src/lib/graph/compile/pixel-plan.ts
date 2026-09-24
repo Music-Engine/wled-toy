@@ -1,11 +1,12 @@
 // The per-pixel side of the Program: which nodes the shader emits, in the order it emits them, and where each of their
 // inputs comes from.
-import type { Socket } from '@/lib/graph/define/shape'
+import { STATE_TARGETS } from '@/lib/shader/glsl'
+import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { fallsBackToImplicit } from '@/lib/graph/registry'
-import { isGenericSocket, storedValue, type FrontEnd } from './front-end'
+import { isGenericSocket, slotTypes, storedValue, type FrontEnd } from './front-end'
 import { glslForm } from './glsl'
-import { GraphError, type PixelInput, type PixelSource } from './program'
+import { GraphError, type PixelInput, type PixelSource, type ProgramState } from './program'
 import { settledStreams } from './streams'
 import { perFrameSource } from './uniforms'
 
@@ -20,7 +21,22 @@ export function emitPixel(c: FrontEnd, id: string): void {
   c.leave(id)
   c.emitted.add(id)
   c.record(id)
+  // a node with frame-scope state has no pixel body, so any state here is pixel-scope
+  if (shape.state) c.program.state[id] = packState(c, id, shape.state)
   c.program.pixel.push({ node: id, inputs })
+}
+
+/** Hands out the next state floats in the order nodes are emitted; a vector that would straddle two layers starts the next one. */
+function packState(c: FrontEnd, id: string, state: NonNullable<NodeShape['state']>): ProgramState {
+  const offsets: Record<string, number> = {}
+  for (const [name, type] of Object.entries(state)) {
+    const dim = type.dim!
+    const start = (c.stateFloats % 4) + dim > 4 ? Math.ceil(c.stateFloats / 4) * 4 : c.stateFloats
+    if (start + dim > STATE_TARGETS * 4) throw new GraphError(`Too many pixel state values reach the shader; it keeps ${STATE_TARGETS * 4}`, id)
+    offsets[name] = start
+    c.stateFloats = start + dim
+  }
+  return { scope: 'pixel', slots: slotTypes(state), offsets }
 }
 
 /** What `pixel` gets on a socket: the settled stream, the stored value, or a linkable value cast to the socket's type. */

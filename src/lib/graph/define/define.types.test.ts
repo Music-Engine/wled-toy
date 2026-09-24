@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { DEFAULT_OUTPUT } from '@/lib/engine/output'
 import type { ResolveResult } from './context'
 import type { NodeItemOptions } from './define'
-import { AudioStream, Bool, Enum, Float, GenType, Int, Vec3 } from './socket-types'
+import { AudioStream, Bool, Color, Enum, Float, GenType, Int, Vec3 } from './socket-types'
 import type { Value } from './value'
 
 const input = {
@@ -85,6 +85,15 @@ describe('what a frame body finds in info.state', () => {
       return { level: slots.count, result: 0 }
     }) satisfies StatefulFrame
     expectTypeOf(body).toBeFunction()
+  })
+})
+
+describe('what a pixel body finds in ctx.state', () => {
+  const state = { level: Float, tint: Color }
+  type StatefulPixel = NonNullable<NodeItemOptions<typeof input, typeof output, typeof state>['pixel']>
+
+  it('gets each slot as a GLSL value it assigns through emit', () => {
+    expectTypeOf<Parameters<StatefulPixel>[1]['state']>().toEqualTypeOf<{ readonly level: Value; readonly tint: Value }>()
   })
 })
 

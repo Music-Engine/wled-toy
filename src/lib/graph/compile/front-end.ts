@@ -19,6 +19,11 @@ export interface CompileOptions {
 
 export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
 
+/** Slot name to type id, as the Program records a node's state. */
+export function slotTypes(state: NonNullable<NodeShape['state']>): Record<string, string> {
+  return Object.fromEntries(Object.entries(state).map(([name, type]) => [name, type.id]))
+}
+
 /** The value stored on the node for a socket, or its default; an invalid one is an error on the node. */
 export function storedValue(nodeId: string, data: GraphNodeData, socket: Socket): unknown {
   const raw = data.values[socket.name] ?? socket.default
@@ -44,6 +49,8 @@ export class FrontEnd {
   readonly dims = new Map<string, Record<string, number>>()
   readonly emitted = new Set<string>()
   readonly perFrameSources = new Map<string, PixelSource>()
+  /** Pixel state floats ./pixel-plan has handed out. */
+  stateFloats = 0
 
   private readonly nodes: Map<string, StoredNode>
   private readonly incoming: Map<string, NodeGraph['edges'][number]>
