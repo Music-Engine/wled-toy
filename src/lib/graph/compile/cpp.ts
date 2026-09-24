@@ -22,9 +22,14 @@ export function cppDefinitions(program: Program, { leds }: CppOptions): string {
   const shader = glsl(program)
   if (shader.error) throw shader.errorNode ? new GraphError(shader.error, shader.errorNode) : new Error(shader.error)
   rejectGlslOnly(program)
+  return [`constexpr int ledCount = ${leds};`, ...pixelDefinitions(program, shader.code), ...RENDER_FRAME].join('\n')
+}
+
+/** The per-LED state array when the Program keeps pixel state, sized by a `ledCount` declared before it, and its GLSL `code` spelled for C++. */
+export function pixelDefinitions(program: Program, code: string): string[] {
   const layers = stateLayers(program)
   const state = layers ? [`vec4 pixelState[ledCount][${layers}] = {};`] : []
-  return [`constexpr int ledCount = ${leds};`, ...state, cppSource(pixelStateReads(shader.code)), ...RENDER_FRAME].join('\n')
+  return [...state, cppSource(pixelStateReads(code))]
 }
 
 function rejectFrameSteps(program: Program): void {

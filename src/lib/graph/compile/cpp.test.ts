@@ -2,11 +2,12 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
-import { allItems } from '@/lib/graph/registry'
+import { allItems, itemFor } from '@/lib/graph/registry'
 import { alone, graph, node } from '@/lib/graph/testing'
 import { buildCpp, cppCompiler } from '@/lib/graph/testing/cpp'
 import { buildProgram, type CompileOptions } from './compile'
 import { cpp } from './cpp'
+import { cppUnit } from './cpp-unit'
 import { glsl } from './glsl'
 import { GraphError } from './program'
 
@@ -75,6 +76,14 @@ describe('cpp', () => {
 
   it.skipIf(!cppCompiler)('compiles the pixel state unit with the cpp job\'s flags (needs g++ or c++ on PATH)', () => {
     const { status, output } = buildCpp(cpp(buildProgram(stateful, {}), { leds: 60 }), { run: false })
+    expect(status, output).toBe(0)
+  })
+
+  it.skipIf(!cppCompiler)('builds a pixel-scope kind into the C++ unit with its state read per LED, and compiles it (needs g++ or c++ on PATH)', () => {
+    const { code } = cppUnit([itemFor('stateColor')!])
+    expect(code).toContain('vec4 pixelState[ledCount][1] = {};')
+    expect(code).not.toMatch(/iState|outState\d+;/)
+    const { status, output } = buildCpp(code.replace('#include "../wledtoy.h"', '#include "wledtoy.h"'), { run: false })
     expect(status, output).toBe(0)
   })
 
