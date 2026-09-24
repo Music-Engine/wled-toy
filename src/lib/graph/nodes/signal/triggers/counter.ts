@@ -1,5 +1,5 @@
 import { Bool, defineNode, Float, Int } from '@/lib/graph/authoring'
-import { risingEdge } from './shared'
+import { risingEdge } from '@/lib/graph/nodes/shared/signal'
 
 export const counterNode = defineNode('counter', {
   title: 'Counter',

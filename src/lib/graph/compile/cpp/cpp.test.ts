@@ -5,11 +5,11 @@ import { readGraphFile } from '@/lib/graph/model/file'
 import { allItems, nodeItem } from '@/lib/graph/registry'
 import { alone, graph, node } from '@/lib/graph/testing'
 import { buildCpp, cppCompiler } from '@/lib/graph/testing/cpp'
-import { buildProgram, type CompileOptions } from './compile'
+import { buildProgram, type CompileOptions } from '@/lib/graph/compile/compile'
 import { cpp } from './cpp'
 import { cppUnit } from './cpp-unit'
-import { glsl } from './glsl'
-import { GraphError } from './program'
+import { glsl } from '@/lib/graph/compile/glsl/glsl'
+import { GraphError } from '@/lib/graph/compile/front-end/program'
 
 // the registry has no hook for kinds of its own, so the test kinds are served beside the catalog
 vi.mock('@/lib/graph/registry', async (importOriginal) => {
@@ -106,7 +106,7 @@ describe('cpp', () => {
   })
 
   it('reads only the Program, never the graph document', () => {
-    expect(readFileSync('src/lib/graph/compile/cpp.ts', 'utf8')).not.toMatch(/NodeGraph/)
+    expect(readFileSync('src/lib/graph/compile/cpp/cpp.ts', 'utf8')).not.toMatch(/NodeGraph/)
   })
 })
 

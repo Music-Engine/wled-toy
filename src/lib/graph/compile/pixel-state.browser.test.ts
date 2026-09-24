@@ -3,7 +3,7 @@ import { ShaderRenderer } from '@/lib/engine/renderer'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { graph, node } from '@/lib/graph/testing'
 import { generateGlsl } from './compile'
-import { FrameRunner } from './frame'
+import { FrameRunner } from '@/lib/graph/compile/js/frame'
 
 // the registry has no hook for kinds of its own, so the twins are served beside the catalog
 vi.mock('@/lib/graph/registry', async (importOriginal) => {

@@ -7,7 +7,7 @@ import type { ImplicitDefault } from '@/lib/graph/define/types'
 import { castTo, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
 import { stateLayers, stateLoads, stateSlots, stateTargets } from './glsl-state'
 import { glslForm } from './glsl-types'
-import { concreteType, GraphError, nodeShape, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode } from './program'
+import { concreteType, GraphError, nodeShape, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode } from '@/lib/graph/compile/front-end/program'
 
 /**
  * A node that fails here failed before anything the front end found after it, so its error wins over the Program's.

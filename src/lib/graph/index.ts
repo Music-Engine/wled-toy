@@ -1,4 +1,4 @@
-export { FrameRunner, type FramePlan, type FrameStep } from './compile/frame'
+export { FrameRunner, type FramePlan, type FrameStep } from './compile/js/frame'
 export { generateGlsl, type FrozenValue, type GeneratedShader, type GraphIssue } from './compile/compile'
 export { canCast, isImplicit, type DataType, type EnumOption } from './define/types'
 export { placement, type NodeItem, type NodeShape, type OutputSocket, type Socket } from './define/shape'

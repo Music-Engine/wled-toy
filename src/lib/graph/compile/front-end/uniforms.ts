@@ -3,7 +3,7 @@
 import { CONTROL_VECTORS } from '@/lib/shader/glsl'
 import type { FrontEnd } from './front-end'
 import { planStep } from './frame-plan'
-import { standaloneExpr } from './glsl'
+import { standaloneExpr } from '@/lib/graph/compile/glsl/glsl'
 import { GraphError, type PixelSource } from './program'
 
 /** Only outputs the shader links to get a slot; undefined when a standalone output carries no number. */

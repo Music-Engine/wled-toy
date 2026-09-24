@@ -1,6 +1,6 @@
 import { Color, defineNode, Float } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
-import { checkerTextureChunk } from './checker-texture-chunk'
+import { checkerTextureChunk } from './chunks/checker-texture-chunk'
 
 export const checkerTextureNode = defineNode('checkerTexture', {
   title: 'Checker Texture',

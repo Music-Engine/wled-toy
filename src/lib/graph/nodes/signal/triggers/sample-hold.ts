@@ -1,5 +1,5 @@
 import { Bool, defineNode, Float } from '@/lib/graph/authoring'
-import { risingEdge } from './shared'
+import { risingEdge } from '@/lib/graph/nodes/shared/signal'
 
 export const sampleHoldNode = defineNode('sampleHold', {
   title: 'Sample and Hold',

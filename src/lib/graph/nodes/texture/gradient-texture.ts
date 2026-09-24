@@ -1,6 +1,6 @@
 import { Color, defineNode, Enum, enumIndex, Float } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
-import { gradientTextureChunk } from './gradient-texture-chunk'
+import { gradientTextureChunk } from './chunks/gradient-texture-chunk'
 
 const TYPES = [
   { value: 'linear', label: 'Linear' }, { value: 'quadratic', label: 'Quadratic' }, { value: 'easing', label: 'Easing' }, { value: 'diagonal', label: 'Diagonal' },

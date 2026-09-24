@@ -6,7 +6,7 @@ import { MATH_OPS } from '@/lib/graph/nodes/converter/math'
 import { VECTOR_OPS } from '@/lib/graph/nodes/converter/vector-math'
 import { nodeItem } from '@/lib/graph/registry'
 import { graph, node } from '@/lib/graph/testing'
-import { buildProgram } from './compile'
+import { buildProgram } from '@/lib/graph/compile/compile'
 import { cppDefinitions } from './cpp'
 
 export function cppParity(): ParityUnit {

@@ -1,25 +1,25 @@
 // generateGlsl: compiles a graph into a shader plus the plan for what is evaluated once per frame in JS.
-// The front end places each node per frame or per pixel (./placement), infers generic widths (./width), settles streams
-// (./streams), and walks the sinks into a plain-data Program (./frame-plan, ./pixel-plan, ./uniforms). The GLSL backend
-// (./glsl) and the JS backend (./js) read only that Program; the GLSL backend also records on it what each pixel body
-// declared through `ctx.require`, since bodies run only there.
+// The front end places each node per frame or per pixel (front-end/placement), infers generic widths (front-end/width),
+// settles streams (front-end/streams), and walks the sinks into a plain-data Program (front-end/frame-plan, pixel-plan,
+// uniforms). The GLSL backend (glsl/glsl) and the JS backend (js/js) read only that Program; the GLSL backend also
+// records on it what each pixel body declared through `ctx.require`, since bodies run only there.
 import { nodeItem } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
-import type { FramePlan } from './frame'
-import { planStep } from './frame-plan'
-import { FrontEnd, type CompileOptions } from './front-end'
-import { glsl, type GlslShader } from './glsl'
-import { js } from './js'
-import { emitPixel } from './pixel-plan'
-import { placeNodes } from './placement'
-import { GraphError, type Program } from './program'
-import { resolveNode } from './streams'
-import { inferWidths } from './width'
+import type { FramePlan } from '@/lib/graph/compile/js/frame'
+import { planStep } from '@/lib/graph/compile/front-end/frame-plan'
+import { FrontEnd, type CompileOptions } from '@/lib/graph/compile/front-end/front-end'
+import { glsl, type GlslShader } from '@/lib/graph/compile/glsl/glsl'
+import { js } from '@/lib/graph/compile/js/js'
+import { emitPixel } from '@/lib/graph/compile/front-end/pixel-plan'
+import { placeNodes } from '@/lib/graph/compile/front-end/placement'
+import { GraphError, type Program } from '@/lib/graph/compile/front-end/program'
+import { resolveNode } from '@/lib/graph/compile/front-end/streams'
+import { inferWidths } from '@/lib/graph/compile/front-end/width'
 
-export type { CompileOptions } from './front-end'
-export type { FrozenValue } from './glsl'
-export { glslForm } from './glsl-types'
-export type { GraphIssue } from './program'
+export type { CompileOptions } from '@/lib/graph/compile/front-end/front-end'
+export type { FrozenValue } from '@/lib/graph/compile/glsl/glsl'
+export { glslForm } from '@/lib/graph/compile/glsl/glsl-types'
+export type { GraphIssue } from '@/lib/graph/compile/front-end/program'
 
 export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): GeneratedShader {
   const program = buildProgram(doc, options)

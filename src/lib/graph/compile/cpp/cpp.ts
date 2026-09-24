@@ -4,9 +4,9 @@
 // Frame bodies are JavaScript functions and have no C++ twin, so a Program with frame steps is rejected rather than
 // half-built. With no frame steps there is no uniform block either: the per-frame function only fills the header's
 // environment and shades every LED, and pixel state lives in an array that keeps one set of state layers per LED.
-import { glsl } from './glsl'
-import { stateLayers } from './glsl-state'
-import { GraphError, nodeShape, type Program } from './program'
+import { glsl } from '@/lib/graph/compile/glsl/glsl'
+import { stateLayers } from '@/lib/graph/compile/glsl/glsl-state'
+import { GraphError, nodeShape, type Program } from '@/lib/graph/compile/front-end/program'
 
 export interface CppOptions {
   /** LEDs the usermod drives; pixel state is kept per LED, so it sizes the state array. */

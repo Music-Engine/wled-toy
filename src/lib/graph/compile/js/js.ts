@@ -1,6 +1,6 @@
 // The JS backend: the Program's frame steps with each node's `frame` body and state declaration looked up at build version.
 import type { FramePlan } from './frame'
-import { nodeShape, type Program } from './program'
+import { nodeShape, type Program } from '@/lib/graph/compile/front-end/program'
 
 export function js(program: Program): FramePlan {
   const steps = program.frame.map((step) => {

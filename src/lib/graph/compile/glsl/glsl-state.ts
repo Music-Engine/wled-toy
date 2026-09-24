@@ -1,7 +1,7 @@
 // The pixel-scope state layers: the render targets a shader writes its per-pixel state to, and where each slot sits in them.
 import type { NodeShape } from '@/lib/graph/define/shape'
 import { vectorType, type Value } from '@/lib/graph/define/value'
-import type { Program, ProgramState } from './program'
+import type { Program, ProgramState } from '@/lib/graph/compile/front-end/program'
 
 /** Layers the pixel-scope slots reach; a slot never straddles two, so its first float says which one it is in. */
 export function stateLayers(program: Program): number {

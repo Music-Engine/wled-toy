@@ -1,6 +1,6 @@
 import { Color, defineNode, Enum, enumIndex, Float } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
-import { waveTextureChunk } from './wave-texture-chunk'
+import { waveTextureChunk } from './chunks/wave-texture-chunk'
 
 const TYPES = [{ value: 'bands', label: 'Bands' }, { value: 'rings', label: 'Rings' }] as const
 const BANDS_DIRECTIONS = [{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }, { value: 'z', label: 'Z' }, { value: 'diagonal', label: 'Diagonal' }] as const

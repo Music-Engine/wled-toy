@@ -3,7 +3,7 @@
 import { Analyzer, type Features } from '@/lib/audio/dsp'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/service'
 import { AudioTextures } from '@/lib/audio/textures'
-import type { FramePlan } from '@/lib/graph/compile/frame'
+import type { FramePlan } from '@/lib/graph/compile/js/frame'
 
 export const SAMPLE_RATE = 48000
 export const FPS = 30

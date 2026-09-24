@@ -18,8 +18,11 @@ function nodesAllow(file: string, from: string): boolean {
 const defineAllows = (file: string, from: string) =>
   from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
+// outside compile/ only its entry points are reachable: the compiler, and the frame runner the engine steps
+const COMPILE_ENTRIES = /(^|\/)compile\/(compile|js\/frame)$/
+
 const stageAllows = (file: string, from: string) =>
-  file.startsWith('compile/') || !/(^|\/)compile\/(program|front-end|streams|placement|width|frame-plan|pixel-plan|uniforms|glsl|glsl-types|glsl-state|js|cpp)$/.test(from)
+  file.startsWith('compile/') || !/(^|\/)compile\//.test(from) || COMPILE_ENTRIES.test(from)
 
 const RULES = [
   { rule: 'nodes', covers: (file: string) => file.startsWith('nodes/'), allows: nodesAllow },
@@ -47,7 +50,7 @@ it('graph files import only across the boundaries the module allows', () => {
 
 it('reports a forbidden import in a node file', () => {
   expect(violations(FIXTURES)).toEqual([
-    'nodes: nodes/leak.ts imports @/lib/graph/compile/glsl',
-    'compile stages: nodes/leak.ts imports @/lib/graph/compile/glsl',
+    'nodes: nodes/leak.ts imports @/lib/graph/compile/glsl/glsl',
+    'compile stages: nodes/leak.ts imports @/lib/graph/compile/glsl/glsl',
   ])
 })

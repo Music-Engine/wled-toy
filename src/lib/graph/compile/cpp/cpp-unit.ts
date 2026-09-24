@@ -3,9 +3,9 @@
 import type { NodeItem } from '@/lib/graph/define/shape'
 import { allItems } from '@/lib/graph/registry'
 import { alone } from '@/lib/graph/testing'
-import { buildProgram } from './compile'
+import { buildProgram } from '@/lib/graph/compile/compile'
 import { pixelDefinitions } from './cpp'
-import { glsl } from './glsl'
+import { glsl } from '@/lib/graph/compile/glsl/glsl'
 
 export function cppUnit(items: readonly NodeItem[] = allItems()): CppUnit {
   const kinds = items.map((item) => ({ id: item.id, ...standaloneCode(item) }))

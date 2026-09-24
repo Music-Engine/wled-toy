@@ -1,5 +1,5 @@
 import { Bool, defineNode, Float, Int, Text } from '@/lib/graph/authoring'
-import { risingEdge } from './shared'
+import { risingEdge } from '@/lib/graph/nodes/shared/signal'
 
 const parse = (steps: string) => steps.split(/[\s,]+/).map(Number).filter(Number.isFinite)
 

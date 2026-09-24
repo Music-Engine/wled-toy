@@ -1,12 +1,12 @@
 import { layoutPositions, type Layout } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl, type GeneratedShader } from '@/lib/graph/compile/compile'
-import { FrameRunner } from '@/lib/graph/compile/frame'
+import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import type { NodeItem } from '@/lib/graph/define/shape'
 import { Color } from '@/lib/graph/define/socket-types'
 import { canCast } from '@/lib/graph/define/types'
 import { GRAPH_NODE_TYPE, GRAPH_VERSION, type NodeGraph, type SocketValue, type StoredEdge, type StoredNode } from '@/lib/graph/model/doc'
-export { initialState } from '@/lib/graph/compile/frame'
+export { initialState } from '@/lib/graph/compile/js/frame'
 
 /** Compiles a graph through a real WebGL2 context and renders one LED frame. Browser tests only. */
 export function renderGraph(doc: NodeGraph, { leds = 8, time = 0, frame = 0, scanY = 0.5, dt = 1 / 30, layout = null as Layout | null } = {}): RenderedGraph {

@@ -13,8 +13,8 @@ const load = async <T>(path: string) =>
     resolve: { alias: { '@': fileURLToPath(new URL('src', root)) } },
     logLevel: 'warn',
   })).module
-const { cppUnit } = await load<typeof import('@/lib/graph/compile/cpp-unit')>('/src/lib/graph/compile/cpp-unit.ts')
-const { cppParity } = await load<typeof import('@/lib/graph/compile/cpp-parity')>('/src/lib/graph/compile/cpp-parity.ts')
+const { cppUnit } = await load<typeof import('@/lib/graph/compile/cpp/cpp-unit')>('/src/lib/graph/compile/cpp/cpp-unit.ts')
+const { cppParity } = await load<typeof import('@/lib/graph/compile/cpp/cpp-parity')>('/src/lib/graph/compile/cpp/cpp-parity.ts')
 const { code, excluded } = cppUnit()
 const parity = cppParity()
 mkdirSync(new URL('cpp/generated/', root), { recursive: true })

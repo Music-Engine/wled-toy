@@ -1,6 +1,6 @@
 import { Color, defineNode, Float, Int } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
-import { magicTextureChunk } from './magic-texture-chunk'
+import { magicTextureChunk } from './chunks/magic-texture-chunk'
 
 export const magicTextureNode = defineNode('magicTexture', {
   title: 'Magic Texture',

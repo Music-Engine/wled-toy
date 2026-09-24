@@ -5,7 +5,7 @@ import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
 import { nodeItem } from '@/lib/graph/registry'
-import type { FrameStep } from './frame'
+import type { FrameStep } from '@/lib/graph/compile/js/frame'
 
 export interface GraphIssue {
   nodeId: string | null

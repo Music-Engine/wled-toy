@@ -1,6 +1,6 @@
 import { Color, defineNode, Float, fmt, Int } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
-import { brickTextureChunk } from './brick-texture-chunk'
+import { brickTextureChunk } from './chunks/brick-texture-chunk'
 
 const amount = { min: 0, step: 0.01, decimals: 2 }
 const frequency = { min: 1, step: 1, decimals: 0 }

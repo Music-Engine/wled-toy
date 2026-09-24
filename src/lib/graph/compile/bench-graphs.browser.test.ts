@@ -6,7 +6,7 @@ import { commands } from 'vitest/browser'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'
-import { FrameRunner } from './frame'
+import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { FPS, SAMPLE_RATE, feedSlots, openSlots, synthTrack } from '@/lib/graph/testing/offline'
 

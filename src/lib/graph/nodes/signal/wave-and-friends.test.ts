@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 import type { NodeItem } from '@/lib/graph/authoring'
 import { FrameRunner, generateGlsl, nodeItem } from '@/lib/graph'
 import { graph, initialState, node } from '@/lib/graph/testing'
-import { clockDividerNode } from './clock-divider'
+import { clockDividerNode } from './triggers/clock-divider'
 import { integratorNode } from './integrator'
-import { stepSequencerNode } from './step-sequencer'
+import { stepSequencerNode } from './triggers/step-sequencer'
 import { waveNode } from './wave'
 
 const frame = (n: number, fps = 30, state?: unknown, resolved = {}) => ({ time: n / fps, dt: 1 / fps, frameIndex: n, audio: undefined, midi: undefined, osc: undefined, state, resolved })
