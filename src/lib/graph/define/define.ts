@@ -1,41 +1,27 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
 import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
+import type { Inputs, Outputs, PixelState, State, StateDef } from './infer'
 import type { NodeItem, NodePreset, NodeShape, OutputSocket, Rate, Socket, WidgetProps } from './shape'
 import { isImplicit, type DataType } from './types'
-import type { Value } from './value'
 
 /**
- * A type alone, or a type with options. Unlinked, a socket uses `default`: a literal the user can edit or an implicit
- * expression. `linkable: false` keeps the socket on the node, and both bodies receive the stored value.
+ * Defines a graph node: its sockets, how they are edited, and the GLSL it emits. Input order is the order rows appear
+ * on the node. Given a function, the definition is rebuilt from the node's stored values whenever they change, so a
+ * parameter can turn the node into a different shape.
  */
-export type InputDef = DataType<any, any, any> | SocketDef
-
-interface SocketDef {
-  type: DataType<any, any, any>
-  /** Shown next to the socket; an empty string hides the label. Defaults to the socket name in Title Case. */
-  label?: string
-  /** Extra props for the widget that edits this socket while it is unlinked; a function when they depend on the node's other values. */
-  props?: WidgetProps
-  linkable?: boolean
-  default?: unknown
+export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S extends StateDef = {}>(
+  id: string,
+  definition: NodeItemOptions<I, O, S> | ((values: Record<string, any>) => NodeItemOptions<I, O, S>),
+): NodeItem {
+  const options = typeof definition === 'function' ? definition : () => definition
+  const base = toShape(id, options({}))
+  const { description, category, presets } = options({})
+  return {
+    id, description, category, base, presets,
+    title: base.title,
+    shape: typeof definition === 'function' ? (values) => toShape(id, options(values)) : () => base,
+  }
 }
-
-export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any>; label?: string }
-
-type SocketType<D> = Required<D extends { type: infer T extends DataType<any, any, any> } ? T : Extract<D, DataType<any, any, any>>>
-type Inputs<I, V extends Rate> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { linkable: false } ? '_frame' : `_${V}`] }
-/**
- * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `frame` may
- * return either. A union rather than `Readonly` alone, which turns `any` into an object type.
- */
-type Outputs<O, V extends Rate> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
-
-/** A node's state: named slots, each holding a value of its type between frames. */
-type StateDef = Record<string, DataType<any, any, any>>
-/** What a frame body finds in `info.state` for a slot declaration. */
-type State<S extends StateDef> = { -readonly [K in keyof S]: Required<S[K]>['_frame'] }
-/** What a pixel body finds in `ctx.state` for a slot declaration. */
-type PixelState<S extends StateDef> = { readonly [K in keyof S]: Value }
 
 export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
   title: string
@@ -73,23 +59,22 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
 }
 
 /**
- * Defines a graph node: its sockets, how they are edited, and the GLSL it emits. Input order is the order rows appear
- * on the node. Given a function, the definition is rebuilt from the node's stored values whenever they change, so a
- * parameter can turn the node into a different shape.
+ * A type alone, or a type with options. Unlinked, a socket uses `default`: a literal the user can edit or an implicit
+ * expression. `linkable: false` keeps the socket on the node, and both bodies receive the stored value.
  */
-export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S extends StateDef = {}>(
-  id: string,
-  definition: NodeItemOptions<I, O, S> | ((values: Record<string, any>) => NodeItemOptions<I, O, S>),
-): NodeItem {
-  const options = typeof definition === 'function' ? definition : () => definition
-  const base = toShape(id, options({}))
-  const { description, category, presets } = options({})
-  return {
-    id, description, category, base, presets,
-    title: base.title,
-    shape: typeof definition === 'function' ? (values) => toShape(id, options(values)) : () => base,
-  }
+export type InputDef = DataType<any, any, any> | SocketDef
+
+interface SocketDef {
+  type: DataType<any, any, any>
+  /** Shown next to the socket; an empty string hides the label. Defaults to the socket name in Title Case. */
+  label?: string
+  /** Extra props for the widget that edits this socket while it is unlinked; a function when they depend on the node's other values. */
+  props?: WidgetProps
+  linkable?: boolean
+  default?: unknown
 }
+
+export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any>; label?: string }
 
 function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef>(
   id: string,
