@@ -280,7 +280,7 @@ function isValidConnection(c: Connection) {
   if (c.source === c.target) return false
   const from = outputSocket(dataOf(c.source), c.sourceHandle)
   const to = inputSocket(dataOf(c.target), c.targetHandle)
-  // a control-rate node computes once per frame, so nothing that exists only per pixel can feed it
+  // a per-frame node computes once per frame, so nothing that exists only per pixel can feed it
   const perPixelIntoControl = placement(storedShape(dataOf(c.source))!) === 'pixel' && placement(storedShape(dataOf(c.target))!) === 'frame'
   return !!from && !!to && canCast(from.type, to.type) && !perPixelIntoControl
 }

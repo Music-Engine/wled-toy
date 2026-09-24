@@ -98,7 +98,7 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
 }
 
 function checkState(id: string, state: StateDef, scope: Rate, bodies: { pixel?: unknown; frame?: unknown }): void {
-  if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; the shader has nowhere to keep it`)
+  if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; a pixel body needs stateScope pixel`)
   if (scope === 'frame') return
   if (bodies.frame || !bodies.pixel) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
   for (const [name, type] of Object.entries(state)) {

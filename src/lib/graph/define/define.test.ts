@@ -29,6 +29,6 @@ describe('node state at definition time', () => {
   })
 
   it('still refuses frame-scope state on a node with a pixel body', () => {
-    expect(define({ state: { a: Float }, pixel, frame })).toThrow('t: only a frame-only node can hold frame-scope state; the shader has nowhere to keep it')
+    expect(define({ state: { a: Float }, pixel, frame })).toThrow('t: only a frame-only node can hold frame-scope state; a pixel body needs stateScope pixel')
   })
 })

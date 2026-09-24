@@ -17,7 +17,7 @@ const connectedHandles = inject(connectedHandlesKey, null)
 const kind = computed(() => nodeItem(props.data.kind))
 // the node's sockets and code follow its values (a Math node changes with its operation)
 const item = computed(() => kind.value?.shape(props.data.values))
-// control-rate sockets are diamonds, like Blender's per-object (not per-point) fields
+// per-frame sockets are diamonds, like Blender's per-object (not per-point) fields
 const shape = computed(() => (item.value && placement(item.value) === 'frame' ? 'diamond' : 'circle'))
 // so are streams: they are settled before a single pixel is drawn
 const storedShape = (type: DataType<any>) => (shape.value === 'diamond' || type.kind === 'stream' ? 'diamond' : 'circle')
