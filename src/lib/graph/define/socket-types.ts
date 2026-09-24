@@ -18,7 +18,7 @@ export const GenType: DataType<number | number[], number | number[], Value> = {
   kind: 'value',
   check: (raw): raw is number | number[] => isFiniteNumber(raw) || isVector()(raw),
   initial: () => 0.5,
-  castableFrom: NUMERIC.filter((other) => other !== 'genType'),
+  castableFrom: numericCasts('genType'),
 }
 
 export const Sampler2D: DataType<never, never, Value> = {
@@ -48,7 +48,12 @@ export const AudioStream = stream<{ source: true }>('audio', 'Audio')
 export const SpectrumStream = stream<{ slot: number }>('spectrum', 'Spectrum')
 
 function numeric<T>(id: string, label: string, dim: number, check: (raw: unknown) => raw is T, initial: () => T): DataType<T, T, Value> {
-  return { id, label, kind: 'value', check, initial, castableFrom: NUMERIC.filter((other) => other !== id), dim }
+  return { id, label, kind: 'value', check, initial, castableFrom: numericCasts(id), dim }
+}
+
+/** The numeric types that cast to `id`: all of them but itself. */
+function numericCasts(id: string): string[] {
+  return NUMERIC.filter((other) => other !== id)
 }
 
 function param<T>(id: string, label: string, check: (raw: unknown) => raw is T, initial: () => T): DataType<T> {

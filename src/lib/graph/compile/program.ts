@@ -57,14 +57,14 @@ export interface ProgramNode {
  * Slot name to type id, not the type: the Program stays plain data, and a backend that needs more than the id (an Enum's
  * first option) reads the declaration at build version, as it reads the bodies.
  */
-export type ProgramState =
-  | { scope: 'frame'; slots: Record<string, string> }
+export type ProgramState = { slots: Record<string, string> } & (
+  | { scope: 'frame' }
   | {
     scope: 'pixel'
-    slots: Record<string, string>
     /** The state float each slot starts at: float k is component k % 4 of `outState<k / 4 + 1>`. */
     offsets: Record<string, number>
   }
+)
 
 export type ProgramStep = Omit<FrameStep, 'kind' | 'frame' | 'state' | 'resolved'>
 

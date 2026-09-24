@@ -53,6 +53,7 @@ function pixelStateReads(code: string): string {
 
 // C++ spells a GLSL `out` parameter as a reference. A node variable (`n_` prefix) holds an output whether or not
 // anything reads it, so only a stray local of a body or chunk is reported as unused.
+// These rewrites match text across the whole source, which is sound only because bodies emit no string literals, so `out float ` can only be a parameter.
 export const cppSource = (code: string) =>
   code.replace(/\bout\s+(float|int|vec[234])\s/g, '$1& ').replace(/\b(float|int|vec[234]) (n_\w+)(?=\s*[=;])/g, '[[maybe_unused]] $1 $2')
 
