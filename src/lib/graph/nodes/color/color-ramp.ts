@@ -41,27 +41,37 @@ function splineControls(colors: number[][]): number[][] {
 export function sampleRamp(ramp: ColorRamp, fac: number): number[] {
   const stops = sorted(ramp)
   if (stops.length === 0) return [0, 0, 0]
-  const rgb = (stop: RampStop) => stop.color.slice(0, 3)
-  if (ramp.interpolation === 'spline' && stops.length > 1) {
-    const controls = splineControls(stops.map(rgb))
-    const x = Math.min(1, Math.max(0, fac)) * (stops.length - 1)
-    const i = Math.min(stops.length - 2, Math.floor(x))
-    const t = x - i
-    const weights = [(1 - t) ** 3, 3 * t ** 3 - 6 * t ** 2 + 4, -3 * t ** 3 + 3 * t ** 2 + 3 * t + 1, t ** 3]
-    return [0, 1, 2].map((k) => weights.reduce((sum, w, j) => sum + w * controls[i + j][k], 0) / 6)
-  }
-  let color = rgb(stops[0])
+  if (ramp.interpolation === 'spline' && stops.length > 1) return sampleSpline(stops, fac)
+  return sampleSegments(ramp, stops, fac)
+}
+
+function sampleSpline(stops: RampStop[], fac: number): number[] {
+  const controls = splineControls(stops.map((stop) => stop.color.slice(0, 3)))
+  const x = Math.min(1, Math.max(0, fac)) * (stops.length - 1)
+  const i = Math.min(stops.length - 2, Math.floor(x))
+  const t = x - i
+  const weights = [(1 - t) ** 3, 3 * t ** 3 - 6 * t ** 2 + 4, -3 * t ** 3 + 3 * t ** 2 + 3 * t + 1, t ** 3]
+  return [0, 1, 2].map((k) => weights.reduce((sum, w, j) => sum + w * controls[i + j][k], 0) / 6)
+}
+
+function sampleSegments(ramp: ColorRamp, stops: RampStop[], fac: number): number[] {
+  let color = stops[0].color.slice(0, 3)
   for (let i = 1; i < stops.length; i++) {
     const a = stops[i - 1]
     const b = stops[i]
     const span = b.position - a.position
     const linear = Math.min(1, Math.max(0, (fac - a.position) / span))
-    const weight = ramp.interpolation === 'constant' || span < 1e-4 ? Number(fac >= b.position)
-      : ramp.interpolation === 'ease' ? linear * linear * (3 - 2 * linear)
-        : linear
+    const blend = segmentBlend(ramp.interpolation, span)
+    const weight = blend === 'constant' ? Number(fac >= b.position) : blend === 'ease' ? linear * linear * (3 - 2 * linear) : linear
     color = color.map((c, k) => c + (b.color[k] - c) * weight)
   }
   return color
+}
+
+// smoothstep is undefined when both edges are equal, so coincident stops snap instead
+function segmentBlend(interpolation: RampInterpolation, span: number): 'constant' | 'ease' | 'linear' {
+  if (interpolation === 'constant' || span < 1e-4) return 'constant'
+  return interpolation === 'ease' ? 'ease' : 'linear'
 }
 
 const isStop = (raw: unknown): raw is RampStop => {
@@ -89,36 +99,39 @@ export function emitRamp(ctx: NodeContext, ramp: ColorRamp, fac: string): Value 
     return { expr: 'vec3(0.0)', type: 'vec3' }
   }
   const f = ctx.declare('float', fac, 'fac').expr
-  const literal = (color: number[]) => vectorLiteral(color.slice(0, 3)).expr
+  if (ramp.interpolation === 'spline' && stops.length > 1) return emitSpline(ctx, stops, f)
+  return emitSegments(ctx, ramp, stops, f)
+}
 
-  if (ramp.interpolation === 'spline' && stops.length > 1) {
-    const controls = splineControls(stops.map((s) => s.color))
-    const points = ctx.variable('points')
-    ctx.emit(`vec3 ${points}[${controls.length}] = vec3[${controls.length}](${controls.map(literal).join(', ')});`)
-    const x = ctx.declare('float', `clamp(${f}, 0.0, 1.0) * ${fmt(stops.length - 1)}`, 'x').expr
-    const i = ctx.declare('int', `min(int(${x}), ${stops.length - 2})`, 'i').expr
-    const t = ctx.declare('float', `${x} - float(${i})`, 't').expr
-    const t2 = `${t} * ${t}`
-    const t3 = `${t2} * ${t}`
-    return ctx.declare('vec3', `(pow(1.0 - ${t}, 3.0) * ${points}[${i}] + (3.0 * ${t3} - 6.0 * ${t2} + 4.0) * ${points}[${i} + 1] `
-      + `+ (-3.0 * ${t3} + 3.0 * ${t2} + 3.0 * ${t} + 1.0) * ${points}[${i} + 2] + ${t3} * ${points}[${i} + 3]) / 6.0`)
-  }
+function emitSpline(ctx: NodeContext, stops: RampStop[], f: string): Value {
+  const controls = splineControls(stops.map((s) => s.color))
+  const points = ctx.variable('points')
+  ctx.emit(`vec3 ${points}[${controls.length}] = vec3[${controls.length}](${controls.map(colorLiteral).join(', ')});`)
+  const x = ctx.declare('float', `clamp(${f}, 0.0, 1.0) * ${fmt(stops.length - 1)}`, 'x').expr
+  const i = ctx.declare('int', `min(int(${x}), ${stops.length - 2})`, 'i').expr
+  const t = ctx.declare('float', `${x} - float(${i})`, 't').expr
+  const t2 = `${t} * ${t}`
+  const t3 = `${t2} * ${t}`
+  return ctx.declare('vec3', `(pow(1.0 - ${t}, 3.0) * ${points}[${i}] + (3.0 * ${t3} - 6.0 * ${t2} + 4.0) * ${points}[${i} + 1] `
+    + `+ (-3.0 * ${t3} + 3.0 * ${t2} + 3.0 * ${t} + 1.0) * ${points}[${i} + 2] + ${t3} * ${points}[${i} + 3]) / 6.0`)
+}
 
-  const color = ctx.declare('vec3', literal(stops[0].color))
+function emitSegments(ctx: NodeContext, ramp: ColorRamp, stops: RampStop[], f: string): Value {
+  const color = ctx.declare('vec3', colorLiteral(stops[0].color))
   for (let i = 1; i < stops.length; i++) {
     const a = stops[i - 1]
     const b = stops[i]
     const span = b.position - a.position
-    // smoothstep is undefined when both edges are equal, so coincident stops snap instead
-    const weight = ramp.interpolation === 'constant' || span < 1e-4
-      ? `step(${fmt(b.position)}, ${f})`
-      : ramp.interpolation === 'ease'
-        ? `smoothstep(${fmt(a.position)}, ${fmt(b.position)}, ${f})`
+    const blend = segmentBlend(ramp.interpolation, span)
+    const weight = blend === 'constant' ? `step(${fmt(b.position)}, ${f})`
+      : blend === 'ease' ? `smoothstep(${fmt(a.position)}, ${fmt(b.position)}, ${f})`
         : `clamp((${f} - ${fmt(a.position)}) / ${fmt(span)}, 0.0, 1.0)`
-    ctx.emit(`${color.expr} = mix(${color.expr}, ${literal(b.color)}, ${weight});`)
+    ctx.emit(`${color.expr} = mix(${color.expr}, ${colorLiteral(b.color)}, ${weight});`)
   }
   return color
 }
+
+const colorLiteral = (color: number[]) => vectorLiteral(color.slice(0, 3)).expr
 
 export const colorRampNode = defineNode('colorRamp', {
   title: 'Color Ramp',
