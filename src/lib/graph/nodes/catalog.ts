@@ -25,6 +25,8 @@ function functionItem(fn: ShaderNode): NodeItem {
     input: Object.fromEntries(fn.params.map((param) => [param.name, inputFor(param)])),
     output: { out: { type: paramType(fn.output), label: fn.output.label } },
     pixel: (input, ctx) => {
+      // a function that takes a sampler samples it, and only GLSL has textures
+      if (fn.params.some((param) => param.type === 'sampler2D')) ctx.require('glsl')
       const args = fn.params.map((param) => input[param.name].expr)
       return { out: ctx.declare(fn.returns === 'genType' ? ctx.gen : fn.returns, `${fn.name}(${args.join(', ')})`) }
     },
