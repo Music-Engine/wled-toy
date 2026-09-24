@@ -1,6 +1,6 @@
 import { Color, defineNode, Float, Int, type GlslChunk } from '@/lib/graph/authoring'
 import { commonChunk } from '@/lib/graph/nodes/glsl/common'
-import { textureVector } from './vector'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 /** Blender magic texture (node_magic_texture.osl) in GLSL. */
 const magicTextureChunk: GlslChunk = {

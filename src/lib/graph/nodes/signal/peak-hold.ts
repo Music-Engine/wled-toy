@@ -1,5 +1,5 @@
 import { defineNode, Float } from '@/lib/graph/authoring'
-import { seconds } from './shared'
+import { seconds } from '@/lib/graph/nodes/shared/sockets'
 
 export const peakHoldNode = defineNode('peakHold', {
   title: 'Peak Hold',

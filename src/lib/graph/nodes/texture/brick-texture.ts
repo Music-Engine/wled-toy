@@ -1,5 +1,5 @@
 import { Color, defineNode, Float, fmt, Int, type GlslChunk } from '@/lib/graph/authoring'
-import { textureVector } from './vector'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 /** Blender brick texture (node_brick_texture.osl) in GLSL. */
 const brickTextureChunk: GlslChunk = {

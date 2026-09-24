@@ -1,5 +1,6 @@
 import { defineNode, Float } from '@/lib/graph/authoring'
-import { approach, seconds } from './shared'
+import { approach } from '@/lib/graph/nodes/shared/signal'
+import { seconds } from '@/lib/graph/nodes/shared/sockets'
 
 export const envelopeFollowerNode = defineNode('envelopeFollower', {
   title: 'Envelope Follower',

@@ -1,5 +1,5 @@
 import { Bool, defineNode, Enum, Float } from '@/lib/graph/authoring'
-import { seconds } from './shared'
+import { seconds } from '@/lib/graph/nodes/shared/sockets'
 
 const MODES = [{ value: 'adsr', label: 'ADSR (follows the gate)' }, { value: 'ad', label: 'AD (one shot)' }] as const
 const STAGES = [

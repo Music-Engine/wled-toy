@@ -1,5 +1,5 @@
 import { Color, defineNode, Float, type GlslChunk } from '@/lib/graph/authoring'
-import { textureVector } from './vector'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 /** Blender checker texture (node_checker_texture.osl) in GLSL. */
 const checkerTextureChunk: GlslChunk = {

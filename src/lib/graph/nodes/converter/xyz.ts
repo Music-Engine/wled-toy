@@ -1,4 +1,5 @@
 import { defineNode, Float, swizzle, Vec3 } from '@/lib/graph/authoring';
+import { textureVector } from '@/lib/graph/nodes/shared/sockets';
 
 export const combineXyzNode = defineNode('combineXYZ', {
   title: 'Combine XYZ',
@@ -18,7 +19,7 @@ export const separateXyzNode = defineNode('separateXYZ', {
   title: 'Separate XYZ',
   description: 'The three components of a vector.',
   category: 'converter',
-  input: { vector: { type: Vec3, default: { expr: 'vec3(uv, 0.0)', label: 'uv' } } },
+  input: { vector: textureVector },
   output: { x: { type: Float, label: 'X' }, y: { type: Float, label: 'Y' }, z: { type: Float, label: 'Z' } },
   pixel: ({ vector }, ctx) => {
     const v = ctx.declare('vec3', vector.expr);

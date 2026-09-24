@@ -5,11 +5,13 @@ const GRAPH = 'src/lib/graph'
 const FIXTURES = `${GRAPH}/boundaries.fixtures`
 const DEFINE_OUTSIDE = ['@/lib/shader/glsl', '@/lib/audio/dsp', '@/lib/engine/midi', '@/lib/engine/output']
 
+// a node reaches the graph only through authoring; a helper two categories need lives in nodes/shared (or nodes/glsl for
+// GLSL chunks) rather than being imported from one of them, so categories stay independent of each other
 function nodesAllow(file: string, from: string): boolean {
   if (from.startsWith('./')) return true
   if (from.startsWith('.')) return false
   if (!from.startsWith('@/lib/graph')) return true
-  if (from === '@/lib/graph/authoring' || from.startsWith('@/lib/graph/nodes/glsl/')) return true
+  if (from === '@/lib/graph/authoring' || from.startsWith('@/lib/graph/nodes/glsl/') || from.startsWith('@/lib/graph/nodes/shared/')) return true
   return file.endsWith('.test.ts') && (from === '@/lib/graph' || from === '@/lib/graph/testing')
 }
 

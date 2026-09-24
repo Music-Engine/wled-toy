@@ -1,6 +1,6 @@
 import { Color, defineNode, Enum, enumIndex, Float, type GlslChunk } from '@/lib/graph/authoring'
 import { noiseChunk } from '@/lib/graph/nodes/glsl/noise'
-import { textureVector } from './vector'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 /** Blender wave texture (node_wave_texture.osl, node_noise.h) in GLSL. */
 const waveTextureChunk: GlslChunk = {
