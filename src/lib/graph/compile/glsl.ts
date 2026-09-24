@@ -173,7 +173,7 @@ function assemble(e: Emission): { code: string; lineNodes: (string | null)[] } {
 }
 
 /** Layers the pixel-scope slots reach; a slot never straddles two, so its first float says which one it is in. */
-function stateLayers(program: Program): number {
+export function stateLayers(program: Program): number {
   const offsets = Object.values(program.state).flatMap((state) => (state.scope === 'pixel' ? Object.values(state.offsets) : []))
   return offsets.reduce((layers, offset) => Math.max(layers, Math.floor(offset / 4) + 1), 0)
 }

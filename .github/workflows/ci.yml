@@ -41,8 +41,9 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     env:
-      # mainImage takes uv and ledIndex whether or not a body reads them; unused node variables are marked in the unit
-      CXXFLAGS: -std=c++17 -fsyntax-only -Wall -Wextra -Werror -Wno-unused-parameter -fno-exceptions -fno-rtti
+      # mainImage takes uv and ledIndex whether or not a body reads them; unused node variables are marked in the unit.
+      # The compile tests read this line, so they build with the same flags.
+      CXXFLAGS: -std=c++17 -Wall -Wextra -Werror -Wno-unused-parameter -fno-exceptions -fno-rtti
     steps:
       - uses: actions/checkout@v7
 
@@ -56,22 +57,29 @@ jobs:
       - run: pnpm install --frozen-lockfile
         timeout-minutes: 5
 
-      - name: Generate the C++ unit twice and require the same bytes
+      - name: Generate the C++ units twice and require the same bytes
         timeout-minutes: 2
         run: |
           node scripts/gen-cpp-unit.ts
-          cp cpp/generated/nodes.cpp "$RUNNER_TEMP/nodes.cpp"
+          cp cpp/generated/nodes.cpp cpp/generated/parity.cpp "$RUNNER_TEMP/"
           node scripts/gen-cpp-unit.ts
           cmp cpp/generated/nodes.cpp "$RUNNER_TEMP/nodes.cpp"
+          cmp cpp/generated/parity.cpp "$RUNNER_TEMP/parity.cpp"
 
       - name: Compile every pixel body as C++
         timeout-minutes: 2
-        run: g++ $CXXFLAGS cpp/generated/nodes.cpp
+        run: g++ $CXXFLAGS -fsyntax-only cpp/generated/nodes.cpp
+
+      - name: Build and run the op tables' numeric parity check
+        timeout-minutes: 2
+        run: |
+          g++ $CXXFLAGS -I cpp cpp/generated/parity.cpp -o "$RUNNER_TEMP/parity"
+          "$RUNNER_TEMP/parity"
 
       - name: Expect the texture leak fixture to fail
         timeout-minutes: 2
         run: |
-          if g++ $CXXFLAGS cpp/fixtures/leak.cpp 2> "$RUNNER_TEMP/leak.log"; then
+          if g++ $CXXFLAGS -fsyntax-only cpp/fixtures/leak.cpp 2> "$RUNNER_TEMP/leak.log"; then
             echo "::error::cpp/fixtures/leak.cpp compiled; wledtoy.h must not provide texture()"
             exit 1
           fi

@@ -121,11 +121,20 @@ WLEDTOY_OPERATORS(vec4)
 inline float abs(float x) { return __builtin_fabsf(x); }
 inline float sign(float x) { return x > 0.0f ? 1.0f : (x < 0.0f ? -1.0f : 0.0f); }
 inline float floor(float x) { return __builtin_floorf(x); }
+inline float ceil(float x) { return __builtin_ceilf(x); }
 inline float trunc(float x) { return __builtin_truncf(x); }
 inline float fract(float x) { return x - floor(x); }
 inline float sin(float x) { return __builtin_sinf(x); }
 inline float cos(float x) { return __builtin_cosf(x); }
+inline float tan(float x) { return __builtin_tanf(x); }
+inline float asin(float x) { return __builtin_asinf(x); }
+inline float acos(float x) { return __builtin_acosf(x); }
 inline float atan(float x) { return __builtin_atanf(x); }
+inline float sinh(float x) { return __builtin_sinhf(x); }
+inline float cosh(float x) { return __builtin_coshf(x); }
+inline float tanh(float x) { return __builtin_tanhf(x); }
+inline float radians(float x) { return x * 0.017453292519943295f; }
+inline float degrees(float x) { return x * 57.29577951308232f; }
 inline float exp(float x) { return __builtin_expf(x); }
 inline float log(float x) { return __builtin_logf(x); }
 inline float sqrt(float x) { return __builtin_sqrtf(x); }
@@ -151,10 +160,15 @@ inline float smoothstep(float lo, float hi, float x) {
 #define WLEDTOY_TERNARY(V, f) \
   inline V f(V a, V b, V t) { return each(a, b, t, [](float x, float y, float z) { return f(x, y, z); }); }
 
+// GLSL's equal() gives a bool vector, which the math helpers only cast back to floats (vec3(equal(x, vec3(0.0)))); with
+// no bool vectors here, equal() returns that cast: 1.0 where the components are equal, else 0.0
 #define WLEDTOY_BUILTINS(V)                                                                                      \
-  WLEDTOY_UNARY(V, abs) WLEDTOY_UNARY(V, sign) WLEDTOY_UNARY(V, floor) WLEDTOY_UNARY(V, trunc)                   \
-  WLEDTOY_UNARY(V, fract) WLEDTOY_UNARY(V, sin) WLEDTOY_UNARY(V, cos) WLEDTOY_UNARY(V, atan)                     \
-  WLEDTOY_UNARY(V, exp) WLEDTOY_UNARY(V, log) WLEDTOY_UNARY(V, sqrt) WLEDTOY_UNARY(V, inversesqrt)              \
+  WLEDTOY_UNARY(V, abs) WLEDTOY_UNARY(V, sign) WLEDTOY_UNARY(V, floor) WLEDTOY_UNARY(V, ceil)                    \
+  WLEDTOY_UNARY(V, trunc) WLEDTOY_UNARY(V, fract) WLEDTOY_UNARY(V, sin) WLEDTOY_UNARY(V, cos)                    \
+  WLEDTOY_UNARY(V, tan) WLEDTOY_UNARY(V, asin) WLEDTOY_UNARY(V, acos) WLEDTOY_UNARY(V, atan)                     \
+  WLEDTOY_UNARY(V, sinh) WLEDTOY_UNARY(V, cosh) WLEDTOY_UNARY(V, tanh) WLEDTOY_UNARY(V, radians)                 \
+  WLEDTOY_UNARY(V, degrees) WLEDTOY_UNARY(V, exp) WLEDTOY_UNARY(V, log) WLEDTOY_UNARY(V, sqrt)                   \
+  WLEDTOY_UNARY(V, inversesqrt)                                                                                 \
   WLEDTOY_BINARY(V, mod) WLEDTOY_BINARY(V, min) WLEDTOY_BINARY(V, max) WLEDTOY_BINARY(V, pow)                   \
   inline V atan(V y, V x) { return each(y, x, [](float a, float b) { return atan(a, b); }); }                   \
   inline V step(V edge, V x) { return each(edge, x, [](float e, float v) { return step(e, v); }); }             \
@@ -170,7 +184,9 @@ inline float smoothstep(float lo, float hi, float x) {
   }                                                                                                             \
   inline float length(V a) { return sqrt(dot(a, a)); }                                                          \
   inline float distance(V a, V b) { return length(a - b); }                                                     \
-  inline V normalize(V a) { return a * inversesqrt(dot(a, a)); }
+  inline V normalize(V a) { return a * inversesqrt(dot(a, a)); }                                                \
+  inline V reflect(V i, V n) { return i - 2.0f * dot(n, i) * n; }                                               \
+  inline V equal(V a, V b) { return each(a, b, [](float x, float y) { return x == y ? 1.0f : 0.0f; }); }
 
 WLEDTOY_BUILTINS(vec2)
 WLEDTOY_BUILTINS(vec3)
@@ -185,6 +201,29 @@ inline float length(float a) { return abs(a); }
 inline float distance(float a, float b) { return abs(a - b); }
 inline float normalize(float a) { return sign(a); }
 inline vec3 cross(vec3 a, vec3 b) { return vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x); }
+
+// A pixel state slot of two or more floats, which GLSL writes as a run of one state layer's components (outState1.yzw),
+// read as a vector and assigned in place. A proxy, not a swizzle member: a union member's assignment has to stay trivial,
+// so assigning one swizzle to another of its type would copy the whole layer.
+template <class V>
+struct stateSlot {
+  vec4& layer;
+  int first;
+  operator V() const {
+    V v;
+    for (int i = 0; i < components<V>(); i++) v.c[i] = layer.c[first + i];
+    return v;
+  }
+  stateSlot& operator=(V v) {
+    for (int i = 0; i < components<V>(); i++) layer.c[first + i] = v.c[i];
+    return *this;
+  }
+  stateSlot& operator=(const stateSlot& other) { return *this = V(other); }
+  stateSlot& operator+=(V v) { return *this = V(*this) + v; }
+  stateSlot& operator-=(V v) { return *this = V(*this) - v; }
+  stateSlot& operator*=(V v) { return *this = V(*this) * v; }
+  stateSlot& operator/=(V v) { return *this = V(*this) / v; }
+};
 
 // The uniforms, filled by whoever runs the program before each frame; on the LEDs iResolution is (LED count, 1, 1).
 inline vec3 iResolution;
