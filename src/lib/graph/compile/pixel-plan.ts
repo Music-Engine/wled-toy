@@ -58,7 +58,7 @@ function linkedSource(c: FrontEnd, nodeId: string, data: GraphNodeData, socket: 
   return { literal: storedValue(nodeId, data, socket) }
 }
 
-/** A link to an output the node does not have still runs the node, and the socket falls back as if unlinked. */
+/** A link to an output a pixel node does not have still runs the node, and the socket falls back as if unlinked; a per-frame node refuses it. */
 function readSource(c: FrontEnd, id: string, output: string): PixelSource | undefined {
   if (c.placedAt(id) === 'frame') return perFrameSource(c, id, output)
   emitPixel(c, id)

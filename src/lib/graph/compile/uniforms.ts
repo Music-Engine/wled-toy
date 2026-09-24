@@ -6,7 +6,7 @@ import { planStep } from './frame-plan'
 import { standaloneExpr } from './glsl'
 import { GraphError, type PixelSource } from './program'
 
-/** Only outputs the shader links to get a slot; undefined when the output carries no number. */
+/** Only outputs the shader links to get a slot; undefined when a standalone output carries no number. */
 export function perFrameSource(c: FrontEnd, id: string, output: string): PixelSource | undefined {
   const key = `${id}:${output}`
   const known = c.perFrameSources.get(key)
@@ -16,10 +16,13 @@ export function perFrameSource(c: FrontEnd, id: string, output: string): PixelSo
   return source
 }
 
-function uniformSource(c: FrontEnd, id: string, output: string): PixelSource | undefined {
+// checked before planning: a step without a frame body would throw on every frame
+function uniformSource(c: FrontEnd, id: string, output: string): PixelSource {
+  const { shape } = c.lookup(id)
+  const out = shape.outputs.find((o) => o.name === output)
+  if (!out || out.type.kind !== 'value' || !shape.frame) throw new GraphError(`${shape.title} has no per-frame output ${output}`, id)
   const step = planStep(c, id)
   const dim = c.dims.get(id)![output]
-  if (dim === undefined) return undefined
   const last = c.program.uniforms.at(-1)
   const slot = last ? last.slot + last.dim : 0
   if (slot + dim > CONTROL_VECTORS * 4) throw new GraphError('Too many per-frame values reach the shader', id)

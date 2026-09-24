@@ -87,6 +87,12 @@ describe('streams', () => {
     const result = generateGlsl(graph([node('f', 'fft'), node('o', 'output')], [['f.spectrum', 'o.color']]))
     expect(result).toMatchObject({ errorNode: 'o', error: 'Color needs a number or a color, not Spectrum' })
   })
+
+  it('a link to an output a resolve-only node lacks is an error on that node, and plans no frame step for it', () => {
+    const program = buildProgram(graph([node('f', 'fft'), node('o', 'output')], [['f.level', 'o.color']]), {})
+    expect(program).toMatchObject({ errorNode: 'f', error: 'FFT has no per-frame output level' })
+    expect(program.frame.map((step) => step.nodeId)).not.toContain('f')
+  })
 })
 
 describe('resolve', () => {
