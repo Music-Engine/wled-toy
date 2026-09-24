@@ -19,7 +19,7 @@ const defineAllows = (file: string, from: string) =>
   from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
 const stageAllows = (file: string, from: string) =>
-  file.startsWith('compile/') || !/(^|\/)compile\/(program|front-end|streams|placement|width|frame-plan|pixel-plan|uniforms|glsl|js|cpp)$/.test(from)
+  file.startsWith('compile/') || !/(^|\/)compile\/(program|front-end|streams|placement|width|frame-plan|pixel-plan|uniforms|glsl|glsl-types|glsl-state|js|cpp)$/.test(from)
 
 const RULES = [
   { rule: 'nodes', covers: (file: string) => file.startsWith('nodes/'), allows: nodesAllow },

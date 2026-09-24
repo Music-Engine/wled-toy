@@ -1,12 +1,23 @@
 // The GLSL backend: turns a Program's pixel entries into the shader, in the order the Program lists them. Bodies run only
 // here, so what one declares through `ctx.require` is written back onto its Program node as plain data.
 import type { OutputSettings } from '@/lib/engine/output'
-import type { GlslType } from '@/lib/shader/glsl'
 import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
 import type { NodeShape, Socket } from '@/lib/graph/define/shape'
-import type { DataType, ImplicitDefault } from '@/lib/graph/define/types'
-import { castTo, componentCount, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
-import { concreteType, GraphError, shapeOf, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode, type ProgramState } from './program'
+import type { ImplicitDefault } from '@/lib/graph/define/types'
+import { castTo, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
+import { stateLayers, stateLoads, stateSlots, stateTargets } from './glsl-state'
+import { glslForm } from './glsl-types'
+import { concreteType, GraphError, shapeOf, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode } from './program'
+
+/**
+ * A node that fails here failed before anything the front end found after it, so its error wins over the Program's.
+ * Issues keep the front end's first and the bodies' after them.
+ */
+export function glsl(program: Program): GlslShader {
+  const e: Emission = { program, body: [], chunks: new Set(), values: new Map(), frozenValues: new Map(), issues: [...program.issues], frozen: [] }
+  const { error, errorNode } = emitAll(e) ?? program
+  return { ...assemble(e), output: program.output, issues: e.issues, frozen: e.frozen, error, errorNode }
+}
 
 export interface FrozenValue {
   nodeId: string
@@ -37,16 +48,6 @@ interface Emission {
   frozenValues: Map<string, Value>
   issues: GraphIssue[]
   frozen: FrozenValue[]
-}
-
-/**
- * A node that fails here failed before anything the front end found after it, so its error wins over the Program's.
- * Issues keep the front end's first and the bodies' after them.
- */
-export function glsl(program: Program): GlslShader {
-  const e: Emission = { program, body: [], chunks: new Set(), values: new Map(), frozenValues: new Map(), issues: [...program.issues], frozen: [] }
-  const { error, errorNode } = emitAll(e) ?? program
-  return { ...assemble(e), output: program.output, issues: e.issues, frozen: e.frozen, error, errorNode }
 }
 
 function emitAll(e: Emission): { error: string; errorNode: string | null } | undefined {
@@ -145,17 +146,6 @@ function context(e: Emission, node: ProgramNode, shape: NodeShape): NodeContext 
   }
 }
 
-/** A pixel-scope slot is its components of `outState<layer + 1>`, which holds last frame's value until the body assigns it. */
-function stateSlots(state: ProgramState | undefined, shape: NodeShape): Record<string, Value> {
-  if (state?.scope !== 'pixel') return {}
-  return Object.fromEntries(Object.entries(state.offsets).map(([name, offset]) => [name, stateSlot(offset, shape.state![name].dim!)]))
-}
-
-function stateSlot(offset: number, dim: number): Value {
-  const first = offset % 4
-  return { expr: `outState${Math.floor(offset / 4) + 1}.${'xyzw'.slice(first, first + dim)}`, type: vectorType(dim) }
-}
-
 /**
  * The shader text: the state targets it writes, the chunks the graph used, then mainImage with every emitted line.
  * Returns the node behind each line too.
@@ -170,22 +160,6 @@ function assemble(e: Emission): { code: string; lineNodes: (string | null)[] } {
   }
 }
 
-/** Layers the pixel-scope slots reach; a slot never straddles two, so its first float says which one it is in. */
-export function stateLayers(program: Program): number {
-  const offsets = Object.values(program.state).flatMap((state) => (state.scope === 'pixel' ? Object.values(state.offsets) : []))
-  return offsets.reduce((layers, offset) => Math.max(layers, Math.floor(offset / 4) + 1), 0)
-}
-
-function stateTargets(layers: number): string[] {
-  if (layers === 0) return []
-  return ['uniform highp sampler2DArray iState;', ...Array.from({ length: layers }, (_, i) => `layout(location = ${i + 1}) out vec4 outState${i + 1};`), '']
-}
-
-// every layer starts as last frame's, so a slot keeps its value, and padding its float, unless a body assigns it
-function stateLoads(layers: number): string[] {
-  return Array.from({ length: layers }, (_, i) => `  outState${i + 1} = texelFetch(iState, ivec3(gl_FragCoord.xy, ${i}), 0);`)
-}
-
 /** `chunks` and everything they require, each once, dependencies first. */
 function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
   const ordered: GlslChunk[] = []
@@ -198,50 +172,6 @@ function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
   }
   for (const chunk of chunks) visit(chunk)
   return ordered
-}
-
-/** A value type as GLSL writes it: its type name, a stored value as a literal, and a linked value cast to it. */
-interface GlslForm {
-  type: GlslType
-  literal(raw: unknown): Value
-  cast(value: Value): Value
-}
-
-/** The front end asks only about value types; any other reaching here is a compiler bug. */
-export function glslForm(type: DataType<any>): GlslForm {
-  const form = GLSL[type.id]
-  if (!form) throw new Error(`${type.label} has no GLSL form`)
-  return form
-}
-
-const GLSL: Record<string, GlslForm> = {
-  float: numeric('float', floatLiteral),
-  int: numeric('int', (raw) => ({ expr: String(raw), type: 'int' })),
-  vec2: numeric('vec2', vectorLiteral),
-  vec3: numeric('vec3', vectorLiteral),
-  color: numeric('vec3', vectorLiteral),
-  vec4: numeric('vec4', vectorLiteral),
-  // the front end resolves a generic socket to the node's width, so a cast here only rejects what is not a number at all
-  genType: {
-    type: 'genType',
-    literal: (raw: number | number[]) => (Array.isArray(raw) ? vectorLiteral(raw) : floatLiteral(raw)),
-    cast: (value) => {
-      if (componentCount(value.type) === undefined) throw new Error(`Cannot cast ${value.type} to a number or vector`)
-      return value
-    },
-  },
-  sampler2D: {
-    type: 'sampler2D',
-    literal: () => ({ expr: 'iImage', type: 'sampler2D' }),
-    cast: (value) => {
-      if (value.type !== 'sampler2D') throw new Error(`Cannot cast ${value.type} to sampler2D`)
-      return value
-    },
-  },
-}
-
-function numeric(type: GlslType, literal: GlslForm['literal']): GlslForm {
-  return { type, literal, cast: (value) => castTo(value, type) }
 }
 
 /** Exported or sent to shader mode there is no analyzer and no uniform block, so what the prelude's audio helpers give stands in. */

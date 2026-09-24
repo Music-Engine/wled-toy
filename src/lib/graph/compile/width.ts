@@ -6,7 +6,8 @@ import { componentCount, vectorType } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { fallsBackToImplicit } from '@/lib/graph/registry'
 import { isGenericSocket, storedValue, type FrontEnd, type LinkSource } from './front-end'
-import { glslForm, standaloneExpr } from './glsl'
+import { standaloneExpr } from './glsl'
+import { glslForm } from './glsl-types'
 import { concreteType } from './program'
 
 /** Fills `c.widths` for every node the sinks reach, sources before the nodes they feed. */
