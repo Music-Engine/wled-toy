@@ -47,7 +47,7 @@ uniform float iTimeDelta;
 // per-frame values computed on the CPU by graph mode; slot k is iControl[k / 4][k % 4]
 uniform vec4 iControl[${CONTROL_VECTORS}];
 
-out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 bool isLedPass() { return iResolution.y < 1.5; }
 // position (xyz) and segment (w) of an LED; in the 2D preview there are no LEDs, so this is the pixel itself
