@@ -95,3 +95,6 @@ export function shapeOf(node: ProgramNode): NodeShape {
   if (!item) throw new GraphError(`Unknown node type "${node.kind}"`, node.id)
   return item.shape(node.values)
 }
+
+/** A socket type as a value of it is declared: an unresolved generic is a float. */
+export const concreteType = (glsl: GlslType): GlslType => (glsl === 'genType' ? 'float' : glsl)

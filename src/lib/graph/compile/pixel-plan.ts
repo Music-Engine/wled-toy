@@ -15,10 +15,10 @@ export function emitPixel(c: FrontEnd, id: string): void {
   if (c.emitted.has(id)) return
   const { node, shape } = c.lookup(id)
   if (!shape.pixel) throw new GraphError(`${shape.title} runs once per frame and cannot be drawn directly`, id)
-  c.enter(id)
-  const settled = settledStreams(c, id, shape)
-  const inputs = Object.fromEntries(shape.inputs.map((socket) => [socket.name, pixelInput(c, id, node.data, settled, socket)]))
-  c.leave(id)
+  const inputs = c.guard(c.visiting, id, () => {
+    const settled = settledStreams(c, id, shape)
+    return Object.fromEntries(shape.inputs.map((socket) => [socket.name, pixelInput(c, id, node.data, settled, socket)]))
+  })
   c.emitted.add(id)
   c.record(id)
   // a node with frame-scope state has no pixel body, so any state here is pixel-scope

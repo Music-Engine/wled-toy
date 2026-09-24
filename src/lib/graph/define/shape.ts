@@ -34,7 +34,7 @@ export interface NodeShape {
   resolve?(input: Record<string, any>, resources: Resources): ResolveResult
   /** Slot name to type; absent on a stateless node. */
   state?: Record<string, DataType<any>>
-  stateScope?: 'frame' | 'pixel'
+  stateScope?: Rate
 }
 
 /**
@@ -59,8 +59,11 @@ export interface NodePreset {
   values: Record<string, unknown>
 }
 
+/** How often a value is computed: once per frame on the CPU, or once per pixel in the shader. */
+export type Rate = 'frame' | 'pixel'
+
 /** Where a node's values live: `frame` sockets are drawn as diamonds and refuse per-pixel links. */
-export function placement(shape: NodeShape): 'frame' | 'pixel' | 'either' {
+export function placement(shape: NodeShape): Rate | 'either' {
   if (shape.frame && !shape.pixel) return 'frame'
   if (shape.pixel && !shape.frame) return 'pixel'
   return 'either'

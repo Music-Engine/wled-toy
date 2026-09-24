@@ -12,11 +12,11 @@ export function resolveNode(c: FrontEnd, id: string): ResolveResult {
   if (known) return known
   const { node, shape } = c.lookup(id)
   if (!shape.resolve) return {}
-  if (c.resolving.has(id)) throw new GraphError('The graph has a loop. Remove one of the links in the cycle.', id)
-  c.resolving.add(id)
-  const result = shape.resolve(resolveInput(c, id, node.data, shape), c.program.resources)
-  register(c, id, result)
-  c.resolving.delete(id)
+  const result = c.guard(c.resolving, id, () => {
+    const result = shape.resolve!(resolveInput(c, id, node.data, shape), c.program.resources)
+    register(c, id, result)
+    return result
+  })
   c.resolved.set(id, result)
   return result
 }

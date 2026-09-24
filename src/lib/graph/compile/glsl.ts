@@ -6,7 +6,7 @@ import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
 import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import type { DataType, ImplicitDefault } from '@/lib/graph/define/types'
 import { castTo, componentCount, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
-import { GraphError, shapeOf, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode, type ProgramState } from './program'
+import { concreteType, GraphError, shapeOf, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode, type ProgramState } from './program'
 
 export interface FrozenValue {
   nodeId: string
@@ -111,8 +111,6 @@ function implicitValue(socket: Socket): Value {
   return { expr, type: concreteType(glslForm(socket.type).type) }
 }
 
-const concreteType = (glsl: GlslType): GlslType => (glsl === 'genType' ? 'float' : glsl)
-
 function freeze(e: Emission, id: string, output: string, value: number | number[]): void {
   const shape = shapeOf(e.program.nodes[id])
   const out = shape.outputs.find((o) => o.name === output)!
@@ -191,8 +189,10 @@ function stateLoads(layers: number): string[] {
 /** `chunks` and everything they require, each once, dependencies first. */
 function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
   const ordered: GlslChunk[] = []
+  const seen = new Set<GlslChunk>()
   const visit = (chunk: GlslChunk) => {
-    if (ordered.includes(chunk)) return
+    if (seen.has(chunk)) return
+    seen.add(chunk)
     chunk.requires.forEach(visit)
     ordered.push(chunk)
   }

@@ -13,15 +13,16 @@ export function planStep(c: FrontEnd, id: string): number {
   const planned = c.steps.get(id)
   if (planned !== undefined) return planned
   const { node, shape } = c.lookup(id)
-  c.enter(id)
-  const inputs: Record<string, FrameBinding> = {}
-  for (const [name, constant] of Object.entries(settledStreams(c, id, shape))) inputs[name] = { constant }
-  for (const socket of shape.inputs.filter((socket) => socket.type.kind !== 'stream')) {
-    inputs[socket.name] = socket.linkable ? linkedBinding(c, id, node.data, socket) : { constant: storedValue(id, node.data, socket) }
-  }
+  const inputs = c.guard(c.visiting, id, () => {
+    const inputs: Record<string, FrameBinding> = {}
+    for (const [name, constant] of Object.entries(settledStreams(c, id, shape))) inputs[name] = { constant }
+    for (const socket of shape.inputs.filter((socket) => socket.type.kind !== 'stream')) {
+      inputs[socket.name] = socket.linkable ? linkedBinding(c, id, node.data, socket) : { constant: storedValue(id, node.data, socket) }
+    }
+    return inputs
+  })
   const gen = componentCount(c.widths.get(id)!)!
   c.dims.set(id, outputDims(shape, gen))
-  c.leave(id)
   c.record(id)
   // a node with pixel-scope state has no frame body, so it never gets here
   if (shape.state) c.program.state[id] = { scope: 'frame', slots: slotTypes(shape.state) }

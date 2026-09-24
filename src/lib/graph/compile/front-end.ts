@@ -2,9 +2,9 @@
 // node, and the Program as far as it is built. The backends never see it.
 import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue, ResolveResult } from '@/lib/graph/define/context'
-import type { NodeShape, Socket } from '@/lib/graph/define/shape'
-import { itemFor } from '@/lib/graph/registry'
-import type { NodeGraph, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
+import type { NodeShape, Rate, Socket } from '@/lib/graph/define/shape'
+import { itemFor, valueInputs } from '@/lib/graph/registry'
+import { edgesByInput, inputKey, type NodeGraph, type GraphNodeData, type StoredNode } from '@/lib/graph/model/doc'
 import { GraphError, type PixelSource, type Program } from './program'
 
 export interface CompileOptions {
@@ -16,6 +16,9 @@ export interface CompileOptions {
   /** The last value a per-frame node produced, for baking. */
   controls?: (nodeId: string, output: string) => FrameValue | undefined
 }
+
+/** Where a linked socket reads from: the source node and its output. */
+export type LinkSource = { id: string; output: string }
 
 export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
 
@@ -40,7 +43,7 @@ export class FrontEnd {
   readonly resolved = new Map<string, ResolveResult>()
   readonly resolving = new Set<string>()
   // what ./placement decided
-  readonly placement = new Map<string, 'frame' | 'pixel'>()
+  readonly placement = new Map<string, Rate>()
   readonly changesPerPixel = new Set<string>()
   // what ./width inferred
   readonly widths = new Map<string, GlslType>()
@@ -55,10 +58,11 @@ export class FrontEnd {
   private readonly nodes: Map<string, StoredNode>
   private readonly incoming: Map<string, NodeGraph['edges'][number]>
   private readonly shapes = new Map<string, NodeShape>()
+  private readonly valueSockets = new Map<string, Socket[]>()
 
   constructor(doc: NodeGraph, readonly options: CompileOptions) {
     this.nodes = new Map(doc.nodes.map((n) => [n.id, n]))
-    this.incoming = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
+    this.incoming = edgesByInput(doc.edges)
   }
 
   get standalone() {
@@ -78,23 +82,33 @@ export class FrontEnd {
     return { node, shape }
   }
 
-  enter(id: string) {
-    if (this.visiting.has(id)) throw new GraphError('The graph has a loop. Remove one of the links in the cycle.', id)
-    this.visiting.add(id)
+  /** The node's linkable number and vector inputs, filtered once per node. */
+  valueInputs(id: string): Socket[] {
+    let sockets = this.valueSockets.get(id)
+    if (!sockets) {
+      sockets = valueInputs(this.lookup(id).shape)
+      this.valueSockets.set(id, sockets)
+    }
+    return sockets
   }
 
-  leave(id: string) {
-    this.visiting.delete(id)
+  /** Runs `body` with `id` on `path`; meeting `id` again inside it means the graph has a loop. */
+  guard<T>(path: Set<string>, id: string, body: () => T): T {
+    if (path.has(id)) throw new GraphError('The graph has a loop. Remove one of the links in the cycle.', id)
+    path.add(id)
+    const result = body()
+    path.delete(id)
+    return result
   }
 
   /** Where a socket's link comes from, when it has one and the source node exists. */
-  linkSource(nodeId: string, socket: Socket): { id: string; output: string } | undefined {
-    const edge = this.incoming.get(`${nodeId}:${socket.name}`)
+  linkSource(nodeId: string, socket: Socket): LinkSource | undefined {
+    const edge = this.incoming.get(inputKey(nodeId, socket.name))
     return edge?.sourceHandle && this.nodes.has(edge.source) ? { id: edge.source, output: edge.sourceHandle } : undefined
   }
 
   /** Where a pixel consumer reads the node from, as ./placement decided; a node it never reached is a compiler bug. */
-  placedAt(id: string): 'frame' | 'pixel' {
+  placedAt(id: string): Rate {
     const placement = this.placement.get(id)
     if (!placement) throw new GraphError(`Node "${id}" was not placed`, id)
     return placement

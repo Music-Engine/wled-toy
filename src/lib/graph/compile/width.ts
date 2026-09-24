@@ -1,15 +1,13 @@
 // Generic widths: before anything is emitted, each node's `gen` type is settled from the widest type linked or stored
 // on its generic sockets, walking from the sinks in the order emission and planning will.
 import type { GlslType } from '@/lib/shader/glsl'
-import type { Socket } from '@/lib/graph/define/shape'
+import type { Rate, Socket } from '@/lib/graph/define/shape'
 import { componentCount, vectorType } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
-import { fallsBackToImplicit, valueInputs } from '@/lib/graph/registry'
-import { isGenericSocket, storedValue, type FrontEnd } from './front-end'
+import { fallsBackToImplicit } from '@/lib/graph/registry'
+import { isGenericSocket, storedValue, type FrontEnd, type LinkSource } from './front-end'
 import { glslForm, standaloneExpr } from './glsl'
-
-type Rate = 'pixel' | 'frame'
-type Link = { id: string; output: string }
+import { concreteType } from './program'
 
 /** Fills `c.widths` for every node the sinks reach, sources before the nodes they feed. */
 export function inferWidths(c: FrontEnd, sinks: string[]): void {
@@ -25,14 +23,15 @@ function inferNode(c: FrontEnd, id: string, rate: Rate, trail: Set<string>): voi
   // a loop is reported by emission, which walks the same links; no width on it is read before that
   if (c.widths.has(id) || trail.has(id)) return
   trail.add(id)
-  const { node, shape } = c.lookup(id)
-  for (const socket of valueInputs(shape)) {
+  const { node } = c.lookup(id)
+  const sockets = c.valueInputs(id)
+  for (const socket of sockets) {
     const source = c.linkSource(id, socket)
     if (!source) continue
     const from = sourceRate(c, source.id, rate)
     if (from !== 'baked') inferNode(c, source.id, from, trail)
   }
-  const counts = valueInputs(shape).filter(isGenericSocket).map((socket) => componentCount(inputType(c, id, node.data, socket, rate)) ?? 1)
+  const counts = sockets.filter(isGenericSocket).map((socket) => componentCount(inputType(c, id, node.data, socket, rate)) ?? 1)
   c.widths.set(id, vectorType(Math.max(1, ...counts)))
 }
 
@@ -54,7 +53,7 @@ function inputType(c: FrontEnd, id: string, data: GraphNodeData, socket: Socket,
   return glslForm(socket.type).literal(storedValue(id, data, socket)).type
 }
 
-function outputType(c: FrontEnd, source: Link, glsl: GlslType, from: Rate | 'baked'): GlslType {
+function outputType(c: FrontEnd, source: LinkSource, glsl: GlslType, from: Rate | 'baked'): GlslType {
   if (from === 'baked') return bakedType(c, source, glsl)
   // undefined only on a loop, which emission reports
   if (glsl === 'genType') return c.widths.get(source.id) ?? 'float'
@@ -62,8 +61,8 @@ function outputType(c: FrontEnd, source: Link, glsl: GlslType, from: Rate | 'bak
 }
 
 /** A frozen output is its standalone GLSL, else the literal of its last value. */
-function bakedType(c: FrontEnd, { id, output }: Link, glsl: GlslType): GlslType {
-  if (standaloneExpr(c.lookup(id).node.data.kind, output)) return glsl === 'genType' ? 'float' : glsl
+function bakedType(c: FrontEnd, { id, output }: LinkSource, glsl: GlslType): GlslType {
+  if (standaloneExpr(c.lookup(id).node.data.kind, output)) return concreteType(glsl)
   const value = c.options.controls?.(id, output) ?? 0
   return Array.isArray(value) ? vectorType(value.length) : 'float'
 }

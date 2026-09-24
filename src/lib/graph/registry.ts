@@ -36,7 +36,7 @@ export function firstCompatibleSocket(shape: NodeShape, type: DataType<any>, nee
 }
 
 /** The inputs a number or vector can be linked into, in the shader or per frame. */
-export const valueInputs = (shape: NodeShape): Socket[] => shape.inputs.filter((socket) => socket.linkable && socket.type.kind === 'value')
+export const valueInputs = (shape: NodeShape): Socket[] => linkable(shape).filter((socket) => socket.type.kind === 'value')
 
 /** Nothing is stored for the socket, so unlinked it reads its implicit expression. */
 export const fallsBackToImplicit = (values: Record<string, unknown>, socket: Socket): socket is Socket & { default: ImplicitDefault } =>

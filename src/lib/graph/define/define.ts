@@ -1,6 +1,6 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
 import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
-import type { NodeItem, NodePreset, NodeShape, OutputSocket, Socket, WidgetProps } from './shape'
+import type { NodeItem, NodePreset, NodeShape, OutputSocket, Rate, Socket, WidgetProps } from './shape'
 import { isImplicit, type DataType } from './types'
 import type { Value } from './value'
 
@@ -23,12 +23,12 @@ interface SocketDef {
 export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any>; label?: string }
 
 type SocketType<D> = Required<D extends { type: infer T extends DataType<any, any, any> } ? T : Extract<D, DataType<any, any, any>>>
-export type Inputs<I, V extends 'frame' | 'pixel'> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { linkable: false } ? '_frame' : `_${V}`] }
+export type Inputs<I, V extends Rate> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { linkable: false } ? '_frame' : `_${V}`] }
 /**
  * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `frame` may
  * return either. A union rather than `Readonly` alone, which turns `any` into an object type.
  */
-export type Outputs<O, V extends 'frame' | 'pixel'> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
+export type Outputs<O, V extends Rate> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
 
 /** A node's state: named slots, each holding a value of its type between frames. */
 export type StateDef = Record<string, DataType<any, any, any>>
@@ -68,7 +68,7 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
    */
   state?: S
   /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). */
-  stateScope?: 'frame' | 'pixel'
+  stateScope?: Rate
   presets?: NodePreset[]
 }
 
@@ -112,7 +112,7 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
   }
 }
 
-function checkState(id: string, state: StateDef, scope: 'frame' | 'pixel', bodies: { pixel?: unknown; frame?: unknown }): void {
+function checkState(id: string, state: StateDef, scope: Rate, bodies: { pixel?: unknown; frame?: unknown }): void {
   if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; the shader has nowhere to keep it`)
   if (scope === 'frame') return
   if (bodies.frame || !bodies.pixel) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
