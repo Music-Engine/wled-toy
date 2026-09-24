@@ -6,7 +6,7 @@
 // environment and shades every LED, and pixel state lives in an array that keeps one set of state layers per LED.
 import { glsl } from './glsl'
 import { stateLayers } from './glsl-state'
-import { GraphError, shapeOf, type Program } from './program'
+import { GraphError, nodeShape, type Program } from './program'
 
 export interface CppOptions {
   /** LEDs the usermod drives; pixel state is kept per LED, so it sizes the state array. */
@@ -29,13 +29,13 @@ export function cppDefinitions(program: Program, { leds }: CppOptions): string {
 function rejectFrameSteps(program: Program): void {
   const step = program.frame[0]
   if (!step) return
-  const title = shapeOf(program.nodes[step.nodeId]).title
+  const title = nodeShape(program.nodes[step.nodeId]).title
   throw new GraphError(`${title} runs once per frame in JavaScript, which the C++ backend cannot run`, step.nodeId)
 }
 
 function rejectGlslOnly(program: Program): void {
   const node = Object.values(program.nodes).find((n) => n.requires?.includes('glsl'))
-  if (node) throw new GraphError(`${shapeOf(node).title} samples a texture or takes a derivative, which C++ has no pixels for`, node.id)
+  if (node) throw new GraphError(`${nodeShape(node).title} samples a texture or takes a derivative, which C++ has no pixels for`, node.id)
 }
 
 /** The per-LED state array when the Program keeps pixel state, sized by a `ledCount` declared before it, and its GLSL `code` spelled for C++. */

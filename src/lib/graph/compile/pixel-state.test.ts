@@ -24,7 +24,7 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
       },
     }),
   ]
-  return { ...registry, itemFor: (kind: string) => kinds.find((item) => item.id === kind) ?? registry.itemFor(kind) }
+  return { ...registry, nodeItem: (kind: string) => kinds.find((item) => item.id === kind) ?? registry.nodeItem(kind) }
 })
 
 /** The kinds in a chain, the first feeding the second and the last feeding an Output: `a`, `b`, ... in emission order. */

@@ -28,7 +28,7 @@ import { dockHost } from '@/lib/app/workspace'
 import { graphImageDrop } from '@/lib/app/file-drop'
 import { classifyWheel, type WheelGesture } from './wheel-source'
 import {
-  GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, itemFor,
+  GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, nodeItem,
   newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
   type DataType, type NodeGraph, type GraphIssue, type GraphNodeData, type NodeItem, type StoredEdge,
 } from '@/lib/graph'
@@ -415,7 +415,7 @@ function addImageTexture(imageId: string, title: string, at: { x: number; y: num
   if (recordTimer) recordNow()
   const rect = flowEl.value!.getBoundingClientRect()
   const onCanvas = at.x >= rect.left && at.x <= rect.right && at.y >= rect.top && at.y <= rect.bottom
-  const id = addNode(itemFor('imageTexture')!, { title, values: { filename: imageId } }, onCanvas ? at : null)
+  const id = addNode(nodeItem('imageTexture')!, { title, values: { filename: imageId } }, onCanvas ? at : null)
   nextTick(() => {
     removeSelectedElements()
     const node = findNode(id)
@@ -638,7 +638,7 @@ function copyGlsl() {
 
 const minimapColor = (node: FlowNode) => {
   const kind = (node.data as GraphNodeData | undefined)?.kind ?? ''
-  const category = itemFor(kind)?.category
+  const category = nodeItem(kind)?.category
   return (category && categoryById.get(category)?.color) || '#555'
 }
 

@@ -3,7 +3,7 @@
 import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue, ResolveResult } from '@/lib/graph/define/context'
 import type { NodeShape, Rate, Socket } from '@/lib/graph/define/shape'
-import { itemFor, valueInputs } from '@/lib/graph/registry'
+import { nodeItem, valueInputs } from '@/lib/graph/registry'
 import { edgesByInput, inputKey, type NodeGraph, type GraphNodeData, type StoredNode } from '@/lib/graph/model/doc'
 import { GraphError, type PixelSource, type Program } from './program'
 
@@ -57,7 +57,7 @@ export class FrontEnd {
     const node = this.nodes.get(id)!
     let shape = this.shapes.get(id)
     if (!shape) {
-      const kind = itemFor(node.data.kind)
+      const kind = nodeItem(node.data.kind)
       if (!kind) throw new GraphError(`Unknown node type "${node.data.kind}"`, id)
       shape = kind.shape(node.data.values)
       this.shapes.set(id, shape)

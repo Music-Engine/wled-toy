@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { NodeItem } from '@/lib/graph/authoring'
-import { FrameRunner, generateGlsl, itemFor } from '@/lib/graph'
+import { FrameRunner, generateGlsl, nodeItem } from '@/lib/graph'
 import { graph, initialState, node } from '@/lib/graph/testing'
 import { clockDividerNode } from './clock-divider'
 import { integratorNode } from './integrator'
@@ -80,7 +80,7 @@ describe('Step Sequencer', () => {
 
 describe('Bands', () => {
   it('has as many outputs as asked and folds the analysis bands into them', () => {
-    const bands = itemFor('bands')!
+    const bands = nodeItem('bands')!
     expect(bands.shape({ count: '4' }).outputs.map((o) => o.label)).toEqual(['Band 1', 'Band 2', 'Band 3', 'Band 4'])
     expect(bands.shape({}).outputs).toHaveLength(8)
     const features = { bands: Float32Array.from({ length: 16 }, (_, i) => i / 15) }

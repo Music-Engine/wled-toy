@@ -2,7 +2,7 @@ import { categoryById, type CategoryId } from '@/lib/shader/glsl'
 import { directory, leaf, separator, type MenuDirectory, type MenuEntry, type MenuFs, type MenuItem, type MenuPreset } from '@/lib/shader/menu-fs'
 import { glslForm } from '@/lib/graph/compile/compile'
 import type { NodeItem } from '@/lib/graph/define/shape'
-import { itemFor } from '@/lib/graph/registry'
+import { nodeItem } from '@/lib/graph/registry'
 import type { DataType } from '@/lib/graph/define/types'
 
 const UNIFORMS = ['iResolution', 'iLedCount', 'iScanY', 'iAudio', 'iImage']
@@ -80,7 +80,7 @@ function presetDirectory(id: string): MenuDirectory<NodeItem> {
 }
 
 function kind(id: string): NodeItem {
-  const item = itemFor(id)
+  const item = nodeItem(id)
   if (!item) throw new Error(`The Add menu names unknown node kind "${id}"`)
   return item
 }

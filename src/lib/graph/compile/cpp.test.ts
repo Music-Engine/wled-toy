@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
-import { allItems, itemFor } from '@/lib/graph/registry'
+import { allItems, nodeItem } from '@/lib/graph/registry'
 import { alone, graph, node } from '@/lib/graph/testing'
 import { buildCpp, cppCompiler } from '@/lib/graph/testing/cpp'
 import { buildProgram, type CompileOptions } from './compile'
@@ -42,7 +42,7 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
       },
     }),
   ]
-  return { ...registry, itemFor: (kind: string) => kinds.find((item) => item.id === kind) ?? registry.itemFor(kind) }
+  return { ...registry, nodeItem: (kind: string) => kinds.find((item) => item.id === kind) ?? registry.nodeItem(kind) }
 })
 
 const integrated = graph([node('i', 'integrator'), node('m', 'math', { op: 'multiply', b: 0.375 }), node('o', 'output')], [['i.value', 'm.a'], ['m.result', 'o.color']])
@@ -89,7 +89,7 @@ describe('cpp', () => {
   })
 
   it.skipIf(!cppCompiler)('builds a pixel-scope kind into the C++ unit with its state read per LED, and compiles it (needs g++ or c++ on PATH)', () => {
-    const { code } = cppUnit([itemFor('stateColor')!])
+    const { code } = cppUnit([nodeItem('stateColor')!])
     expect(code).toContain('vec4 pixelState[ledCount][1] = {};')
     expect(code).not.toMatch(/iState|outState\d+;/)
     const { status, output } = buildCpp(code.replace('#include "../wledtoy.h"', '#include "wledtoy.h"'), { run: false })

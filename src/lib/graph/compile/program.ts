@@ -4,7 +4,7 @@ import type { OutputSettings } from '@/lib/engine/output'
 import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
-import { itemFor } from '@/lib/graph/registry'
+import { nodeItem } from '@/lib/graph/registry'
 import type { FrameStep } from './frame'
 
 export interface GraphIssue {
@@ -90,8 +90,8 @@ export type PixelSource =
   | { literal: unknown }
 
 /** The node's shape at build version; the front end already refused an unknown kind. */
-export function shapeOf(node: ProgramNode): NodeShape {
-  const item = itemFor(node.kind)
+export function nodeShape(node: ProgramNode): NodeShape {
+  const item = nodeItem(node.kind)
   if (!item) throw new GraphError(`Unknown node type "${node.kind}"`, node.id)
   return item.shape(node.values)
 }

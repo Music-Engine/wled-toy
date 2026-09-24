@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FrameRunner, generateGlsl, itemFor } from '@/lib/graph'
+import { FrameRunner, generateGlsl, nodeItem } from '@/lib/graph'
 import { graph, initialState, node } from '@/lib/graph/testing'
 import { audioSignalNode } from './audio-signal'
 
@@ -31,7 +31,7 @@ describe('Audio to Signal', () => {
 
 describe('Distance From Center', () => {
   it('is 0 at the center and 1 at the far end, on both sides', () => {
-    const body = itemFor('fromCenter')!.base.frame!
+    const body = nodeItem('fromCenter')!.base.frame!
     const at = (position: number, center = 0.5) => body({ position, center }, { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} }).distance
     expect([at(0.5), at(0), at(1), at(0.75)]).toEqual([0, 1, 1, 0.5])
     expect([at(0.25, 0.25), at(1, 0.25), at(0, 0.25)]).toEqual([0, 1, 1 / 3])

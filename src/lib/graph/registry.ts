@@ -11,13 +11,13 @@ for (const item of [...CATALOG_UNIFORMS, ...CATALOG_FUNCTIONS, ...NODE_KINDS]) {
   items.set(item.id, item)
 }
 
-export const itemFor = (kind: string) => items.get(kind)
+export const nodeItem = (kind: string) => items.get(kind)
 export const allItems = () => [...items.values()]
 
 const linkable = (shape: NodeShape) => shape.inputs.filter((s) => s.linkable)
 
 /** The shape a stored node has right now; undefined for an unknown kind. */
-export const storedShape = (data: GraphNodeData | undefined): NodeShape | undefined => data && itemFor(data.kind)?.shape(data.values)
+export const storedShape = (data: GraphNodeData | undefined): NodeShape | undefined => data && nodeItem(data.kind)?.shape(data.values)
 
 export function inputSocket(data: GraphNodeData | undefined, handle: string | null | undefined): Socket | undefined {
   const shape = storedShape(data)

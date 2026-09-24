@@ -26,7 +26,7 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
       },
     }),
   ]
-  return { ...registry, itemFor: (kind: string) => twins.find((item) => item.id === kind) ?? registry.itemFor(kind) }
+  return { ...registry, nodeItem: (kind: string) => twins.find((item) => item.id === kind) ?? registry.nodeItem(kind) }
 })
 
 const drawn = (kind: string) => graph([node('t', kind), node('o', 'output')], [['t.value', 'o.color']])

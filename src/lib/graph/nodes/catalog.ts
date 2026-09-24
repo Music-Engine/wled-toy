@@ -1,7 +1,7 @@
 import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/glsl'
 import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, type DataType, type InputDef, type NodeItem } from '@/lib/graph/authoring'
 
-const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : typeForGlsl(param.type))
+const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : graphType(param.type))
 
 // these have a graph node of their own (ported from the three.js shader editor), which wins
 const replaced = [
@@ -29,7 +29,7 @@ function functionItem(fn: ShaderNode): NodeItem {
     description: fn.doc,
     category: fn.category,
     signature: fn.signature,
-    input: Object.fromEntries(fn.params.map((param) => [param.name, inputFor(param)])),
+    input: Object.fromEntries(fn.params.map((param) => [param.name, inputDef(param)])),
     output: { out: { type: paramType(fn.output), label: fn.output.label } },
     pixel: (input, ctx) => {
       // a function that takes a sampler samples it, and only GLSL has textures
@@ -47,12 +47,12 @@ function uniformItem(uniform: ShaderNode): NodeItem {
     category: uniform.category,
     signature: uniform.signature,
     input: {},
-    output: { out: { type: typeForGlsl(uniform.returns), label: uniform.output.label } },
+    output: { out: { type: graphType(uniform.returns), label: uniform.output.label } },
     pixel: () => ({ out: { expr: uniform.name, type: uniform.returns } }),
   })
 }
 
-function inputFor(param: Param): InputDef {
+function inputDef(param: Param): InputDef {
   const range = param.min === undefined ? undefined : { min: param.min, max: param.max }
   return { type: paramType(param), label: param.label, default: unlinkedDefault(param), props: range }
 }
@@ -66,7 +66,7 @@ function unlinkedDefault(param: Param): unknown {
 }
 
 /** Every GLSL type the catalog uses has a graph type of the same id. */
-function typeForGlsl(glsl: GlslType): DataType<any, any, any> {
+function graphType(glsl: GlslType): DataType<any, any, any> {
   const type = [Float, Int, Vec2, Vec3, Vec4, Sampler2D, GenType].find((t) => t.id === glsl)
   if (!type) throw new Error(`No graph type for GLSL type ${glsl}`)
   return type

@@ -4,7 +4,7 @@ import type { FrameValue } from '@/lib/graph/define/context'
 import type { SocketValue } from '@/lib/graph/model/doc'
 import { MATH_OPS } from '@/lib/graph/nodes/converter/math'
 import { VECTOR_OPS } from '@/lib/graph/nodes/converter/vector-math'
-import { itemFor } from '@/lib/graph/registry'
+import { nodeItem } from '@/lib/graph/registry'
 import { graph, node } from '@/lib/graph/testing'
 import { buildProgram } from './compile'
 import { cppDefinitions } from './cpp'
@@ -55,7 +55,7 @@ interface ParityOp {
 
 /** Only the values the operation has sockets for: a unary Math takes no `b`. */
 function socketValues(kind: string, values: Record<string, SocketValue>): Record<string, SocketValue> {
-  const shape = itemFor(kind)!.shape(values)
+  const shape = nodeItem(kind)!.shape(values)
   return Object.fromEntries(shape.inputs.filter((socket) => socket.name in values).map((socket) => [socket.name, values[socket.name]]))
 }
 
@@ -64,7 +64,7 @@ const caseNamespace = (op: ParityOp, i: number) => `${tableName(op)}_${i}`
 
 function opDefinitions(op: ParityOp): string[] {
   return op.cases.map((values, i) => {
-    const doc = graph([node('n', op.kind, values), node('o', 'output')], [[`n.${itemFor(op.kind)!.shape(values).outputs[0].name}`, 'o.color']])
+    const doc = graph([node('n', op.kind, values), node('o', 'output')], [[`n.${nodeItem(op.kind)!.shape(values).outputs[0].name}`, 'o.color']])
     return `namespace ${caseNamespace(op, i)} {\n${cppDefinitions(buildProgram(doc, {}), { leds: 1 })}}\n`
   })
 }
@@ -80,7 +80,7 @@ function opTable(op: ParityOp): string[] {
 
 /** What the node's frame body puts out for the same stored values, as the JS backend would run it. */
 function frameResult(kind: string, values: Record<string, SocketValue>): number[] {
-  const shape = itemFor(kind)!.shape(values)
+  const shape = nodeItem(kind)!.shape(values)
   const input = Object.fromEntries(shape.inputs.map((socket) => [socket.name, values[socket.name] ?? socket.default]))
   const result: FrameValue = shape.frame!(input, { time: 0, dt: 0, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined, state: undefined, resolved: {} })[shape.outputs[0].name]
   return Array.isArray(result) ? result : [result]

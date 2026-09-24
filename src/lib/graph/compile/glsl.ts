@@ -7,7 +7,7 @@ import type { ImplicitDefault } from '@/lib/graph/define/types'
 import { castTo, floatLiteral, vectorLiteral, vectorType, type Value } from '@/lib/graph/define/value'
 import { stateLayers, stateLoads, stateSlots, stateTargets } from './glsl-state'
 import { glslForm } from './glsl-types'
-import { concreteType, GraphError, shapeOf, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode } from './program'
+import { concreteType, GraphError, nodeShape, type GraphIssue, type PixelEntry, type PixelInput, type PixelSource, type Program, type ProgramNode } from './program'
 
 /**
  * A node that fails here failed before anything the front end found after it, so its error wins over the Program's.
@@ -61,7 +61,7 @@ function emitAll(e: Emission): { error: string; errorNode: string | null } | und
 function emitEntry(e: Emission, entry: PixelEntry): void {
   if ('frozen' in entry) return freeze(e, entry.frozen, entry.output, entry.value)
   const node = e.program.nodes[entry.node]
-  const shape = shapeOf(node)
+  const shape = nodeShape(node)
   const input: Record<string, unknown> = {}
   for (const socket of shape.inputs) input[socket.name] = bodyInput(e, node, shape, socket, entry.inputs[socket.name])
   shape.includes.forEach((chunk) => e.chunks.add(chunk))
@@ -91,7 +91,7 @@ function sourceValue(e: Emission, socket: Socket, from: PixelSource): Value {
 /** Every body returns every numeric output it declares; one that does not is a bug in that node. */
 function linkedOutput(e: Emission, id: string, output: string): Value {
   const value = e.values.get(id)![output]
-  if (!value) throw new GraphError(`${shapeOf(e.program.nodes[id]).title} did not produce "${output}"`, id)
+  if (!value) throw new GraphError(`${nodeShape(e.program.nodes[id]).title} did not produce "${output}"`, id)
   return value
 }
 
@@ -102,7 +102,7 @@ function uniformRead(slot: number, dim: number): Value {
 
 /** The front end only points here for a numeric output with a stand-in. */
 function standaloneOutput(node: ProgramNode, output: string): Value {
-  const { type } = shapeOf(node).outputs.find((o) => o.name === output)!
+  const { type } = nodeShape(node).outputs.find((o) => o.name === output)!
   return { expr: standaloneExpr(node.kind, output)!, type: concreteType(glslForm(type).type) }
 }
 
@@ -113,7 +113,7 @@ function implicitValue(socket: Socket): Value {
 }
 
 function freeze(e: Emission, id: string, output: string, value: number | number[]): void {
-  const shape = shapeOf(e.program.nodes[id])
+  const shape = nodeShape(e.program.nodes[id])
   const out = shape.outputs.find((o) => o.name === output)!
   const baked = Array.isArray(value) ? vectorLiteral(value) : floatLiteral(value)
   e.body.push({ node: id, text: `// ${shape.title} "${out.label}" runs per frame; frozen at ${baked.expr} when this code was taken` })

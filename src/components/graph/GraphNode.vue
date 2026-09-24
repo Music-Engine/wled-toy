@@ -7,14 +7,14 @@ import { handlerFor, nodeBodies, type TypeHandler } from './handlers'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from './graph-context'
 import { socketColor, unlinkedStream } from './sockets'
-import { isImplicit, itemFor, placement, type DataType, type GraphNodeData, type Socket as NodeSocket, type SocketValue } from '@/lib/graph'
+import { isImplicit, nodeItem, placement, type DataType, type GraphNodeData, type Socket as NodeSocket, type SocketValue } from '@/lib/graph'
 
 const props = defineProps<NodeProps<GraphNodeData>>()
 const { edges, updateNodeData, updateNodeInternals } = useVueFlow()
 const graphIssues = inject(graphIssuesKey, null)
 const connectedHandles = inject(connectedHandlesKey, null)
 
-const kind = computed(() => itemFor(props.data.kind))
+const kind = computed(() => nodeItem(props.data.kind))
 // the node's sockets and code follow its values (a Math node changes with its operation)
 const item = computed(() => kind.value?.shape(props.data.values))
 // control-rate sockets are diamonds, like Blender's per-object (not per-point) fields

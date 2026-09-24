@@ -7,7 +7,7 @@ import NodeGallery from './NodeGallery.vue'
 import TextField from '@/components/graph/ui/TextField.vue'
 import { galleryChecks } from './invariants'
 import { galleryNodes } from './nodes'
-import { allItems, itemFor, type EnumOption } from '@/lib/graph'
+import { allItems, nodeItem, type EnumOption } from '@/lib/graph'
 import { click } from '@/test/pointer'
 
 let root: HTMLElement
@@ -98,7 +98,7 @@ describe('each check fails on a broken kit', () => {
 })
 
 describe('the enum popup inside a node', () => {
-  const optionsOf = (kind: string, socket: string) => itemFor(kind)!.base.inputs.find((s) => s.name === socket)!.type.props!.options as readonly EnumOption[]
+  const optionsOf = (kind: string, socket: string) => nodeItem(kind)!.base.inputs.find((s) => s.name === socket)!.type.props!.options as readonly EnumOption[]
   const popup = () => document.querySelector<HTMLElement>('.nui-dropdown-menu')
   // a popup left open by a failed case would be the one the next case finds
   afterEach(() => void document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))

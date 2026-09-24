@@ -8,13 +8,13 @@ import { isImplicit, type EnumOption } from './define/types'
 const FILE = 'graphs/AUTHORING.md'
 const MARKER = '<!-- generated: node reference. Everything below is rewritten by src/lib/graph/node-reference.test.ts -->'
 
-const optionsOf = (socket: Socket) => ((socket.type.props?.options ?? []) as EnumOption[]).map((o) => o.value)
+const enumValues = (socket: Socket) => ((socket.type.props?.options ?? []) as EnumOption[]).map((o) => o.value)
 
 function inputLine(socket: Socket, values: Record<string, unknown>): string {
   const props = typeof socket.props === 'function' ? socket.props(values) : socket.props
   const range = ['min', 'max', 'step'].filter((key) => typeof props[key] === 'number').map((key) => `${key} ${props[key]}`).join(', ')
   const fallback = isImplicit(socket.default) ? `unlinked it reads \`${socket.default.label}\`` : `default \`${JSON.stringify(socket.default)}\``
-  const kind = socket.type.id === 'enum' ? `one of ${optionsOf(socket).map((v) => `\`${v}\``).join(' ')}` : socket.type.label
+  const kind = socket.type.id === 'enum' ? `one of ${enumValues(socket).map((v) => `\`${v}\``).join(' ')}` : socket.type.label
   return `  - in \`${socket.name}\`${socket.label && socket.label.toLowerCase() !== socket.name.toLowerCase() ? ` "${socket.label}"` : ''}: ${kind}, ${socket.linkable ? 'linkable' : 'stored only'}, ${fallback}${range ? `, ${range}` : ''}`
 }
 
@@ -27,7 +27,7 @@ const sockets = (shape: NodeShape, base: NodeShape) => `${shape.inputs.filter((s
 function variants(item: NodeItem): string[] {
   return item.base.inputs.filter((socket) => socket.type.id === 'enum').flatMap((socket) => {
     const groups = new Map<string, string[]>()
-    for (const value of optionsOf(socket)) {
+    for (const value of enumValues(socket)) {
       const key = sockets(item.shape({ [socket.name]: value }), item.base)
       groups.set(key, [...(groups.get(key) ?? []), value])
     }

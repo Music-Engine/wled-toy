@@ -3,7 +3,7 @@
 // (./streams), and walks the sinks into a plain-data Program (./frame-plan, ./pixel-plan, ./uniforms). The GLSL backend
 // (./glsl) and the JS backend (./js) read only that Program; the GLSL backend also records on it what each pixel body
 // declared through `ctx.require`, since bodies run only there.
-import { itemFor } from '@/lib/graph/registry'
+import { nodeItem } from '@/lib/graph/registry'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import type { FramePlan } from './frame'
 import { planStep } from './frame-plan'
@@ -34,7 +34,7 @@ export interface GeneratedShader extends GlslShader {
 /** Walks the sinks depth-first in document order, each socket in declaration order, as the snapshots expect. */
 export function buildProgram(doc: NodeGraph, options: CompileOptions): Program {
   const c = new FrontEnd(doc, options)
-  const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput).map((n) => n.id)
+  const sinks = doc.nodes.filter((n) => nodeItem(n.data.kind) && c.lookup(n.id).shape.isOutput).map((n) => n.id)
   const [output, ...others] = sinks.filter((id) => c.lookup(id).shape.pixel)
   if (!output) return fail(c, 'Add an Output node to see anything.', null)
   // an Output left out is not compiled at all, so its color cannot replace the first one's either

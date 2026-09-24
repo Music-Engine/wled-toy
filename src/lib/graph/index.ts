@@ -18,4 +18,4 @@ export {
 } from './model/doc'
 export { readGraphFile, serializeGraphFile } from './model/file'
 export { captureScene, fadeScene, pruneScenes, type Scene } from './model/scenes'
-export { allItems, firstCompatibleSocket, inputSocket, itemFor, outputSocket, storedShape } from './registry'
+export { allItems, firstCompatibleSocket, inputSocket, nodeItem, outputSocket, storedShape } from './registry'

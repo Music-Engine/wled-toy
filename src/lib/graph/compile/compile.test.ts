@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, itemFor, normalizeDoc, type NodeGraph } from '@/lib/graph'
+import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, nodeItem, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4 } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { GLSL_TYPES } from '@/lib/shader/glsl'
@@ -103,7 +103,7 @@ describe('streams', () => {
 
 describe('resolve', () => {
   it('hands its data to the bodies as resolved, never over an input of the same name', () => {
-    const spectrum = itemFor('spectrum')!.base
+    const spectrum = nodeItem('spectrum')!.base
     spectrum.resolve = () => ({ data: { spectrum: { slot: 3 } } })
     try {
       const doc = graph([node('f', 'fft', { fmin: 100 }), node('s', 'spectrum'), node('o', 'output')], [['f.spectrum', 's.spectrum'], ['s.level', 'o.color']])
