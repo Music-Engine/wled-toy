@@ -16,11 +16,6 @@ import { GraphError, type Program } from '@/lib/graph/compile/front-end/program'
 import { resolveNode } from '@/lib/graph/compile/front-end/streams'
 import { inferWidths } from '@/lib/graph/compile/front-end/width'
 
-export type { CompileOptions } from '@/lib/graph/compile/front-end/front-end'
-export type { FrozenValue } from '@/lib/graph/compile/glsl/glsl'
-export { glslForm } from '@/lib/graph/compile/glsl/glsl-types'
-export type { GraphIssue } from '@/lib/graph/compile/front-end/program'
-
 export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): GeneratedShader {
   const program = buildProgram(doc, options)
   return { ...glsl(program), frame: js(program) }
@@ -62,3 +57,8 @@ function buildSink(c: FrontEnd, id: string): void {
   else if (c.placedAt(id) === 'frame') planStep(c, id)
   else emitPixel(c, id)
 }
+
+export type { CompileOptions } from '@/lib/graph/compile/front-end/front-end'
+export type { FrozenValue } from '@/lib/graph/compile/glsl/glsl'
+export { glslForm } from '@/lib/graph/compile/glsl/glsl-types'
+export type { GraphIssue } from '@/lib/graph/compile/front-end/program'
