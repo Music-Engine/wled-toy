@@ -3,22 +3,19 @@ import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveResult, R
 import type { DataType, ImplicitDefault } from './types'
 import type { Value } from './value'
 
-export type WidgetProps = Record<string, unknown> | ((values: Record<string, unknown>) => Record<string, unknown>)
-
-/** An input. Unlinked, it reads `default`: a stored literal, or an expression the shader evaluates (see ImplicitDefault). */
-export interface Socket {
-  name: string
-  label: string
-  type: DataType<any>
-  linkable: boolean
-  default: unknown | ImplicitDefault
-  props: WidgetProps
-}
-
-export interface OutputSocket {
-  name: string
-  label: string
-  type: DataType<any>
+/**
+ * A node kind. Its shape is a function of the node's stored values, so a parameter can change what sockets it has
+ * and what it computes: a Math node set to Sine has one Value input, set to Wrap it has Value, Min and Max.
+ */
+export interface NodeItem {
+  id: string
+  title: string
+  description: string
+  category: CategoryId
+  shape(values: Record<string, unknown>): NodeShape
+  /** The shape with nothing set: what the menu lists and previews. */
+  base: NodeShape
+  presets?: NodePreset[]
 }
 
 /** One node at one set of values: its sockets and its code. */
@@ -37,20 +34,23 @@ export interface NodeShape {
   stateScope?: Rate
 }
 
-/**
- * A node kind. Its shape is a function of the node's stored values, so a parameter can change what sockets it has
- * and what it computes: a Math node set to Sine has one Value input, set to Wrap it has Value, Min and Max.
- */
-export interface NodeItem {
-  id: string
-  title: string
-  description: string
-  category: CategoryId
-  shape(values: Record<string, unknown>): NodeShape
-  /** The shape with nothing set: what the menu lists and previews. */
-  base: NodeShape
-  presets?: NodePreset[]
+/** An input. Unlinked, it reads `default`: a stored literal, or an expression the shader evaluates (see ImplicitDefault). */
+export interface Socket {
+  name: string
+  label: string
+  type: DataType<any>
+  linkable: boolean
+  default: unknown | ImplicitDefault
+  props: WidgetProps
 }
+
+export interface OutputSocket {
+  name: string
+  label: string
+  type: DataType<any>
+}
+
+export type WidgetProps = Record<string, unknown> | ((values: Record<string, unknown>) => Record<string, unknown>)
 
 /** The node started with `values`, listed in the menu as an entry of its own; `group` files it under a sub-directory. */
 export interface NodePreset {

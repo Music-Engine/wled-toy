@@ -25,20 +25,6 @@ export interface FramePlan {
   resources: Record<string, unknown[]>
 }
 
-/** Same rules as castTo, on numbers: scalars spread, long vectors truncate, short ones pad with 0 and alpha 1. A vector is written into `into` when given. */
-export function castFrameValue(value: FrameValue, dim: number, into?: number[]): FrameValue {
-  if (!Array.isArray(value)) return dim === 1 ? value : (into ?? Array(dim)).fill(value)
-  if (dim === 1) return value[0] ?? 0
-  const out = into ?? Array(dim)
-  for (let i = 0; i < dim; i++) out[i] = value[i] ?? (i === 3 ? 1 : 0)
-  return out
-}
-
-/** A binding as the runner reads it: a frame builtin is resolved to its reader when the plan is loaded. */
-type LoadedBinding = Exclude<FrameBinding, { frame: string }> | { read: (frame: FrameInfo) => number }
-type LoadedInput = { name: string; binding: LoadedBinding; dim: number | undefined; buffer: number[] | undefined }
-type LoadedStep = Omit<FrameStep, 'inputs'> & { stateKey: string; inputs: LoadedInput[]; input: Record<string, unknown> }
-
 /** Runs a plan once per frame and keeps each node's state across plans for as long as the node exists. */
 export class FrameRunner {
   private plan: FramePlan = { steps: [], exports: [], resources: {} }
@@ -132,6 +118,11 @@ export function zeroValue(type: DataType<any>): unknown {
   throw new Error(`${type.label} cannot hold node state`)
 }
 
+/** A binding as the runner reads it: a frame builtin is resolved to its reader when the plan is loaded. */
+type LoadedBinding = Exclude<FrameBinding, { frame: string }> | { read: (frame: FrameInfo) => number }
+type LoadedInput = { name: string; binding: LoadedBinding; dim: number | undefined; buffer: number[] | undefined }
+type LoadedStep = Omit<FrameStep, 'inputs'> & { stateKey: string; inputs: LoadedInput[]; input: Record<string, unknown> }
+
 // bodies get the same input record and vector buffers every frame, so a body that keeps an input past its call must copy it
 function loadStep(step: FrameStep): LoadedStep {
   const inputs = Object.entries(step.inputs).map(([name, binding]): LoadedInput => {
@@ -153,4 +144,13 @@ function bindingValue(binding: LoadedBinding, results: Record<string, FrameValue
   if ('constant' in binding) return dim === undefined ? binding.constant : castFrameValue(binding.constant as FrameValue, dim, buffer)
   if ('read' in binding) return castFrameValue(binding.read(frame), dim!, buffer)
   return castFrameValue(results[binding.step][binding.output] ?? 0, dim!, buffer)
+}
+
+/** Same rules as castTo, on numbers: scalars spread, long vectors truncate, short ones pad with 0 and alpha 1. A vector is written into `into` when given. */
+export function castFrameValue(value: FrameValue, dim: number, into?: number[]): FrameValue {
+  if (!Array.isArray(value)) return dim === 1 ? value : (into ?? Array(dim)).fill(value)
+  if (dim === 1) return value[0] ?? 0
+  const out = into ?? Array(dim)
+  for (let i = 0; i < dim; i++) out[i] = value[i] ?? (i === 3 ? 1 : 0)
+  return out
 }

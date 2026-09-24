@@ -26,13 +26,6 @@ export function cppDefinitions(program: Program, { leds }: CppOptions): string {
   return [`constexpr int ledCount = ${leds};`, ...pixelDefinitions(program, shader.code), ...RENDER_FRAME].join('\n')
 }
 
-/** The per-LED state array when the Program keeps pixel state, sized by a `ledCount` declared before it, and its GLSL `code` spelled for C++. */
-export function pixelDefinitions(program: Program, code: string): string[] {
-  const layers = stateLayers(program)
-  const state = layers ? [`vec4 pixelState[ledCount][${layers}] = {};`] : []
-  return [...state, cppSource(pixelStateReads(code))]
-}
-
 function rejectFrameSteps(program: Program): void {
   const step = program.frame[0]
   if (!step) return
@@ -43,6 +36,13 @@ function rejectFrameSteps(program: Program): void {
 function rejectGlslOnly(program: Program): void {
   const node = Object.values(program.nodes).find((n) => n.requires?.includes('glsl'))
   if (node) throw new GraphError(`${shapeOf(node).title} samples a texture or takes a derivative, which C++ has no pixels for`, node.id)
+}
+
+/** The per-LED state array when the Program keeps pixel state, sized by a `ledCount` declared before it, and its GLSL `code` spelled for C++. */
+export function pixelDefinitions(program: Program, code: string): string[] {
+  const layers = stateLayers(program)
+  const state = layers ? [`vec4 pixelState[ledCount][${layers}] = {};`] : []
+  return [...state, cppSource(pixelStateReads(code))]
 }
 
 /**

@@ -75,9 +75,6 @@ export const MATH_OPS = {
 export type MathOpName = keyof typeof MATH_OPS
 const MATH_OP_OPTIONS = Object.entries(MATH_OPS).map(([value, op]) => ({ value: value as MathOpName, label: op.label, group: op.group }))
 
-const componentWise = (fn: (a: number, b: number, c: number) => number, a: number | number[], b: number | number[], c: number | number[]) =>
-  (Array.isArray(a) ? a.map((x, i) => fn(x, (b as number[])[i], (c as number[])[i])) : fn(a, b as number, c as number))
-
 /** Blender's Math node. The operation decides how many values it takes and what they are called; vectors go through per component. */
 export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName }) => {
   const def: MathOp = MATH_OPS[op] ?? MATH_OPS.add
@@ -108,3 +105,6 @@ export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName })
     },
   }
 })
+
+const componentWise = (fn: (a: number, b: number, c: number) => number, a: number | number[], b: number | number[], c: number | number[]) =>
+  (Array.isArray(a) ? a.map((x, i) => fn(x, (b as number[])[i], (c as number[])[i])) : fn(a, b as number, c as number))

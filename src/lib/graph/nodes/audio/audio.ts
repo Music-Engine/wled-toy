@@ -61,14 +61,6 @@ export const fftNode = defineNode('fft', {
   },
 })
 
-const analysis = (frame: FrameInfo, slot = 0): Features | undefined => frame.audio?.analyses[slot] ?? undefined
-
-// named ranges of a mix, in Hz; the outputs follow the loudest partial inside each
-const RANGES = { sub: [20, 60], kick: [60, 150], lowMid: [150, 500], vocal: [500, 2000], presence: [2000, 6000], air: [6000, 16000] } as const
-
-const rangeLevel = (f: Features, sampleRate: number, low: number, high: number) =>
-  (f.gate ? Math.sqrt(Math.min(1, rangePeak(f.spectrum, sampleRate, f.spectrum.length * 2, low, high) * f.gain)) : 0)
-
 export const audioNode = defineNode('audio', {
   title: 'Audio',
   description: 'Everything measured from an audio stream once per frame: loudness, onsets, the beat clock, brightness, and the level of named ranges of the mix. Levels are gain-controlled, so they fill 0 to 1 whatever the volume.',
@@ -107,3 +99,11 @@ export const bandSplitNode = defineNode('bandSplit', {
     return { level: f ? rangeLevel(f, info.audio!.sampleRate, low, high) : 0 }
   },
 })
+
+const analysis = (frame: FrameInfo, slot = 0): Features | undefined => frame.audio?.analyses[slot] ?? undefined
+
+// named ranges of a mix, in Hz; the outputs follow the loudest partial inside each
+const RANGES = { sub: [20, 60], kick: [60, 150], lowMid: [150, 500], vocal: [500, 2000], presence: [2000, 6000], air: [6000, 16000] } as const
+
+const rangeLevel = (f: Features, sampleRate: number, low: number, high: number) =>
+  (f.gate ? Math.sqrt(Math.min(1, rangePeak(f.spectrum, sampleRate, f.spectrum.length * 2, low, high) * f.gain)) : 0)

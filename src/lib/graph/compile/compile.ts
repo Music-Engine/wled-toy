@@ -21,14 +21,14 @@ export type { FrozenValue } from './glsl'
 export { glslForm } from './glsl-types'
 export type { GraphIssue } from './program'
 
-export interface GeneratedShader extends GlslShader {
-  /** What is evaluated in JS each frame, and which of its results the shader reads from `iControl`. */
-  frame: FramePlan
-}
-
 export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): GeneratedShader {
   const program = buildProgram(doc, options)
   return { ...glsl(program), frame: js(program) }
+}
+
+export interface GeneratedShader extends GlslShader {
+  /** What is evaluated in JS each frame, and which of its results the shader reads from `iControl`. */
+  frame: FramePlan
 }
 
 /** Walks the sinks depth-first in document order, each socket in declaration order, as the snapshots expect. */

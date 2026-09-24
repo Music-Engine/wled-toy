@@ -5,17 +5,7 @@ import { canonical, createDefaultGraph, type NodeGraph } from './doc'
 import { log } from '@/lib/app/logs'
 import { GRAPH_FILE_EXTENSION, readGraphFile, serializeGraphFile } from './file'
 
-/** Provide a backend under this key (a native one under Tauri, a fake in tests) and the graph page uses it instead of the browser's. */
-export const graphFileBackendKey: InjectionKey<FileBackend> = Symbol('graphFileBackend')
-
 export type { DocumentPrompt, PromptChoice } from '@/lib/documents/document-session'
-
-export interface GraphSession extends DocumentSession<NodeGraph> {
-  newGraph(): Promise<void>
-}
-
-/** The document the graph page edits right now. */
-export const activeGraphDocument = computed(() => (documentSessions.graph ?? null) as GraphSession | null)
 
 /** Call inside a component or an effect scope: the unload guard and the autosave end with it. */
 export function createGraphDocument(options: { backend: FileBackend; getSnapshot: () => NodeGraph; onLoad: (doc: NodeGraph) => void }): GraphSession {
@@ -36,3 +26,13 @@ export function createGraphDocument(options: { backend: FileBackend; getSnapshot
   // the registry holds this very object, so the name the graph page calls has to land on it
   return Object.assign(session, { newGraph: session.newDocument })
 }
+
+export interface GraphSession extends DocumentSession<NodeGraph> {
+  newGraph(): Promise<void>
+}
+
+/** The document the graph page edits right now. */
+export const activeGraphDocument = computed(() => (documentSessions.graph ?? null) as GraphSession | null)
+
+/** Provide a backend under this key (a native one under Tauri, a fake in tests) and the graph page uses it instead of the browser's. */
+export const graphFileBackendKey: InjectionKey<FileBackend> = Symbol('graphFileBackend')

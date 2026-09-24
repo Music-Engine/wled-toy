@@ -27,53 +27,6 @@ export const defaultRamp = (): ColorRamp => ({
   ],
 })
 
-const sorted = (ramp: ColorRamp) => [...ramp.stops].sort((a, b) => a.position - b.position)
-
-// Uniform cubic B-spline through evenly spaced colors: smooth, and like Blender's it only approaches the stops.
-// The first and last colors are mirrored so the curve starts and ends on the outer stops.
-function splineControls(colors: number[][]): number[][] {
-  if (colors.length < 2) return colors
-  const mirror = (a: number[], b: number[]) => a.map((c, k) => 2 * c - b[k])
-  return [mirror(colors[0], colors[1]), ...colors, mirror(colors[colors.length - 1], colors[colors.length - 2])]
-}
-
-/** The color a ramp yields at `fac`. The editor previews with this, and the GLSL the node emits computes the same thing. */
-export function sampleRamp(ramp: ColorRamp, fac: number): number[] {
-  const stops = sorted(ramp)
-  if (stops.length === 0) return [0, 0, 0]
-  if (ramp.interpolation === 'spline' && stops.length > 1) return sampleSpline(stops, fac)
-  return sampleSegments(ramp, stops, fac)
-}
-
-function sampleSpline(stops: RampStop[], fac: number): number[] {
-  const controls = splineControls(stops.map((stop) => stop.color.slice(0, 3)))
-  const x = Math.min(1, Math.max(0, fac)) * (stops.length - 1)
-  const i = Math.min(stops.length - 2, Math.floor(x))
-  const t = x - i
-  const weights = [(1 - t) ** 3, 3 * t ** 3 - 6 * t ** 2 + 4, -3 * t ** 3 + 3 * t ** 2 + 3 * t + 1, t ** 3]
-  return [0, 1, 2].map((k) => weights.reduce((sum, w, j) => sum + w * controls[i + j][k], 0) / 6)
-}
-
-function sampleSegments(ramp: ColorRamp, stops: RampStop[], fac: number): number[] {
-  let color = stops[0].color.slice(0, 3)
-  for (let i = 1; i < stops.length; i++) {
-    const a = stops[i - 1]
-    const b = stops[i]
-    const span = b.position - a.position
-    const linear = Math.min(1, Math.max(0, (fac - a.position) / span))
-    const blend = segmentBlend(ramp.interpolation, span)
-    const weight = blend === 'constant' ? Number(fac >= b.position) : blend === 'ease' ? linear * linear * (3 - 2 * linear) : linear
-    color = color.map((c, k) => c + (b.color[k] - c) * weight)
-  }
-  return color
-}
-
-// smoothstep is undefined when both edges are equal, so coincident stops snap instead
-function segmentBlend(interpolation: RampInterpolation, span: number): 'constant' | 'ease' | 'linear' {
-  if (interpolation === 'constant' || span < 1e-4) return 'constant'
-  return interpolation === 'ease' ? 'ease' : 'linear'
-}
-
 const isStop = (raw: unknown): raw is RampStop => {
   const stop = raw as Partial<RampStop> | null
   return !!stop && Number.isFinite(stop.position) && Array.isArray(stop.color) && stop.color.length >= 3 && stop.color.every(Number.isFinite)
@@ -90,6 +43,19 @@ const Ramp: DataType<ColorRamp> = {
   },
   initial: defaultRamp,
 }
+
+export const colorRampNode = defineNode('colorRamp', {
+  title: 'Color Ramp',
+  description: 'Map a 0 to 1 value onto a gradient of color stops.',
+  category: 'color',
+  signature: 'vec3 colorRamp(float fac)',
+  input: {
+    ramp: { type: Ramp, label: '', linkable: false },
+    fac: { type: Float, label: 'Factor', default: { expr: 'uv.x', label: 'uv.x' } },
+  },
+  output: { color: Color },
+  pixel: ({ ramp, fac }, ctx) => ({ color: emitRamp(ctx, ramp, fac.expr) }),
+})
 
 /** Emits the GLSL that evaluates `ramp` at the float expression `fac`. Shared with the Palette node. */
 export function emitRamp(ctx: NodeContext, ramp: ColorRamp, fac: string): Value {
@@ -131,17 +97,51 @@ function emitSegments(ctx: NodeContext, ramp: ColorRamp, stops: RampStop[], f: s
   return color
 }
 
-const colorLiteral = (color: number[]) => vectorLiteral(color.slice(0, 3)).expr
+/** The color a ramp yields at `fac`. The editor previews with this, and the GLSL the node emits computes the same thing. */
+export function sampleRamp(ramp: ColorRamp, fac: number): number[] {
+  const stops = sorted(ramp)
+  if (stops.length === 0) return [0, 0, 0]
+  if (ramp.interpolation === 'spline' && stops.length > 1) return sampleSpline(stops, fac)
+  return sampleSegments(ramp, stops, fac)
+}
 
-export const colorRampNode = defineNode('colorRamp', {
-  title: 'Color Ramp',
-  description: 'Map a 0 to 1 value onto a gradient of color stops.',
-  category: 'color',
-  signature: 'vec3 colorRamp(float fac)',
-  input: {
-    ramp: { type: Ramp, label: '', linkable: false },
-    fac: { type: Float, label: 'Factor', default: { expr: 'uv.x', label: 'uv.x' } },
-  },
-  output: { color: Color },
-  pixel: ({ ramp, fac }, ctx) => ({ color: emitRamp(ctx, ramp, fac.expr) }),
-})
+function sampleSpline(stops: RampStop[], fac: number): number[] {
+  const controls = splineControls(stops.map((stop) => stop.color.slice(0, 3)))
+  const x = Math.min(1, Math.max(0, fac)) * (stops.length - 1)
+  const i = Math.min(stops.length - 2, Math.floor(x))
+  const t = x - i
+  const weights = [(1 - t) ** 3, 3 * t ** 3 - 6 * t ** 2 + 4, -3 * t ** 3 + 3 * t ** 2 + 3 * t + 1, t ** 3]
+  return [0, 1, 2].map((k) => weights.reduce((sum, w, j) => sum + w * controls[i + j][k], 0) / 6)
+}
+
+function sampleSegments(ramp: ColorRamp, stops: RampStop[], fac: number): number[] {
+  let color = stops[0].color.slice(0, 3)
+  for (let i = 1; i < stops.length; i++) {
+    const a = stops[i - 1]
+    const b = stops[i]
+    const span = b.position - a.position
+    const linear = Math.min(1, Math.max(0, (fac - a.position) / span))
+    const blend = segmentBlend(ramp.interpolation, span)
+    const weight = blend === 'constant' ? Number(fac >= b.position) : blend === 'ease' ? linear * linear * (3 - 2 * linear) : linear
+    color = color.map((c, k) => c + (b.color[k] - c) * weight)
+  }
+  return color
+}
+
+// smoothstep is undefined when both edges are equal, so coincident stops snap instead
+function segmentBlend(interpolation: RampInterpolation, span: number): 'constant' | 'ease' | 'linear' {
+  if (interpolation === 'constant' || span < 1e-4) return 'constant'
+  return interpolation === 'ease' ? 'ease' : 'linear'
+}
+
+// Uniform cubic B-spline through evenly spaced colors: smooth, and like Blender's it only approaches the stops.
+// The first and last colors are mirrored so the curve starts and ends on the outer stops.
+function splineControls(colors: number[][]): number[][] {
+  if (colors.length < 2) return colors
+  const mirror = (a: number[], b: number[]) => a.map((c, k) => 2 * c - b[k])
+  return [mirror(colors[0], colors[1]), ...colors, mirror(colors[colors.length - 1], colors[colors.length - 2])]
+}
+
+const sorted = (ramp: ColorRamp) => [...ramp.stops].sort((a, b) => a.position - b.position)
+
+const colorLiteral = (color: number[]) => vectorLiteral(color.slice(0, 3)).expr

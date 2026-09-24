@@ -17,23 +17,6 @@ export interface CompileOptions {
   controls?: (nodeId: string, output: string) => FrameValue | undefined
 }
 
-/** Where a linked socket reads from: the source node and its output. */
-export type LinkSource = { id: string; output: string }
-
-export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
-
-/** Slot name to type id, as the Program records a node's state. */
-export function slotTypes(state: NonNullable<NodeShape['state']>): Record<string, string> {
-  return Object.fromEntries(Object.entries(state).map(([name, type]) => [name, type.id]))
-}
-
-/** The value stored on the node for a socket, or its default; an invalid one is an error on the node. */
-export function storedValue(nodeId: string, data: GraphNodeData, socket: Socket): unknown {
-  const raw = data.values[socket.name] ?? socket.default
-  if (!socket.type.check(raw)) throw new GraphError(`${socket.label || socket.name} is ${JSON.stringify(raw)}, not a valid ${socket.type.label}`, nodeId)
-  return raw
-}
-
 export class FrontEnd {
   readonly program: Program = { nodes: {}, pixel: [], frame: [], uniforms: [], state: {}, resources: {}, output: null, issues: [], error: null, errorNode: null }
   /** Nodes on the current walk, for loop detection. */
@@ -119,4 +102,21 @@ export class FrontEnd {
     const { data } = this.lookup(id).node
     this.program.nodes[id] ??= { id, kind: data.kind, values: data.values, resolved: this.resolved.get(id)?.data ?? {}, width: this.widths.get(id) ?? null }
   }
+}
+
+/** Where a linked socket reads from: the source node and its output. */
+export type LinkSource = { id: string; output: string }
+
+export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
+
+/** Slot name to type id, as the Program records a node's state. */
+export function slotTypes(state: NonNullable<NodeShape['state']>): Record<string, string> {
+  return Object.fromEntries(Object.entries(state).map(([name, type]) => [name, type.id]))
+}
+
+/** The value stored on the node for a socket, or its default; an invalid one is an error on the node. */
+export function storedValue(nodeId: string, data: GraphNodeData, socket: Socket): unknown {
+  const raw = data.values[socket.name] ?? socket.default
+  if (!socket.type.check(raw)) throw new GraphError(`${socket.label || socket.name} is ${JSON.stringify(raw)}, not a valid ${socket.type.label}`, nodeId)
+  return raw
 }

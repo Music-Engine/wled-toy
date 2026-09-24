@@ -1,6 +1,20 @@
 import type { ColorRamp } from '@/lib/graph/nodes/color/color-ramp'
 import { parseScenes, type Scene } from './scenes'
 
+export interface NodeGraph {
+  version: number
+  nodes: StoredNode[]
+  edges: StoredEdge[]
+  /** Saved knob settings the Parameters panel can recall. */
+  scenes?: Scene[]
+}
+
+/**
+ * Bumped whenever nodes or sockets change in a way older saved graphs cannot follow. There are no migrations: a graph
+ * saved by an older version is discarded on load, and Settings can wipe everything the app stored.
+ */
+export const GRAPH_VERSION = 3
+
 export type SocketValue = number | number[] | string | boolean | ColorRamp
 
 export interface GraphNodeData {
@@ -25,20 +39,6 @@ export interface StoredEdge {
   sourceHandle?: string | null
   targetHandle?: string | null
   style?: Record<string, string | number>
-}
-
-/**
- * Bumped whenever nodes or sockets change in a way older saved graphs cannot follow. There are no migrations: a graph
- * saved by an older version is discarded on load, and Settings can wipe everything the app stored.
- */
-export const GRAPH_VERSION = 3
-
-export interface NodeGraph {
-  version: number
-  nodes: StoredNode[]
-  edges: StoredEdge[]
-  /** Saved knob settings the Parameters panel can recall. */
-  scenes?: Scene[]
 }
 
 export const GRAPH_NODE_TYPE = 'shader'

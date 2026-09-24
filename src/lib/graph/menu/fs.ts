@@ -5,34 +5,9 @@ import type { NodeItem } from '@/lib/graph/define/shape'
 import { itemFor } from '@/lib/graph/registry'
 import type { DataType } from '@/lib/graph/define/types'
 
-function kind(id: string): NodeItem {
-  const item = itemFor(id)
-  if (!item) throw new Error(`The Add menu names unknown node kind "${id}"`)
-  return item
-}
+const UNIFORMS = ['iResolution', 'iLedCount', 'iScanY', 'iAudio', 'iImage']
 
 const leaves = (ids: string[]) => ids.map((id) => leaf(kind(id)))
-
-/** A directory themed after a category: the graph's own nodes, a separator, then the injected GLSL functions and sub-directories. */
-function categoryDirectory(id: CategoryId, own: string[], rest: MenuItem<NodeItem>[] = []): MenuDirectory<NodeItem> {
-  const category = categoryById.get(id)!
-  const items: MenuItem<NodeItem>[] = leaves(own)
-  if (own.length && rest.length) items.push(separator)
-  items.push(...rest)
-  return directory(category.label, items, { icon: category.icon, color: category.color })
-}
-
-/** Every preset of a kind as its own entry, filed under the preset's group when it has one. */
-function presetDirectory(id: string): MenuDirectory<NodeItem> {
-  const item = kind(id)
-  const presets = item.presets ?? []
-  if (!presets.length) throw new Error(`The Add menu lists presets of "${id}", which has none`)
-  const presetLeaves = (group?: string) => presets.filter((preset) => preset.group === group).map((preset) => leaf(item, preset))
-  const groups = [...new Set(presets.map((preset) => preset.group))]
-  return directory(`${item.title} Operations`, groups.flatMap((group): MenuItem<NodeItem>[] => (group ? [directory(group, presetLeaves(group))] : presetLeaves())))
-}
-
-const UNIFORMS = ['iResolution', 'iLedCount', 'iScanY', 'iAudio', 'iImage']
 
 export const GRAPH_FS: MenuFs<NodeItem> = {
   title: 'Add',
@@ -64,8 +39,6 @@ export const GRAPH_FS: MenuFs<NodeItem> = {
   ],
 }
 
-const uniforms = new Set(UNIFORMS)
-
 /** `socketColor` comes from the editor, which owns how a socket type is drawn. */
 export function describeNodeItem(item: NodeItem, preset: MenuPreset | undefined, socketColor: (type: DataType<any>) => string): MenuEntry {
   const category = categoryById.get(item.category)!
@@ -83,4 +56,31 @@ export function describeNodeItem(item: NodeItem, preset: MenuPreset | undefined,
     outputs: shape.outputs.map((s) => ({ label: s.label, color: socketColor(s.type) })),
     note: uniforms.has(item.id) ? 'uniform' : undefined,
   }
+}
+
+const uniforms = new Set(UNIFORMS)
+
+/** A directory themed after a category: the graph's own nodes, a separator, then the injected GLSL functions and sub-directories. */
+function categoryDirectory(id: CategoryId, own: string[], rest: MenuItem<NodeItem>[] = []): MenuDirectory<NodeItem> {
+  const category = categoryById.get(id)!
+  const items: MenuItem<NodeItem>[] = leaves(own)
+  if (own.length && rest.length) items.push(separator)
+  items.push(...rest)
+  return directory(category.label, items, { icon: category.icon, color: category.color })
+}
+
+/** Every preset of a kind as its own entry, filed under the preset's group when it has one. */
+function presetDirectory(id: string): MenuDirectory<NodeItem> {
+  const item = kind(id)
+  const presets = item.presets ?? []
+  if (!presets.length) throw new Error(`The Add menu lists presets of "${id}", which has none`)
+  const presetLeaves = (group?: string) => presets.filter((preset) => preset.group === group).map((preset) => leaf(item, preset))
+  const groups = [...new Set(presets.map((preset) => preset.group))]
+  return directory(`${item.title} Operations`, groups.flatMap((group): MenuItem<NodeItem>[] => (group ? [directory(group, presetLeaves(group))] : presetLeaves())))
+}
+
+function kind(id: string): NodeItem {
+  const item = itemFor(id)
+  if (!item) throw new Error(`The Add menu names unknown node kind "${id}"`)
+  return item
 }

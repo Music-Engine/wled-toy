@@ -54,8 +54,6 @@ export const VECTOR_OPS = {
 export type VectorOpName = keyof typeof VECTOR_OPS
 const VECTOR_OP_OPTIONS = Object.entries(VECTOR_OPS).map(([value, op]) => ({ value: value as VectorOpName, label: op.label, group: op.group }))
 
-const asVector = (v: number | number[]): V => (Array.isArray(v) ? [v[0] ?? 0, v[1] ?? 0, v[2] ?? 0] : [v, v, v])
-
 /** Blender's Vector Math node, on 3D vectors. A number linked in spreads to all three components. */
 export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: VectorOpName }) => {
   const def: VectorOp = VECTOR_OPS[op] ?? VECTOR_OPS.add
@@ -86,3 +84,5 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
   }
   return options
 })
+
+const asVector = (v: number | number[]): V => (Array.isArray(v) ? [v[0] ?? 0, v[1] ?? 0, v[2] ?? 0] : [v, v, v])
