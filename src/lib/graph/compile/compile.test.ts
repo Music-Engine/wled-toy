@@ -88,6 +88,12 @@ describe('streams', () => {
     expect(result).toMatchObject({ errorNode: 'o', error: 'Color needs a number or a color, not Spectrum' })
   })
 
+  it('a stream or a bodiless source linked into a per-frame socket is refused for what it is, not as changing per pixel', () => {
+    const into = (output: string) => generateGlsl(graph([node('f', 'fft'), node('i', 'integrator'), node('o', 'output')], [[`f.${output}`, 'i.rate'], ['i.value', 'o.color']]))
+    expect(into('spectrum')).toMatchObject({ errorNode: 'i', error: 'Rate needs one value per frame, not Spectrum' })
+    expect(into('level')).toMatchObject({ errorNode: 'i', error: 'Rate needs one value per frame, but FFT has no per-frame output level' })
+  })
+
   it('a link to an output a resolve-only node lacks is an error on that node, and plans no frame step for it', () => {
     const program = buildProgram(graph([node('f', 'fft'), node('o', 'output')], [['f.level', 'o.color']]), {})
     expect(program).toMatchObject({ errorNode: 'f', error: 'FFT has no per-frame output level' })

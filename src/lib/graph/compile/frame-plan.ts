@@ -4,7 +4,7 @@ import { componentCount } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { fallsBackToImplicit, valueInputs } from '@/lib/graph/registry'
 import type { FrameBinding } from './frame'
-import { isGenericSocket, slotTypes, storedValue, type FrontEnd } from './front-end'
+import { isGenericSocket, slotTypes, storedValue, type FrontEnd, type LinkSource } from './front-end'
 import { GraphError } from './program'
 import { settledStreams } from './streams'
 
@@ -33,6 +33,7 @@ export function planStep(c: FrontEnd, id: string): number {
 
 function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Socket): FrameBinding {
   const source = c.linkSource(id, socket)
+  if (source) refuseValueless(c, id, socket, source)
   if (source && c.changesPerPixel.has(source.id)) {
     throw new GraphError(`${socket.label} needs one value per frame, but ${c.lookup(source.id).shape.title} changes per pixel`, id)
   }
@@ -40,6 +41,14 @@ function linkedBinding(c: FrontEnd, id: string, data: GraphNodeData, socket: Soc
   if (!fallsBackToImplicit(data.values, socket)) return { constant: storedValue(id, data, socket) }
   if (socket.default.frame) return { frame: socket.default.frame }
   throw new GraphError(`${socket.label} needs a value or a link; its default (${socket.default.label}) only exists per pixel`, id)
+}
+
+/** A stream, or a node with no body to compute a value, also fails canRunPerFrame, but changing per pixel is not why. */
+function refuseValueless(c: FrontEnd, id: string, socket: Socket, source: LinkSource): void {
+  const { shape } = c.lookup(source.id)
+  const out = shape.outputs.find((o) => o.name === source.output)
+  if (out && out.type.kind !== 'value') throw new GraphError(`${socket.label} needs one value per frame, not ${out.type.label}`, id)
+  if (!shape.frame && !shape.pixel) throw new GraphError(`${socket.label} needs one value per frame, but ${shape.title} has no per-frame output ${source.output}`, id)
 }
 
 /** Component count each linked input is cast to before `frame` sees it; generic sockets come last, as planning always listed them. */
