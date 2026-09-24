@@ -23,19 +23,19 @@ interface SocketDef {
 export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any>; label?: string }
 
 type SocketType<D> = Required<D extends { type: infer T extends DataType<any, any, any> } ? T : Extract<D, DataType<any, any, any>>>
-export type Inputs<I, V extends Rate> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { linkable: false } ? '_frame' : `_${V}`] }
+type Inputs<I, V extends Rate> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { linkable: false } ? '_frame' : `_${V}`] }
 /**
  * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `frame` may
  * return either. A union rather than `Readonly` alone, which turns `any` into an object type.
  */
-export type Outputs<O, V extends Rate> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
+type Outputs<O, V extends Rate> = { [K in keyof O]: { frame: SocketType<O[K]>['_frame'] | Readonly<SocketType<O[K]>['_frame']>; pixel: SocketType<O[K]>['_pixel'] }[V] }
 
 /** A node's state: named slots, each holding a value of its type between frames. */
-export type StateDef = Record<string, DataType<any, any, any>>
+type StateDef = Record<string, DataType<any, any, any>>
 /** What a frame body finds in `info.state` for a slot declaration. */
-export type State<S extends StateDef> = { -readonly [K in keyof S]: Required<S[K]>['_frame'] }
+type State<S extends StateDef> = { -readonly [K in keyof S]: Required<S[K]>['_frame'] }
 /** What a pixel body finds in `ctx.state` for a slot declaration. */
-export type PixelState<S extends StateDef> = { readonly [K in keyof S]: Value }
+type PixelState<S extends StateDef> = { readonly [K in keyof S]: Value }
 
 export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
   title: string

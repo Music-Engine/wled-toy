@@ -65,7 +65,7 @@ export interface NodeContext<S = Record<string, Value>> {
 }
 
 /** Something the engine provides for a graph: an audio source, an analysis, an image layer, an OSC port. */
-export interface Requirement {
+interface Requirement {
   kind: string
   config: unknown
 }

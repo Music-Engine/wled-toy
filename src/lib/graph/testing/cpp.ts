@@ -10,7 +10,7 @@ export const cppCompiler = ['g++', 'c++'].find((command) => !spawnSync(command, 
 // read from the workflow rather than copied, so a flag CI adds is one the tests build with too
 const ciFlags = () => /^\s+CXXFLAGS: (.+)$/m.exec(readFileSync('.github/workflows/ci.yml', 'utf8'))![1].split(' ')
 
-export interface CppRun {
+interface CppRun {
   status: number | null
   output: string
 }

@@ -18,5 +18,5 @@ export {
   enumIndex,
 } from './define/socket-types'
 export type { DataType, EnumOption, ImplicitDefault } from './define/types'
-export { resourceIndex, type FrameInfo, type FrameValue, type GlslChunk, type NodeContext, type Requirement, type ResolveResult, type Resources } from './define/context'
+export { resourceIndex, type FrameInfo, type FrameValue, type GlslChunk, type NodeContext, type ResolveResult, type Resources } from './define/context'
 export { floatLiteral, fmt, swizzle, vectorLiteral, type Value } from './define/value'

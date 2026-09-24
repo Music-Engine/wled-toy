@@ -69,7 +69,7 @@ const isStop = (raw: unknown): raw is RampStop => {
   return !!stop && Number.isFinite(stop.position) && Array.isArray(stop.color) && stop.color.length >= 3 && stop.color.every(Number.isFinite)
 }
 
-export const Ramp: DataType<ColorRamp> = {
+const Ramp: DataType<ColorRamp> = {
   id: 'ramp',
   label: 'Color ramp',
   kind: 'param',

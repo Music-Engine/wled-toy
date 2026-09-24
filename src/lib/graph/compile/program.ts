@@ -66,9 +66,9 @@ export type ProgramState = { slots: Record<string, string> } & (
   }
 )
 
-export type ProgramStep = Omit<FrameStep, 'kind' | 'frame' | 'state' | 'resolved'>
+type ProgramStep = Omit<FrameStep, 'kind' | 'frame' | 'state' | 'resolved'>
 
-export interface UniformSlot {
+interface UniformSlot {
   step: number
   output: string
   slot: number

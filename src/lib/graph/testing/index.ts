@@ -32,7 +32,7 @@ export function alone(item: NodeItem): NodeGraph {
 /** A 0..1 channel as the byte an LED would get with no post-processing. */
 export const toByte = (channel: number) => Math.round(Math.min(1, Math.max(0, channel)) * 255)
 
-export interface RenderedGraph {
+interface RenderedGraph {
   shader: GeneratedShader
   /** GLSL info log when the generated code did not compile. */
   compileError: string | null
