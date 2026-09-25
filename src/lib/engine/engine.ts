@@ -230,8 +230,17 @@ class Engine {
     this.renderer?.dispose()
   }
 
-  private frameParams(): FrameParams {
-    return { time: this.elapsed(), frame: this.frame, ledCount: config.ledCount, scanY: config.scanY }
+  // one object for both passes so neither allocates per frame; the renderer reads it during the call and keeps no reference
+  private readonly params: FrameParams = { time: 0, dt: 0, frame: 0, ledCount: 0, scanY: 0 }
+
+  private frameParams(dt: number): FrameParams {
+    const { params } = this
+    params.time = this.elapsed()
+    params.dt = dt
+    params.frame = this.frame
+    params.ledCount = config.ledCount
+    params.scanY = config.scanY
+    return params
   }
 
   private restartSendTimer() {
@@ -245,7 +254,7 @@ class Engine {
     const now = performance.now()
     // rAF ticks land a little early or late; the 2 ms slack keeps a 30 fps cap from skipping every third frame of a 60 Hz display
     if (preferences.previewFps && now - this.lastPreview < 1000 / preferences.previewFps - 2) return
-    this.renderer.renderPreview({ ...this.frameParams(), dt: Math.min(0.1, (now - this.lastPreview) / 1000) }, preferences.previewHeight)
+    this.renderer.renderPreview(this.frameParams(Math.min(0.1, (now - this.lastPreview) / 1000)), preferences.previewHeight)
     this.lastPreview = now
     this.frame++
     this.bridge.countRender()
@@ -257,7 +266,7 @@ class Engine {
     // control nodes advance on the LED clock, the one that keeps running in a hidden tab; the preview reads the same values
     const now = performance.now()
     const dt = Math.min(0.1, (now - this.lastControlStep) / 1000)
-    const params = { ...this.frameParams(), dt }
+    const params = this.frameParams(dt)
     this.renderer.setControls(this.controls.step({
       time: params.time,
       dt,
