@@ -64,10 +64,10 @@ const trackStatus = useEngine().trackStatus
   </PrefGroup>
 
   <PrefGroup title="Performance">
-    <PrefRow v-slot="{ id }" label="Preview frame rate limit" description="Lower values save power. 0 follows the display. The LED stream has its own rate under Output." :error="errors.previewFps">
+    <PrefRow v-slot="{ id }" label="Preview frame rate limit" description="Default 30. Lower values save power. 0 follows the display with no cap. The LED stream has its own rate under Output." :error="errors.previewFps">
       <PrefNumber :id="id" v-model="preferences.previewFps" :min="0" :max="240" unit="fps" @error="errors.previewFps = $event" />
     </PrefRow>
-    <PrefRow v-slot="{ id }" label="Preview height limit" description="Lower values shade fewer pixels. 0 follows the display. The LED output is not affected." :error="errors.previewHeight">
+    <PrefRow v-slot="{ id }" label="Preview height limit" description="Default 720. Lower values shade fewer pixels. 0 follows the display with no cap. The LED output is not affected." :error="errors.previewHeight">
       <PrefNumber :id="id" v-model="preferences.previewHeight" :min="0" :max="4320" unit="px" @error="errors.previewHeight = $event" />
     </PrefRow>
     <PrefRow v-slot="{ id }" label="Log history" description="Older lines are dropped once the log is this long." :error="errors.logLines">

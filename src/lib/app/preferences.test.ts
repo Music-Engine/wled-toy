@@ -28,11 +28,11 @@ describe('sanitizePreferences', () => {
     const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
     const out = sanitizePreferences({
       launchMode: 'graph', lastMode: 'reference', autosave: 'yes', autosaveSeconds: 30, confirmClose: false,
-      logLines: '500', previewFps: 30, previewHeight: 180, density: 'huge', editorFontSize: 16, reduceMotion: true, unknown: 1,
+      logLines: '500', previewFps: 24, previewHeight: 180, density: 'huge', editorFontSize: 16, reduceMotion: true, unknown: 1,
     })
     expect(out).toEqual({
       ...PREFERENCE_DEFAULTS,
-      launchMode: 'graph', autosaveSeconds: 30, confirmClose: false, previewFps: 30, previewHeight: 180, editorFontSize: 16, reduceMotion: true,
+      launchMode: 'graph', autosaveSeconds: 30, confirmClose: false, previewFps: 24, previewHeight: 180, editorFontSize: 16, reduceMotion: true,
     })
     expect(out).not.toHaveProperty('unknown')
   })
@@ -42,6 +42,12 @@ describe('sanitizePreferences', () => {
     expect([PREFERENCE_DEFAULTS.showLaunchScreen, PREFERENCE_DEFAULTS.audioSource]).toEqual([true, 'file'])
     expect(sanitizePreferences({ showLaunchScreen: false, audioSource: 'device' })).toMatchObject({ showLaunchScreen: false, audioSource: 'device' })
     expect(sanitizePreferences({ showLaunchScreen: 0, audioSource: 'radio' })).toMatchObject({ showLaunchScreen: true, audioSource: 'file' })
+  })
+
+  it('caps the preview at 30 fps and 720 px by default and keeps a stored 0, which means no cap', async () => {
+    const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
+    expect([PREFERENCE_DEFAULTS.previewFps, PREFERENCE_DEFAULTS.previewHeight]).toEqual([30, 720])
+    expect(sanitizePreferences({ previewFps: 0, previewHeight: 0 })).toMatchObject({ previewFps: 0, previewHeight: 0 })
   })
 
   it('rounds and clamps numbers into their ranges and rejects non-finite ones', async () => {
