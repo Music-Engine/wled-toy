@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import GraphDocumentDialogs from '@/components/graph/GraphDocumentDialogs.vue'
+import GraphDocumentDialogs from '@/features/documents/GraphDocumentDialogs.vue'
 import CommandScope from '@/features/commands/CommandScope.vue'
 import GraphEditor from '@/features/graph-editor/GraphEditor.vue'
 import { config } from '@/lib/app/config'

@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { classifyFile, dragHint, isConfigExport, isGraphEnvelope, planDrop } from './file-drop'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { applyDrop, classifyFile, dragHint, isConfigExport, isGraphEnvelope, planDrop, type DropTargets } from './file-drop'
+import { logs } from './logs'
+import { launchScreen } from './preferences'
+import type { Mode } from './workspace'
 
 const file = (name: string, type = '') => ({ name, type })
 
@@ -97,5 +100,74 @@ describe('isConfigExport', () => {
     expect(isConfigExport({ name: 'package' })).toBe(false)
     expect(isConfigExport([1, 2])).toBe(false)
     expect(isConfigExport(null)).toBe(false)
+  })
+})
+
+describe('applyDrop', () => {
+  let calls: unknown[][]
+  const at = { x: 10, y: 20 }
+  const targets = (mode: Mode, overrides: Partial<DropTargets> = {}): DropTargets => ({
+    mode: () => mode,
+    openPage: async (page) => ({ openFile: async (opened) => { calls.push(['openFile', page, opened]) } }),
+    imageDrop: async () => (...args) => { calls.push(['addNode', ...args]) },
+    useImage: async (image) => { calls.push(['useImage', image.name]) },
+    addImage: async (_, name) => ({ id: 'img-1', name }),
+    useSong: async (song) => { calls.push(['useSong', song.name]); return true },
+    playFromFile: async () => { calls.push(['playFromFile']) },
+    importData: (raw) => { calls.push(['importData', raw]); return { fps: 60 } },
+    ...overrides,
+  })
+  const drop = (files: File[], dropTargets: DropTargets) => applyDrop(planDrop(files), at, dropTargets)
+
+  beforeEach(() => {
+    calls = []
+    logs.value = []
+    launchScreen.open = true
+  })
+
+  it('sends each kind of file to its operation and closes the launch screen', async () => {
+    const settings = { app: 'wledtoy', fps: 60 }
+    await drop([new File(['void main(){}'], 'a.glsl'), new File(['{}'], 'b.wledgraph'), new File([''], 'c.mp3'), new File([''], 'd.png'), new File([JSON.stringify(settings)], 'e.json')], targets('shader'))
+    expect(calls).toEqual([
+      ['importData', settings],
+      ['useSong', 'c.mp3'],
+      ['playFromFile'],
+      ['useImage', 'd.png'],
+      ['openFile', 'shader', { name: 'a.glsl', text: 'void main(){}' }],
+      ['openFile', 'graph', { name: 'b.wledgraph', text: '{}' }],
+    ])
+    expect(launchScreen.open).toBe(false)
+  })
+
+  it('adds an image as a node at the drop point in graph mode', async () => {
+    await drop([new File([''], 'd.png')], targets('graph'))
+    expect(calls).toEqual([['addNode', 'img-1', 'd.png', at]])
+  })
+
+  it('opens a settings file that holds a graph as a graph', async () => {
+    const text = JSON.stringify({ app: 'wledtoy', formatVersion: 1, graph: {} })
+    await drop([new File([text], 'renamed.json')], targets('shader'))
+    expect(calls).toEqual([['openFile', 'graph', { name: 'renamed.json', text }]])
+  })
+
+  it('does not start a track the engine refused', async () => {
+    await drop([new File([''], 'c.mp3')], targets('shader', { useSong: async () => false }))
+    expect(calls).toEqual([])
+  })
+
+  it('reports a failed open and still runs the steps after it', async () => {
+    const openPage: DropTargets['openPage'] = async (page) => {
+      if (page === 'shader') throw new Error('route refused')
+      return { openFile: async (opened) => { calls.push(['openFile', page, opened.name]) } }
+    }
+    await expect(drop([new File([''], 'a.glsl'), new File([''], 'b.wledgraph')], targets('shader', { openPage }))).resolves.toBeUndefined()
+    expect(logs.value.map((entry) => [entry.level, entry.message])).toEqual([['error', 'a.glsl could not be used: route refused']])
+    expect(calls).toEqual([['openFile', 'graph', 'b.wledgraph']])
+  })
+
+  it('warns about a file it does not take and leaves the launch screen open', async () => {
+    await drop([new File([''], 'notes.txt')], targets('shader'))
+    expect(logs.value.map((entry) => entry.level)).toEqual(['warn'])
+    expect(launchScreen.open).toBe(true)
   })
 })

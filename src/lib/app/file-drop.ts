@@ -1,4 +1,6 @@
 import { shallowRef } from 'vue'
+import { log, report } from './logs'
+import { launchScreen } from './preferences'
 import type { Mode } from './workspace'
 import { extension } from '@/lib/util/files'
 
@@ -71,5 +73,73 @@ export const isConfigExport = (raw: unknown) =>
 export const isGraphEnvelope = (raw: unknown) =>
   !!raw && typeof raw === 'object' && (raw as { app?: unknown }).app === 'wledtoy' && 'formatVersion' in raw && 'graph' in raw
 
+type Point = { x: number; y: number }
+type AddImageNode = (imageId: string, title: string, at: Point) => void
+
 /** Bound by the graph page while it is mounted: puts an Image Texture node showing a library image at a screen point, or centered when the point is off the canvas. */
-export const graphImageDrop = shallowRef<((imageId: string, title: string, at: { x: number; y: number }) => void) | null>(null)
+export const graphImageDrop = shallowRef<AddImageNode | null>(null)
+
+/** What a drop acts on, passed in so the routing runs without a window, a router or a GPU. */
+export interface DropTargets {
+  /** Read per step: a settings drop that turns out to be a graph switches modes before the image step runs. */
+  mode(): Mode
+  /** Navigates to the page for `mode` and resolves with its document once the page is mounted, or with nothing when it did not come up. */
+  openPage(mode: 'graph' | 'shader'): Promise<{ openFile(file: { name: string; text: string }): Promise<unknown> } | null | undefined>
+  /** Resolves with the graph page's image drop once it is bound, or with nothing when it was not. */
+  imageDrop(): Promise<AddImageNode | null | undefined>
+  useImage(file: { blob: Blob; name: string }): Promise<unknown>
+  addImage(blob: Blob, name: string): Promise<{ id: string; name: string }>
+  /** False when the file is not playable audio; the engine has logged why. */
+  useSong(file: { blob: Blob; name: string }): Promise<boolean>
+  playFromFile(): Promise<unknown>
+  importData(raw: unknown): object
+}
+
+async function openDocument(mode: 'graph' | 'shader', file: File, targets: DropTargets) {
+  const text = await file.text()
+  const session = await targets.openPage(mode)
+  if (!session) return log(`${file.name} was not opened: ${mode} mode did not come up`, 'error')
+  // a dropped file comes without a handle to write back to, so it opens under its name and Save asks where to put it
+  await session.openFile({ name: file.name, text })
+}
+
+async function useAsImage(file: File, at: Point, targets: DropTargets) {
+  if (targets.mode() !== 'graph') {
+    await targets.useImage({ blob: file, name: file.name })
+    return log(`Using your image: ${file.name}`)
+  }
+  const addNode = await targets.imageDrop()
+  if (!addNode) return log(`${file.name} was not added: the graph is not ready`, 'error')
+  const image = await targets.addImage(file, file.name)
+  addNode(image.id, image.name, at)
+}
+
+async function useAsTrack(file: File, targets: DropTargets) {
+  if (!(await targets.useSong({ blob: file, name: file.name }))) return
+  await targets.playFromFile()
+  log(`Using your song: ${file.name}`)
+}
+
+async function importSettings(file: File, targets: DropTargets) {
+  const raw: unknown = await file.text().then(JSON.parse).catch((error) => report(error, `${file.name} could not be read as JSON`))
+  if (isGraphEnvelope(raw)) return openDocument('graph', file, targets)
+  if (!isConfigExport(raw)) return log(`${file.name} is not a WLEDtoy settings file`, 'warn')
+  log(`Imported ${file.name} (${Object.keys(targets.importData(raw)).join(', ') || 'nothing usable'})`)
+}
+
+/** Runs each step of a drop in turn; a step that fails is reported and the rest still run. `at` is where an image lands on the graph. */
+export async function applyDrop(plan: DropPlan<File>, at: Point, targets: DropTargets) {
+  for (const file of plan.unknown) log(`${file.name} was not opened: WLEDtoy takes audio, images, .wledgraph, .glsl and settings files`, 'warn')
+  for (const file of plan.skipped) log(`Skipped ${file.name}: one ${classifyFile(file)} file per drop`, 'warn')
+  if (plan.steps.length) launchScreen.open = false
+  for (const { kind, file } of plan.steps) {
+    try {
+      if (kind === 'audio') await useAsTrack(file, targets)
+      else if (kind === 'image') await useAsImage(file, at, targets)
+      else if (kind === 'config') await importSettings(file, targets)
+      else await openDocument(kind, file, targets)
+    } catch (err) {
+      report(err, `${file.name} could not be used`)
+    }
+  }
+}

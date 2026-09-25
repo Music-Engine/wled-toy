@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DocumentDialogs from '@/components/shell/DocumentDialogs.vue'
+import DocumentDialogs from './DocumentDialogs.vue'
 import type { GraphSession } from '@/lib/graph/model/document'
 
 defineProps<{ document: GraphSession }>()
