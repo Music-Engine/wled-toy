@@ -12,7 +12,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     LogPanel: typeof import('./src/components/panels/LogPanel.vue')['default']
-    PerformancePanel: typeof import('./src/components/shell/PerformancePanel.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.1_91f066730fccded5785077c799dc74ba/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
