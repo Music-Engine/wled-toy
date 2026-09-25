@@ -435,11 +435,12 @@ pub fn bridge_config(
 }
 
 /// The body is the raw frame, never JSON: see `Connection::send_frame`.
+/// Async so it runs on the async runtime: a plain command runs on the main thread, once per LED frame.
 #[tauri::command]
-pub fn bridge_frame(
+pub async fn bridge_frame(
     window: WebviewWindow,
-    bridges: State<Bridges>,
-    request: Request,
+    bridges: State<'_, Bridges>,
+    request: Request<'_>,
 ) -> Result<(), String> {
     let InvokeBody::Raw(frame) = request.body() else {
         return Err("a frame is a binary body".into());
