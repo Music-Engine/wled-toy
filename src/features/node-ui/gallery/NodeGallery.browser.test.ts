@@ -2,7 +2,6 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { page } from 'vitest/browser'
 import { createApp, h, nextTick } from 'vue'
 import '@vue-flow/core/dist/style.css'
-import '@/features/node-ui/node-ui.css'
 import NodeGallery from './NodeGallery.vue'
 import TextField from '@/features/node-ui/fields/TextField.vue'
 import { galleryChecks } from './invariants'

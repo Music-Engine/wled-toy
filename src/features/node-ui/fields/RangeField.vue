@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useNodeField } from './use-node-field'
+import '@/features/node-ui/node.css'
+import './fields.css'
 
 const props = withDefaults(defineProps<{
   modelValue: number

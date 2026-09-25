@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import '@/features/node-ui/node.css'
+import './fields.css'
 defineProps<{ modelValue: string; label?: string; placeholder?: string }>()
 defineEmits<{ 'update:modelValue': [value: string] }>()
 </script>

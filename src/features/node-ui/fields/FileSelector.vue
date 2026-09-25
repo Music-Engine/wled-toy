@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import '@/features/node-ui/node.css'
+import './fields.css'
 
 export interface FileListing {
   id: string
@@ -129,3 +131,34 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', closeOnOutside
     </div>
   </div>
 </template>
+
+<style>
+.nui-file { position: relative; width: 100%; }
+.nui-file .nui-button-group { width: 100%; }
+.nui-file .nui-button { display: flex; flex: none; gap: 0.3em; align-items: center; }
+.nui-file .nui-button.is-wide { flex: 1; justify-content: center; }
+.nui-file-browse { background: var(--nui-button); }
+/* outranks `.nui-button svg`, which would size it like an action glyph */
+.nui-button .nui-file-caret { width: var(--nui-glyph-small); height: var(--nui-glyph-small); }
+.nui-file-name { flex: 1; min-width: 0; height: var(--nui-field-height); border-right: 1px solid var(--nui-field); }
+.nui-file-name[readonly] { color: var(--nui-text-dim); cursor: default; }
+.nui-file-menu {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--nui-gap);
+  width: 100%;
+  padding: var(--nui-pad);
+  border-radius: 0 0 var(--nui-radius) var(--nui-radius);
+  background: var(--nui-menu);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.5);
+}
+.nui-file-list { display: flex; flex-direction: column; max-height: 12em; overflow-y: auto; }
+.nui-file-item { display: flex; gap: var(--nui-gap); align-items: center; }
+.nui-file-item:hover { background: var(--nui-field-hover); }
+.nui-file-item.is-selected:hover { background: var(--nui-accent); }
+.nui-file-item img { flex: none; width: 1.6em; height: 1.6em; border-radius: calc(var(--nui-radius) - 1px); object-fit: cover; }
+</style>

@@ -8,7 +8,7 @@ import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from './graph-context'
 import { socketColor, unlinkedStream } from './sockets'
 import { useNodeCollapse } from './use-node-collapse'
-import './node-ui.css'
+import './node.css'
 import { isImplicit, nodeItem, placement, type DataType, type GraphNodeData, type Socket as NodeSocket, type SocketValue } from '@/lib/graph'
 
 const props = defineProps<NodeProps<GraphNodeData>>()

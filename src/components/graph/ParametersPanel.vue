@@ -3,7 +3,8 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import RangeField from '@/features/node-ui/fields/RangeField.vue'
 // the knob and scene rows are drawn with the node look, and this panel can be open before any node has rendered
-import '@/features/node-ui/node-ui.css'
+import '@/features/node-ui/node.css'
+import '@/features/node-ui/fields/fields.css'
 import InspectorRow from '@/components/shell/InspectorRow.vue'
 import InspectorSection from '@/components/shell/InspectorSection.vue'
 import { useEngine } from '@/lib/engine/engine'
@@ -138,3 +139,11 @@ onBeforeUnmount(() => {
     </InspectorSection>
   </div>
 </template>
+
+<style>
+.nui-parameters .nui-field { flex: 1; }
+.nui-parameters-learn { flex: none; min-width: 4.5em; border-right: 0; border-radius: var(--nui-radius); }
+.nui-scene-recall { flex: none; border-right: 0; border-radius: var(--nui-radius); }
+.nui-scene-recall.is-active { background: var(--nui-accent); }
+.nui-scene-save { flex: none; border-right: 0; border-radius: var(--nui-radius); }
+</style>

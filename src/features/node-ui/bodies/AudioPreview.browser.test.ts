@@ -1,6 +1,5 @@
 import { afterEach, expect, it } from 'vitest'
 import { createApp, h, nextTick } from 'vue'
-import '@/features/node-ui/node-ui.css'
 import AudioPreview from './AudioPreview.vue'
 import { useEngine } from '@/lib/engine/engine'
 

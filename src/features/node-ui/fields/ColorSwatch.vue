@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import '@/features/node-ui/node.css'
+import './fields.css'
 
 const props = defineProps<{ modelValue: number[]; label?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: number[]] }>()

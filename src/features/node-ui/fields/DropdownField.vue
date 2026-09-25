@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import '@/features/node-ui/node.css'
+import './fields.css'
 
 interface Option { value: string; label: string; group?: string }
 interface Column { heading: string; items: { option: Option; index: number }[] }

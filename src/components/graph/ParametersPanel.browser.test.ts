@@ -1,7 +1,6 @@
 import { afterEach, expect, it } from 'vitest'
 import { createApp, h, markRaw, nextTick, ref } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
-import '@/features/node-ui/node-ui.css'
 import GraphNode from '@/features/node-ui/GraphNode.vue'
 import ParametersPanel from './ParametersPanel.vue'
 import { useEngine } from '@/lib/engine/engine'

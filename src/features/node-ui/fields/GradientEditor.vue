@@ -5,6 +5,7 @@ import DropdownField from './DropdownField.vue'
 import RangeField from './RangeField.vue'
 import { useGradientEditor } from './use-gradient-editor'
 import { RAMP_INTERPOLATIONS, sampleRamp, type ColorRamp, type RampInterpolation } from '@/lib/graph/nodes/color/color-ramp'
+import './fields.css'
 
 const props = defineProps<{ modelValue: ColorRamp }>()
 const emit = defineEmits<{ 'update:modelValue': [value: ColorRamp] }>()
@@ -66,3 +67,35 @@ const contrast = (c: number[]) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
     <ColorSwatch :model-value="current.color" @update:model-value="updateCurrent({ color: $event })" />
   </div>
 </template>
+
+<style>
+.nui-gradient { display: flex; flex-direction: column; gap: var(--nui-gap); }
+.nui-gradient-track { position: relative; padding-bottom: 1.3em; }
+.nui-gradient-bar {
+  height: var(--nui-field-height);
+  border-radius: var(--nui-radius);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5);
+}
+.nui-gradient-stop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed;
+  cursor: grab;
+}
+.nui-gradient-stop::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 1.1em;
+  height: 1.1em;
+  border: 1px solid var(--nui-text);
+  border-radius: 50%;
+  background: var(--stop-color);
+  transform: translateX(-50%);
+}
+.nui-gradient-stop.is-selected::after { border-style: dashed; box-shadow: 0 0 0 1px #000; }
+.nui-gradient-fields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--nui-gap); }
+</style>

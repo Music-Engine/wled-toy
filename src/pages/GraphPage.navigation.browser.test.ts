@@ -12,7 +12,6 @@ import { workspace } from '@/lib/app/workspace'
 import { logs } from '@/lib/app/logs'
 import { graphCodeNotice } from '@/lib/shader/shader-export'
 import '@vue-flow/core/dist/style.css'
-import '@/features/node-ui/node-ui.css'
 
 // Tailwind does not run in the tests; these are the utilities that give the canvas its size in the app
 const layout = document.createElement('style')

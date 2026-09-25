@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import '@/features/node-ui/node.css'
+import './fields.css'
 defineProps<{ modelValue: boolean; label?: string }>()
 defineEmits<{ 'update:modelValue': [value: boolean] }>()
 </script>

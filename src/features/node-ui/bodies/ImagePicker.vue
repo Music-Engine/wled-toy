@@ -5,6 +5,7 @@ import { useEngine } from '@/lib/engine/engine'
 import { BUILT_IN_IMAGE } from '@/lib/engine/images'
 import { report } from '@/lib/app/logs'
 import type { SocketValue } from '@/lib/graph'
+import '@/features/node-ui/node.css'
 
 const props = defineProps<{ nodeId: string; values: Record<string, SocketValue> }>()
 const emit = defineEmits<{ update: [patch: Record<string, SocketValue>] }>()

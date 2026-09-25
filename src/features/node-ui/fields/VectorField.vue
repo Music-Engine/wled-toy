@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import RangeField from './RangeField.vue'
 import { useInvalidParts } from './use-node-field'
+import './fields.css'
 
 const props = defineProps<{ modelValue: number[]; step?: number; min?: number; max?: number; decimals?: number }>()
 const emit = defineEmits<{

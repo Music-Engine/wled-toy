@@ -3,6 +3,9 @@ import { onBeforeUnmount, ref } from 'vue'
 import { useEngine } from '@/lib/engine/engine'
 import { isTauri } from '@/lib/app/platform'
 import type { SocketValue } from '@/lib/graph'
+import '@/features/node-ui/node.css'
+import '@/features/node-ui/fields/fields.css'
+import './bodies.css'
 
 defineProps<{ nodeId: string; values: Record<string, SocketValue> }>()
 const emit = defineEmits<{ update: [patch: Record<string, SocketValue>] }>()

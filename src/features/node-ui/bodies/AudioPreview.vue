@@ -4,6 +4,9 @@ import DropdownField from '@/features/node-ui/fields/DropdownField.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { systemAudioBlocked } from '@/lib/audio/service'
 import { report } from '@/lib/app/logs'
+import '@/features/node-ui/node.css'
+import '@/features/node-ui/fields/fields.css'
+import './bodies.css'
 
 // every node body gets these; this one reads the shared audio service instead
 defineProps<{ nodeId: string; values: Record<string, unknown> }>()

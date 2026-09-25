@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import './node.css'
 defineProps<{ title: string; color: string; collapsed: boolean; selected?: boolean; warnings?: string[]; source?: boolean; wide?: boolean }>()
 defineEmits<{ toggle: [] }>()
 </script>

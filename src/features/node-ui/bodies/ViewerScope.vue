@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useEngine } from '@/lib/engine/engine'
+import '@/features/node-ui/node.css'
+import './bodies.css'
 
 const props = defineProps<{ nodeId: string; values: Record<string, unknown> }>()
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Handle, Position } from '@vue-flow/core'
+import './node.css'
 
 defineProps<{ id: string; side: 'in' | 'out'; color: string; shape?: 'circle' | 'diamond' }>()
 </script>
