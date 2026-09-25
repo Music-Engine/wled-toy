@@ -8,6 +8,7 @@ import { useEngine } from '@/lib/engine/engine'
 import { isStripLayout } from '@/lib/engine/layout'
 import { EXAMPLES } from '@/lib/shader/examples'
 import { clearLogs, copyAllLogs, copyLogLine, log, logContext, shownLogs } from './logs'
+import { pickFile } from './pick-file'
 import { isMac, isTauri } from './platform'
 import { loadTauriFiles } from '@/lib/documents/tauri-files'
 import { baseName } from '@/lib/util/files'
@@ -228,24 +229,6 @@ export function installKeyDispatcher(): () => void {
   const onKeydown = (e: KeyboardEvent) => void dispatchKey(e)
   window.addEventListener('keydown', onKeydown)
   return () => window.removeEventListener('keydown', onKeydown)
-}
-
-export function pickFile(accept: string): Promise<File | null> {
-  return new Promise((resolve) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = accept
-    // WebKit (the desktop app's webview) never fires change on an input that is not in the document
-    input.hidden = true
-    document.body.append(input)
-    const settle = (file: File | null) => {
-      input.remove()
-      resolve(file)
-    }
-    input.onchange = () => settle(input.files?.[0] ?? null)
-    input.oncancel = () => settle(null)
-    input.click()
-  })
 }
 
 let colorMode: ReturnType<typeof useColorMode> | undefined

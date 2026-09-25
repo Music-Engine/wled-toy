@@ -5,7 +5,7 @@ import { until } from '@vueuse/core'
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import AppMark from './AppMark.vue'
 import { getCommand, isEnabled, runCommand } from '@/lib/app/commands'
-import { recentId, type RecentFile } from '@/lib/documents/documents'
+import { recentId, storedRecentFiles, type RecentFile } from '@/lib/documents/documents'
 import { EXAMPLES } from '@/lib/shader/examples'
 import { activeGraphDocument } from '@/lib/graph/model/document'
 import { launchScreen, preferences } from '@/lib/app/preferences'
@@ -16,12 +16,7 @@ const router = useRouter()
 // the graph page owns the list, and on a launch into shader mode it has not been mounted yet: until then the list is what it stored
 const recent = computed<RecentFile[]>(() => {
   const store = activeGraphDocument.value?.store
-  if (store) return store.recentFiles.value.slice(0, 8)
-  try {
-    return (JSON.parse(localStorage.getItem('wledtoy:graph:recent') ?? '[]') as RecentFile[]).slice(0, 8)
-  } catch {
-    return []
-  }
+  return (store ? store.recentFiles.value : storedRecentFiles('graph')).slice(0, 8)
 })
 
 /** Goes to a mode and runs one of its commands. A page binds its handlers when it is mounted, which for a lazy route is after the navigation. */

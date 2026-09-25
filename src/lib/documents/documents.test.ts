@@ -220,12 +220,13 @@ function downloadHarness(): BackendHarness {
   vi.stubGlobal('document', {
     createElement: (tag: string) => {
       if (tag === 'input') {
-        const input = { onchange: null as (() => void) | null, click: () => input.onchange?.() }
+        const input = { onchange: null as (() => void) | null, click: () => input.onchange?.(), remove: () => undefined }
         Object.defineProperty(input, 'files', { get: () => [fakeFile] })
         return input
       }
       return { click: () => undefined }
     },
+    body: { append: () => undefined },
   })
   vi.stubGlobal('URL', {
     createObjectURL: (blob: Blob) => { lastBlob = blob; return 'blob:fake' },

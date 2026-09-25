@@ -1,6 +1,9 @@
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { loadTauriFiles, type TauriFiles } from './tauri-files'
 import { baseName } from '@/lib/util/files'
+import { downloadText } from '@/lib/app/download'
+import { pickFile } from '@/lib/app/pick-file'
+import { loadStored } from '@/lib/app/storage'
 
 declare global {
   interface Window {
@@ -125,31 +128,14 @@ interface DownloadHandle extends FileHandle {
   text: string
 }
 
-function downloadText(name: string, text: string, mime: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: mime }))
-  const a = Object.assign(document.createElement('a'), { href: url, download: name })
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
 /** No File System Access API: saving downloads a file and opening picks one through a plain file input. */
 export function createDownloadBackend(kind: FileKind = GRAPH_FILES): FileBackend<DownloadHandle> {
   return {
-    open(extension, alsoAccept = []) {
-      return new Promise((resolve) => {
-        const input = document.createElement('input')
-        input.type = 'file'
-        input.accept = [extension, ...alsoAccept].join(',')
-        input.onchange = () => {
-          const file = input.files?.[0]
-          if (!file) {
-            resolve(null)
-            return
-          }
-          file.text().then((text) => resolve({ handle: { name: file.name, text }, text }))
-        }
-        input.click()
-      })
+    async open(extension, alsoAccept = []) {
+      const file = await pickFile([extension, ...alsoAccept].join(','))
+      if (!file) return null
+      const text = await file.text()
+      return { handle: { name: file.name, text }, text }
     },
     async save(handle, text) {
       handle.text = text
@@ -249,26 +235,26 @@ export interface DocumentStore<T> {
   discardRecovery(): void
 }
 
-function loadRecentFiles(key: string): RecentFile[] {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as RecentFile[]) : []
-  } catch {
-    return []
-  }
+const recentKey = (kind: string) => `wledtoy:${kind}:recent`
+
+function sanitizeRecentFiles(raw: unknown): RecentFile[] {
+  if (!Array.isArray(raw)) throw new Error('the recent list is not a list')
+  return raw as RecentFile[]
 }
+
+/** The recent list a document kind stored, for a screen that shows it before that kind's store exists. */
+export const storedRecentFiles = (kind: string) => loadStored(recentKey(kind), sanitizeRecentFiles, [])
 
 const RECENT_FILES_LIMIT = 10
 
 export function createDocumentStore<T>(options: DocumentStoreOptions<T>): DocumentStore<T> {
   const { kind, extension, openExtensions, backend, serialize, parse, createNew, getSnapshot, onLoad, autosaveDebounceMs = 800 } = options
-  const recentKey = `wledtoy:${kind}:recent`
   const recoveryKey = `wledtoy:${kind}:recovery`
 
   const fileHandle = ref<FileHandle | null>(null)
   const handlelessName = ref<string | null>(null)
   const lastSavedText = ref(serialize(getSnapshot()))
-  const recentFiles = ref<RecentFile[]>(loadRecentFiles(recentKey))
+  const recentFiles = ref<RecentFile[]>(storedRecentFiles(kind))
   const hasRecovery = ref(localStorage.getItem(recoveryKey) !== null)
 
   const fileName = computed(() => fileHandle.value?.name ?? handlelessName.value)
@@ -291,7 +277,7 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
   function addRecentFile({ name, path }: FileHandle) {
     const next = [{ name, openedAt: new Date().toISOString(), ...(path ? { path } : {}) }, ...recentFiles.value.filter((f) => recentId(f) !== (path ?? name))].slice(0, RECENT_FILES_LIMIT)
     recentFiles.value = next
-    localStorage.setItem(recentKey, JSON.stringify(next))
+    localStorage.setItem(recentKey(kind), JSON.stringify(next))
   }
 
   let autosaveTimer: ReturnType<typeof setTimeout> | undefined
@@ -362,7 +348,7 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
         return
       }
       recentFiles.value = recentFiles.value.filter((f) => recentId(f) !== id)
-      localStorage.setItem(recentKey, JSON.stringify(recentFiles.value))
+      localStorage.setItem(recentKey(kind), JSON.stringify(recentFiles.value))
       throw new Error(`${baseName(id)} can no longer be opened from the recent list. Use Open instead.`)
     },
     async save() {

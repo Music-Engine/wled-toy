@@ -3,6 +3,7 @@ import { layoutCount, parseLayout, type Layout } from '@/lib/engine/layout'
 import type { WireProtocol } from '@/lib/engine/output'
 import { clamp } from '@/lib/util/math'
 import { newId } from '@/lib/util/ids'
+import { loadStored } from './storage'
 
 export interface SavedDevice {
   id: string
@@ -85,16 +86,7 @@ export function sanitizeDeviceStore(input: unknown): DeviceStore {
   return { devices, activeDeviceId }
 }
 
-function load(): DeviceStore {
-  try {
-    return sanitizeDeviceStore(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null'))
-  } catch {
-    return { devices: [legacyDevice()], activeDeviceId: '' } // activeDeviceId fixed up below once the device's real id is known
-  }
-}
-
-const store = reactive<DeviceStore>(load())
-if (!store.devices.some((d) => d.id === store.activeDeviceId)) store.activeDeviceId = store.devices[0].id
+const store = reactive<DeviceStore>(loadStored(STORAGE_KEY, sanitizeDeviceStore, () => sanitizeDeviceStore(null)))
 
 let lastSerialized: string | null = localStorage.getItem(STORAGE_KEY)
 

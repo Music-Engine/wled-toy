@@ -10,6 +10,8 @@ import type { WireProtocol } from '@/lib/engine/output'
 import { loadTauriFiles } from '@/lib/documents/tauri-files'
 import { resetLayout } from './workspace'
 import { clamp } from '@/lib/util/math'
+import { downloadText } from './download'
+import { loadStored } from './storage'
 
 export type Protocol = WireProtocol
 
@@ -68,15 +70,7 @@ export function sanitize(input: unknown): Partial<AppConfig> {
   return out
 }
 
-function load(): AppConfig {
-  try {
-    return { ...DEFAULTS, ...sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')) }
-  } catch {
-    return { ...DEFAULTS }
-  }
-}
-
-export const config = reactive<AppConfig>(load())
+export const config = reactive<AppConfig>(loadStored(STORAGE_KEY, (raw) => ({ ...DEFAULTS, ...sanitize(raw) }), { ...DEFAULTS }))
 
 // host/ledCount/protocol/universe/layout live on the active saved device (src/lib/devices.ts); config mirrors it both ways
 // so every existing read and write site keeps working against `config` directly.
@@ -139,10 +133,7 @@ export async function exportConfig(): Promise<boolean> {
     if (path !== null) await files.writeTextFile(path, text)
     return path !== null
   }
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }))
-  const a = Object.assign(document.createElement('a'), { href: url, download: name })
-  a.click()
-  URL.revokeObjectURL(url)
+  downloadText(name, text, 'application/json')
   return true
 }
 

@@ -1,4 +1,5 @@
 import { reactive, ref, watch } from 'vue'
+import { loadStored } from './storage'
 
 export type DockId = 'right' | 'bottom'
 export type Mode = 'shader' | 'graph' | 'reference'
@@ -93,16 +94,8 @@ export function sanitize(raw: unknown): Layout {
   return out
 }
 
-function load(): Layout {
-  try {
-    return sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'))
-  } catch {
-    return defaults()
-  }
-}
-
 /** `mode` and `problemCount` are runtime only: the shell sets the mode, the active page's ProblemsList the count. */
-export const workspace = reactive({ ...load(), mode: 'shader' as Mode, problemCount: 0 })
+export const workspace = reactive({ ...loadStored(STORAGE_KEY, sanitize, defaults()), mode: 'shader' as Mode, problemCount: 0 })
 
 watch(() => {
   const { mode, problemCount, ...layout } = workspace
