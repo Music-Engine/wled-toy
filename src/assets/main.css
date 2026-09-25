@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 @import "@/ui/primitives/primitives.css";
+@import "@/ui/primitives/pref.css";
 
 @theme static {
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;

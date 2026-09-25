@@ -10,3 +10,13 @@ defineProps<{ title?: string }>()
     </div>
   </section>
 </template>
+
+<style scoped>
+.pref-group {
+  margin-top: 16px;
+}
+
+.pref-rows > :deep(* + *) {
+  border-top: 1px solid var(--pref-line);
+}
+</style>

@@ -115,3 +115,20 @@ describe('devices store', () => {
     expect(activeDeviceId.value).toBe(before)
   })
 })
+
+describe('validateHost', () => {
+  it('accepts no host, host names and IP addresses', async () => {
+    const { validateHost } = await loadDevices()
+    for (const host of ['', 'wled.local', 'WLED-Kitchen', '192.168.1.50', 'a']) expect(validateHost(host)).toBeNull()
+  })
+
+  it('asks to leave out the scheme', async () => {
+    const { validateHost } = await loadDevices()
+    expect(validateHost('http://wled.local')).toBe('Leave out http:// and anything after the host name.')
+  })
+
+  it('rejects a port, a path or stray characters', async () => {
+    const { validateHost } = await loadDevices()
+    for (const host of ['wled.local:80', 'wled.local/json', '-wled', 'wled.', 'my wled']) expect(validateHost(host)).toMatch(/^Enter a host name/)
+  })
+})

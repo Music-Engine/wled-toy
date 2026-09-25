@@ -18,3 +18,20 @@ const id = useId()
     </div>
   </div>
 </template>
+
+<style scoped>
+.pref-row {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.pref-control {
+  display: flex;
+  width: 240px;
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+</style>

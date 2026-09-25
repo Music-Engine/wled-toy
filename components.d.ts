@@ -11,19 +11,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppearanceSection: typeof import('./src/components/shell/settings/AppearanceSection.vue')['default']
-    DataSection: typeof import('./src/components/shell/settings/DataSection.vue')['default']
-    DevicesSection: typeof import('./src/components/shell/settings/DevicesSection.vue')['default']
-    GeneralSection: typeof import('./src/components/shell/settings/GeneralSection.vue')['default']
     LogPanel: typeof import('./src/components/panels/LogPanel.vue')['default']
     MatchText: typeof import('./src/components/reference/MatchText.vue')['default']
-    OutputSection: typeof import('./src/components/shell/settings/OutputSection.vue')['default']
     PerformancePanel: typeof import('./src/components/shell/PerformancePanel.vue')['default']
     ReferenceEntry: typeof import('./src/components/reference/ReferenceEntry.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SettingsView: typeof import('./src/components/shell/SettingsView.vue')['default']
-    ShortcutsSection: typeof import('./src/components/shell/settings/ShortcutsSection.vue')['default']
     UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.1_91f066730fccded5785077c799dc74ba/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
     UButton: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.1_91f066730fccded5785077c799dc74ba/node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
     UContextMenu: typeof import('./node_modules/.pnpm/@nuxt+ui@4.11.1_91f066730fccded5785077c799dc74ba/node_modules/@nuxt/ui/dist/runtime/components/ContextMenu.vue')['default']

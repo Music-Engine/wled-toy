@@ -1,3 +1,5 @@
+import { EngineError } from './engine-error'
+
 /** Where each LED sits, in the 0..1 space the shader draws in (x right, y up), in wire order. */
 export type Segment =
   | { kind: 'strip'; count: number; from: [number, number]; to: [number, number] }
@@ -68,4 +70,47 @@ export function parseLayout(raw: unknown): Layout | null {
   if (!Array.isArray(segments) || segments.length === 0 || !segments.every(isSegment)) return null
   const layout = { segments }
   return layoutCount(layout) <= 4096 ? layout : null
+}
+
+/** What the device form offers: no layout is a strip, a lone ring or matrix segment is that preset, anything else is custom JSON. */
+export type LayoutKind = 'strip' | 'ring' | 'matrix' | 'custom'
+
+/** The segment the ring and matrix presets edit, when the layout has exactly one. */
+export function onlySegment(layout: Layout | null): Segment | null {
+  const segments = layout?.segments ?? []
+  return segments.length === 1 ? segments[0] : null
+}
+
+export function layoutKind(layout: Layout | null): LayoutKind {
+  if (!layout) return 'strip'
+  const only = onlySegment(layout)
+  return only?.kind === 'ring' || only?.kind === 'matrix' ? only.kind : 'custom'
+}
+
+export function layoutSummary(layout: Layout | null): string {
+  if (!layout) return 'A straight strip sampled along the scan row of the preview.'
+  const only = onlySegment(layout)
+  if (only?.kind === 'ring') return `A ring of ${only.count} LEDs.`
+  if (only?.kind === 'matrix') return `A ${only.width} by ${only.height} matrix, ${layoutCount(layout)} LEDs. The LED count follows it.`
+  return `${layout.segments.length} ${layout.segments.length === 1 ? 'segment' : 'segments'}, ${layoutCount(layout)} LEDs. The LED count follows it.`
+}
+
+/** The layout a preset starts from: a ring keeps the device's LED count, a matrix starts at 8 by 8. */
+export function presetLayout(kind: Exclude<LayoutKind, 'custom'>, ledCount: number): Layout | null {
+  if (kind === 'strip') return null
+  if (kind === 'ring') return { segments: [{ kind: 'ring', count: ledCount, center: [0.5, 0.5], radius: 0.4, startAngle: Math.PI / 2, clockwise: true }] }
+  return { segments: [{ kind: 'matrix', width: 8, height: 8, serpentine: true, origin: 'top-left' }] }
+}
+
+/** A layout typed as JSON; the error message is what the form shows under the field. */
+export function parseLayoutJson(text: string): Layout {
+  let raw: unknown
+  try {
+    raw = JSON.parse(text)
+  } catch (e) {
+    throw new EngineError('layout-json', `Not JSON: ${(e as Error).message}`, e)
+  }
+  const layout = parseLayout(raw)
+  if (!layout) throw new EngineError('layout-json', 'Not a layout: expected { "segments": [strip | ring | matrix | points] } with at most 4096 LEDs.')
+  return layout
 }

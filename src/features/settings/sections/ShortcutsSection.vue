@@ -41,3 +41,20 @@ const groups = computed(() => {
     </tbody>
   </table>
 </template>
+
+<style scoped>
+.pref-kbd {
+  display: inline-block;
+  min-width: 22px;
+  margin-inline-start: 6px;
+  border: 1px solid var(--pref-line);
+  border-radius: 4px;
+  background: var(--ui-bg);
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--ui-text-highlighted);
+}
+</style>

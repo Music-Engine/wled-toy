@@ -10,3 +10,29 @@ const model = defineModel<T>({ required: true })
     </select>
   </span>
 </template>
+
+<style scoped>
+.pref-select {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.pref-select select {
+  appearance: none;
+  padding-inline-end: 24px;
+}
+
+.pref-select::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 9px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border: solid var(--ui-text-muted);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+</style>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { isStripLayout, layoutCount, layoutPositions, parseLayout, type Layout, type Segment } from './layout'
+import { EngineError } from './engine-error'
+import { isStripLayout, layoutCount, layoutKind, layoutPositions, layoutSummary, onlySegment, parseLayout, parseLayoutJson, presetLayout, type Layout, type Segment } from './layout'
 
 const xy = (layout: Layout) => {
   const p = layoutPositions(layout)
@@ -52,5 +53,63 @@ describe('parseLayout', () => {
     expect(parseLayout({ segments: [{ kind: 'points', points: [[0.1]] }] })).toBeNull()
     expect(parseLayout({ segments: [{ kind: 'matrix', width: 100, height: 100, serpentine: true, origin: 'top-left' }] })).toBeNull()
     expect(parseLayout(null)).toBeNull()
+  })
+})
+
+describe('device form presets', () => {
+  it('each preset reads back as its own kind, with a summary of what it is', () => {
+    expect(layoutKind(presetLayout('strip', 60))).toBe('strip')
+    expect(layoutSummary(presetLayout('strip', 60))).toBe('A straight strip sampled along the scan row of the preview.')
+    const ring = presetLayout('ring', 24)
+    expect(layoutKind(ring)).toBe('ring')
+    expect(layoutSummary(ring)).toBe('A ring of 24 LEDs.')
+    const matrix = presetLayout('matrix', 24)
+    expect(layoutKind(matrix)).toBe('matrix')
+    expect(layoutSummary(matrix)).toBe('A 8 by 8 matrix, 64 LEDs. The LED count follows it.')
+  })
+
+  it('presets are valid layouts', () => {
+    expect(parseLayout(presetLayout('ring', 24))).not.toBeNull()
+    expect(parseLayout(presetLayout('matrix', 24))).not.toBeNull()
+  })
+
+  it('more than one segment, or a lone strip or points segment, is custom', () => {
+    const ring = presetLayout('ring', 12)!.segments[0]
+    const two: Layout = { segments: [ring, ring] }
+    expect(onlySegment(two)).toBeNull()
+    expect(layoutKind(two)).toBe('custom')
+    expect(layoutSummary(two)).toBe('2 segments, 24 LEDs. The LED count follows it.')
+    const points: Layout = { segments: [{ kind: 'points', points: [[0, 0], [1, 1]] }] }
+    expect(layoutKind(points)).toBe('custom')
+    expect(layoutSummary(points)).toBe('1 segment, 2 LEDs. The LED count follows it.')
+  })
+})
+
+describe('parseLayoutJson', () => {
+  const rejection = (text: string) => {
+    try {
+      parseLayoutJson(text)
+    } catch (e) {
+      return e
+    }
+    throw new Error(`accepted ${text}`)
+  }
+
+  it('round trips a layout through its JSON text', () => {
+    const matrix = presetLayout('matrix', 0)!
+    expect(parseLayoutJson(JSON.stringify(matrix, null, 2))).toEqual(matrix)
+  })
+
+  it('rejects text that is not JSON with the parser message', () => {
+    const e = rejection('{ segments')
+    expect(e).toBeInstanceOf(EngineError)
+    expect((e as EngineError).code).toBe('layout-json')
+    expect((e as EngineError).message).toMatch(/^Not JSON: ./)
+  })
+
+  it('rejects JSON that is not a layout', () => {
+    const e = rejection('{ "segments": [] }')
+    expect(e).toBeInstanceOf(EngineError)
+    expect((e as EngineError).message).toBe('Not a layout: expected { "segments": [strip | ring | matrix | points] } with at most 4096 LEDs.')
   })
 })

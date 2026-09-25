@@ -72,6 +72,13 @@ function sanitizeDevice(input: unknown, fallback: SavedDevice): SavedDevice | nu
   return out
 }
 
+/** Why a typed host cannot be sent to, or null when it can; empty is allowed and means no device. */
+export function validateHost(text: string): string | null {
+  if (!text) return null
+  if (/^[a-z]+:\/\//i.test(text)) return 'Leave out http:// and anything after the host name.'
+  return /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i.test(text) ? null : 'Enter a host name such as wled.local or an IP address such as 192.168.1.50, without a port or a path.'
+}
+
 /** Field-by-field validation like config's own sanitize(); an empty or invalid list falls back to one device built from the legacy fields. */
 export function sanitizeDeviceStore(input: unknown): DeviceStore {
   const src = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>

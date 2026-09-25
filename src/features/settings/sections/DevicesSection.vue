@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
 import { ListboxContent, ListboxItem, ListboxRoot } from 'reka-ui'
 import PrefGroup from '@/ui/primitives/PrefGroup.vue'
 import PrefNumber from '@/ui/primitives/PrefNumber.vue'
@@ -7,120 +6,10 @@ import PrefRow from '@/ui/primitives/PrefRow.vue'
 import PrefSelect from '@/ui/primitives/PrefSelect.vue'
 import PrefSwitch from '@/ui/primitives/PrefSwitch.vue'
 import PrefText from '@/ui/primitives/PrefText.vue'
-import { activeDevice, addDevice, devices, duplicateDevice, removeDevice, setActiveDevice, updateDevice, type SavedDevice } from '@/lib/app/devices'
-import { useEngine } from '@/lib/engine/engine'
-import { layoutCount, parseLayout, type Layout, type Segment } from '@/lib/engine/layout'
+import { useDeviceForm } from '@/features/settings/use-device-form'
+import { activeDevice, devices, setActiveDevice, validateHost } from '@/lib/app/devices'
 
-type LayoutKind = 'strip' | 'ring' | 'matrix' | 'custom'
-
-const { stats } = useEngine().bridge
-
-const selectedId = ref(activeDevice.value.id)
-const device = computed(() => devices.value.find((d) => d.id === selectedId.value) ?? activeDevice.value)
-const isActive = computed(() => device.value.id === activeDevice.value.id)
-
-const errors = reactive<Record<string, string | null>>({})
-const customOpen = ref(false)
-const customJson = ref('')
-
-const only = computed<Segment | null>(() => {
-  const segments = device.value.layout?.segments ?? []
-  return segments.length === 1 ? segments[0] : null
-})
-const layoutKind = computed<LayoutKind>(() => {
-  if (customOpen.value) return 'custom'
-  if (!device.value.layout) return 'strip'
-  return only.value?.kind === 'ring' || only.value?.kind === 'matrix' ? only.value.kind : 'custom'
-})
-const ring = computed(() => (only.value?.kind === 'ring' ? only.value : null))
-const matrix = computed(() => (only.value?.kind === 'matrix' ? only.value : null))
-
-const layoutSummary = computed(() => {
-  const layout = device.value.layout
-  if (!layout) return 'A straight strip sampled along the scan row of the preview.'
-  if (ring.value) return `A ring of ${ring.value.count} LEDs.`
-  if (matrix.value) return `A ${matrix.value.width} by ${matrix.value.height} matrix, ${layoutCount(layout)} LEDs. The LED count follows it.`
-  return `${layout.segments.length} ${layout.segments.length === 1 ? 'segment' : 'segments'}, ${layoutCount(layout)} LEDs. The LED count follows it.`
-})
-
-watch(() => device.value.id, () => {
-  for (const key of Object.keys(errors)) errors[key] = null
-  customOpen.value = false
-}, { flush: 'sync' })
-
-const patch = (fields: Partial<Omit<SavedDevice, 'id'>>) => updateDevice(device.value.id, fields)
-
-function validateHost(text: string) {
-  if (!text) return null
-  if (/^[a-z]+:\/\//i.test(text)) return 'Leave out http:// and anything after the host name.'
-  return /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i.test(text) ? null : 'Enter a host name such as wled.local or an IP address such as 192.168.1.50, without a port or a path.'
-}
-
-function setLayout(layout: Layout | null): boolean {
-  if (layout && !parseLayout(layout)) {
-    errors.layout = 'A layout needs at least 1 and at most 4096 LEDs.'
-    return false
-  }
-  errors.layout = null
-  patch({ layout, ledCount: layout ? layoutCount(layout) : device.value.ledCount })
-  return true
-}
-
-function setKind(kind: LayoutKind) {
-  customOpen.value = kind === 'custom'
-  if (kind === 'custom') customJson.value = device.value.layout ? JSON.stringify(device.value.layout, null, 2) : ''
-  if (kind === 'strip') setLayout(null)
-  if (kind === 'ring') setLayout({ segments: [{ kind: 'ring', count: device.value.ledCount, center: [0.5, 0.5], radius: 0.4, startAngle: Math.PI / 2, clockwise: true }] })
-  if (kind === 'matrix') setLayout({ segments: [{ kind: 'matrix', width: 8, height: 8, serpentine: true, origin: 'top-left' }] })
-}
-
-const setSegment = (fields: Partial<Segment>) => setLayout({ segments: [{ ...only.value!, ...fields } as Segment] })
-
-function setLedCount(count: number) {
-  if (ring.value) setSegment({ count })
-  else patch({ ledCount: count })
-}
-
-function commitCustom() {
-  let raw: unknown
-  try {
-    raw = JSON.parse(customJson.value)
-  } catch (e) {
-    errors.custom = `Not JSON: ${(e as Error).message}`
-    return
-  }
-  const layout = parseLayout(raw)
-  if (!layout) {
-    errors.custom = 'Not a layout: expected { "segments": [strip | ring | matrix | points] } with at most 4096 LEDs.'
-    return
-  }
-  errors.custom = null
-  setLayout(layout)
-}
-
-function add() {
-  selectedId.value = addDevice().id
-}
-
-function duplicate() {
-  const copy = duplicateDevice(device.value.id)
-  if (copy) selectedId.value = copy.id
-}
-
-function remove() {
-  const index = devices.value.findIndex((d) => d.id === device.value.id)
-  removeDevice(device.value.id)
-  selectedId.value = devices.value[Math.max(0, index - 1)].id
-}
-
-const connection = computed(() => {
-  if (stats.status !== 'connected') return { dot: 'bg-error', text: stats.status === 'connecting' ? 'Connecting to the bridge...' : 'The bridge is offline, so frames cannot reach any device.' }
-  if (!device.value.host) return { dot: 'bg-warning', text: 'No host set. Frames are rendered but not sent.' }
-  if (!stats.device) return { dot: 'bg-(--ui-text-dimmed)', text: `No reply from ${device.value.host} yet. Art-Net and sACN receivers other than WLED never reply.` }
-  const ping = stats.deviceMs == null ? '' : ` in ${Math.round(stats.deviceMs)} ms`
-  return { dot: 'bg-success', text: `${stats.device.name} ${stats.device.version} answered${ping} and reports ${stats.device.ledCount} LEDs.` }
-})
-const reportedCount = computed(() => (isActive.value && stats.device && !device.value.layout && stats.device.ledCount !== device.value.ledCount ? stats.device.ledCount : null))
+const { selectedId, device, isActive, errors, customJson, layoutKind, layoutSummary, ring, matrix, patch, setKind, setSegment, setLedCount, commitCustom, add, duplicate, remove, connection, reportedCount } = useDeviceForm()
 </script>
 
 <template>

@@ -25,3 +25,9 @@ function commit(e: Event) {
     <span v-if="unit" class="w-[42px] text-[12px] text-muted">{{ unit }}</span>
   </span>
 </template>
+
+<style scoped>
+.pref-input-number {
+  width: 88px;
+}
+</style>

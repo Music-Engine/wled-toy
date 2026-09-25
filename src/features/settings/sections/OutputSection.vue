@@ -22,3 +22,10 @@ const fpsError = ref<string | null>(null)
     </PrefRow>
   </PrefGroup>
 </template>
+
+<style scoped>
+.pref-range {
+  height: 16px;
+  accent-color: var(--ui-primary);
+}
+</style>

@@ -40,3 +40,9 @@ const can = (id: string) => !!getCommand(id) && isEnabled(getCommand(id)!)
     </PrefRow>
   </PrefGroup>
 </template>
+
+<style scoped>
+.pref-button-danger {
+  color: var(--ui-error);
+}
+</style>
