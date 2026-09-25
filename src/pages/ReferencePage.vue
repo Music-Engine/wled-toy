@@ -1,100 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onActivated, ref, watch } from 'vue'
 import CommandScope from '@/features/commands/CommandScope.vue'
-import MatchText from '@/components/reference/MatchText.vue'
-import ReferenceEntry from '@/components/reference/ReferenceEntry.vue'
-import { copyText } from '@/lib/app/clipboard'
-import { CATEGORIES, NODES, nodeByName, type CategoryId, type ShaderNode } from '@/lib/shader/glsl'
+import ReferenceCategories from '@/features/reference/ReferenceCategories.vue'
+import ReferenceEntry from '@/features/reference/ReferenceEntry.vue'
+import ReferenceIndex from '@/features/reference/ReferenceIndex.vue'
+import { useReferenceSearch } from '@/features/reference/use-reference-search'
+import { NODES } from '@/lib/shader/glsl'
 
-const query = ref('')
-const categoryIndex = ref(0)
-const copied = ref<string | null>(null)
-const search = ref<HTMLInputElement>()
-const categoryButtons = ref<HTMLElement[]>([])
-const entryList = ref<HTMLElement>()
-const indexList = ref<HTMLElement>()
-const activeEntry = ref<string | null>(null)
-
-const categoryRows = computed(() => [
-  { id: null as CategoryId | null, label: 'All', color: null as string | null },
-  ...CATEGORIES.filter((category) => NODES.some((node) => node.category === category.id)).map((category) => ({ id: category.id, label: category.label, color: category.color })),
-])
-
-const matchedNodes = computed(() => {
-  const q = query.value.trim().toLowerCase()
-  return NODES.filter((node) => !q || `${node.name} ${node.title} ${node.doc}`.toLowerCase().includes(q))
-})
-
-const categories = computed(() => categoryRows.value.map((row) => ({
-  ...row,
-  count: row.id === null ? matchedNodes.value.length : matchedNodes.value.filter((node) => node.category === row.id).length,
-})))
-
-const selectedCategory = computed(() => categoryRows.value[categoryIndex.value]?.id ?? null)
-const sections = computed(() => categories.value
-  .filter((row) => row.id !== null && row.count > 0 && (selectedCategory.value === null || row.id === selectedCategory.value))
-  .map((row) => ({ ...row, nodes: matchedNodes.value.filter((node) => node.category === row.id) })))
-
-const entryElements = () => [...(entryList.value?.querySelectorAll<HTMLElement>('[data-entry]') ?? [])]
-
-function trackActiveEntry() {
-  const list = entryList.value
-  if (!list) return
-  const top = list.getBoundingClientRect().top + 36
-  activeEntry.value = entryElements().find((el) => el.getBoundingClientRect().bottom > top)?.dataset.entry ?? null
-}
-
-watch([query, categoryIndex], async () => {
-  await nextTick()
-  entryList.value?.scrollTo({ top: 0 })
-  trackActiveEntry()
-})
-
-watch(activeEntry, (name) => indexList.value?.querySelector(`[data-index-entry="${name}"]`)?.scrollIntoView({ block: 'nearest' }), { flush: 'post' })
-
-function jumpTo(name: string) {
-  const el = entryElements().find((entry) => entry.dataset.entry === name)
-  el?.scrollIntoView({ block: 'start' })
-  el?.focus({ preventScroll: true })
-}
-
-function onEntryKeydown(e: KeyboardEvent, node: ShaderNode) {
-  if (e.target !== e.currentTarget) return
-  if (e.key === 'Enter') return void copy(node)
-  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
-  e.preventDefault()
-  const rows = entryElements()
-  rows[rows.indexOf(e.currentTarget as HTMLElement) + (e.key === 'ArrowDown' ? 1 : -1)]?.focus()
-}
-
-function onCategoryKeydown(e: KeyboardEvent) {
-  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
-  e.preventDefault()
-  const delta = e.key === 'ArrowDown' ? 1 : -1
-  categoryIndex.value = Math.min(categoryRows.value.length - 1, Math.max(0, categoryIndex.value + delta))
-}
-
-// the row elements are stable refs, not derived from the current render pass, so no tick needs to pass before focusing one
-watch(categoryIndex, (index) => categoryButtons.value[index]?.focus())
-
-async function copy(node: ShaderNode) {
-  await copyText(node.kind === 'function' ? node.signature : node.snippet.replace(/\$\{([^}]*)\}/g, '$1'))
-  copied.value = node.name
-  setTimeout(() => copied.value === node.name && (copied.value = null), 1200)
-}
-
-function copyFocused() {
-  const name = (document.activeElement as HTMLElement | null)?.dataset.entry
-  const node = name ? nodeByName.get(name) : undefined
-  if (node) void copy(node)
-}
-
-function focusSearch() {
-  search.value?.focus()
-  search.value?.select()
-}
-
-onActivated(trackActiveEntry)
+const { query, categoryIndex, copied, search, entryList, activeEntry, matchedNodes, categories, sections, trackActiveEntry, jumpTo, onEntryKeydown, copy, copyFocused, focusSearch } = useReferenceSearch()
 </script>
 
 <template>
@@ -116,32 +28,7 @@ onActivated(trackActiveEntry)
     </div>
 
     <div class="flex min-h-0 flex-1">
-      <div
-        role="listbox"
-        aria-label="Reference categories"
-        class="flex w-[180px] shrink-0 flex-col overflow-y-auto border-e border-(--app-hairline) py-1"
-        @keydown="onCategoryKeydown"
-      >
-        <button
-          v-for="(row, i) in categories"
-          :key="row.id ?? 'all'"
-          :ref="(el) => (categoryButtons[i] = el as HTMLElement)"
-          type="button"
-          role="option"
-          :aria-selected="i === categoryIndex"
-          :tabindex="i === categoryIndex ? 0 : -1"
-          class="flex h-(--app-row-h) w-full shrink-0 items-center gap-2 px-2.5 text-start text-[12px] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
-          :class="[
-            i === categoryIndex ? 'bg-accented text-highlighted' : 'text-muted hover:bg-(--app-hover) hover:text-default',
-            row.count === 0 && 'opacity-50',
-          ]"
-          @click="categoryIndex = i"
-        >
-          <span class="size-2 shrink-0 rounded-sm" :style="{ background: row.color ?? 'transparent' }" />
-          <span class="min-w-0 flex-1 truncate">{{ row.label }}</span>
-          <span class="shrink-0 tabular-nums text-dimmed">{{ row.count }}</span>
-        </button>
-      </div>
+      <ReferenceCategories v-model="categoryIndex" :categories="categories" />
 
       <div class="@container flex min-w-0 flex-1">
         <div ref="entryList" class="min-w-0 flex-1 overflow-y-auto" @scroll.passive="trackActiveEntry">
@@ -178,28 +65,7 @@ onActivated(trackActiveEntry)
           </div>
         </div>
 
-        <nav
-          v-if="sections.length"
-          ref="indexList"
-          aria-label="On this page"
-          class="hidden w-[152px] shrink-0 overflow-y-auto border-s border-(--app-hairline) py-2 @min-[620px]:block"
-        >
-          <template v-for="section in sections" :key="section.id!">
-            <p v-if="sections.length > 1" class="px-3 pb-0.5 pt-2 text-[11px] text-dimmed">{{ section.label }}</p>
-            <button
-              v-for="node in section.nodes"
-              :key="node.name"
-              type="button"
-              tabindex="-1"
-              :data-index-entry="node.name"
-              class="block h-(--app-row-dense-h) w-full truncate border-s-2 px-2.5 text-start font-mono text-[11px]"
-              :class="node.name === activeEntry ? 'border-primary text-highlighted' : 'border-transparent text-muted hover:text-default'"
-              @click="jumpTo(node.name)"
-            >
-              <MatchText :text="node.name" :query="query" />
-            </button>
-          </template>
-        </nav>
+        <ReferenceIndex v-if="sections.length" :sections="sections" :query="query" :active-entry="activeEntry" @jump="jumpTo" />
       </div>
     </div>
   </div>
