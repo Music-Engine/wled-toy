@@ -1,4 +1,4 @@
-import { CATEGORIES, NODES, categoryById, socketColor, type ShaderNode } from './glsl'
+import { CATEGORIES, NODES, categoryById, socketColor, type ShaderNode } from './catalog'
 import { directory, leaf, type MenuEntry, type MenuFs } from './menu-fs'
 
 /** Everything the shader editor can insert, one directory per category. */

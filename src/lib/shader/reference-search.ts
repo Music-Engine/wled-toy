@@ -1,4 +1,4 @@
-import type { Category, CategoryId, ShaderNode } from './glsl'
+import type { Category, CategoryId, ShaderNode } from './catalog'
 
 export interface ReferenceCategory {
   id: CategoryId | null

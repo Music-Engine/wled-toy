@@ -1,4 +1,4 @@
-import type { CategoryId } from '@/lib/shader/glsl'
+import type { CategoryId } from '@/lib/shader/catalog'
 import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { DataType, ImplicitDefault } from './types'
 import type { Value } from './value'

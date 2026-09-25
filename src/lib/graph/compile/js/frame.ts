@@ -1,4 +1,4 @@
-import { CONTROL_VECTORS } from '@/lib/shader/glsl'
+import { CONTROL_VECTORS } from '@/lib/shader/prelude'
 import type { FrameContext, FrameValue, FrameInfo } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
 import type { DataType } from '@/lib/graph/define/types'

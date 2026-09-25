@@ -1,5 +1,5 @@
 // GLSL's answer to the representation questions a value type raises, in a table keyed by type id.
-import type { GlslType } from '@/lib/shader/glsl'
+import type { GlslType } from '@/lib/shader/catalog'
 import type { DataType } from '@/lib/graph/define/types'
 import { castTo, componentCount, floatLiteral, vectorLiteral, type Value } from '@/lib/graph/define/value'
 

@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { commands } from 'vitest/browser'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { PRELUDE } from '@/lib/shader/glsl'
+import { PRELUDE } from '@/lib/shader/prelude'
 import { generateGlsl } from '@/lib/graph'
 import { readGraphFile } from '@/lib/graph/model/file'
 

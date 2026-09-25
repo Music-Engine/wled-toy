@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import MatchText from './MatchText.vue'
-import type { ShaderNode } from '@/lib/shader/glsl'
+import type { ShaderNode } from '@/lib/shader/catalog'
 
 const props = defineProps<{ sections: Array<{ id: string | null; label: string; nodes: ShaderNode[] }>; query: string; activeEntry: string | null }>()
 defineEmits<{ jump: [name: string] }>()

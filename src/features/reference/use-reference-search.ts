@@ -1,6 +1,6 @@
 import { computed, nextTick, onActivated, ref, watch } from 'vue'
 import { copyText } from '@/lib/app/clipboard'
-import { CATEGORIES, NODES, nodeByName, type ShaderNode } from '@/lib/shader/glsl'
+import { CATEGORIES, NODES, nodeByName, type ShaderNode } from '@/lib/shader/catalog'
 import { matchNodes, referenceCategories, referenceSections } from '@/lib/shader/reference-search'
 
 /** The reference page's search, category filter, the entry scrolled to, and keyboard movement and copying in the entry list. */

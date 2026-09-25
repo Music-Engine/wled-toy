@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Category, ShaderNode } from './glsl'
+import type { Category, ShaderNode } from './catalog'
 import { matchNodes, referenceCategories, referenceSections } from './reference-search'
 
 const node = (name: string, category: ShaderNode['category'], title: string, doc: string) => ({ name, category, title, doc }) as ShaderNode

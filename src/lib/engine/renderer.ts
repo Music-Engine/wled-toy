@@ -1,5 +1,5 @@
 import { AUDIO_BINS, HISTORY_ROWS, WAVE_ROWS, WAVE_WIDTH, type AudioTextures } from '@/lib/audio/textures'
-import { AUDIO_EXTRA_SLOTS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from '@/lib/shader/glsl'
+import { AUDIO_EXTRA_SLOTS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from '@/lib/shader/prelude'
 import { EngineError } from './engine-error'
 
 const VERT = `#version 300 es

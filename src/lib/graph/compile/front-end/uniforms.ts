@@ -1,6 +1,6 @@
 // Where a pixel consumer reads a per-frame output: a slot in the uniform block, allocated in the order the walk first
 // reads each output, or, standalone, the GLSL backend's stand-in for that output or its last value frozen into the code.
-import { CONTROL_VECTORS } from '@/lib/shader/glsl'
+import { CONTROL_VECTORS } from '@/lib/shader/prelude'
 import type { FrontEnd } from './front-end'
 import { planStep } from './frame-plan'
 import { standaloneExpr } from '@/lib/graph/compile/glsl/glsl'

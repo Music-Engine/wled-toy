@@ -4,7 +4,7 @@ import { log } from '@/lib/app/logs'
 import { createShaderSession } from '@/lib/documents/shader-session'
 import { useEngine } from '@/lib/engine/engine'
 import { EXAMPLES, type ShaderExample } from '@/lib/shader/examples'
-import type { ShaderNode } from '@/lib/shader/glsl'
+import type { ShaderNode } from '@/lib/shader/catalog'
 import type ShaderEditor from './ShaderEditor.vue'
 
 /** The shader page's compile schedule, its examples menu and its add-node menu, bound to the page's lifecycle. */

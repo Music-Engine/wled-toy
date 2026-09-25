@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import GlslCode from '@/features/shader-editor/GlslCode.vue'
 import MatchText from './MatchText.vue'
-import { socketColor, type Param, type ShaderNode } from '@/lib/shader/glsl'
+import { socketColor, type Param, type ShaderNode } from '@/lib/shader/catalog'
 
 defineProps<{ node: ShaderNode, query: string, copied: boolean }>()
 defineEmits<{ copy: [] }>()

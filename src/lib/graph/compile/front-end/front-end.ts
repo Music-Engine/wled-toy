@@ -1,6 +1,6 @@
 // What the front-end passes share while they build a Program: the graph, loop detection, what each pass settled per
 // node, and the Program as far as it is built. The backends never see it.
-import type { GlslType } from '@/lib/shader/glsl'
+import type { GlslType } from '@/lib/shader/catalog'
 import type { FrameValue, ResolveResult } from '@/lib/graph/define/context'
 import type { NodeShape, Rate, Socket } from '@/lib/graph/define/shape'
 import { canCast } from '@/lib/graph/define/types'

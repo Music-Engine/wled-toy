@@ -4,7 +4,7 @@ import { EditorView, hoverTooltip, showTooltip, type Tooltip } from '@codemirror
 import { snippetCompletion, type Completion, type CompletionContext, type CompletionResult } from '@codemirror/autocomplete'
 import type { Diagnostic } from '@codemirror/lint'
 import { highlightCode, tagHighlighter, tags as t, Tag } from '@lezer/highlight'
-import { CATEGORIES, GLSL_EXTRA_BUILTINS, GLSL_KEYWORDS, GLSL_TYPES, NODES, categoryById, nodeByName, type ShaderNode } from './glsl'
+import { CATEGORIES, GLSL_EXTRA_BUILTINS, GLSL_KEYWORDS, GLSL_TYPES, NODES, categoryById, nodeByName, type ShaderNode } from './catalog'
 
 const apiTag = Tag.define()
 const uniformTag = Tag.define()

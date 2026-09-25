@@ -1,6 +1,6 @@
 // The per-pixel side of the Program: which nodes the shader emits, in the order it emits them, and where each of their
 // inputs comes from.
-import { STATE_TARGETS } from '@/lib/shader/glsl'
+import { STATE_TARGETS } from '@/lib/shader/prelude'
 import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import type { GraphNodeData } from '@/lib/graph/model/doc'
 import { fallsBackToImplicit } from '@/lib/graph/registry'

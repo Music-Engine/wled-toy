@@ -1,6 +1,6 @@
 import { reactive, watch } from 'vue'
 import { activeDevice, activeDeviceId, devices, resetStoredDevices, restoreDevices, sanitizeDeviceStore, updateActiveDevice, type SavedDevice } from './devices'
-import { EXAMPLE } from '@/lib/shader/glsl'
+import { EXAMPLE } from '@/lib/shader/example'
 import { GRAPH_VERSION, type NodeGraph } from '@/lib/graph/model/doc'
 import { layoutCount, parseLayout, type Layout } from '@/lib/engine/layout'
 import { log } from './logs'

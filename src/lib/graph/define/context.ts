@@ -1,4 +1,4 @@
-import type { GlslType } from '@/lib/shader/glsl'
+import type { GlslType } from '@/lib/shader/catalog'
 import type { Features } from '@/lib/audio/dsp'
 import type { MidiReader } from '@/lib/engine/midi'
 import type { OutputSettings } from '@/lib/engine/output'

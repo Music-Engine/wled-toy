@@ -1,4 +1,4 @@
-import { categoryById, type CategoryId } from '@/lib/shader/glsl'
+import { categoryById, type CategoryId } from '@/lib/shader/catalog'
 import { directory, leaf, separator, type MenuDirectory, type MenuEntry, type MenuFs, type MenuItem, type MenuPreset } from '@/lib/shader/menu-fs'
 import { glslForm } from '@/lib/graph/compile/compile'
 import type { NodeItem } from '@/lib/graph/define/shape'

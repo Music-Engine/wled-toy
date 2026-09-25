@@ -4,7 +4,7 @@ import ReferencePage from './ReferencePage.vue'
 import { setClipboardWriter } from '@/lib/app/clipboard'
 import { installKeyDispatcher, isMac } from '@/lib/app/commands'
 import { workspace } from '@/lib/app/workspace'
-import { CATEGORIES, NODES } from '@/lib/shader/glsl'
+import { CATEGORIES, NODES } from '@/lib/shader/catalog'
 
 let unmount: (() => void) | undefined
 afterEach(() => {
