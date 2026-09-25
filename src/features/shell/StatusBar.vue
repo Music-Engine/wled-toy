@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import TransportGroup from './TransportGroup.vue'
-import OutputButton from './OutputButton.vue'
+import TransportGroup from '@/components/shell/TransportGroup.vue'
+import OutputButton from '@/components/shell/OutputButton.vue'
 import { runCommand } from '@/lib/app/commands'
 import { useEngine } from '@/lib/engine/engine'
 import { config } from '@/lib/app/config'

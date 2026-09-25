@@ -2,7 +2,7 @@
 import { computed, inject, onActivated, onBeforeUnmount, onDeactivated, reactive, ref, watch } from 'vue'
 import ShaderEditor from '@/components/editor/ShaderEditor.vue'
 import NodeMenu from '@/features/graph-editor/node-menu/NodeMenu.vue'
-import DockContribution from '@/components/shell/DockContribution.vue'
+import DockContribution from '@/features/shell/dock/DockContribution.vue'
 import ProblemsList from '@/features/graph-editor/problems/ProblemsList.vue'
 import ProblemStrip from '@/features/graph-editor/problems/ProblemStrip.vue'
 import CommandScope from '@/features/commands/CommandScope.vue'

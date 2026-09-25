@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h } from 'vue'
 import GraphPage from './GraphPage.vue'
-import TitleBar from '@/components/shell/TitleBar.vue'
+import TitleBar from '@/features/shell/TitleBar.vue'
 import { commands, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import type { FileBackend } from '@/lib/documents/documents'

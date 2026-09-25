@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h, nextTick } from 'vue'
 import LogPanel from './LogPanel.vue'
-import DockContribution from '@/components/shell/DockContribution.vue'
-import DockTabs from '@/components/shell/DockTabs.vue'
+import DockContribution from '@/features/shell/dock/DockContribution.vue'
+import DockTabs from '@/features/shell/dock/DockTabs.vue'
 import { clearLogs, log, logContext, logFilter, logs } from '@/lib/app/logs'
 import { dockHost, resetLayout, selectTab, workspace } from '@/lib/app/workspace'
 

@@ -2,23 +2,24 @@
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useElementSize } from '@vueuse/core'
-import DockContribution from './components/shell/DockContribution.vue'
+import DockContribution from '@/features/shell/dock/DockContribution.vue'
 import DropOverlay from './components/shell/DropOverlay.vue'
 import LedStrip from './components/panels/LedStrip.vue'
 import LogPanel from './components/panels/LogPanel.vue'
-import StatusBar from './components/shell/StatusBar.vue'
-import AboutDialog from './components/shell/AboutDialog.vue'
-import BottomPanel from './components/shell/BottomPanel.vue'
+import PreviewPanel from './components/panels/PreviewPanel.vue'
+import StatusBar from '@/features/shell/StatusBar.vue'
+import AboutDialog from '@/features/shell/AboutDialog.vue'
+import BottomPanel from '@/features/shell/dock/BottomPanel.vue'
 import CommandPalette from '@/features/commands/CommandPalette.vue'
 import InputsInspector from './components/shell/InputsInspector.vue'
 import LaunchScreen from './components/shell/LaunchScreen.vue'
 import OutputInspector from './components/shell/OutputInspector.vue'
 import PerformancePanel from './components/shell/PerformancePanel.vue'
-import RightDock from './components/shell/RightDock.vue'
+import RightDock from '@/features/shell/dock/RightDock.vue'
 import SettingsView from './components/shell/SettingsView.vue'
 import ShareAudioPrompt from './components/shell/ShareAudioPrompt.vue'
-import SplitHandle from './components/shell/SplitHandle.vue'
-import TitleBar from './components/shell/TitleBar.vue'
+import SplitHandle from '@/features/shell/dock/SplitHandle.vue'
+import TitleBar from '@/features/shell/TitleBar.vue'
 import { inEditableTarget, installKeyDispatcher, registerHandlers } from './lib/app/commands'
 import { config } from './lib/app/config'
 import { useEngine } from './lib/engine/engine'
@@ -107,7 +108,9 @@ onBeforeUnmount(() => {
           @update:model-value="workspace.dockWidth = $event"
           @collapse="workspace.dockVisible = false"
         />
-        <RightDock v-show="dockShown" :style="{ width: `${dockWidth}px` }" />
+        <RightDock v-show="dockShown" :style="{ width: `${dockWidth}px` }">
+          <PreviewPanel class="shrink-0" />
+        </RightDock>
       </div>
       <LedStrip v-if="workspace.stripVisible && isStripLayout(config.layout)" />
       <StatusBar />

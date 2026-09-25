@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { KeepAlive, createApp, h } from 'vue'
 import ShaderPage from './ShaderPage.vue'
-import TitleBar from '@/components/shell/TitleBar.vue'
+import TitleBar from '@/features/shell/TitleBar.vue'
 import { installKeyDispatcher, isMac, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import type { FileBackend } from '@/lib/documents/documents'
