@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
-import RangeField from './ui/RangeField.vue'
+import RangeField from '@/features/node-ui/fields/RangeField.vue'
+// the knob and scene rows are drawn with the node look, and this panel can be open before any node has rendered
+import '@/features/node-ui/node-ui.css'
 import InspectorRow from '@/components/shell/InspectorRow.vue'
 import InspectorSection from '@/components/shell/InspectorSection.vue'
 import { useEngine } from '@/lib/engine/engine'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-defineProps<{ title: string; color: string; selected?: boolean; warnings?: string[]; source?: boolean; wide?: boolean }>()
-const collapsed = defineModel<boolean>('collapsed', { default: false })
+defineProps<{ title: string; color: string; collapsed: boolean; selected?: boolean; warnings?: string[]; source?: boolean; wide?: boolean }>()
+defineEmits<{ toggle: [] }>()
 </script>
 
 <template>
@@ -8,7 +8,7 @@ const collapsed = defineModel<boolean>('collapsed', { default: false })
     <div class="nui-header" :style="{ background: color }">
       <!-- a collapsed node keeps its sockets, spread along the header's edges, so links stay attached -->
       <div v-if="collapsed" class="nui-folded is-in"><slot name="folded-in" /></div>
-      <button type="button" class="nui-collapse nodrag" :aria-label="collapsed ? 'Expand node' : 'Collapse node'" :aria-expanded="!collapsed" @click="collapsed = !collapsed">
+      <button type="button" class="nui-collapse nodrag" :aria-label="collapsed ? 'Expand node' : 'Collapse node'" :aria-expanded="!collapsed" @click="$emit('toggle')">
         <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
       </button>
       <span class="nui-title">{{ title }}</span>

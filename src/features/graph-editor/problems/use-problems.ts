@@ -1,5 +1,5 @@
 import { computed, provide, type Ref } from 'vue'
-import { graphIssuesKey } from '@/components/graph/graph-context'
+import { graphIssuesKey } from '@/features/node-ui/graph-context'
 import type { GraphEditSession } from '@/lib/documents/graph-session'
 import type { GraphIssue } from '@/lib/graph'
 import { parseGlslErrors } from '@/lib/shader/glsl-language'

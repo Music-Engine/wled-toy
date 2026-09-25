@@ -1,5 +1,7 @@
 import type { ComputedRef, InjectionKey } from 'vue'
 
+// the node UI's one inject: vue-flow renders the nodes itself, so the canvas cannot hand them props
+
 /** Problems per node id (codegen issues and compile errors), provided by the graph editor. */
 export const graphIssuesKey: InjectionKey<ComputedRef<Map<string, string[]>>> = Symbol('graphIssues')
 

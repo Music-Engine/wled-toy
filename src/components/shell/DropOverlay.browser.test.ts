@@ -16,7 +16,7 @@ import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph, type 
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { serializeGraphFile } from '@/lib/graph/model/file'
 import '@vue-flow/core/dist/style.css'
-import '@/assets/node-ui.css'
+import '@/features/node-ui/node-ui.css'
 
 // Tailwind does not run in the tests; these are the utilities that give the canvas its size in the app
 const layout = document.createElement('style')

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import FileSelector from '@/components/graph/ui/FileSelector.vue'
+import FileSelector from '@/features/node-ui/fields/FileSelector.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { BUILT_IN_IMAGE } from '@/lib/engine/images'
 import { report } from '@/lib/app/logs'

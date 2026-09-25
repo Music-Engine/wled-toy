@@ -2,7 +2,7 @@ import { afterEach, expect, it } from 'vitest'
 import { createApp, h, markRaw, nextTick } from 'vue'
 import { VueFlow } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
-import '@/assets/node-ui.css'
+import '@/features/node-ui/node-ui.css'
 import GraphNode from './GraphNode.vue'
 import { graph, node } from '@/lib/graph/testing'
 

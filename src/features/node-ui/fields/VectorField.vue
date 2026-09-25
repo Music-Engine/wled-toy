@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
 import RangeField from './RangeField.vue'
+import { useInvalidParts } from './use-node-field'
 
 const props = defineProps<{ modelValue: number[]; step?: number; min?: number; max?: number; decimals?: number }>()
 const emit = defineEmits<{
@@ -8,19 +8,12 @@ const emit = defineEmits<{
   invalid: [invalid: boolean]
 }>()
 
-const invalidAxes = reactive(new Set<number>())
+const { mark: markInvalid } = useInvalidParts((invalid) => emit('invalid', invalid))
 
 function setComponent(index: number, value: number) {
   const next = [...props.modelValue]
   next[index] = value
   emit('update:modelValue', next)
-}
-
-function markInvalid(index: number, invalid: boolean) {
-  const before = invalidAxes.size > 0
-  if (invalid) invalidAxes.add(index)
-  else invalidAxes.delete(index)
-  if (before !== invalidAxes.size > 0) emit('invalid', !before)
 }
 </script>
 

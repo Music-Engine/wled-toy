@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { computed, inject, nextTick, reactive, watch } from 'vue'
+import { computed, inject, reactive } from 'vue'
 import { useVueFlow, type NodeProps } from '@vue-flow/core'
-import NodeShell from './ui/NodeShell.vue'
-import Socket from './ui/Socket.vue'
+import NodeShell from './NodeShell.vue'
+import Socket from './Socket.vue'
 import { handlerFor, nodeBodies, type TypeHandler } from './handlers'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from './graph-context'
 import { socketColor, unlinkedStream } from './sockets'
+import { useNodeCollapse } from './use-node-collapse'
+import './node-ui.css'
 import { isImplicit, nodeItem, placement, type DataType, type GraphNodeData, type Socket as NodeSocket, type SocketValue } from '@/lib/graph'
 
 const props = defineProps<NodeProps<GraphNodeData>>()
-const { edges, updateNodeData, updateNodeInternals } = useVueFlow()
+const { edges, updateNodeData } = useVueFlow()
 const graphIssues = inject(graphIssuesKey, null)
 const connectedHandles = inject(connectedHandlesKey, null)
 
@@ -60,12 +62,7 @@ const rows = computed<Row[]>(() => (item.value?.inputs ?? []).map((socket) => {
   }
 }))
 
-const collapsed = computed({
-  get: () => props.data.collapsed ?? false,
-  set: (value) => updateNodeData<GraphNodeData>(props.id, { collapsed: value }),
-})
-// Vue Flow caches socket positions; they all move when the rows disappear
-watch(collapsed, () => nextTick(() => updateNodeInternals([props.id])))
+const { collapsed, toggle } = useNodeCollapse(props)
 
 function setValue(name: string, value: SocketValue) {
   updateNodeData<GraphNodeData>(props.id, { values: { ...props.data.values, [name]: value } })
@@ -81,13 +78,14 @@ function markInvalid(socket: NodeSocket, invalid: boolean) {
 <template>
   <NodeShell
     v-if="item"
-    v-model:collapsed="collapsed"
+    :collapsed="collapsed"
     :title="item.title"
     :color="categoryById.get(kind!.category)?.color ?? '#545454'"
     :selected="selected"
     :warnings="warnings"
     :source="!item.inputs.some((s) => s.linkable)"
     :wide="item.inputs.some((s) => s.type.id === 'ramp') || data.kind in nodeBodies"
+    @toggle="toggle"
   >
     <template #folded-in>
       <Socket v-for="socket in item.inputs.filter((s) => s.linkable)" :id="socket.name" :key="socket.name" side="in" :color="socketColor(socket.type)" :shape="storedShape(socket.type)" />

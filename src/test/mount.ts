@@ -1,5 +1,5 @@
 import { createApp, h, ref, type Component, type Ref } from 'vue'
-import '@/assets/node-ui.css'
+import '@/features/node-ui/node-ui.css'
 
 /** Mounts a widget with a live `modelValue`, inside a `.nui` scope of fixed width so pixel math in tests is stable. */
 export function mountField<T>(component: Component, initial: T, props: Record<string, unknown> = {}): { value: Ref<T>; root: HTMLElement; unmount(): void } {

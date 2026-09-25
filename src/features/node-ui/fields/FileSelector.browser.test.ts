@@ -1,7 +1,7 @@
 import { afterEach, expect, it } from 'vitest'
 import { userEvent } from 'vitest/browser'
 import { createApp, h, nextTick, ref } from 'vue'
-import '@/assets/node-ui.css'
+import '@/features/node-ui/node-ui.css'
 import FileSelector, { type FileListing } from './FileSelector.vue'
 
 let unmount: (() => void) | undefined

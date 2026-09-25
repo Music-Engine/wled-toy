@@ -3,7 +3,7 @@ import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated
 import { useVueFlow } from '@vue-flow/core'
 import GlslCode from '@/components/editor/GlslCode.vue'
 import ParametersPanel from '@/components/graph/ParametersPanel.vue'
-import { socketColor } from '@/components/graph/sockets'
+import { socketColor } from '@/features/node-ui/sockets'
 import CommandScope from '@/components/shell/CommandScope.vue'
 import DockContribution from '@/components/shell/DockContribution.vue'
 import { copyText } from '@/lib/app/clipboard'

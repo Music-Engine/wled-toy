@@ -177,12 +177,14 @@ describe('GradientEditor', () => {
     expect(remove.disabled).toBe(true)
   })
 
-  it('a dragged stop cannot pass its neighbors', async () => {
+  it('a stop dragged past its neighbor swaps places with it, and the ramp stays sorted', async () => {
     const field = mountField(GradientEditor, threeStops())
     mounted = field
-    const middle = field.root.querySelectorAll('.nui-gradient-stop')[1]
-    await dragBy(middle, 400)
-    expect(field.value.value.stops.map((s) => s.position)).toEqual([0, 1, 1])
-    expect(field.value.value.stops[1].color).toEqual([1, 0, 0])
+    const first = field.root.querySelectorAll('.nui-gradient-stop')[0]
+    await dragBy(first, 150)
+    const positions = field.value.value.stops.map((s) => s.position)
+    expect(positions).toEqual([...positions].sort((a, b) => a - b))
+    expect(positions[1]).toBeGreaterThan(0.5)
+    expect(field.value.value.stops.map((s) => s.color)).toEqual([[1, 0, 0], [0, 0, 0], [1, 1, 1]])
   })
 })

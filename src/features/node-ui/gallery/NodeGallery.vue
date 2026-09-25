@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { markRaw, ref } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
-import GraphNode from '@/components/graph/GraphNode.vue'
+import GraphNode from '@/features/node-ui/GraphNode.vue'
 import { GRAPH_NODE_TYPE } from '@/lib/graph'
 import { galleryNodes } from './nodes'
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import DropdownField from '@/components/graph/ui/DropdownField.vue'
+import DropdownField from '@/features/node-ui/fields/DropdownField.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { systemAudioBlocked } from '@/lib/audio/service'
 import { report } from '@/lib/app/logs'
