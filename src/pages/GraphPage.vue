@@ -27,10 +27,11 @@ import { filterFs, type MenuPreset } from '@/lib/shader/menu-fs'
 import { dockHost } from '@/lib/app/workspace'
 import { graphImageDrop } from '@/lib/app/file-drop'
 import { classifyWheel, type WheelGesture } from './wheel-source'
+import { compileKey } from './compile-key'
 import {
   GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, nodeItem,
   newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
-  type DataType, type NodeGraph, type GraphIssue, type GraphNodeData, type NodeItem, type StoredEdge,
+  type DataType, type NodeGraph, type GraphIssue, type GraphNodeData, type NodeItem, type Scene, type StoredEdge, type StoredNode,
 } from '@/lib/graph'
 
 interface PendingLink {
@@ -71,6 +72,10 @@ const compileError = ref<string | null>(null)
 const compiledLineNodes = shallowRef<(string | null)[]>([])
 let lastSaved: NodeGraph | null = config.graph
 let lastCompiled = ''
+// the compile key `generated` was built from and the one the engine last took
+let generatedKey = ''
+let appliedKey = ''
+let prunedScenes: Scene[] | null = null
 let regenTimer: ReturnType<typeof setTimeout> | undefined
 let liveTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -90,13 +95,14 @@ const snapshot = () => storedSnapshot.value
  * shader waits for the edits to pause (`compileNow`), and its plan waits with it: the two index the same uniform slots.
  */
 function regenerate(compileNow = true) {
-  const doc = snapshot()
-  // deleting a knob takes its values out of every scene; assigning only on a real change keeps this from re-triggering itself
-  const pruned = pruneScenes(scenes.value, doc.nodes)
-  if (JSON.stringify(pruned) !== JSON.stringify(scenes.value)) scenes.value = pruned
-  generated.value = generateGlsl(doc)
+  const key = compileKey(nodes.value, storeEdges.value)
+  if (key !== generatedKey || scenes.value !== prunedScenes) pruneStaleScenes()
+  if (key !== generatedKey) {
+    generatedKey = key
+    generated.value = generateGlsl(snapshot())
+  }
   const { code, frame, output, error, lineNodes } = generated.value
-  if (!active.value || error) return
+  if (!active.value || error || key === appliedKey) return
   if (code !== lastCompiled && !compileNow) {
     clearTimeout(regenTimer)
     regenTimer = setTimeout(regenerate, 250)
@@ -104,11 +110,20 @@ function regenerate(compileNow = true) {
   }
   engine.setControlPlan(frame)
   engine.setOutput(output)
+  appliedKey = key
   if (code === lastCompiled) return
   const ok = engine.compile(code, 'graph')
   compileError.value = ok ? null : engine.compileError.value
   compiledLineNodes.value = lineNodes
   lastCompiled = code
+}
+
+/** Deleting a knob takes its values out of every scene. */
+function pruneStaleScenes() {
+  const pruned = pruneScenes(scenes.value, nodes.value as unknown as StoredNode[])
+  // pruning only drops values, so a scene that kept its count is unchanged; assigning only then keeps this from re-triggering itself
+  if (pruned.some((scene, i) => Object.keys(scene.values).length !== Object.keys(scenes.value[i].values).length)) scenes.value = pruned
+  prunedScenes = scenes.value
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined
@@ -645,6 +660,7 @@ const minimapColor = (node: FlowNode) => {
 onActivated(() => {
   active.value = true
   lastCompiled = ''
+  appliedKey = ''
   regenerate()
   window.addEventListener('keydown', onKeydown)
   for (const type of ['copy', 'cut', 'paste'] as const) window.addEventListener(type, onClipboardEvent)
