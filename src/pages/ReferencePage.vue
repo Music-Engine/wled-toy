@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onActivated, ref, watch } from 'vue'
-import CommandScope from '@/components/shell/CommandScope.vue'
+import CommandScope from '@/features/commands/CommandScope.vue'
 import MatchText from '@/components/reference/MatchText.vue'
 import ReferenceEntry from '@/components/reference/ReferenceEntry.vue'
 import { copyText } from '@/lib/app/clipboard'

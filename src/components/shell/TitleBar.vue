@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppMenuBar from './AppMenuBar.vue'
+import AppMenuBar from '@/features/commands/AppMenuBar.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { acceleratorKbds, commandTitle, getCommand, hasNativeMenu, isEnabled, isMac, runCommand } from '@/lib/app/commands'
 import { activeDocument } from '@/lib/documents/document-session'
