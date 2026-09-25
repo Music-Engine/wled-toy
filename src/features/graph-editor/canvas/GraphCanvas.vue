@@ -11,6 +11,7 @@ import { GRAPH_NODE_TYPE, nodeItem, type GraphNodeData } from '@/lib/graph'
 import { categoryById } from '@/lib/shader/glsl'
 import { useCanvasPointer } from './use-canvas-pointer'
 import type { PendingLink } from './use-link-drag'
+import './canvas.css'
 
 const props = defineProps<{ flowId: string; session: GraphEditSession }>()
 const emit = defineEmits<{ offerNodes: [at: { x: number; y: number }, pending: PendingLink | null] }>()

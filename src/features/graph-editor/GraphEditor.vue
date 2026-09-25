@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, shallowRef } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
-import GlslCode from '@/components/editor/GlslCode.vue'
+import GlslCode from '@/features/shader-editor/GlslCode.vue'
 import ParametersPanel from '@/components/graph/ParametersPanel.vue'
 import { socketColor } from '@/features/node-ui/sockets'
 import CommandScope from '@/features/commands/CommandScope.vue'

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { highlightGlslHtml } from '@/lib/shader/glsl-language'
+import './shader-editor.css'
 
 const props = defineProps<{ code: string }>()
 const html = computed(() => highlightGlslHtml(props.code))

@@ -11,6 +11,7 @@ import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, s
 import { lintGutter, lintKeymap, setDiagnostics } from '@codemirror/lint'
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
 import { glsl, glslCompletions, toDiagnostics } from '@/lib/shader/glsl-language'
+import './shader-editor.css'
 
 const props = defineProps<{ error: string | null }>()
 const code = defineModel<string>({ required: true })

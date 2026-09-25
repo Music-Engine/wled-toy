@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, inject, onActivated, onBeforeUnmount, onDeactivated, reactive, ref, watch } from 'vue'
-import ShaderEditor from '@/components/editor/ShaderEditor.vue'
+import { computed, inject, ref } from 'vue'
+import ShaderEditor from '@/features/shader-editor/ShaderEditor.vue'
+import { useShaderSession } from '@/features/shader-editor/use-shader-session'
 import NodeMenu from '@/features/graph-editor/node-menu/NodeMenu.vue'
 import DockContribution from '@/features/shell/dock/DockContribution.vue'
 import ProblemsList from '@/features/graph-editor/problems/ProblemsList.vue'
@@ -10,79 +11,25 @@ import DocumentDialogs from '@/features/documents/DocumentDialogs.vue'
 import { config } from '@/lib/app/config'
 import { graphCodeNotice } from '@/lib/shader/shader-export'
 import { SHADER_FILES, createBrowserBackend } from '@/lib/documents/documents'
-import { log } from '@/lib/app/logs'
 import { useEngine } from '@/lib/engine/engine'
-import type { ShaderNode } from '@/lib/shader/glsl'
+import { parseGlslErrors } from '@/lib/shader/glsl-language'
 import { createShaderDocument, shaderFileBackendKey } from '@/lib/shader/shader-document'
 import { SHADER_FS, describeShaderNode } from '@/lib/shader/shader-menu'
-import { EXAMPLES, type ShaderExample } from '@/lib/shader/examples'
 import type { Problem } from '@/lib/app/workspace'
 
-const engine = useEngine()
-const compileError = engine.compileError
+const compileError = useEngine().compileError
 const editor = ref<InstanceType<typeof ShaderEditor>>()
-const active = ref(false)
-const nodeMenu = reactive({ open: false, position: null as { x: number; y: number } | null })
-let compileTimer: ReturnType<typeof setTimeout> | undefined
+const { compile, compileIfShown, exampleItems, nodeMenu, openNodeMenu, insertNode } = useShaderSession(editor)
+const shaderDocument = createShaderDocument({ backend: inject(shaderFileBackendKey, () => createBrowserBackend(SHADER_FILES), true), onLoad: compileIfShown })
 
-// same info log pattern the editor's diagnostics read (toDiagnostics)
 const compileProblems = computed<Problem[]>(() => {
   const error = compileError.value
   if (!error) return []
-  const found = [...error.matchAll(/ERROR:\s*\d+:(\d+):\s*(.*)/g)].map((m) => ({ message: m[2].trim(), location: `line ${m[1]}`, line: Number(m[1]) }))
+  const found = parseGlslErrors(error).map(({ line, message }) => ({ message, location: `line ${line}`, line }))
   return found.length ? found : [{ message: error.trim() }]
 })
 
-function compile() {
-  clearTimeout(compileTimer)
-  engine.compile(config.code, 'shader')
-}
-
-// a new, opened, reverted or recovered shader shows at once instead of after the typing pause
-const shaderDocument = createShaderDocument({ backend: inject(shaderFileBackendKey, () => createBrowserBackend(SHADER_FILES), true), onLoad: () => active.value && compile() })
-
 const problems = computed<Problem[]>(() => [...(shaderDocument.error.value ? [{ message: shaderDocument.error.value }] : []), ...compileProblems.value])
-
-function loadExample(example: ShaderExample) {
-  config.code = example.code
-  compile()
-  log(`Loaded example: ${example.name} (Cmd+Z in the editor restores your previous shader)`)
-}
-
-const exampleItems = EXAMPLES.map((example) => ({
-  label: example.name,
-  description: example.description,
-  icon: example.icon,
-  onSelect: () => loadExample(example),
-}))
-
-function openNodeMenu(position: { x: number; y: number } | null) {
-  nodeMenu.position = position
-  nodeMenu.open = true
-}
-
-function insertNode(node: ShaderNode) {
-  editor.value?.insertSnippet(node.snippet)
-  log(`Added node: ${node.title}`)
-}
-
-watch(() => config.code, () => {
-  if (!active.value) return
-  clearTimeout(compileTimer)
-  compileTimer = setTimeout(compile, 700)
-})
-
-onActivated(() => {
-  active.value = true
-  compile()
-})
-
-onDeactivated(() => {
-  active.value = false
-  clearTimeout(compileTimer)
-})
-
-onBeforeUnmount(() => clearTimeout(compileTimer))
 </script>
 
 <template>

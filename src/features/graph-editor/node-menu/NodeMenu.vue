@@ -1,8 +1,9 @@
 <script setup lang="ts" generic="T">
 import { nextTick, ref, watch } from 'vue'
-import GlslCode from '@/components/editor/GlslCode.vue'
+import GlslCode from '@/features/shader-editor/GlslCode.vue'
 import type { MenuEntry, MenuFs, MenuPreset } from '@/lib/shader/menu-fs'
 import { useNodeMenu } from './use-node-menu'
+import './node-menu.css'
 
 const props = defineProps<{
   position: { x: number; y: number } | null

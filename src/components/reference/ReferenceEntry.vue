@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import GlslCode from '@/components/editor/GlslCode.vue'
+import GlslCode from '@/features/shader-editor/GlslCode.vue'
 import MatchText from './MatchText.vue'
 import { socketColor, type Param, type ShaderNode } from '@/lib/shader/glsl'
 
