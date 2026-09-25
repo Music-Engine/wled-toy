@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watchEffect } from 'vue'
-import CommandScope from './CommandScope.vue'
+import CommandScope from '@/components/shell/CommandScope.vue'
 import { contextMenuItems } from '@/lib/app/commands'
 import { contextProblem, workspace, type Problem } from '@/lib/app/workspace'
 

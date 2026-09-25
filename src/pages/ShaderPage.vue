@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, inject, onActivated, onBeforeUnmount, onDeactivated, reactive, ref, watch } from 'vue'
 import ShaderEditor from '@/components/editor/ShaderEditor.vue'
-import NodeMenu from '@/components/editor/NodeMenu.vue'
+import NodeMenu from '@/features/graph-editor/node-menu/NodeMenu.vue'
 import DockContribution from '@/components/shell/DockContribution.vue'
-import ProblemsList from '@/components/shell/ProblemsList.vue'
-import ProblemStrip from '@/components/shell/ProblemStrip.vue'
+import ProblemsList from '@/features/graph-editor/problems/ProblemsList.vue'
+import ProblemStrip from '@/features/graph-editor/problems/ProblemStrip.vue'
 import CommandScope from '@/components/shell/CommandScope.vue'
 import DocumentDialogs from '@/components/shell/DocumentDialogs.vue'
 import { config } from '@/lib/app/config'

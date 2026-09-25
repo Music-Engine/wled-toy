@@ -222,12 +222,15 @@ const signatureHelp = StateField.define<Tooltip | null>({
   provide: (f) => showTooltip.from(f),
 })
 
+/** The `ERROR: 0:<line>: <message>` entries of a WebGL info log, with 1-based lines. */
+export const parseGlslErrors = (infoLog: string): { line: number; message: string }[] =>
+  [...infoLog.matchAll(/ERROR:\s*\d+:(\d+):\s*(.*)/g)].map((m) => ({ line: Number(m[1]), message: m[2].trim() }))
+
 export function toDiagnostics(doc: Text, infoLog: string): Diagnostic[] {
-  const out: Diagnostic[] = []
-  for (const m of infoLog.matchAll(/ERROR:\s*\d+:(\d+):\s*(.*)/g)) {
-    const line = doc.line(Math.min(Math.max(1, Number(m[1])), doc.lines))
-    out.push({ from: line.from, to: line.to, severity: 'error', message: m[2].trim() })
-  }
+  const out: Diagnostic[] = parseGlslErrors(infoLog).map((error) => {
+    const line = doc.line(Math.min(Math.max(1, error.line), doc.lines))
+    return { from: line.from, to: line.to, severity: 'error', message: error.message }
+  })
   if (out.length === 0 && infoLog.trim()) out.push({ from: 0, to: 0, severity: 'error', message: infoLog.trim() })
   return out
 }

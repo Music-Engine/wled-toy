@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { classifyWheel, type WheelSample } from './wheel-source'
+import { classifyWheel, type WheelSample } from './use-wheel-zoom'
 
 const sample = (partial: Partial<WheelSample>): WheelSample => ({ deltaX: 0, deltaY: 0, deltaMode: 0, timeStamp: 0, ...partial })
 const first = (partial: Partial<WheelSample>) => classifyWheel(sample(partial), null).source
