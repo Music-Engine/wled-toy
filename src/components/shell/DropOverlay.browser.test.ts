@@ -5,7 +5,7 @@ import { routerKey, type Router } from 'vue-router'
 import { useVueFlow } from '@vue-flow/core'
 import DropOverlay from './DropOverlay.vue'
 import GraphPage from '@/pages/GraphPage.vue'
-import { isMac } from '@/lib/app/commands'
+import { installKeyDispatcher, isMac } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import { logs } from '@/lib/app/logs'
 import { workspace } from '@/lib/app/workspace'
@@ -38,7 +38,8 @@ function mount(graph: NodeGraph | null) {
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => { removeKeys(); app.unmount(); root.remove() }
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, ref, watch } from 'vue'
+import { computed, nextTick, onActivated, ref, watch } from 'vue'
 import CommandScope from '@/components/shell/CommandScope.vue'
 import MatchText from '@/components/reference/MatchText.vue'
 import ReferenceEntry from '@/components/reference/ReferenceEntry.vue'
@@ -94,22 +94,7 @@ function focusSearch() {
   search.value?.select()
 }
 
-// Cmd+C is a page-owned key (registry.reference.copyEntry is `page: true`): this leaves native text
-// selection copy alone and only steps in when a reference row, not a text field, has focus.
-function onKeydown(e: KeyboardEvent) {
-  if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'c') return
-  if ((e.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]') || window.getSelection()?.toString()) return
-  if (!(document.activeElement as HTMLElement | null)?.dataset.entry) return
-  e.preventDefault()
-  copyFocused()
-}
-
-onActivated(() => {
-  window.addEventListener('keydown', onKeydown)
-  trackActiveEntry()
-})
-onDeactivated(() => window.removeEventListener('keydown', onKeydown))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+onActivated(trackActiveEntry)
 </script>
 
 <template>

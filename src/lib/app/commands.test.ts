@@ -82,6 +82,12 @@ describe('accelerators', () => {
     // without Option the character decides, so a remapped layout keeps its letters
     expect(matchesAccelerator(key({ key: 'j', code: 'KeyC', metaKey: true }), parseAccelerator('Mod+J'), true)).toBe(true)
   })
+
+  it('a bare letter does not answer its Shift chord, so Shift+X stays free for a command of its own', async () => {
+    const { matchesAccelerator, parseAccelerator } = await load()
+    expect(matchesAccelerator(key({ key: 'x', code: 'KeyX' }), parseAccelerator('X'), true)).toBe(true)
+    expect(matchesAccelerator(key({ key: 'X', code: 'KeyX', shiftKey: true }), parseAccelerator('X'), true)).toBe(false)
+  })
 })
 
 describe('registry', () => {
@@ -268,32 +274,50 @@ describe('the whole registry', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('no two commands of one mode share an accelerator or an alias', async () => {
-    const { commands, isVisible, parseAccelerator, workspace } = await load()
-    for (const mode of ['shader', 'graph', 'reference'] as const) {
-      workspace.mode = mode
-      const seen = new Map<string, string>()
-      for (const command of commands.value.filter(isVisible)) {
-        for (const text of [command.accelerator, ...(command.aliases ?? [])]) {
-          if (!text) continue
-          const normal = JSON.stringify(parseAccelerator(text))
-          expect(seen.get(normal), `${mode}: ${text} on ${command.id}`).toBeUndefined()
-          seen.set(normal, command.id)
+  // the registry reads the platform when it loads: Ctrl+Y is a redo alias only off macOS
+  for (const platform of ['MacIntel', 'Win32', 'Linux x86_64']) {
+    it(`no two commands of one mode share an accelerator or an alias (${platform})`, async () => {
+      const realNavigator = navigator
+      vi.stubGlobal('navigator', { platform })
+      try {
+        const { commands, isVisible, parseAccelerator, workspace } = await load()
+        for (const mode of ['shader', 'graph', 'reference'] as const) {
+          workspace.mode = mode
+          const seen = new Map<string, string>()
+          for (const command of commands.value.filter(isVisible)) {
+            for (const text of [command.accelerator, ...(command.aliases ?? [])]) {
+              if (!text) continue
+              const normal = JSON.stringify(parseAccelerator(text))
+              expect(seen.get(normal), `${mode}: ${text} on ${command.id}`).toBeUndefined()
+              seen.set(normal, command.id)
+            }
+          }
         }
+      } finally {
+        vi.stubGlobal('navigator', realNavigator)
       }
+    })
+  }
+
+  it('graph redo answers Ctrl+Y on Windows and Linux, and Cmd+Y stays free on macOS', async () => {
+    const realNavigator = navigator
+    try {
+      for (const [platform, aliases] of [['MacIntel', undefined], ['Win32', ['Mod+Y']], ['Linux x86_64', ['Mod+Y']]] as const) {
+        vi.stubGlobal('navigator', { platform })
+        const { getCommand } = await load()
+        expect(getCommand('graph.redo')!.aliases, platform).toEqual(aliases)
+      }
+    } finally {
+      vi.stubGlobal('navigator', realNavigator)
     }
   })
 
-  it('nothing the registry dispatches sits on a key a page listener or the browser owns', async () => {
+  it('every command on a text editing chord is a text key, so text fields and the code editor keep that chord', async () => {
     const { commands, parseAccelerator } = await load()
-    // GraphPage takes every Cmd/Ctrl or Shift chord on A, bare X and Space; Cmd+C/X/V are the clipboard
-    for (const command of commands.value.filter((c) => !c.page)) {
+    const textChords = ['Mod+A', 'Mod+C', 'Mod+X', 'Mod+V', 'Mod+Z', 'Mod+Shift+Z', 'Mod+Y'].map((text) => JSON.stringify(parseAccelerator(text)))
+    for (const command of commands.value) {
       for (const text of [command.accelerator, ...(command.aliases ?? [])]) {
-        if (!text) continue
-        const { key, mod, shift, alt } = parseAccelerator(text)
-        expect(key === 'a', `${command.id}: ${text}`).toBe(false)
-        expect(!mod && !shift && !alt && (key === 'x' || key === 'space'), `${command.id}: ${text}`).toBe(false)
-        expect(mod && !shift && !alt && 'cxv'.includes(key), `${command.id}: ${text}`).toBe(false)
+        if (text && textChords.includes(JSON.stringify(parseAccelerator(text)))) expect(command.textKey, `${command.id}: ${text}`).toBe(true)
       }
     }
   })
@@ -358,15 +382,15 @@ describe('log, problems, dock-hide and reference commands', () => {
     }
   })
 
-  it('Cmd+A selects all in both editors; adding is Shift+A in a graph and Cmd+Shift+A in a shader, all left to the page', async () => {
+  it('Cmd+A selects all in both editors; adding is Shift+A in a graph and Cmd+Shift+A in a shader; no native item binds them', async () => {
     const { getCommand, nativeAccelerator } = await load()
-    const keys = (id: string) => { const { accelerator, aliases, page, modes } = getCommand(id)!; return { accelerator, aliases, page, modes } }
-    expect(keys('graph.addNode')).toEqual({ accelerator: 'Shift+A', aliases: undefined, page: true, modes: ['graph'] })
-    expect(keys('graph.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, page: true, modes: ['graph'] })
-    expect(keys('graph.deselectAll')).toEqual({ accelerator: 'Alt+A', aliases: ['Escape'], page: true, modes: ['graph'] })
-    expect(nativeAccelerator(getCommand('graph.deselectAll')!)).toBeUndefined()
-    expect(keys('shader.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, page: true, modes: ['shader'] })
-    expect(keys('shader.addFunction')).toEqual({ accelerator: 'Mod+Shift+A', aliases: undefined, page: true, modes: ['shader'] })
+    const keys = (id: string) => { const { accelerator, aliases, textKey, modes } = getCommand(id)!; return { accelerator, aliases, textKey, modes } }
+    expect(keys('graph.addNode')).toEqual({ accelerator: 'Shift+A', aliases: undefined, textKey: undefined, modes: ['graph'] })
+    expect(keys('graph.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, textKey: true, modes: ['graph'] })
+    expect(keys('graph.deselectAll')).toEqual({ accelerator: 'Alt+A', aliases: ['Escape'], textKey: undefined, modes: ['graph'] })
+    expect(keys('shader.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, textKey: true, modes: ['shader'] })
+    expect(keys('shader.addFunction')).toEqual({ accelerator: 'Mod+Shift+A', aliases: undefined, textKey: true, modes: ['shader'] })
+    for (const id of ['graph.addNode', 'graph.selectAll', 'graph.deselectAll', 'shader.selectAll', 'shader.addFunction']) expect(nativeAccelerator(getCommand(id)!), id).toBeUndefined()
   })
 
   it('view.hideDock and view.hideBottom force their panel closed, unlike the toggle commands', async () => {
@@ -381,7 +405,7 @@ describe('log, problems, dock-hide and reference commands', () => {
     expect(workspace.bottomVisible).toBe(false)
   })
 
-  it('reference.focusSearch and reference.copyEntry exist only in reference mode; Cmd+C is left to the page', async () => {
+  it('reference.focusSearch and reference.copyEntry exist only in reference mode; Cmd+C is a text key', async () => {
     const { getCommand } = await load()
     const focusSearch = getCommand('reference.focusSearch')!
     const copyEntry = getCommand('reference.copyEntry')!
@@ -389,7 +413,7 @@ describe('log, problems, dock-hide and reference commands', () => {
     expect(focusSearch.accelerator).toBe('/')
     expect(focusSearch.aliases).toEqual(['Mod+F'])
     expect(copyEntry.modes).toEqual(['reference'])
-    expect(copyEntry.page).toBe(true)
+    expect(copyEntry.textKey).toBe(true)
   })
 
   it('File > New names the document of the mode, and Export exists where there is a shader to export', async () => {

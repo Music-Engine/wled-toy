@@ -4,7 +4,7 @@ import {
   DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle,
   ListboxContent, ListboxFilter, ListboxItem, ListboxRoot, VisuallyHidden,
 } from 'reka-ui'
-import { commandTitle, commands, formatAccelerator, isEnabled, isVisible, matchesAccelerator, palette, parseAccelerator, runCommand } from '@/lib/app/commands'
+import { commandTitle, commands, formatAccelerator, getCommand, isEnabled, isVisible, matchesAccelerator, palette, parseAccelerator, runCommand } from '@/lib/app/commands'
 
 const query = ref('')
 const list = ref<{ highlightFirstItem: () => void }>()
@@ -28,8 +28,10 @@ function select(id: string) {
   runCommand(id)
 }
 
+// the dispatcher runs nothing under a dialog, so the palette closes itself on its own keys
 function onKeydown(e: KeyboardEvent) {
-  if (!['Mod+K', 'Mod+Shift+P'].some((text) => matchesAccelerator(e, parseAccelerator(text)))) return
+  const { accelerator, aliases } = getCommand('view.commandPalette')!
+  if (![accelerator!, ...(aliases ?? [])].some((text) => matchesAccelerator(e, parseAccelerator(text)))) return
   e.preventDefault()
   palette.open = false
 }

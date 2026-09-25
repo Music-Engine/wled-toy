@@ -13,6 +13,7 @@ import DockContribution from '@/components/shell/DockContribution.vue'
 import GlslCode from '@/components/editor/GlslCode.vue'
 import CommandScope from '@/components/shell/CommandScope.vue'
 import { copyText } from '@/lib/app/clipboard'
+import { inEditableTarget } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import { createBrowserBackend } from '@/lib/documents/documents'
 import { log } from '@/lib/app/logs'
@@ -570,7 +571,7 @@ function pasteClipboard(): boolean {
 }
 
 // text the user selected elsewhere on the page keeps the browser's own copy
-const ownsClipboard = (e: Event) => !!(e.target as HTMLElement | null)?.closest?.('input, textarea, select, [contenteditable="true"]') || !!window.getSelection()?.toString()
+const ownsClipboard = (e: Event) => inEditableTarget(e) || !!window.getSelection()?.toString()
 
 function clipboardAction(action: 'copy' | 'cut' | 'paste'): boolean {
   if (action === 'paste') return pasteClipboard()
@@ -579,54 +580,22 @@ function clipboardAction(action: 'copy' | 'cut' | 'paste'): boolean {
   return true
 }
 
-function onClipboardKey(e: KeyboardEvent): boolean {
-  const key = e.key.toLowerCase()
-  const command = (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey
-  const bare = !e.metaKey && !e.ctrlKey && !e.altKey
-  if (!(command && 'cxv'.includes(key)) && !(bare && key === 'x')) return false
-  if (ownsClipboard(e)) return false
-  if (!bare) return clipboardAction(key === 'c' ? 'copy' : key === 'x' ? 'cut' : 'paste')
-  deleteSelection()
-  return true
+let clipboardCommandAt = -Infinity
+
+// A key the dispatcher handled cancels its clipboard event; should one arrive all the same, it must not run the action a second time.
+function clipboardCommand(action: 'copy' | 'cut' | 'paste') {
+  clipboardCommandAt = performance.now()
+  return clipboardAction(action)
 }
 
-let clipboardKeyAt = -Infinity
-
 // Under a native Edit menu Cmd+C, Cmd+X and Cmd+V never arrive as keys: the menu item takes them and the page gets the clipboard event.
-// A key handled here cancels its clipboard event; should one arrive all the same, it must not run the action a second time.
 function onClipboardEvent(e: ClipboardEvent) {
-  if (nodeMenu.open || performance.now() - clipboardKeyAt < 100 || ownsClipboard(e)) return
+  if (nodeMenu.open || performance.now() - clipboardCommandAt < 100 || ownsClipboard(e)) return
   if (clipboardAction(e.type as 'copy' | 'cut' | 'paste')) e.preventDefault()
 }
 
 function selectAll() {
   selectNodes(new Set(getNodes.value.map((n) => n.id)))
-}
-
-function onKeydown(e: KeyboardEvent) {
-  if (nodeMenu.open || document.querySelector('[role="dialog"]')) return
-  if (onClipboardKey(e)) {
-    e.preventDefault()
-    clipboardKeyAt = performance.now()
-    return
-  }
-  const command = e.metaKey || e.ctrlKey
-  const search = e.key === ' ' && !e.shiftKey && !command && !e.altKey
-  // with Alt held macOS reports the key as a letter of its own
-  const letterA = e.key.toLowerCase() === 'a' || (e.altKey && e.code === 'KeyA')
-  const add = letterA && e.shiftKey && !command && !e.altKey
-  const all = letterA && command && !e.shiftKey && !e.altKey
-  const none = (e.key === 'Escape' || (letterA && e.altKey && !e.shiftKey)) && !command
-  const letterZ = e.key.toLowerCase() === 'z' && command && !e.altKey
-  const step = letterZ ? (e.shiftKey ? 'redo' : 'undo') : e.key.toLowerCase() === 'y' && e.ctrlKey && !e.shiftKey && !e.altKey ? 'redo' : null
-  if (!search && !add && !all && !none && !step) return
-  // Space on a focused button is that button's click
-  if ((e.target as HTMLElement | null)?.closest(`input, textarea, select, [contenteditable="true"]${search ? ', button' : ''}`)) return
-  e.preventDefault()
-  if (step) travel(step)
-  else if (all) selectAll()
-  else if (none) removeSelectedElements()
-  else openMenu(add && pointerInFlow.value ? { ...pointer } : null)
 }
 
 // shader mode and a pasted shader have no control plan feeding iControl, so the knob values are written into the code
@@ -660,12 +629,10 @@ onActivated(() => {
   lastCompiled = ''
   appliedKey = ''
   regenerate()
-  window.addEventListener('keydown', onKeydown)
   for (const type of ['copy', 'cut', 'paste'] as const) window.addEventListener(type, onClipboardEvent)
 })
 
-function removeKeyListeners() {
-  window.removeEventListener('keydown', onKeydown)
+function removeClipboardListeners() {
   for (const type of ['copy', 'cut', 'paste'] as const) window.removeEventListener(type, onClipboardEvent)
 }
 
@@ -675,7 +642,7 @@ onDeactivated(() => {
   clearTimeout(regenTimer)
   clearTimeout(liveTimer)
   liveTimer = undefined
-  removeKeyListeners()
+  removeClipboardListeners()
 })
 
 onBeforeUnmount(() => {
@@ -683,7 +650,7 @@ onBeforeUnmount(() => {
   clearTimeout(regenTimer)
   clearTimeout(liveTimer)
   liveTimer = undefined
-  removeKeyListeners()
+  removeClipboardListeners()
   window.removeEventListener('pagehide', flushSave)
   if (graphImageDrop.value === addImageTexture) graphImageDrop.value = null
 })
@@ -714,7 +681,7 @@ onBeforeUnmount(() => {
           v-model:edges="edges"
           :node-types="nodeTypes"
           :is-valid-connection="isValidConnection"
-          :delete-key-code="['Backspace', 'Delete']"
+          :delete-key-code="null"
           :selection-key-code="true"
           :pan-on-drag="[1]"
           :selection-mode="SelectionMode.Partial"
@@ -756,16 +723,17 @@ onBeforeUnmount(() => {
     <GraphDocumentDialogs v-if="graphDocument" :document="graphDocument" />
     <CommandScope
       :handlers="{
-        'graph.addNode': () => openMenu(null),
+        'graph.addNode': () => openMenu(pointerInFlow ? { ...pointer } : null),
         'graph.searchNodes': () => openMenu(null),
         'graph.fitView': () => fitView({ padding: 0.2, duration: 300 }),
         'graph.sendToShader': sendToShader,
         'graph.copyGlsl': copyGlsl,
-        'graph.copy': copySelection,
-        'graph.cut': () => copySelection() && deleteSelection(),
-        'graph.paste': pasteClipboard,
+        'graph.copy': () => clipboardCommand('copy'),
+        'graph.cut': () => clipboardCommand('cut'),
+        'graph.paste': () => clipboardCommand('paste'),
         'graph.delete': deleteSelection,
         'graph.selectAll': selectAll,
+        'graph.deselectAll': removeSelectedElements,
         'graph.undo': () => travel('undo'),
         'graph.redo': () => travel('redo'),
         'file.new': () => graphDocument?.newGraph(),

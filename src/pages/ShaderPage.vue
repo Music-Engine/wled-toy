@@ -66,17 +66,6 @@ function insertNode(node: ShaderNode) {
   log(`Added node: ${node.title}`)
 }
 
-function onGlobalKeydown(e: KeyboardEvent) {
-  if (!(e.metaKey || e.ctrlKey) || e.altKey) return
-  const key = e.key.toLowerCase()
-  // the key dispatcher lets a held key and a key under a dialog pass without claiming them, and the browser would answer with Save Page
-  if (key === 's' && (e.repeat || document.querySelector('[role="dialog"]'))) e.preventDefault()
-  // inside the editor CodeMirror has opened the menu at the cursor already
-  if (key !== 'a' || !e.shiftKey || e.defaultPrevented || nodeMenu.open) return
-  e.preventDefault()
-  openNodeMenu(null)
-}
-
 watch(() => config.code, () => {
   if (!active.value) return
   clearTimeout(compileTimer)
@@ -86,19 +75,14 @@ watch(() => config.code, () => {
 onActivated(() => {
   active.value = true
   compile()
-  window.addEventListener('keydown', onGlobalKeydown)
 })
 
 onDeactivated(() => {
   active.value = false
   clearTimeout(compileTimer)
-  window.removeEventListener('keydown', onGlobalKeydown)
 })
 
-onBeforeUnmount(() => {
-  clearTimeout(compileTimer)
-  window.removeEventListener('keydown', onGlobalKeydown)
-})
+onBeforeUnmount(() => clearTimeout(compileTimer))
 </script>
 
 <template>

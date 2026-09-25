@@ -235,13 +235,13 @@ describe('the menu model', () => {
       const fake = fakeMenuApi()
       await createNativeMenu(fake.api).sync()
       for (const command of commands.value.filter((c) => isVisible(c) && !c.contextOnly)) {
-        const bound = !command.page && !!command.accelerator?.startsWith('Mod+')
+        const bound = !command.textKey && !!command.accelerator?.startsWith('Mod+')
         expect([command.id, !!fake.find(command.id)!.options.accelerator]).toEqual([command.id, bound])
       }
     }
   })
 
-  it('leaves the keys of page listeners and keys without Cmd/Ctrl to the page', async () => {
+  it('leaves text keys and keys without Cmd/Ctrl to the page', async () => {
     workspace.mode = 'graph'
     const graph = fakeMenuApi()
     await createNativeMenu(graph.api).sync()

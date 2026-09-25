@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h, KeepAlive } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
-import { isMac } from '@/lib/app/commands'
+import { installKeyDispatcher, isMac } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import { createDefaultGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
@@ -18,13 +18,14 @@ beforeEach(() => {
   logs.value = []
   const root = document.createElement('div')
   document.body.append(root)
-  // the page listens for keys and clipboard events while it is the active page of a KeepAlive, as in the app
+  // the page listens for clipboard events while it is the active page of a KeepAlive, and keys come through the app's dispatcher
   const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   // Nuxt UI and the router are not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => { removeKeys(); app.unmount(); root.remove() }
 })
 
 afterEach(() => {

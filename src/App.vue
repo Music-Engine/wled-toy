@@ -19,7 +19,7 @@ import SettingsView from './components/shell/SettingsView.vue'
 import ShareAudioPrompt from './components/shell/ShareAudioPrompt.vue'
 import SplitHandle from './components/shell/SplitHandle.vue'
 import TitleBar from './components/shell/TitleBar.vue'
-import { installKeyDispatcher, registerHandlers } from './lib/app/commands'
+import { inEditableTarget, installKeyDispatcher, registerHandlers } from './lib/app/commands'
 import { config } from './lib/app/config'
 import { useEngine } from './lib/engine/engine'
 import { isStripLayout } from './lib/engine/layout'
@@ -49,7 +49,7 @@ const bottomHeight = computed(() => Math.min(workspace.bottomHeight, bottomMax.v
 
 // a desktop window has no page menu; text fields and the code editor keep theirs for paste and spelling
 function onContextMenu(e: MouseEvent) {
-  if (!(e.target as HTMLElement | null)?.closest('input, textarea, [contenteditable="true"], .cm-editor')) e.preventDefault()
+  if (!inEditableTarget(e)) e.preventDefault()
 }
 
 const releaseHandlers = registerHandlers({

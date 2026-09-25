@@ -65,8 +65,8 @@ it('a key somebody handled already is left alone', () => {
   expect(workspace.dockVisible).toBe(true)
 })
 
-it('a held key does not fire again', () => {
-  press(document.body, 'b', { mod: true, repeat: true })
+it('a held key does not fire again, and a held Cmd/Ctrl key stays away from the browser', () => {
+  expect(press(document.body, 'b', { mod: true, repeat: true }).defaultPrevented).toBe(true)
   expect(workspace.dockVisible).toBe(true)
 })
 
@@ -91,10 +91,16 @@ it('an accelerator with Cmd/Ctrl works from inside a text field', () => {
   expect(workspace.dockVisible).toBe(false)
 })
 
-it('nothing fires under a dialog, and the key stays with the dialog', () => {
+it('nothing fires under a dialog: a Cmd/Ctrl key such as Save stays away from the browser, a bare key stays with the dialog', () => {
+  const save = bind('file.save')
   attach(document.createElement('div')).setAttribute('role', 'dialog')
-  expect(press(document.body, 'b', { mod: true }).defaultPrevented).toBe(false)
-  expect(workspace.dockVisible).toBe(true)
+  expect(press(document.body, 's', { mod: true }).defaultPrevented).toBe(true)
+  expect(press(document.body, 'b', { mod: true }).defaultPrevented).toBe(true)
+  expect([save.mock.calls.length, workspace.dockVisible]).toEqual([0, true])
+  workspace.mode = 'graph'
+  const fit = bind('graph.fitView')
+  expect(press(document.body, 'Home').defaultPrevented).toBe(false)
+  expect(fit).not.toHaveBeenCalled()
 })
 
 it('a command of another mode does not answer its key', () => {
@@ -103,10 +109,37 @@ it('a command of another mode does not answer its key', () => {
   expect(fit).not.toHaveBeenCalled()
 })
 
-it('a display-only command is never dispatched, even with a handler bound', () => {
+it('a text key stays with text fields and the code editor, and fires everywhere else', () => {
   const compile = bind('shader.compile')
-  expect(press(document.body, 'Enter', { mod: true }).defaultPrevented).toBe(false)
+  const editor = attach(document.createElement('div'))
+  editor.className = 'cm-editor'
+  for (const target of [attach(document.createElement('input')), editor]) expect(press(target, 'Enter', { mod: true }).defaultPrevented, target.tagName).toBe(false)
   expect(compile).not.toHaveBeenCalled()
+  expect(press(document.body, 'Enter', { mod: true }).defaultPrevented).toBe(true)
+  expect(compile).toHaveBeenCalledOnce()
+})
+
+it('text selected on the page keeps the browser\'s copy', () => {
+  workspace.mode = 'graph'
+  const copy = bind('graph.copy')
+  const text = attach(document.createElement('p'))
+  text.textContent = 'some words'
+  document.getSelection()!.selectAllChildren(text)
+  cleanups.push(() => document.getSelection()!.removeAllRanges())
+  expect(press(document.body, 'c', { mod: true }).defaultPrevented).toBe(false)
+  expect(copy).not.toHaveBeenCalled()
+  document.getSelection()!.removeAllRanges()
+  expect(press(document.body, 'c', { mod: true }).defaultPrevented).toBe(true)
+  expect(copy).toHaveBeenCalledOnce()
+})
+
+it('Space on a focused button is the button\'s click', () => {
+  workspace.mode = 'graph'
+  const search = bind('graph.searchNodes')
+  expect(press(attach(document.createElement('button')), ' ').defaultPrevented).toBe(false)
+  expect(search).not.toHaveBeenCalled()
+  expect(press(document.body, ' ').defaultPrevented).toBe(true)
+  expect(search).toHaveBeenCalledOnce()
 })
 
 it('a disabled command keeps its key away from the browser and runs nothing', () => {

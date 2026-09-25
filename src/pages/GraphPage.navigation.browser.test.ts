@@ -4,7 +4,7 @@ import { createApp, h, KeepAlive } from 'vue'
 import { routerKey, type Router } from 'vue-router'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
-import { isMac, runCommand } from '@/lib/app/commands'
+import { installKeyDispatcher, isMac, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
@@ -25,14 +25,15 @@ function mount(graph: NodeGraph | null) {
   config.graph = graph
   const root = document.createElement('div')
   document.body.append(root)
-  // the page listens for keys while it is the active page of a KeepAlive, as in the app
+  // the page binds its commands while it is the active page of a KeepAlive, and keys come through the app's dispatcher
   const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   app.provide(routerKey, { push: async () => undefined } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => { removeKeys(); app.unmount(); root.remove() }
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })

@@ -29,8 +29,8 @@ export interface Command {
   when?: () => boolean
   enabled?: () => boolean
   checked?: () => boolean
-  /** A listener of the page owns the key: menus and the shortcut list show it, the dispatcher never fires it. */
-  page?: boolean
+  /** Text fields and the code editor answer this key themselves: the dispatcher leaves it to them and the native menu does not bind it. */
+  textKey?: boolean
   /** Belongs to a context menu: the menubar, the native menu and the palette leave it out, the shortcut list still names its key. */
   contextOnly?: boolean
   /** Absent when a component binds the handler with `registerHandlers`; until then the command is disabled. */
@@ -165,9 +165,9 @@ export const markNativeMenuInstalled = (installed = true) => { nativeMenuInstall
 /** True when the operating system shows the menus, so the window must not draw its own. */
 export const hasNativeMenu = () => nativeMenuInstalled.value
 
-/** The accelerator a native menu item binds. It takes the key before the page sees it, so keys a page listener owns and keys without Cmd/Ctrl, which text fields need, stay with the page. */
+/** The accelerator a native menu item binds. It takes the key before the page sees it, so text keys and keys without Cmd/Ctrl, which text fields need, stay with the page. */
 export const nativeAccelerator = (command: Command) =>
-  (!command.page && !command.contextOnly && command.accelerator && parseAccelerator(command.accelerator).mod ? command.accelerator : undefined)
+  (!command.textKey && !command.contextOnly && command.accelerator && parseAccelerator(command.accelerator).mod ? command.accelerator : undefined)
 
 export function parseAccelerator(text: string): Accelerator {
   const parts = text.split('+')
@@ -205,24 +205,33 @@ export function matchesAccelerator(e: KeyLike, accelerator: Accelerator, mac = i
   return !other && mod === accelerator.mod && e.shiftKey === accelerator.shift && e.altKey === accelerator.alt && eventKey(e) === accelerator.key
 }
 
+/** True when the key or click belongs to a text field or the code editor rather than to the app. */
+export const inEditableTarget = (e: Event) => !!(e.target as Element | null)?.closest?.('input, textarea, select, [contenteditable="true"], .cm-editor')
+
 /**
- * The one place accelerators fire from. It leaves alone what somebody handled already (CodeMirror, a page listener),
- * keys without Cmd/Ctrl while the user types, AltGr characters, and everything while a dialog or the node menu is up.
+ * The one place accelerators fire from. It leaves alone what somebody handled already (CodeMirror, a widget),
+ * keys without Cmd/Ctrl and text keys while the user types, AltGr characters, and runs nothing for a held key or while a dialog or the node menu is up.
+ * True when a command ran.
  */
 export function dispatchKey(e: KeyboardEvent, mac = isMac()): boolean {
-  if (e.defaultPrevented || e.repeat || e.getModifierState?.('AltGraph')) return false
+  if (e.defaultPrevented || e.getModifierState?.('AltGraph')) return false
   for (const command of commands.value) {
-    if (command.page || !isVisible(command)) continue
+    if (!isVisible(command)) continue
     const hit = [command.accelerator, ...(command.aliases ?? [])].find((text) => text && matchesAccelerator(e, parseAccelerator(text), mac))
     if (!hit) continue
     // the native item runs the command; should the key reach the page as well, it must not run twice
     if (hasNativeMenu() && hit === nativeAccelerator(command)) return false
-    if (!parseAccelerator(hit).mod && (e.target as Element | null)?.closest?.('input, textarea, select, [contenteditable="true"], .cm-editor')) return false
-    if (document.querySelector('[role="dialog"]')) return false
-    // a disabled command still owns its key: Cmd+S must not fall through to the browser's Save Page
+    const { mod, key } = parseAccelerator(hit)
+    if ((!mod || command.textKey) && inEditableTarget(e)) return false
+    // Space on a focused button is that button's click
+    if (!mod && key === 'space' && (e.target as Element | null)?.closest?.('button')) return false
+    // text selected on the page copies and cuts as text
+    if (command.textKey && (key === 'c' || key === 'x') && window.getSelection()?.toString()) return false
+    const idle = e.repeat || !!document.querySelector('[role="dialog"]')
+    if (idle && !mod) return false
+    // a Cmd/Ctrl key of a command stays away from the browser even when nothing runs: Cmd+S must never become Save Page
     e.preventDefault()
-    runCommand(command.id)
-    return true
+    return !idle && runCommand(command.id)
   }
   return false
 }
@@ -391,24 +400,25 @@ registerCommands([
     })),
   },
 
-  { id: 'shader.compile', title: 'Compile', menu: ['View'], group: 'editor', accelerator: 'Mod+Enter', modes: ['shader'], page: true },
-  { id: 'shader.addFunction', title: 'Add Function...', menu: ['View'], group: 'editor', accelerator: 'Mod+Shift+A', modes: ['shader'], page: true },
-  { id: 'shader.undo', title: 'Undo', menu: ['View'], group: 'editor', accelerator: 'Mod+Z', modes: ['shader'], page: true },
-  { id: 'shader.redo', title: 'Redo', menu: ['View'], group: 'editor', accelerator: 'Mod+Shift+Z', modes: ['shader'], page: true },
-  { id: 'shader.selectAll', title: 'Select All', menu: ['View'], group: 'editor', accelerator: 'Mod+A', modes: ['shader'], page: true },
-  { id: 'graph.addNode', title: 'Add Node...', menu: ['View'], group: 'editor', accelerator: 'Shift+A', modes: ['graph'], page: true },
-  { id: 'graph.searchNodes', title: 'Search Nodes', menu: ['View'], group: 'editor', accelerator: 'Space', modes: ['graph'], page: true },
+  { id: 'shader.compile', title: 'Compile', menu: ['View'], group: 'editor', accelerator: 'Mod+Enter', modes: ['shader'], textKey: true },
+  { id: 'shader.addFunction', title: 'Add Function...', menu: ['View'], group: 'editor', accelerator: 'Mod+Shift+A', modes: ['shader'], textKey: true },
+  { id: 'shader.undo', title: 'Undo', menu: ['View'], group: 'editor', accelerator: 'Mod+Z', modes: ['shader'], textKey: true },
+  { id: 'shader.redo', title: 'Redo', menu: ['View'], group: 'editor', accelerator: 'Mod+Shift+Z', modes: ['shader'], textKey: true },
+  { id: 'shader.selectAll', title: 'Select All', menu: ['View'], group: 'editor', accelerator: 'Mod+A', modes: ['shader'], textKey: true },
+  { id: 'graph.addNode', title: 'Add Node...', menu: ['View'], group: 'editor', accelerator: 'Shift+A', modes: ['graph'] },
+  { id: 'graph.searchNodes', title: 'Search Nodes', menu: ['View'], group: 'editor', accelerator: 'Space', modes: ['graph'] },
   { id: 'graph.fitView', title: 'Fit View', menu: ['View'], group: 'editor', accelerator: 'Home', modes: ['graph'] },
   { id: 'graph.sendToShader', title: 'Send to Shader Mode', menu: ['View'], group: 'editor', accelerator: 'Mod+Alt+Enter', modes: ['graph'] },
   { id: 'graph.copyGlsl', title: 'Copy Generated GLSL', menu: ['View'], group: 'editor', accelerator: 'Mod+Alt+Shift+E', modes: ['graph'] },
-  { id: 'graph.copy', title: 'Copy Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+C', modes: ['graph'], page: true },
-  { id: 'graph.cut', title: 'Cut Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+X', modes: ['graph'], page: true },
-  { id: 'graph.paste', title: 'Paste Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+V', modes: ['graph'], page: true },
-  { id: 'graph.undo', title: 'Undo', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Z', modes: ['graph'], page: true },
-  { id: 'graph.redo', title: 'Redo', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Shift+Z', modes: ['graph'], page: true },
-  { id: 'graph.selectAll', title: 'Select All Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+A', modes: ['graph'], page: true },
-  { id: 'graph.deselectAll', title: 'Deselect All', menu: ['View'], group: 'clipboard', accelerator: 'Alt+A', aliases: ['Escape'], modes: ['graph'], page: true },
-  { id: 'graph.delete', title: 'Delete Nodes', menu: ['View'], group: 'clipboard', accelerator: 'X', aliases: ['Backspace', 'Delete'], modes: ['graph'], page: true },
+  { id: 'graph.copy', title: 'Copy Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+C', modes: ['graph'], textKey: true },
+  { id: 'graph.cut', title: 'Cut Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+X', modes: ['graph'], textKey: true },
+  { id: 'graph.paste', title: 'Paste Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+V', modes: ['graph'], textKey: true },
+  { id: 'graph.undo', title: 'Undo', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Z', modes: ['graph'], textKey: true },
+  // Cmd+Y is not redo on macOS
+  { id: 'graph.redo', title: 'Redo', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Shift+Z', aliases: isMac() ? undefined : ['Mod+Y'], modes: ['graph'], textKey: true },
+  { id: 'graph.selectAll', title: 'Select All Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+A', modes: ['graph'], textKey: true },
+  { id: 'graph.deselectAll', title: 'Deselect All', menu: ['View'], group: 'clipboard', accelerator: 'Alt+A', aliases: ['Escape'], modes: ['graph'] },
+  { id: 'graph.delete', title: 'Delete Nodes', menu: ['View'], group: 'clipboard', accelerator: 'X', aliases: ['Backspace', 'Delete'], modes: ['graph'] },
 
   { id: 'log.copyLine', title: 'Copy Line', menu: ['View'], group: 'log', accelerator: 'Mod+Alt+Shift+C', enabled: () => !!logContext.value, run: copyLogLine },
   { id: 'log.copyAll', title: 'Copy All', menu: ['View'], group: 'log', accelerator: 'Mod+Alt+Shift+X', enabled: () => shownLogs.value.length > 0, run: copyAllLogs },
@@ -418,7 +428,7 @@ registerCommands([
   { id: 'problems.goto', title: () => (contextProblem.value?.nodeId ? 'Reveal Node' : 'Go to Line'), menu: ['View'], group: 'problems', accelerator: 'Mod+Alt+Shift+G', modes: ['shader', 'graph'], enabled: () => !!contextProblem.value },
 
   { id: 'reference.focusSearch', title: 'Focus Search', menu: ['View'], group: 'reference', accelerator: '/', aliases: ['Mod+F'], modes: ['reference'] },
-  { id: 'reference.copyEntry', title: 'Copy Signature', menu: ['View'], group: 'reference', accelerator: 'Mod+C', modes: ['reference'], page: true },
+  { id: 'reference.copyEntry', title: 'Copy Signature', menu: ['View'], group: 'reference', accelerator: 'Mod+C', modes: ['reference'], textKey: true },
 
   { id: 'help.reference', title: 'Shader Reference', menu: ['Help'], accelerator: 'F1' },
   { id: 'help.shortcuts', title: 'Keyboard Shortcuts', menu: ['Help'], accelerator: 'Mod+Alt+K', run: () => { palette.view = 'shortcuts'; palette.open = true } },
