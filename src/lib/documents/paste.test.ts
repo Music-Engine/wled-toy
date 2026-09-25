@@ -30,3 +30,13 @@ it('never repeats an id across two pastes of the same nodes', () => {
   expect(new Set(ids).size).toBe(ids.length)
   expect(first.edges[0].id).not.toBe(second.edges[0].id)
 })
+
+it('drops links with an end outside the pasted nodes and remaps the ones inside', () => {
+  const outside = [
+    { id: 'e2', source: 'x', sourceHandle: 'out', target: 'a', targetHandle: 'b' },
+    { id: 'e3', source: 'a', sourceHandle: 'out', target: 'x', targetHandle: 'in' },
+  ]
+  const pasted = remapPasted(nodes, [...outside, ...edges])
+  const [a, b] = pasted.nodes
+  expect(pasted.edges).toEqual([{ id: expect.stringMatching(/^e-\w+-0$/), source: b.id, sourceHandle: 'time', target: a.id, targetHandle: 'a', style: { stroke: '#fff' } }])
+})

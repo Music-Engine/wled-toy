@@ -21,11 +21,9 @@ export function useNodeClipboard(flow: VueFlowStore, session: GraphEditSession, 
   function copySelection(): boolean {
     const selected = flow.getSelectedNodes.value
     if (!selected.length) return false
-    const ids = new Set(selected.map((n) => n.id))
     clipboard = {
       nodes: selected.map((n) => ({ id: n.id, position: { ...n.position }, data: cloneJson(n.data) as GraphNodeData })),
-      // only links inside the selection travel with it, like in Blender
-      edges: session.snapshot().edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+      edges: session.snapshot().edges,
     }
     log(`Copied ${selected.length} node${selected.length > 1 ? 's' : ''}`)
     return true

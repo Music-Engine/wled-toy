@@ -10,13 +10,16 @@ export interface ClipNode {
 
 /**
  * Copies of copied nodes and the links between them under fresh ids, so a paste never collides with the originals or
- * with an earlier paste. Positions are unchanged; placing the copies is the editor's job.
+ * with an earlier paste. Links with an end outside the copied nodes are dropped. Positions are unchanged; placing the
+ * copies is the editor's job.
  */
 export function remapPasted(nodes: readonly ClipNode[], edges: readonly StoredEdge[]): { nodes: ClipNode[]; edges: StoredEdge[] } {
   const stamp = newId()
   const ids = new Map(nodes.map((n, i) => [n.id, `${n.data.kind}-${stamp}-${i}`]))
   return {
     nodes: nodes.map((n) => ({ id: ids.get(n.id)!, position: { ...n.position }, data: cloneJson(n.data) })),
-    edges: edges.map((e, i) => ({ ...e, id: `e-${stamp}-${i}`, source: ids.get(e.source)!, target: ids.get(e.target)! })),
+    edges: edges
+      .filter((e) => ids.has(e.source) && ids.has(e.target))
+      .map((e, i) => ({ ...e, id: `e-${stamp}-${i}`, source: ids.get(e.source)!, target: ids.get(e.target)! })),
   }
 }
