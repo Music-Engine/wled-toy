@@ -17,6 +17,8 @@ describe('compileKey', () => {
     expect(key(edited((doc) => {
       for (const n of doc.nodes) n.position = { x: n.position.x + 40, y: n.position.y - 7 }
       doc.nodes[0].data.collapsed = true
+      doc.nodes[0].data.hideUnused = true
+      doc.nodes[0].data.label = 'Renamed'
       doc.edges[0].style = { stroke: '#fff' }
       doc.edges[0].id = 'renamed'
     }))).toBe(base)
@@ -37,5 +39,9 @@ describe('compileKey', () => {
 
   it('changes with an output setting', () => {
     expect(key(edited((doc) => (doc.nodes.find((n) => n.id === 'out')!.data.values.gamma = 1.8)))).not.toBe(base)
+  })
+
+  it('changes with a mute', () => {
+    expect(key(edited((doc) => (doc.nodes.find((n) => n.id === 'lift')!.data.muted = true)))).not.toBe(base)
   })
 })

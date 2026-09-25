@@ -143,6 +143,28 @@ describe('history', () => {
     expect(open.session.nodes.value.find((n) => n.id === 'speed')!.data.values.b).toBe(0.2)
   })
 
+  it('a held gesture is one step however long it pauses, and one released unrecorded is none, even with its last edit just before', async () => {
+    open = setup()
+    open.session.resetHistory()
+    const b = () => open.session.nodes.value.find((n) => n.id === 'speed')!.data.values.b
+    let release = open.session.holdHistory()
+    for (const value of [0.3, 0.4, 0.5]) {
+      setValue('speed', { b: value })
+      await nextTick()
+      await vi.advanceTimersByTimeAsync(1000)
+    }
+    await release(true)
+    release = open.session.holdHistory()
+    setValue('speed', { b: 0.9 })
+    await release(false)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(open.session.travel('undo')).toBe(true)
+    expect(b()).toBe(0.2)
+    await nextTick()
+    await nextTick()
+    expect(open.session.travel('undo')).toBe(false)
+  })
+
   it('starts clean after a load and writes the loaded graph through', async () => {
     open = setup()
     open.session.resetHistory()

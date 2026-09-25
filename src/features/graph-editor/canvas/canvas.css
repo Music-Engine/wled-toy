@@ -33,3 +33,8 @@
   border: 1px solid var(--ui-border);
   border-radius: calc(var(--ui-radius) * 2);
 }
+
+.is-grabbing,
+.is-grabbing * {
+  cursor: move !important;
+}

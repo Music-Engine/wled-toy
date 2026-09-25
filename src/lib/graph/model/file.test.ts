@@ -10,6 +10,16 @@ describe('serializeGraphFile / readGraphFile', () => {
     expect(readGraphFile(serializeGraphFile(doc)).doc).toEqual(doc)
   })
 
+  it('keeps a muted, a renamed and a socket-hiding node through save and load', () => {
+    const flagged = normalizeDoc(graph([
+      { ...node('uv', 'uv'), data: { kind: 'uv', values: {}, muted: true, label: 'Coordinates', hideUnused: true } },
+      node('out', 'output'),
+    ], [['uv.x', 'out.color']]))
+    const { doc: loaded, problems } = readGraphFile(serializeGraphFile(flagged))
+    expect(loaded).toEqual(flagged)
+    expect(problems).toEqual([])
+  })
+
   it('rejects malformed JSON', () => {
     expect(() => readGraphFile('not json')).toThrow(GraphFileError)
   })
@@ -44,6 +54,15 @@ describe('readGraphFile', () => {
       'm: "nope" is not an input of math with these values (inputs: op, clamp, a, b)',
       'edge time.time-m.a: "m.a" already has a link; only the last one is kept',
       'edge uv.what-m.b: "uv" has no output "what"',
+    ])
+  })
+
+  it('reports mute, hidden sockets and a label of the wrong type', () => {
+    const raw = graph([{ ...node('uv', 'uv'), data: { kind: 'uv', values: {}, muted: 'yes', hideUnused: 1, label: 7 } as never }])
+    expect(readGraphFile(serializeGraphFile(raw)).problems).toEqual([
+      'uv.hideUnused: 1 is not true or false',
+      'uv.muted: "yes" is not true or false',
+      'uv.label: 7 is not text',
     ])
   })
 

@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { createDefaultGraph, newNodeData, type DataType, type GraphNodeData } from '@/lib/graph'
-import { canConnect, styledEdges } from './links'
+import { canConnect, dissolveLinks, styledEdges } from './links'
 
 const nodes: Record<string, GraphNodeData> = {
   uv: newNodeData('uv'),
   time: newNodeData('time'),
   math: newNodeData('math'),
+  math2: newNodeData('math'),
   env: newNodeData('envelopeFollower'),
 }
 const dataOf = (id: string) => nodes[id]
@@ -29,6 +30,24 @@ describe('canConnect', () => {
   it('refuses a per-pixel value into a per-frame node, and takes a per-frame one', () => {
     expect(canConnect(link('uv', 'x', 'env', 'signal'), dataOf)).toBe(false)
     expect(canConnect(link('time', 'time', 'env', 'signal'), dataOf)).toBe(true)
+  })
+})
+
+describe('dissolveLinks', () => {
+  const dissolve = (edges: ReturnType<typeof link>[], ids: string[]) => dissolveLinks(edges, new Set(ids), dataOf)
+
+  it('feeds each link out of a dissolved node from the first link into it that fits, in input order', () => {
+    expect(dissolve([link('time', 'time', 'math', 'a'), link('uv', 'x', 'math', 'b'), link('math', 'result', 'env', 'signal')], ['math']))
+      .toEqual([link('time', 'time', 'env', 'signal')])
+    // uv changes per pixel and the envelope runs per frame, so the second input feeds it
+    expect(dissolve([link('uv', 'x', 'math', 'a'), link('time', 'time', 'math', 'b'), link('math', 'result', 'env', 'signal')], ['math']))
+      .toEqual([link('time', 'time', 'env', 'signal')])
+  })
+
+  it('follows a chain of dissolved nodes, and leaves an input unlinked when nothing fits', () => {
+    expect(dissolve([link('uv', 'x', 'math', 'a'), link('math', 'result', 'math2', 'a'), link('math2', 'result', 'env', 'signal')], ['math', 'math2'])).toEqual([])
+    expect(dissolve([link('time', 'time', 'math', 'b'), link('math', 'result', 'math2', 'a'), link('math2', 'result', 'env', 'signal')], ['math', 'math2']))
+      .toEqual([link('time', 'time', 'env', 'signal')])
   })
 })
 

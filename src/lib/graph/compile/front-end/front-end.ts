@@ -3,6 +3,7 @@
 import type { GlslType } from '@/lib/shader/glsl'
 import type { FrameValue, ResolveResult } from '@/lib/graph/define/context'
 import type { NodeShape, Rate, Socket } from '@/lib/graph/define/shape'
+import { canCast } from '@/lib/graph/define/types'
 import { nodeItem, valueInputs } from '@/lib/graph/registry'
 import { edgesByInput, inputKey, type NodeGraph, type GraphNodeData, type StoredNode } from '@/lib/graph/model/doc'
 import { GraphError, type PixelSource, type Program } from './program'
@@ -84,10 +85,35 @@ export class FrontEnd {
     return result
   }
 
-  /** Where a socket's link comes from, when it has one and the source node exists. */
+  /** Where a socket's link comes from, when it has one and the source node exists; muted nodes on the way are passed through. */
   linkSource(nodeId: string, socket: Socket): LinkSource | undefined {
-    const edge = this.incoming.get(inputKey(nodeId, socket.name))
+    const source = this.directSource(nodeId, socket.name)
+    return source && this.unmuted(source, new Set())
+  }
+
+  private directSource(nodeId: string, input: string): LinkSource | undefined {
+    const edge = this.incoming.get(inputKey(nodeId, input))
     return edge?.sourceHandle && this.nodes.has(edge.source) ? { id: edge.source, output: edge.sourceHandle } : undefined
+  }
+
+  /**
+   * Blender's mute: a muted node's output reads its first linked input whose value casts to that output, and with none
+   * the consumer falls back as if unlinked. Only a consumer asks, so a muted sink still draws.
+   */
+  private unmuted(source: LinkSource, path: Set<string>): LinkSource | undefined {
+    const { node, shape } = this.lookup(source.id)
+    if (!node.data.muted) return source
+    const output = shape.outputs.find((o) => o.name === source.output)
+    if (!output) return undefined
+    return this.guard(path, source.id, () => {
+      for (const socket of shape.inputs.filter((s) => s.linkable)) {
+        const upstream = this.directSource(source.id, socket.name)
+        const passed = upstream && this.unmuted(upstream, path)
+        const from = passed && this.lookup(passed.id).shape.outputs.find((o) => o.name === passed.output)
+        if (from && canCast(from.type, output.type)) return passed
+      }
+      return undefined
+    })
   }
 
   /** Where a pixel consumer reads the node from, as ./placement decided; a node it never reached is a compiler bug. */

@@ -24,6 +24,12 @@ export interface GraphNodeData {
   values: Record<string, SocketValue>
   /** Folded to its header in the editor. */
   collapsed?: boolean
+  /** Shows only the sockets that hold a link. */
+  hideUnused?: boolean
+  /** Passes its first input that fits an output straight through, as if the node were not there. */
+  muted?: boolean
+  /** Shown in place of the node's title. */
+  label?: string
 }
 
 export interface StoredNode {

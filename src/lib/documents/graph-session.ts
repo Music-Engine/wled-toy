@@ -27,6 +27,7 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target }:
   let prunedScenes: Scene[] | null = null
   let regenTimer: Timer, liveTimer: Timer, saveTimer: Timer, recordTimer: Timer
   let restoring = false
+  let held = false
   const history = createHistory('')
 
   // A computed, so the compile, the working copy, the undo recorder, the dirty check and the autosave all read one
@@ -109,7 +110,7 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target }:
     // a drag or a scrubbed slider is one step, recorded and written to the working copy once the changes pause
     clearTimeout(saveTimer)
     saveTimer = setTimeout(flush, 350)
-    if (!restoring) {
+    if (!restoring && !held) {
       clearTimeout(recordTimer)
       recordTimer = setTimeout(recordNow, 350)
     }
@@ -153,6 +154,17 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target }:
     flush,
     commitEdit,
     recordNow,
+    /** A modal move is one undo step however long it pauses: nothing is recorded until the release, which records when asked. */
+    holdHistory() {
+      commitEdit()
+      held = true
+      return async (record: boolean) => {
+        // the watcher runs on Vue's deferred queue: an edit made just before the release must still meet the hold
+        await nextTick()
+        held = false
+        if (record) recordNow()
+      }
+    },
     /** The current graph is what "unedited" means; call it once Vue Flow's store holds the edges. */
     resetHistory: () => history.reset(JSON.stringify(snapshot())),
     /** Steps the graph back or forward. A change still waiting out its pause is recorded first, so it can be undone too. */

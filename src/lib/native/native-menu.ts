@@ -88,7 +88,8 @@ function nativeItem(command: Command): NativeItem {
  * The macOS menu bar: the app menu, then the registry's menus with Edit after File and Window before Help.
  * About, Preferences and Quit sit in the app menu there, so they leave the menus the registry put them in.
  * Edit ends in a Select All of our own: the predefined item would take Cmd+A and send the webview's `selectAll:` action,
- * which raises no event a page can act on, so the graph could never select its nodes.
+ * which raises no event a page can act on, so the graph could never select its nodes. The predefined Cut keeps Cmd+X,
+ * which is what lets text fields cut in the webview; on the canvas its cut event dissolves nodes, as Cmd+X does in Blender.
  */
 export function nativeMenuModel(): NativeSubmenu[] {
   const inAppMenu = ['help.about', 'app.preferences', 'app.quit']

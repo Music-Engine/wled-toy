@@ -5,7 +5,7 @@ import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import GraphNode from '@/features/node-ui/GraphNode.vue'
-import { connectedHandlesKey } from '@/features/node-ui/graph-context'
+import { connectedHandlesKey, outputHandle } from '@/features/node-ui/graph-context'
 import type { GraphEditSession } from '@/lib/documents/graph-session'
 import { GRAPH_NODE_TYPE, nodeItem, type GraphNodeData } from '@/lib/graph'
 import { categoryById } from '@/lib/shader/glsl'
@@ -13,7 +13,7 @@ import { useCanvasPointer } from './use-canvas-pointer'
 import type { PendingLink } from './use-link-drag'
 import './canvas.css'
 
-const props = defineProps<{ flowId: string; session: GraphEditSession }>()
+const props = defineProps<{ flowId: string; session: GraphEditSession; grabbing: boolean }>()
 const emit = defineEmits<{ offerNodes: [at: { x: number; y: number }, pending: PendingLink | null] }>()
 
 const flow = useVueFlow(props.flowId)
@@ -27,11 +27,14 @@ const pointer = useCanvasPointer(flow, el, (at, pending) => emit('offerNodes', a
 let handlesByNode = new Map<string, ReadonlySet<string>>()
 const connectedHandles = computed(() => {
   const next = new Map<string, Set<string>>()
+  const add = (id: string, handle: string) => {
+    const set = next.get(id)
+    if (set) set.add(handle)
+    else next.set(id, new Set([handle]))
+  }
   for (const edge of flow.edges.value) {
-    if (!edge.targetHandle) continue
-    const set = next.get(edge.target)
-    if (set) set.add(edge.targetHandle)
-    else next.set(edge.target, new Set([edge.targetHandle]))
+    if (edge.targetHandle) add(edge.target, edge.targetHandle)
+    if (edge.sourceHandle) add(edge.source, outputHandle(edge.sourceHandle))
   }
   const kept = new Map<string, ReadonlySet<string>>()
   for (const [id, set] of next) {
@@ -62,6 +65,7 @@ defineExpose({ pointerAt: pointer.pointerAt, rect: () => el.value?.getBoundingCl
   <div
     ref="el"
     class="relative min-h-0 flex-1"
+    :class="{ 'is-grabbing': grabbing }"
     @pointermove="pointer.track"
     @pointerleave="pointer.leave"
     @pointerdown.capture="pointer.noteSelection"

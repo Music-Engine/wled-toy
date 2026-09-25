@@ -58,6 +58,8 @@
 .nui-node.is-selected { border-color: var(--nui-text); }
 .nui-node.is-error { border-color: var(--nui-error); }
 .nui-node.is-collapsed { background: var(--nui-surface-folded); }
+.nui-node.is-muted { opacity: 0.55; }
+.nui-node.is-muted .nui-header { filter: grayscale(1); }
 
 .nui-header {
   position: relative;
@@ -78,6 +80,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   user-select: none;
+}
+.nui-rename {
+  min-width: 0;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: var(--nui-field);
+  color: inherit;
+  font: inherit;
+  user-select: text;
+  outline: none;
 }
 
 .nui-collapse {

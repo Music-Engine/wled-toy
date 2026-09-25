@@ -106,6 +106,23 @@ export function resetLayout() {
   Object.assign(workspace, defaults())
 }
 
+// in memory only: the layout that is saved is the maximized one, so a reload stays maximized with nothing to restore
+const beforeMaximize = ref<Pick<Layout, 'dockVisible' | 'bottomVisible' | 'stripVisible'> | null>(null)
+
+export const isMaximized = () => beforeMaximize.value !== null
+
+/** Hides every panel around the editor, or brings back the ones the last maximize hid. */
+export function toggleMaximize() {
+  if (beforeMaximize.value) {
+    Object.assign(workspace, beforeMaximize.value)
+    beforeMaximize.value = null
+    return
+  }
+  const { dockVisible, bottomVisible, stripVisible } = workspace
+  beforeMaximize.value = { dockVisible, bottomVisible, stripVisible }
+  Object.assign(workspace, { dockVisible: false, bottomVisible: false, stripVisible: false })
+}
+
 /** The tabs a dock shows in the current mode, in `DOCK_TABS` order. */
 export const visibleTabs = (dock: DockId) =>
   DOCK_TABS.filter((tab) => workspace.placement[tab.id] === dock && (tab.modes as readonly Mode[]).includes(workspace.mode))

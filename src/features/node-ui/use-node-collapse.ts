@@ -6,8 +6,8 @@ import type { GraphNodeData } from '@/lib/graph'
 export function useNodeCollapse(props: NodeProps<GraphNodeData>) {
   const { updateNodeData, updateNodeInternals } = useVueFlow()
   const collapsed = computed(() => props.data.collapsed ?? false)
-  // Vue Flow caches socket positions; they all move when the rows disappear
-  watch(collapsed, () => nextTick(() => updateNodeInternals([props.id])))
+  // Vue Flow caches socket positions; they all move when the rows disappear, folded or hidden as unused
+  watch([collapsed, () => props.data.hideUnused], () => nextTick(() => updateNodeInternals([props.id])))
   const toggle = () => updateNodeData<GraphNodeData>(props.id, { collapsed: !collapsed.value })
   return { collapsed, toggle }
 }

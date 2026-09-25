@@ -66,12 +66,13 @@ it('copy and paste events copy and paste the selected nodes, and take the event 
   await expect.poll(nodeCount).toBe(defaultNodes + 2)
 })
 
-it('a cut event removes the nodes and a paste event brings them back', async () => {
+// the native Cut item owns Cmd+X on macOS, and on the canvas Cmd+X dissolves
+it('a cut event dissolves the nodes and copies nothing', async () => {
   await selectNodes(1)
   expect(clipboard('cut').defaultPrevented).toBe(true)
   await expect.poll(nodeCount).toBe(defaultNodes - 1)
-  clipboard('paste')
-  await expect.poll(nodeCount).toBe(defaultNodes)
+  expect(logged('Copied')).toBe(0)
+  expect(clipboard('paste').defaultPrevented).toBe(false)
 })
 
 it('with no node selected the events stay with the browser', async () => {

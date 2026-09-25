@@ -1,16 +1,17 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
-import { createApp, h, KeepAlive, nextTick, type Component } from 'vue'
+import { createApp, h, KeepAlive, type Component } from 'vue'
 import { routerKey, type Router } from 'vue-router'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
 import ReferencePage from './ReferencePage.vue'
 import ShaderPage from './ShaderPage.vue'
 import { setClipboardWriter } from '@/lib/app/clipboard'
-import { commands, dispatchKey, isMac, isVisible, parseAccelerator } from '@/lib/app/commands'
+import { commands, dispatchKey, isVisible } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import { createDefaultGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { workspace, type Mode } from '@/lib/app/workspace'
+import { press } from '@/test/keys'
 
 const cleanups: Array<() => void> = []
 let ran: boolean[] = []
@@ -44,24 +45,9 @@ function mount(page: Component, mode: Mode) {
   cleanups.push(() => { window.removeEventListener('keydown', onKeydown); app.unmount(); root.remove() })
 }
 
-/** The keydown the browser sends for an accelerator. */
-function press(text: string, target: EventTarget = document.body) {
-  const { mod, shift, alt, key } = parseAccelerator(text)
-  const name = key === 'space' ? ' ' : key.length > 1 ? key[0].toUpperCase() + key.slice(1) : shift ? key.toUpperCase() : key
-  const event = new KeyboardEvent('keydown', {
-    key: name,
-    code: /^[a-z]$/.test(key) ? `Key${key.toUpperCase()}` : '',
-    shiftKey: shift,
-    altKey: alt,
-    bubbles: true,
-    cancelable: true,
-    ...(mod ? (isMac() ? { metaKey: true } : { ctrlKey: true }) : {}),
-  })
-  target.dispatchEvent(event)
-  return event
-}
-
 const dialogOpen = () => !!document.querySelector('[role="dialog"]')
+// a grab, a title being edited and the node finder each wait for Escape, and hold the keys that follow until then
+const modal = () => dialogOpen() || !!document.querySelector('.is-grabbing, .nui-rename')
 
 /** Presses every key of every command of the page and returns the keys that ran nothing. */
 async function pressEvery(prefix: string) {
@@ -73,11 +59,12 @@ async function pressEvery(prefix: string) {
       const event = press(text)
       if (!(event.defaultPrevented && ran.includes(true))) missed.push(`${command.id} ${text}`)
       pressed.add(command.id)
-      // the node menu an add command opens is a dialog, under which no key runs
-      await nextTick()
+      // the node menu an add command opens is a dialog, under which no key runs; a duplicate starts its grab a tick later
+      await new Promise((resolve) => setTimeout(resolve))
       const menu = document.querySelector('.node-menu')?.parentElement
       menu?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
-      await expect.poll(dialogOpen).toBe(false)
+      if (!menu && modal()) press('Escape', document.activeElement ?? document.body)
+      await expect.poll(modal).toBe(false)
     }
   }
   return { missed, pressed: [...pressed] }
@@ -88,7 +75,11 @@ it('every graph shortcut runs its command on the graph page', async () => {
   await expect.poll(() => document.querySelectorAll('.vue-flow__node').length).toBe(createDefaultGraph().nodes.length)
   const { missed, pressed } = await pressEvery('graph.')
   expect(missed).toEqual([])
-  expect(pressed).toEqual(expect.arrayContaining(['graph.addNode', 'graph.searchNodes', 'graph.copy', 'graph.cut', 'graph.paste', 'graph.undo', 'graph.redo', 'graph.selectAll', 'graph.deselectAll', 'graph.delete']))
+  expect(pressed).toEqual(expect.arrayContaining([
+    'graph.addNode', 'graph.searchNodes', 'graph.copy', 'graph.cut', 'graph.paste', 'graph.undo', 'graph.redo', 'graph.selectAll', 'graph.deselectAll', 'graph.delete',
+    'graph.duplicate', 'graph.grab', 'graph.toggleCollapse', 'graph.hideUnusedSockets', 'graph.mute', 'graph.dissolve', 'graph.linkSelected',
+    'graph.invertSelection', 'graph.selectLinkedFrom', 'graph.selectLinkedTo', 'graph.viewSelected', 'graph.rename', 'graph.findNode',
+  ]))
 })
 
 it('every shader shortcut runs its command on the shader page', async () => {

@@ -30,10 +30,11 @@ const key = (init: Partial<Record<'key' | 'code', string> & Record<'metaKey' | '
 describe('accelerators', () => {
   it('parses modifiers in any order and lowercases the key', async () => {
     const { parseAccelerator } = await load()
-    expect(parseAccelerator('Mod+Shift+Enter')).toEqual({ mod: true, shift: true, alt: false, key: 'enter' })
-    expect(parseAccelerator('Shift+Alt+Mod+K')).toEqual({ mod: true, shift: true, alt: true, key: 'k' })
-    expect(parseAccelerator('Home')).toEqual({ mod: false, shift: false, alt: false, key: 'home' })
-    expect(parseAccelerator('Mod+,')).toEqual({ mod: true, shift: false, alt: false, key: ',' })
+    expect(parseAccelerator('Mod+Shift+Enter')).toEqual({ mod: true, ctrl: false, shift: true, alt: false, key: 'enter' })
+    expect(parseAccelerator('Shift+Alt+Mod+K')).toEqual({ mod: true, ctrl: false, shift: true, alt: true, key: 'k' })
+    expect(parseAccelerator('Home')).toEqual({ mod: false, ctrl: false, shift: false, alt: false, key: 'home' })
+    expect(parseAccelerator('Mod+,')).toEqual({ mod: true, ctrl: false, shift: false, alt: false, key: ',' })
+    expect(parseAccelerator('Ctrl+Space')).toEqual({ mod: false, ctrl: true, shift: false, alt: false, key: 'space' })
   })
 
   it('formats as glyphs on macOS and as Ctrl+ text elsewhere', async () => {
@@ -47,12 +48,36 @@ describe('accelerators', () => {
     expect(formatAccelerator('Space', true)).toBe('Space')
     expect(formatAccelerator('Home', true)).toBe('↖')
     expect(formatAccelerator('Home', false)).toBe('Home')
+    expect(formatAccelerator('Ctrl+H', true)).toBe('⌃H')
+    expect(formatAccelerator('Ctrl+H', false)).toBe('Ctrl+H')
+    expect(formatAccelerator('NumpadDecimal', true)).toBe('Numpad .')
   })
 
   it('names the keys the way Nuxt UI kbds take them', async () => {
     const { acceleratorKbds } = await load()
     expect(acceleratorKbds('Mod+Alt+Shift+P')).toEqual(['meta', 'alt', 'shift', 'p'])
     expect(acceleratorKbds('Home')).toEqual(['home'])
+    expect(acceleratorKbds('Ctrl+Space')).toEqual(['ctrl', 'space'])
+    expect(acceleratorKbds('NumpadDecimal')).toEqual(['Numpad .'])
+  })
+
+  it('Ctrl is Ctrl on every platform, so on macOS it is not Cmd, and elsewhere it is the same key as Mod', async () => {
+    const { matchesAccelerator, parseAccelerator } = await load()
+    const hide = parseAccelerator('Ctrl+H')
+    expect(matchesAccelerator(key({ key: 'h', ctrlKey: true }), hide, true)).toBe(true)
+    expect(matchesAccelerator(key({ key: 'h', metaKey: true }), hide, true)).toBe(false)
+    expect(matchesAccelerator(key({ key: 'h', ctrlKey: true }), hide, false)).toBe(true)
+    expect(matchesAccelerator(key({ key: 'h', ctrlKey: true }), parseAccelerator('Mod+H'), true)).toBe(false)
+  })
+
+  it('the numpad period is its own key, also when NumLock off makes it Delete, and the numpad digits stay digits', async () => {
+    const { matchesAccelerator, parseAccelerator } = await load()
+    for (const sent of ['.', 'Delete']) {
+      expect(matchesAccelerator(key({ key: sent, code: 'NumpadDecimal' }), parseAccelerator('NumpadDecimal'), true)).toBe(true)
+      expect(matchesAccelerator(key({ key: sent, code: 'NumpadDecimal' }), parseAccelerator('Delete'), true)).toBe(false)
+    }
+    expect(matchesAccelerator(key({ key: 'Delete', code: 'Delete' }), parseAccelerator('Delete'), true)).toBe(true)
+    expect(matchesAccelerator(key({ key: '1', code: 'Numpad1', metaKey: true }), parseAccelerator('Mod+1'), true)).toBe(true)
   })
 
   it('Mod is Cmd on macOS and Ctrl elsewhere, and the other one never stands in', async () => {
@@ -212,7 +237,12 @@ describe('menu tree', () => {
     workspace.mode = 'shader'
     expect(editorIds()).toEqual(['shader.compile', 'shader.addFunction', 'shader.undo', 'shader.redo', 'shader.selectAll'])
     workspace.mode = 'graph'
-    expect(editorIds()).toEqual(['graph.addNode', 'graph.searchNodes', 'graph.fitView', 'graph.sendToShader', 'graph.copyGlsl', 'graph.copy', 'graph.cut', 'graph.paste', 'graph.undo', 'graph.redo', 'graph.selectAll', 'graph.deselectAll', 'graph.delete'])
+    expect(editorIds()).toEqual([
+      'graph.addNode', 'graph.searchNodes', 'graph.fitView', 'graph.viewSelected', 'graph.findNode', 'graph.sendToShader', 'graph.copyGlsl',
+      'graph.copy', 'graph.cut', 'graph.paste', 'graph.undo', 'graph.redo', 'graph.selectAll', 'graph.deselectAll',
+      'graph.invertSelection', 'graph.selectLinkedFrom', 'graph.selectLinkedTo', 'graph.delete',
+      'graph.duplicate', 'graph.grab', 'graph.dissolve', 'graph.linkSelected', 'graph.toggleCollapse', 'graph.hideUnusedSockets', 'graph.mute', 'graph.rename',
+    ])
     workspace.mode = 'reference'
     expect(editorIds()).toEqual([])
   })
@@ -225,7 +255,8 @@ describe('menu tree', () => {
       const items = flat(menuTree()).flatMap((node) => (node.type === 'item' ? [node.command] : []))
       const docks = items.filter((command) => /^view\.(toggle|hide)/.test(command.id))
       expect(docks.map((command) => [commandTitle(command), command.accelerator, typeof command.checked])).toEqual([['Side Panel', 'Mod+B', 'function'], ['Bottom Panel', 'Mod+J', 'function']])
-      expect(items.filter((command) => /hide/i.test(`${command.id} ${typeof command.title === 'string' ? command.title : ''}`)).map((command) => command.id)).toEqual([])
+      const viewItems = items.filter((command) => command.id.startsWith('view.'))
+      expect(viewItems.filter((command) => /hide/i.test(`${command.id} ${typeof command.title === 'string' ? command.title : ''}`)).map((command) => command.id)).toEqual([])
       workspace.dockVisible = false
       workspace.bottomVisible = true
       expect(docks.map(isChecked)).toEqual([false, true])
@@ -280,16 +311,20 @@ describe('the whole registry', () => {
       const realNavigator = navigator
       vi.stubGlobal('navigator', { platform })
       try {
-        const { commands, isVisible, parseAccelerator, workspace } = await load()
+        const { commands, isMac, isVisible, parseAccelerator, workspace } = await load()
+        // off macOS a literal Ctrl accelerator is the Mod one
+        const normal = (text: string) => {
+          const { mod, ctrl, ...rest } = parseAccelerator(text)
+          return JSON.stringify(isMac() ? { mod, ctrl, ...rest } : { mod: mod || ctrl, ...rest })
+        }
         for (const mode of ['shader', 'graph', 'reference'] as const) {
           workspace.mode = mode
           const seen = new Map<string, string>()
           for (const command of commands.value.filter(isVisible)) {
             for (const text of [command.accelerator, ...(command.aliases ?? [])]) {
               if (!text) continue
-              const normal = JSON.stringify(parseAccelerator(text))
-              expect(seen.get(normal), `${mode}: ${text} on ${command.id}`).toBeUndefined()
-              seen.set(normal, command.id)
+              expect(seen.get(normal(text)), `${mode}: ${text} on ${command.id}`).toBeUndefined()
+              seen.set(normal(text), command.id)
             }
           }
         }
@@ -391,6 +426,23 @@ describe('log, problems, dock-hide and reference commands', () => {
     expect(keys('shader.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, textKey: true, modes: ['shader'] })
     expect(keys('shader.addFunction')).toEqual({ accelerator: 'Mod+Shift+A', aliases: undefined, textKey: true, modes: ['shader'] })
     for (const id of ['graph.addNode', 'graph.selectAll', 'graph.deselectAll', 'shader.selectAll', 'shader.addFunction']) expect(nativeAccelerator(getCommand(id)!), id).toBeUndefined()
+  })
+
+  it('N is the side panel key in a graph only', async () => {
+    const { getCommand, workspace } = await load()
+    workspace.mode = 'graph'
+    expect(getCommand('view.toggleDock')!.aliases).toEqual(['N'])
+    workspace.mode = 'shader'
+    expect(getCommand('view.toggleDock')!.aliases).toBeUndefined()
+  })
+
+  it('view.maximize hides every panel around the editor, and brings back only what it hid', async () => {
+    const { getCommand, isChecked, runCommand, workspace } = await load()
+    Object.assign(workspace, { dockVisible: true, bottomVisible: false, stripVisible: true })
+    runCommand('view.maximize')
+    expect([workspace.dockVisible, workspace.bottomVisible, workspace.stripVisible, isChecked(getCommand('view.maximize')!)]).toEqual([false, false, false, true])
+    runCommand('view.maximize')
+    expect([workspace.dockVisible, workspace.bottomVisible, workspace.stripVisible, isChecked(getCommand('view.maximize')!)]).toEqual([true, false, true, false])
   })
 
   it('view.hideDock and view.hideBottom force their panel closed, unlike the toggle commands', async () => {

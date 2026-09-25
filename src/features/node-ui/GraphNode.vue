@@ -5,7 +5,7 @@ import NodeShell from './NodeShell.vue'
 import Socket from './Socket.vue'
 import { handlerFor, nodeBodies, type TypeHandler } from './handlers'
 import { categoryById } from '@/lib/shader/glsl'
-import { connectedHandlesKey, graphIssuesKey } from './graph-context'
+import { connectedHandlesKey, graphIssuesKey, outputHandle, renamingNodeKey } from './graph-context'
 import { socketColor, unlinkedStream } from './sockets'
 import { useNodeCollapse } from './use-node-collapse'
 import './node.css'
@@ -15,6 +15,7 @@ const props = defineProps<NodeProps<GraphNodeData>>()
 const { edges, updateNodeData } = useVueFlow()
 const graphIssues = inject(graphIssuesKey, null)
 const connectedHandles = inject(connectedHandlesKey, null)
+const renaming = inject(renamingNodeKey, null)
 
 const kind = computed(() => nodeItem(props.data.kind))
 // the node's sockets and code follow its values (a Math node changes with its operation)
@@ -27,7 +28,10 @@ const NO_LINKS: ReadonlySet<string> = new Set()
 // the page computes this once per edge change; without it (a node mounted on its own) fall back to the edge array
 const connected = computed<ReadonlySet<string>>(() => connectedHandles
   ? connectedHandles.value.get(props.id) ?? NO_LINKS
-  : new Set(edges.value.filter((e) => e.target === props.id).map((e) => e.targetHandle!)))
+  : new Set(edges.value.flatMap((e) => [
+    ...(e.target === props.id ? [e.targetHandle!] : []),
+    ...(e.source === props.id ? [outputHandle(e.sourceHandle!)] : []),
+  ])))
 
 const invalidFields = reactive(new Set<string>())
 // the page rebuilds its issue map on every compile; reading this node's entry first keeps a node without issues
@@ -60,9 +64,19 @@ const rows = computed<Row[]>(() => (item.value?.inputs ?? []).map((socket) => {
     connected: isConnected,
     widgetProps: { ...socket.type.props, ...(typeof socket.props === 'function' ? socket.props(props.data.values) : socket.props), modelValue: value, ...(handler?.layout === 'inline' && { label: socket.label }) },
   }
-}))
+}).filter((row) => !props.data.hideUnused || !row.socket.linkable || row.connected))
+
+const outputs = computed(() => (item.value?.outputs ?? []).filter((out) => !props.data.hideUnused || connected.value.has(outputHandle(out.name))))
 
 const { collapsed, toggle } = useNodeCollapse(props)
+
+function rename(title: string | null) {
+  // Enter or Escape ends the edit, and the input's blur on its way out must not end it again
+  if (renaming?.value !== props.id) return
+  renaming.value = null
+  const label = title?.trim()
+  if (title !== null) updateNodeData<GraphNodeData>(props.id, { label: label && label !== item.value?.title ? label : undefined })
+}
 
 function setValue(name: string, value: SocketValue) {
   updateNodeData<GraphNodeData>(props.id, { values: { ...props.data.values, [name]: value } })
@@ -79,24 +93,27 @@ function markInvalid(socket: NodeSocket, invalid: boolean) {
   <NodeShell
     v-if="item"
     :collapsed="collapsed"
-    :title="item.title"
+    :title="data.label || item.title"
     :color="categoryById.get(kind!.category)?.color ?? '#545454'"
     :selected="selected"
     :warnings="warnings"
     :source="!item.inputs.some((s) => s.linkable)"
     :wide="item.inputs.some((s) => s.type.id === 'ramp') || data.kind in nodeBodies"
+    :muted="data.muted"
+    :renaming="renaming === id"
     @toggle="toggle"
+    @rename="rename"
   >
     <template #folded-in>
-      <Socket v-for="socket in item.inputs.filter((s) => s.linkable)" :id="socket.name" :key="socket.name" side="in" :color="socketColor(socket.type)" :shape="storedShape(socket.type)" />
+      <Socket v-for="{ socket } in rows.filter((r) => r.socket.linkable)" :id="socket.name" :key="socket.name" side="in" :color="socketColor(socket.type)" :shape="storedShape(socket.type)" />
     </template>
     <template #folded-out>
-      <Socket v-for="out in item.outputs" :id="out.name" :key="out.name" side="out" :color="socketColor(out.type)" :shape="storedShape(out.type)" />
+      <Socket v-for="out in outputs" :id="out.name" :key="out.name" side="out" :color="socketColor(out.type)" :shape="storedShape(out.type)" />
     </template>
 
     <component :is="nodeBodies[data.kind]" v-if="nodeBodies[data.kind]" :node-id="id" :values="data.values" @update="updateNodeData<GraphNodeData>(id, { values: { ...data.values, ...$event } })" />
 
-    <div v-for="out in item.outputs" :key="out.name" class="nui-row is-output">
+    <div v-for="out in outputs" :key="out.name" class="nui-row is-output">
       <span class="nui-label">{{ out.label }}</span>
       <Socket :id="out.name" side="out" :color="socketColor(out.type)" :shape="storedShape(out.type)" />
     </div>

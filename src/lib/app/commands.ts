@@ -12,7 +12,7 @@ import { pickFile } from './pick-file'
 import { isMac, isTauri } from './platform'
 import { loadTauriFiles } from '@/lib/documents/tauri-files'
 import { baseName } from '@/lib/util/files'
-import { contextProblem, DOCK_TABS, resetLayout, showTab, workspace, type Mode } from './workspace'
+import { contextProblem, DOCK_TABS, isMaximized, resetLayout, showTab, toggleMaximize, workspace, type Mode } from './workspace'
 
 export interface Command {
   id: string
@@ -21,7 +21,10 @@ export interface Command {
   menu: string[]
   /** Neighbours in one menu with different groups get a separator between them. */
   group?: string
-  /** `Mod+Shift+Enter`: Mod is Cmd on macOS and Ctrl elsewhere; the key is a character, a digit or a `KeyboardEvent.key` name. */
+  /**
+   * `Mod+Shift+Enter`: Mod is Cmd on macOS and Ctrl elsewhere, Ctrl is Ctrl everywhere; the key is a character, a digit,
+   * a `KeyboardEvent.key` name or `NumpadDecimal`.
+   */
   accelerator?: string
   aliases?: string[]
   /** The modes the command exists in; every mode when absent. */
@@ -62,6 +65,7 @@ export type MenuNode = MenuItem | MenuSeparator | Submenu
 
 export interface Accelerator {
   mod: boolean
+  ctrl: boolean
   shift: boolean
   alt: boolean
   key: string
@@ -172,26 +176,29 @@ export const nativeAccelerator = (command: Command) =>
 export function parseAccelerator(text: string): Accelerator {
   const parts = text.split('+')
   const key = parts.pop()!.toLowerCase()
-  return { mod: parts.includes('Mod'), shift: parts.includes('Shift'), alt: parts.includes('Alt'), key }
+  return { mod: parts.includes('Mod'), ctrl: parts.includes('Ctrl'), shift: parts.includes('Shift'), alt: parts.includes('Alt'), key }
 }
 
-/** `⌥⇧⌘K` on macOS, `Ctrl+Alt+Shift+K` elsewhere. */
+const keyName = (key: string) => (key === 'numpaddecimal' ? 'Numpad .' : key.length === 1 ? key.toUpperCase() : key[0].toUpperCase() + key.slice(1))
+
+/** `⌃⌥⇧⌘K` on macOS, `Ctrl+Alt+Shift+K` elsewhere. */
 export function formatAccelerator(text: string, mac = isMac()): string {
-  const { mod, shift, alt, key } = parseAccelerator(text)
-  const name = key.length === 1 ? key.toUpperCase() : key[0].toUpperCase() + key.slice(1)
-  if (mac) return `${alt ? '⌥' : ''}${shift ? '⇧' : ''}${mod ? '⌘' : ''}${({ enter: '↩', backspace: '⌫', delete: '⌦', home: '↖' } as Record<string, string>)[key] ?? name}`
-  return [...(mod ? ['Ctrl'] : []), ...(alt ? ['Alt'] : []), ...(shift ? ['Shift'] : []), name].join('+')
+  const { mod, ctrl, shift, alt, key } = parseAccelerator(text)
+  if (mac) return `${ctrl ? '⌃' : ''}${alt ? '⌥' : ''}${shift ? '⇧' : ''}${mod ? '⌘' : ''}${({ enter: '↩', backspace: '⌫', delete: '⌦', home: '↖' } as Record<string, string>)[key] ?? keyName(key)}`
+  return [...(mod || ctrl ? ['Ctrl'] : []), ...(alt ? ['Alt'] : []), ...(shift ? ['Shift'] : []), keyName(key)].join('+')
 }
 
 /** The accelerator as the key names `UKbd` and the `kbds` props of Nuxt UI take. */
 export function acceleratorKbds(text: string): string[] {
-  const { mod, shift, alt, key } = parseAccelerator(text)
-  return [...(mod ? ['meta'] : []), ...(alt ? ['alt'] : []), ...(shift ? ['shift'] : []), key]
+  const { mod, ctrl, shift, alt, key } = parseAccelerator(text)
+  return [...(mod ? ['meta'] : []), ...(ctrl ? ['ctrl'] : []), ...(alt ? ['alt'] : []), ...(shift ? ['shift'] : []), key === 'numpaddecimal' ? keyName(key) : key]
 }
 
 type KeyLike = Pick<KeyboardEvent, 'key' | 'code' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>
 
 function eventKey(e: KeyLike): string {
+  // with NumLock off the numpad period sends Delete, which must not delete nodes; the numpad digits stay digits
+  if (e.code === 'NumpadDecimal') return 'numpaddecimal'
   // Shift turns a digit into a symbol and Option on macOS does the same to a letter, so the physical key stands in for both
   const digit = /^Digit(\d)$/.exec(e.code)
   if (digit) return digit[1]
@@ -201,8 +208,8 @@ function eventKey(e: KeyLike): string {
 }
 
 export function matchesAccelerator(e: KeyLike, accelerator: Accelerator, mac = isMac()): boolean {
-  const [mod, other] = mac ? [e.metaKey, e.ctrlKey] : [e.ctrlKey, e.metaKey]
-  return !other && mod === accelerator.mod && e.shiftKey === accelerator.shift && e.altKey === accelerator.alt && eventKey(e) === accelerator.key
+  const [cmd, ctrl] = mac ? [accelerator.mod, accelerator.ctrl] : [false, accelerator.mod || accelerator.ctrl]
+  return e.metaKey === cmd && e.ctrlKey === ctrl && e.shiftKey === accelerator.shift && e.altKey === accelerator.alt && eventKey(e) === accelerator.key
 }
 
 /** True when the key or click belongs to a text field or the code editor rather than to the app. */
@@ -221,7 +228,8 @@ export function dispatchKey(e: KeyboardEvent, mac = isMac()): boolean {
     if (!hit) continue
     // the native item runs the command; should the key reach the page as well, it must not run twice
     if (hasNativeMenu() && hit === nativeAccelerator(command)) return false
-    const { mod, key } = parseAccelerator(hit)
+    const { mod: cmd, ctrl, key } = parseAccelerator(hit)
+    const mod = cmd || ctrl
     if ((!mod || command.textKey) && inEditableTarget(e)) return false
     // Space on a focused button is that button's click
     if (!mod && key === 'space' && (e.target as Element | null)?.closest?.('button')) return false
@@ -362,10 +370,22 @@ registerCommands([
   { id: 'mode.graph', title: 'Graph', menu: ['View'], group: 'mode', accelerator: 'Mod+2', checked: () => workspace.mode === 'graph' },
   { id: 'mode.reference', title: 'Reference', menu: ['View'], group: 'mode', accelerator: 'Mod+3', checked: () => workspace.mode === 'reference' },
 
-  { id: 'view.toggleDock', title: 'Side Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+B', checked: () => workspace.dockVisible, run: () => { workspace.dockVisible = !workspace.dockVisible } },
+  {
+    id: 'view.toggleDock',
+    title: 'Side Panel',
+    menu: ['View'],
+    group: 'layout',
+    accelerator: 'Mod+B',
+    // Blender's sidebar key; elsewhere N is a letter the pages may want
+    get aliases() { return workspace.mode === 'graph' ? ['N'] : undefined },
+    checked: () => workspace.dockVisible,
+    run: () => { workspace.dockVisible = !workspace.dockVisible },
+  },
   { id: 'view.toggleBottom', title: 'Bottom Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+J', checked: () => workspace.bottomVisible, run: () => { workspace.bottomVisible = !workspace.bottomVisible } },
   // a matrix or a ring has no row to show; the preview pane draws those
   { id: 'view.ledStrip', title: 'LED Strip', menu: ['View'], group: 'layout', accelerator: 'Mod+Alt+L', checked: () => workspace.stripVisible, enabled: () => isStripLayout(config.layout), run: () => { workspace.stripVisible = !workspace.stripVisible } },
+  // literal Ctrl on macOS as well: Spotlight owns Cmd+Space
+  { id: 'view.maximize', title: 'Maximize Editor', menu: ['View'], group: 'layout', accelerator: 'Ctrl+Space', checked: isMaximized, run: toggleMaximize },
   { id: 'view.hideDock', title: 'Hide Side Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+Alt+Shift+B', contextOnly: true, run: () => { workspace.dockVisible = false } },
   { id: 'view.hideBottom', title: 'Hide Bottom Panel', menu: ['View'], group: 'layout', accelerator: 'Mod+Alt+Shift+J', contextOnly: true, run: () => { workspace.bottomVisible = false } },
   ...DOCK_TABS.map((tab): Command => ({
@@ -408,17 +428,32 @@ registerCommands([
   { id: 'graph.addNode', title: 'Add Node...', menu: ['View'], group: 'editor', accelerator: 'Shift+A', modes: ['graph'] },
   { id: 'graph.searchNodes', title: 'Search Nodes', menu: ['View'], group: 'editor', accelerator: 'Space', modes: ['graph'] },
   { id: 'graph.fitView', title: 'Fit View', menu: ['View'], group: 'editor', accelerator: 'Home', modes: ['graph'] },
+  { id: 'graph.viewSelected', title: 'View Selected', menu: ['View'], group: 'editor', accelerator: 'NumpadDecimal', modes: ['graph'] },
+  { id: 'graph.findNode', title: 'Find Node...', menu: ['View'], group: 'editor', accelerator: 'Mod+F', modes: ['graph'] },
   { id: 'graph.sendToShader', title: 'Send to Shader Mode', menu: ['View'], group: 'editor', accelerator: 'Mod+Alt+Enter', modes: ['graph'] },
   { id: 'graph.copyGlsl', title: 'Copy Generated GLSL', menu: ['View'], group: 'editor', accelerator: 'Mod+Alt+Shift+E', modes: ['graph'] },
   { id: 'graph.copy', title: 'Copy Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+C', modes: ['graph'], textKey: true },
-  { id: 'graph.cut', title: 'Cut Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+X', modes: ['graph'], textKey: true },
+  // Mod+X dissolves, as in Blender: on macOS the native Edit menu's Cut owns Cmd+X and the canvas reads its cut event as dissolve
+  { id: 'graph.cut', title: 'Cut Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Alt+X', modes: ['graph'], textKey: true },
   { id: 'graph.paste', title: 'Paste Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+V', modes: ['graph'], textKey: true },
   { id: 'graph.undo', title: 'Undo', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Z', modes: ['graph'], textKey: true },
   // Cmd+Y is not redo on macOS
   { id: 'graph.redo', title: 'Redo', menu: ['View'], group: 'clipboard', accelerator: 'Mod+Shift+Z', aliases: isMac() ? undefined : ['Mod+Y'], modes: ['graph'], textKey: true },
   { id: 'graph.selectAll', title: 'Select All Nodes', menu: ['View'], group: 'clipboard', accelerator: 'Mod+A', modes: ['graph'], textKey: true },
   { id: 'graph.deselectAll', title: 'Deselect All', menu: ['View'], group: 'clipboard', accelerator: 'Alt+A', aliases: ['Escape'], modes: ['graph'] },
+  { id: 'graph.invertSelection', title: 'Invert Selection', menu: ['View'], group: 'clipboard', accelerator: 'Mod+I', modes: ['graph'] },
+  { id: 'graph.selectLinkedFrom', title: 'Select Linked From', menu: ['View'], group: 'clipboard', accelerator: 'L', modes: ['graph'] },
+  { id: 'graph.selectLinkedTo', title: 'Select Linked To', menu: ['View'], group: 'clipboard', accelerator: 'Shift+L', modes: ['graph'] },
   { id: 'graph.delete', title: 'Delete Nodes', menu: ['View'], group: 'clipboard', accelerator: 'X', aliases: ['Backspace', 'Delete'], modes: ['graph'] },
+  { id: 'graph.duplicate', title: 'Duplicate Nodes', menu: ['View'], group: 'nodes', accelerator: 'Shift+D', modes: ['graph'] },
+  { id: 'graph.grab', title: 'Move Nodes', menu: ['View'], group: 'nodes', accelerator: 'G', modes: ['graph'] },
+  { id: 'graph.dissolve', title: 'Dissolve Nodes', menu: ['View'], group: 'nodes', accelerator: 'Mod+X', modes: ['graph'], textKey: true },
+  { id: 'graph.linkSelected', title: 'Link Selected Nodes', menu: ['View'], group: 'nodes', accelerator: 'F', modes: ['graph'] },
+  { id: 'graph.toggleCollapse', title: 'Collapse Nodes', menu: ['View'], group: 'nodes', accelerator: 'H', modes: ['graph'] },
+  // literal Ctrl on macOS as well, as Blender binds it there: Cmd+H hides the app
+  { id: 'graph.hideUnusedSockets', title: 'Hide Unused Sockets', menu: ['View'], group: 'nodes', accelerator: 'Ctrl+H', modes: ['graph'] },
+  { id: 'graph.mute', title: 'Mute Nodes', menu: ['View'], group: 'nodes', accelerator: 'M', modes: ['graph'] },
+  { id: 'graph.rename', title: 'Rename Node', menu: ['View'], group: 'nodes', accelerator: 'F2', modes: ['graph'] },
 
   { id: 'log.copyLine', title: 'Copy Line', menu: ['View'], group: 'log', accelerator: 'Mod+Alt+Shift+C', enabled: () => !!logContext.value, run: copyLogLine },
   { id: 'log.copyAll', title: 'Copy All', menu: ['View'], group: 'log', accelerator: 'Mod+Alt+Shift+X', enabled: () => shownLogs.value.length > 0, run: copyAllLogs },
