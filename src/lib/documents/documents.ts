@@ -1,5 +1,6 @@
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
-import { baseName, loadTauriFiles, type TauriFiles } from './tauri-files'
+import { loadTauriFiles, type TauriFiles } from './tauri-files'
+import { baseName } from '@/lib/util/files'
 
 declare global {
   interface Window {

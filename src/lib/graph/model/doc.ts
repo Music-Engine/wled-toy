@@ -1,5 +1,6 @@
 import type { ColorRamp } from '@/lib/graph/nodes/color/color-ramp'
 import { parseScenes, type Scene } from './scenes'
+import { cloneJson } from '@/lib/util/json'
 
 export interface NodeGraph {
   version: number
@@ -78,8 +79,7 @@ interface EdgeLike {
  * so a file that was just opened serializes to the text it was compared against and does not count as edited.
  */
 export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[], scenes: NodeGraph['scenes']): NodeGraph {
-  // plain JSON: structuredClone rejects the reactive proxies Vue leaves nested in node data
-  return JSON.parse(JSON.stringify({
+  return cloneJson({
     nodes: nodes.map((n) => ({ id: n.id, type: n.type ?? GRAPH_NODE_TYPE, position: { x: n.position.x, y: n.position.y }, data: n.data })),
     edges: edges.map((e) => ({
       id: e.id,
@@ -91,7 +91,7 @@ export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[]
     })),
     scenes: scenes ?? [],
     version: GRAPH_VERSION,
-  }))
+  }) as NodeGraph
 }
 
 export const canonical = (doc: NodeGraph) => storedDoc(doc.nodes, doc.edges, doc.scenes)

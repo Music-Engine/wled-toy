@@ -9,7 +9,8 @@ import { isStripLayout } from '@/lib/engine/layout'
 import { EXAMPLES } from '@/lib/shader/examples'
 import { clearLogs, copyAllLogs, copyLogLine, log, logContext, shownLogs } from './logs'
 import { isMac, isTauri } from './platform'
-import { baseName, loadTauriFiles } from '@/lib/documents/tauri-files'
+import { loadTauriFiles } from '@/lib/documents/tauri-files'
+import { baseName } from '@/lib/util/files'
 import { contextProblem, DOCK_TABS, resetLayout, showTab, workspace, type Mode } from './workspace'
 
 export interface Command {

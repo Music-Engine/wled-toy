@@ -1,5 +1,6 @@
 import { shallowRef } from 'vue'
 import type { Mode } from './workspace'
+import { extension } from '@/lib/util/files'
 
 export type DropKind = 'audio' | 'image' | 'graph' | 'shader' | 'config' | 'unknown'
 
@@ -13,12 +14,12 @@ const byMime = (type: string): DropKind =>
 
 /** The extension decides first: a .webm or .ogg arrives as video/*, and a .wledgraph may arrive as application/json. */
 export function classifyFile(file: DroppedFile): DropKind {
-  const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : ''
-  if (['mp3', 'wav', 'ogg', 'oga', 'opus', 'flac', 'm4a', 'aac', 'webm'].includes(extension)) return 'audio'
-  if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'].includes(extension)) return 'image'
-  if (extension === 'wledgraph') return 'graph'
-  if (['glsl', 'frag', 'fs'].includes(extension)) return 'shader'
-  if (extension === 'json') return 'config'
+  const ext = extension(file.name)
+  if (['mp3', 'wav', 'ogg', 'oga', 'opus', 'flac', 'm4a', 'aac', 'webm'].includes(ext)) return 'audio'
+  if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'].includes(ext)) return 'image'
+  if (ext === 'wledgraph') return 'graph'
+  if (['glsl', 'frag', 'fs'].includes(ext)) return 'shader'
+  if (ext === 'json') return 'config'
   return byMime(file.type)
 }
 

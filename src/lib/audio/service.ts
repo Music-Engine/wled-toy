@@ -3,6 +3,7 @@ import { log } from '@/lib/app/logs'
 import { isMac, isTauri } from '@/lib/app/platform'
 import { Analyzer, DEFAULT_ANALYZER, type AnalyzerConfig, type Features } from './dsp'
 import { AudioTextures } from './textures'
+import { sameJson } from '@/lib/util/json'
 
 export type AudioSourceKind = 'file' | 'device' | 'loopback'
 export type AudioChannel = 'mono' | 'left' | 'right'
@@ -145,7 +146,7 @@ export class AudioService {
     }
     if (!this.context) return
 
-    const levelsChanged = JSON.stringify([next.agc, next.gate]) !== JSON.stringify([before.agc, before.gate])
+    const levelsChanged = !sameJson([next.agc, next.gate], [before.agc, before.gate])
     if (next.channel !== before.channel) this.worklet?.port.postMessage({ channel: next.channel })
     if (levelsChanged) this.rebuildAnalysis()
     if (sourceChanged) {
@@ -194,7 +195,7 @@ export class AudioService {
   /** The analyses the running graph reads besides the default one, in slot order. Extra ones beyond the limit are ignored. */
   setAnalyses(extra: AnalysisSettings[]) {
     const wanted = [DEFAULT_ANALYSIS, ...extra].slice(0, MAX_ANALYSES).map((a) => ({ ...a, bands: Math.max(12, Math.round(a.bands)), hop: Math.min(a.hop, a.windowSize) }))
-    if (JSON.stringify(wanted) === JSON.stringify(this.wanted)) return
+    if (sameJson(wanted, this.wanted)) return
     this.wanted = wanted
     if (this.context) this.rebuildAnalysis()
   }
@@ -222,9 +223,8 @@ export class AudioService {
     const { agc, gate, channel } = this.state.settings
     // an analysis whose settings did not change keeps its history and its tempo lock
     const kept = this.analyses
-    const levels = JSON.stringify([agc, gate])
     this.analyses = this.wanted.map((settings) => {
-      const same = kept.find((a) => JSON.stringify(a.settings) === JSON.stringify(settings) && JSON.stringify([a.analyzer.config.agc, a.analyzer.config.gate]) === levels
+      const same = kept.find((a) => sameJson(a.settings, settings) && sameJson([a.analyzer.config.agc, a.analyzer.config.gate], [agc, gate])
         && a.analyzer.config.sampleRate === context.sampleRate)
       return same ?? {
         settings,

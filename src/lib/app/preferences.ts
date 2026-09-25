@@ -1,4 +1,5 @@
 import { reactive, watch } from 'vue'
+import { clamp } from '@/lib/util/math'
 
 export type LaunchMode = 'shader' | 'graph' | 'last'
 export type Density = 'compact' | 'default' | 'comfortable'
@@ -42,8 +43,6 @@ export const PREFERENCE_DEFAULTS: Preferences = {
 
 // its own key, like the workspace layout: preferences belong to this install, not to a show file that exportConfig hands to somebody else
 const STORAGE_KEY = 'wledtoy:preferences'
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
 /** Keeps every valid field of a stored value and takes the default for the rest. */
 export function sanitizePreferences(input: unknown): Preferences {

@@ -1,6 +1,8 @@
 import { computed, reactive, watch } from 'vue'
 import { layoutCount, parseLayout, type Layout } from '@/lib/engine/layout'
 import type { WireProtocol } from '@/lib/engine/output'
+import { clamp } from '@/lib/util/math'
+import { newId } from '@/lib/util/ids'
 
 export interface SavedDevice {
   id: string
@@ -21,10 +23,8 @@ const STORAGE_KEY = 'wledtoy:devices'
 // migration only: the config storage key from src/lib/config.ts, read directly to avoid a circular import
 const LEGACY_CONFIG_KEY = 'wledtoy:config'
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
-
 const defaultDevice = (): SavedDevice => ({
-  id: crypto.randomUUID(),
+  id: newId(),
   name: 'Default',
   host: '',
   ledCount: 60,
@@ -58,7 +58,7 @@ function sanitizeDevice(input: unknown, fallback: SavedDevice): SavedDevice | nu
   if (!input || typeof input !== 'object') return null
   const src = input as Record<string, unknown>
   const out: SavedDevice = { ...fallback }
-  out.id = typeof src.id === 'string' && src.id ? src.id : crypto.randomUUID()
+  out.id = typeof src.id === 'string' && src.id ? src.id : newId()
   out.name = typeof src.name === 'string' && src.name.trim() ? src.name.trim() : fallback.name
   if (typeof src.host === 'string') out.host = src.host.trim()
   if (typeof src.ledCount === 'number') out.ledCount = clamp(Math.round(src.ledCount), 1, 4096)
@@ -133,7 +133,7 @@ export function addDevice(name = `Device ${store.devices.length + 1}`): SavedDev
 export function duplicateDevice(id: string): SavedDevice | null {
   const source = store.devices.find((d) => d.id === id)
   if (!source) return null
-  const copy = { ...source, id: crypto.randomUUID(), name: `${source.name} copy` }
+  const copy = { ...source, id: newId(), name: `${source.name} copy` }
   store.devices.push(copy)
   return copy
 }

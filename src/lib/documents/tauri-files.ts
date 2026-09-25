@@ -22,5 +22,3 @@ export async function loadTauriFiles(): Promise<TauriFiles> {
     writeTextFile: (path, text) => fs.writeTextFile(path, text),
   }
 }
-
-export const baseName = (path: string) => path.split(/[\\/]/).pop()!

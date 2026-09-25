@@ -4,6 +4,7 @@ import PrefGroup from './PrefGroup.vue'
 import PrefNumber from './PrefNumber.vue'
 import PrefRow from './PrefRow.vue'
 import { config } from '@/lib/app/config'
+import { Format } from '@/lib/util/format'
 
 const fpsError = ref<string | null>(null)
 </script>
@@ -16,7 +17,7 @@ const fpsError = ref<string | null>(null)
     <PrefRow v-slot="{ id }" label="Scan row" description="The row of the preview a straight strip samples, from 0 to 1. Devices with a layout ignore it.">
       <span class="flex w-full items-center gap-2">
         <input :id="id" v-model.number="config.scanY" type="range" min="0" max="1" step="0.01" class="pref-range min-w-0 flex-1">
-        <span class="w-[34px] text-end text-[12px] tabular-nums text-muted">{{ config.scanY.toFixed(2) }}</span>
+        <span class="w-[34px] text-end text-[12px] tabular-nums text-muted">{{ Format.fixed(config.scanY, 2) }}</span>
       </span>
     </PrefRow>
   </PrefGroup>

@@ -28,6 +28,8 @@ import { dockHost } from '@/lib/app/workspace'
 import { graphImageDrop } from '@/lib/app/file-drop'
 import { classifyWheel, type WheelGesture } from './wheel-source'
 import { compileKey } from './compile-key'
+import { cloneJson } from '@/lib/util/json'
+import { newId } from '@/lib/util/ids'
 import {
   GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, nodeItem,
   newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
@@ -78,10 +80,6 @@ let appliedKey = ''
 let prunedScenes: Scene[] | null = null
 let regenTimer: ReturnType<typeof setTimeout> | undefined
 let liveTimer: ReturnType<typeof setTimeout> | undefined
-
-// Graph data is plain JSON. structuredClone rejects the reactive proxies Vue leaves nested
-// inside it (toRaw only unwraps the outer object), e.g. color ramp stops after an edit.
-const cloneJson = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
 // Vue Flow only syncs its store back to v-model:edges when the edge count changes, so a
 // replaced link (remove + add in one tick) never reaches the `edges` ref. Read the store.
@@ -308,7 +306,7 @@ function connectLink(c: Connection): boolean {
   const from = outputSocket(dataOf(c.source), c.sourceHandle)!
   addEdges([{
     ...c,
-    id: `e-${c.source}-${c.sourceHandle}-${c.target}-${c.targetHandle}-${Date.now().toString(36)}`,
+    id: `e-${c.source}-${c.sourceHandle}-${c.target}-${c.targetHandle}-${newId()}`,
     style: { stroke: socketColor(from.type), strokeWidth: 2 },
   }])
   return true
@@ -411,7 +409,7 @@ function addNode(item: NodeItem, preset?: MenuPreset, screenPoint = nodeMenu.pos
   const position = screenToFlowCoordinate(at)
   // a node feeding the dragged input goes to its left so the link reads left to right
   if (pending?.handleType === 'target') position.x -= NODE_WIDTH
-  const id = `${item.id}-${Date.now().toString(36)}`
+  const id = `${item.id}-${newId()}`
   addNodes([{ id, type: GRAPH_NODE_TYPE, position, data: newNodeData(item.id, preset?.values as GraphNodeData['values']) }])
   log(`Added graph node: ${preset ? `${item.title} (${preset.title})` : item.title}`)
 
@@ -547,7 +545,7 @@ function deleteSelection() {
 
 function pasteClipboard(): boolean {
   if (!clipboard) return false
-  const stamp = Date.now().toString(36)
+  const stamp = newId()
   const ids = new Map(clipboard.nodes.map((n, i) => [n.id, `${n.data.kind}-${stamp}-${i}`]))
   const xs = clipboard.nodes.map((n) => n.position.x)
   const ys = clipboard.nodes.map((n) => n.position.y)

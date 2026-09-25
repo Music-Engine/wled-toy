@@ -6,6 +6,7 @@ import { config } from '@/lib/app/config'
 import { contextMenuItems } from '@/lib/app/commands'
 import { layoutPositions } from '@/lib/engine/layout'
 import { workspace, type PreviewView } from '@/lib/app/workspace'
+import { Format } from '@/lib/util/format'
 
 const menu = computed(() => contextMenuItems([['playback.resetTime', 'playback.toggleAudio', 'output.toggleStream']]))
 
@@ -21,7 +22,7 @@ const ledDots = computed(() => {
 
 const summary = computed(() => (config.layout
   ? config.layout.segments.map((s) => (s.kind === 'matrix' ? `matrix ${s.width}x${s.height}` : s.kind)).join(', ')
-  : `y ${config.scanY.toFixed(2)}`))
+  : `y ${Format.fixed(config.scanY, 2)}`))
 
 const VIEWS: { id: PreviewView; label: string; title: string }[] = [
   { id: 'render', label: 'Render', title: 'The shader, with the LEDs marked where they sample it' },

@@ -1,7 +1,8 @@
 import { ref, watch } from 'vue'
 import { config } from '@/lib/app/config'
 import { log } from '@/lib/app/logs'
-import { checkTrackFile, formatDuration } from '@/lib/audio/track-file'
+import { checkTrackFile } from '@/lib/audio/track-file'
+import { Format } from '@/lib/util/format'
 import { ShaderRenderer, type FrameParams } from './renderer'
 import { AudioService, systemAudioBlocked } from '@/lib/audio/service'
 import { createBridge } from '@/lib/bridge/bridge-client'
@@ -145,7 +146,7 @@ class Engine {
       await this.audio.setFile(file)
       await this.remember('song', file)
       const playing = this.audio.state.playing && this.audio.state.settings.source === 'file'
-      this.trackStatus.value = { level: 'info', message: `${file.name} (${formatDuration(check.seconds)}) is the default track now and at every launch. ${playing ? 'It is playing.' : 'It starts when you press Play.'}` }
+      this.trackStatus.value = { level: 'info', message: `${file.name} (${Format.duration(check.seconds)}) is the default track now and at every launch. ${playing ? 'It is playing.' : 'It starts when you press Play.'}` }
       return true
     }
     await this.audio.setFile(file)

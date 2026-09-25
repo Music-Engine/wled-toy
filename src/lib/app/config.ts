@@ -9,6 +9,7 @@ import { resetStoredPreferences } from './preferences'
 import type { WireProtocol } from '@/lib/engine/output'
 import { loadTauriFiles } from '@/lib/documents/tauri-files'
 import { resetLayout } from './workspace'
+import { clamp } from '@/lib/util/math'
 
 export type Protocol = WireProtocol
 
@@ -41,8 +42,6 @@ export const DEFAULTS: AppConfig = {
 }
 
 const STORAGE_KEY = 'wledtoy:config'
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
 export function sanitize(input: unknown): Partial<AppConfig> {
   if (!input || typeof input !== 'object') return {}

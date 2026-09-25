@@ -3,6 +3,7 @@ import type { Features } from '@/lib/audio/dsp'
 import type { MidiReader } from '@/lib/engine/midi'
 import type { OutputSettings } from '@/lib/engine/output'
 import type { Value } from './value'
+import { sameJson } from '@/lib/util/json'
 
 /**
  * A block of GLSL functions a node needs. The compiler emits each chunk a graph uses once, after the
@@ -91,7 +92,6 @@ export type Resources = Readonly<Record<string, readonly unknown[] | undefined>>
  */
 export function resourceIndex(resources: Resources, kind: string, config: unknown): number {
   const list = resources[kind] ?? []
-  const key = JSON.stringify(config)
-  const index = list.findIndex((other) => JSON.stringify(other) === key)
+  const index = list.findIndex((other) => sameJson(other, config))
   return index >= 0 ? index : list.length
 }

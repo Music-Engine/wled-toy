@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clamp } from '@/lib/util/math'
+
 const props = defineProps<{ orientation: 'vertical' | 'horizontal'; min: number; max: number; initial: number; label: string }>()
 const size = defineModel<number>({ required: true })
 const emit = defineEmits<{ collapse: [] }>()
@@ -6,7 +8,6 @@ const emit = defineEmits<{ collapse: [] }>()
 let drag: { pointer: number; size: number } | null = null
 
 const along = (e: PointerEvent) => (props.orientation === 'vertical' ? e.clientX : e.clientY)
-const clamp = (value: number) => Math.round(Math.min(props.max, Math.max(props.min, value)))
 
 function onPointerDown(e: PointerEvent) {
   if (e.button !== 0) return
@@ -24,14 +25,14 @@ function onPointerMove(e: PointerEvent) {
     emit('collapse')
     return
   }
-  size.value = clamp(wanted)
+  size.value = Math.round(clamp(wanted, props.min, props.max))
 }
 
 function onKeydown(e: KeyboardEvent) {
   const [grow, shrink] = props.orientation === 'vertical' ? ['ArrowLeft', 'ArrowRight'] : ['ArrowUp', 'ArrowDown']
   if (e.key !== grow && e.key !== shrink) return
   e.preventDefault()
-  size.value = clamp(size.value + (e.key === grow ? 16 : -16))
+  size.value = Math.round(clamp(size.value + (e.key === grow ? 16 : -16), props.min, props.max))
 }
 </script>
 
@@ -50,7 +51,7 @@ function onKeydown(e: KeyboardEvent) {
     @pointermove="onPointerMove"
     @pointerup="drag = null"
     @pointercancel="drag = null"
-    @dblclick="size = clamp(initial)"
+    @dblclick="size = Math.round(clamp(initial, min, max))"
     @keydown="onKeydown"
   />
 </template>

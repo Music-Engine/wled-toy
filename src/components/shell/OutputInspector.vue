@@ -7,6 +7,7 @@ import { config, type Protocol } from '@/lib/app/config'
 import { activeDeviceId, devices } from '@/lib/app/devices'
 import { openSettings } from '@/lib/app/preferences'
 import { useEngine } from '@/lib/engine/engine'
+import { Format } from '@/lib/util/format'
 
 const { stats } = useEngine().bridge
 
@@ -54,7 +55,7 @@ function setNumber(key: 'fps' | 'universe', min: number, max: number, e: Event) 
           :style="{ '--fill': `${config.scanY * 100}%` }"
           @input="config.scanY = Number(($event.target as HTMLInputElement).value)"
         >
-        <span class="w-9 shrink-0 text-end font-mono tabular-nums text-default">{{ config.scanY.toFixed(2) }}</span>
+        <span class="w-9 shrink-0 text-end font-mono tabular-nums text-default">{{ Format.fixed(config.scanY, 2) }}</span>
       </InspectorRow>
       <InspectorRow label="Target rate">
         <input type="number" class="app-field w-14 text-end" min="1" max="120" aria-label="Target rate" data-control="fps" :value="config.fps" @change="setNumber('fps', 1, 120, $event)">

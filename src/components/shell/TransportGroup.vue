@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from 'vue'
 import { useEngine } from '@/lib/engine/engine'
+import { Format } from '@/lib/util/format'
 
 const emit = defineEmits<{ chooseSong: [] }>()
 
@@ -9,8 +10,7 @@ const audio = engine.audio.state
 
 const clock = ref('00:00.0')
 const clockTimer = setInterval(() => {
-  const tenths = Math.floor(engine.elapsed() * 10)
-  clock.value = `${String(Math.floor(tenths / 600)).padStart(2, '0')}:${String(Math.floor(tenths / 10) % 60).padStart(2, '0')}.${tenths % 10}`
+  clock.value = Format.clock(engine.elapsed())
 }, 100)
 onUnmounted(() => clearInterval(clockTimer))
 
