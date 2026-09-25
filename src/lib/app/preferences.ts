@@ -35,7 +35,7 @@ export const PREFERENCE_DEFAULTS: Preferences = {
   autosaveSeconds: 5,
   confirmClose: true,
   logLines: 300,
-  previewFps: 30,
+  previewFps: 60,
   previewHeight: 720,
   density: 'default',
   editorFontSize: 14,

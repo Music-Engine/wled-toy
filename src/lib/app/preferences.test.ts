@@ -44,9 +44,9 @@ describe('sanitizePreferences', () => {
     expect(sanitizePreferences({ showLaunchScreen: 0, audioSource: 'radio' })).toMatchObject({ showLaunchScreen: true, audioSource: 'file' })
   })
 
-  it('caps the preview at 30 fps and 720 px by default and keeps a stored 0, which means no cap', async () => {
+  it('caps the preview at 60 fps and 720 px by default and keeps a stored 0, which means no cap', async () => {
     const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
-    expect([PREFERENCE_DEFAULTS.previewFps, PREFERENCE_DEFAULTS.previewHeight]).toEqual([30, 720])
+    expect([PREFERENCE_DEFAULTS.previewFps, PREFERENCE_DEFAULTS.previewHeight]).toEqual([60, 720])
     expect(sanitizePreferences({ previewFps: 0, previewHeight: 0 })).toMatchObject({ previewFps: 0, previewHeight: 0 })
   })
 
