@@ -68,7 +68,7 @@ it('whatever the transport: connecting until it opens, config on open, frame ids
   link.congested = false
 
   vi.advanceTimersByTime(5)
-  link.handlers.onMessage({ type: 'ack', frameId: 1, udpMs: 0.25, bytes: 1000 })
+  link.handlers.onMessage({ type: 'ack', frameId: 1, count: 1, udpMs: 0.25, bytes: 1000 })
   link.handlers.onMessage({ type: 'drop', frameId: 2 })
   link.handlers.onMessage({ type: 'device', name: 'Shelf', version: '0.15.0', ledCount: 60 })
   link.handlers.onMessage({ type: 'ping', ms: 12, fps: 40 })
@@ -85,4 +85,28 @@ it('whatever the transport: connecting until it opens, config on open, frame ids
 
   bridge.dispose()
   expect(transport.links[1].closed).toBe(true)
+})
+
+it('one ack for a batch of frames: bytes add up, the round trip is timed on its newest frame, and the older ones are settled', async () => {
+  vi.useFakeTimers()
+  const { createBridge } = await import('./bridge-client')
+  const transport = fakeTransport()
+  const bridge = createBridge(config, transport.open)
+  bridge.connect()
+  const [link] = transport.links
+  link.open = true
+  link.handlers.onOpen()
+
+  for (let i = 0; i < 3; i++) {
+    bridge.sendFrame(new Uint8Array(4 + 3))
+    vi.advanceTimersByTime(10)
+  }
+  vi.advanceTimersByTime(70)
+  link.handlers.onMessage({ type: 'ack', frameId: 3, count: 3, udpMs: 0.5, bytes: 3000 })
+  // frame 1 was covered by the batch: a stray ack for it no longer counts as a round trip
+  link.handlers.onMessage({ type: 'ack', frameId: 1, count: 1, udpMs: 0.5, bytes: 0 })
+  vi.advanceTimersByTime(900)
+  expect(bridge.stats).toMatchObject({ framesSent: 3, framesDropped: 0, udpMs: 0.5, rttMs: 80 })
+  expect(bridge.stats.kbps).toBeCloseTo(24, 0)
+  bridge.dispose()
 })

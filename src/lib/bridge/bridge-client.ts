@@ -110,8 +110,12 @@ export function createBridge(config: AppConfig, openTransport: (handlers: Transp
   function onMessage(msg: BridgeMessage) {
     switch (msg.type) {
       case 'ack': {
+        // an ack covers every frame up to frameId; the round trip is measured on that newest one
         const sentAt = pending.get(msg.frameId)
-        pending.delete(msg.frameId)
+        for (const id of pending.keys()) {
+          if (id > msg.frameId) break
+          pending.delete(id)
+        }
         if (sentAt !== undefined) raw.rtt = smooth(raw.rtt, performance.now() - sentAt)
         raw.udp = smooth(raw.udp, msg.udpMs)
         raw.bytes += msg.bytes

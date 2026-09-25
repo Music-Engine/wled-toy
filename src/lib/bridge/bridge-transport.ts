@@ -2,7 +2,8 @@ import type { LogLevel } from '@/lib/app/logs'
 import { bridgeEndpoint, type BridgeEndpoint } from '@/lib/app/platform'
 
 export type BridgeMessage =
-  | { type: 'ack'; frameId: number; udpMs: number; bytes: number }
+  /** The `count` frames sent since the previous ack, up to `frameId`: `udpMs` is their mean, `bytes` their sum. */
+  | { type: 'ack'; frameId: number; count: number; udpMs: number; bytes: number }
   /** Only the Tauri bridge sends it: a frame that newer ones pushed out of its send queue. */
   | { type: 'drop'; frameId: number }
   | { type: 'log'; level: LogLevel; msg: string }

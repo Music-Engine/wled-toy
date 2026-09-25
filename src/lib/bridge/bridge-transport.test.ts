@@ -41,7 +41,7 @@ it('opens with a channel, reports open once the Rust side answered, and passes c
   expect(calls).toEqual([{ command: 'bridge_open', args: { events: channels[0] } }])
   expect(transport.isOpen()).toBe(true)
 
-  const ack: BridgeMessage = { type: 'ack', frameId: 1, udpMs: 0.1, bytes: 190 }
+  const ack: BridgeMessage = { type: 'ack', frameId: 1, count: 1, udpMs: 0.1, bytes: 190 }
   channels[0].onmessage(ack)
   expect(events).toEqual(['open', ack])
 })

@@ -282,7 +282,7 @@ function handleConnection(ws: WebSocket, log: (msg: string) => void) {
         bytes += p.length
       }
     }
-    send({ type: 'ack', frameId, udpMs: performance.now() - t0, bytes })
+    send({ type: 'ack', frameId, count: 1, udpMs: performance.now() - t0, bytes })
   })
 
   ws.on('close', () => {
