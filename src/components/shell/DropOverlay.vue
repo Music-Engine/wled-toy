@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { until } from '@vueuse/core'
 import { importData } from '@/lib/app/config'
 import { classifyFile, dragHint, graphImageDrop, isConfigExport, isGraphEnvelope, planDrop } from '@/lib/app/file-drop'
-import { log } from '@/lib/app/logs'
+import { log, report } from '@/lib/app/logs'
 import { launchScreen } from '@/lib/app/preferences'
 import { workspace } from '@/lib/app/workspace'
 import { documentSessions } from '@/lib/documents/document-session'
@@ -74,7 +74,7 @@ async function useAsTrack(file: File) {
 }
 
 async function importSettings(file: File) {
-  const raw: unknown = await file.text().then(JSON.parse).catch(() => null)
+  const raw: unknown = await file.text().then(JSON.parse).catch((error) => report(error, `${file.name} could not be read as JSON`))
   if (isGraphEnvelope(raw)) return openDocument('graph', file)
   if (!isConfigExport(raw)) return log(`${file.name} is not a WLEDtoy settings file`, 'warn')
   log(`Imported ${file.name} (${Object.keys(importData(raw)).join(', ') || 'nothing usable'})`)
@@ -99,7 +99,7 @@ async function onDrop(e: DragEvent) {
       else if (kind === 'config') await importSettings(file)
       else await openDocument(kind, file)
     } catch (err) {
-      log(`${file.name} could not be used: ${(err as Error).message}`, 'error')
+      report(err, `${file.name} could not be used`)
     }
   }
 }

@@ -95,7 +95,7 @@ export function sanitize(raw: unknown): Layout {
 }
 
 /** `mode` and `problemCount` are runtime only: the shell sets the mode, the active page's ProblemsList the count. */
-export const workspace = reactive({ ...loadStored(STORAGE_KEY, sanitize, defaults()), mode: 'shader' as Mode, problemCount: 0 })
+export const workspace = reactive({ ...loadStored(STORAGE_KEY, 'your panel layout', sanitize, defaults()), mode: 'shader' as Mode, problemCount: 0 })
 
 watch(() => {
   const { mode, problemCount, ...layout } = workspace

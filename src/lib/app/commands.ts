@@ -7,7 +7,7 @@ import { activeDeviceId, devices, setActiveDevice } from './devices'
 import { useEngine } from '@/lib/engine/engine'
 import { isStripLayout } from '@/lib/engine/layout'
 import { EXAMPLES } from '@/lib/shader/examples'
-import { clearLogs, copyAllLogs, copyLogLine, log, logContext, shownLogs } from './logs'
+import { clearLogs, copyAllLogs, copyLogLine, log, logContext, report, shownLogs } from './logs'
 import { pickFile } from './pick-file'
 import { isMac, isTauri } from './platform'
 import { loadTauriFiles } from '@/lib/documents/tauri-files'
@@ -107,7 +107,9 @@ export const isChecked = (command: Command) => command.checked?.() ?? false
 export function runCommand(id: string): boolean {
   const command = getCommand(id)
   if (!command || !isVisible(command) || !isEnabled(command)) return false
-  void (handlers.get(id) ?? command.run!)()
+  const run = handlers.get(id) ?? command.run!
+  // async so a handler that throws before its first await is reported the same way as one that rejects
+  void (async () => run())().catch((error) => report(error, `command ${id}`))
   return true
 }
 
@@ -277,7 +279,7 @@ async function chooseConfig() {
     const picked = await importConfig(file)
     log(`Imported ${file.name} (${Object.keys(picked).join(', ') || 'nothing usable'})`)
   } catch (e) {
-    log(`Import failed: ${(e as Error).message}`, 'error')
+    report(e, 'Import failed')
   }
 }
 

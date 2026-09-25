@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue'
 import { config } from '@/lib/app/config'
-import { log } from '@/lib/app/logs'
+import { log, report } from '@/lib/app/logs'
 import { checkTrackFile } from '@/lib/audio/track-file'
 import { Format } from '@/lib/util/format'
 import { ShaderRenderer, type FrameParams } from './renderer'
@@ -14,6 +14,7 @@ import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
 import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/service'
 import { loadMedia, saveMedia, clearMedia, type MediaKey } from './media-store'
 import { MidiService } from './midi'
+import { EngineError } from './engine-error'
 
 type LedListener = (frame: Uint8Array) => void
 
@@ -51,13 +52,13 @@ class Engine {
     try {
       this.renderer = new ShaderRenderer(this.canvas)
     } catch (e) {
-      log((e as Error).message, 'error')
+      report(e)
     }
 
     this.showImage('/assets/image.jpg')
     // the user's own song and image from an earlier visit, when there are any
-    void loadMedia('image').then((stored) => stored && this.useImage(stored, false)).catch(() => undefined)
-    void loadMedia('song').then((stored) => stored && this.useSong(stored, false)).catch(() => undefined)
+    void loadMedia('image').then((stored) => stored && this.useImage(stored, false)).catch((cause) => report(new EngineError('media-store', 'Your image from the last visit could not be loaded', cause)))
+    void loadMedia('song').then((stored) => stored && this.useSong(stored, false)).catch((cause) => report(new EngineError('media-store', 'Your song from the last visit could not be loaded', cause)))
     void this.audio.configure({ source: preferences.audioSource === 'loopback' && systemAudioBlocked() ? 'file' : preferences.audioSource })
 
     this.bridge.connect()

@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { log } from '@/lib/app/logs'
+import { log, report } from '@/lib/app/logs'
 import { isMac, isTauri } from '@/lib/app/platform'
 import { Analyzer, DEFAULT_ANALYZER, type AnalyzerConfig, type Features } from './dsp'
 import { AudioTextures } from './textures'
@@ -157,7 +157,7 @@ export class AudioService {
         // keep what was working: a refused permission must not leave the app without audio
         this.state.settings = { ...next, source: before.source, deviceId: before.deviceId }
         this.fail(e)
-        if (!this.input) await this.connect(before.source).catch(() => undefined)
+        if (!this.input) await this.connect(before.source).catch((e) => report(e, `Audio: going back to ${before.source}`))
       }
     }
   }

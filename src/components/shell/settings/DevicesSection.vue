@@ -82,12 +82,14 @@ function setLedCount(count: number) {
 }
 
 function commitCustom() {
-  let layout: Layout | null = null
+  let raw: unknown
   try {
-    layout = parseLayout(JSON.parse(customJson.value))
-  } catch {
-    layout = null
+    raw = JSON.parse(customJson.value)
+  } catch (e) {
+    errors.custom = `Not JSON: ${(e as Error).message}`
+    return
   }
+  const layout = parseLayout(raw)
   if (!layout) {
     errors.custom = 'Not a layout: expected { "segments": [strip | ring | matrix | points] } with at most 4096 LEDs.'
     return

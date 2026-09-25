@@ -3,7 +3,8 @@ import {
   commandTitle, getCommand, isChecked, isEnabled, isMac, isVisible, markNativeMenuInstalled, menuTree, nativeAccelerator, parseAccelerator, runCommand,
   type Command, type MenuNode,
 } from '@/lib/app/commands'
-import { log } from '@/lib/app/logs'
+import { report } from '@/lib/app/logs'
+import { NativeError } from './native-error'
 import { isTauri } from '@/lib/app/platform'
 import { workspace } from '@/lib/app/workspace'
 
@@ -162,7 +163,7 @@ export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = ru
   let handles = new Map<string, ItemHandle & { setChecked?(checked: boolean): Promise<void> }>()
   let applied = new Map<string, Partial<NativeItem>>()
   let queue: Promise<void> = Promise.resolve()
-  const report = (e: unknown) => log(`Native menu: ${(e as Error).message}`, 'error')
+  const reportFailure = (cause: unknown) => report(new NativeError('menu-sync', 'The system menu could not be updated', cause))
 
   /** Resolves to what the menu it replaced was made of, for the caller to release. */
   async function build(model: NativeSubmenu[]): Promise<Resource[]> {
@@ -191,7 +192,7 @@ export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = ru
           if (node.checked === undefined) return
           // the system flipped the check mark on its own; the command's state decides, also when the click changed nothing
           delete applied.get(node.id)?.checked
-          sync().catch(report)
+          sync().catch(reportFailure)
         },
       }
       const handle = keep(node.checked === undefined ? await api.MenuItem.new(options) : await api.CheckMenuItem.new({ ...options, checked: node.checked }))
@@ -221,6 +222,7 @@ export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = ru
 
   /** Brings the system menu in line with the registry: item state is patched in place, anything else rebuilds the menu. */
   function sync(): Promise<void> {
+    // whoever awaited the previous sync reported its failure; dropping it here keeps one failure from stopping every later sync
     queue = queue.catch(() => undefined).then(async () => {
       const model = nativeMenuModel()
       const next = JSON.stringify(structureOf(model))
@@ -232,7 +234,7 @@ export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = ru
     return queue
   }
 
-  return { sync, report }
+  return { sync, report: reportFailure }
 }
 
 /** macOS only: Windows and Linux keep the menubar the window draws. */

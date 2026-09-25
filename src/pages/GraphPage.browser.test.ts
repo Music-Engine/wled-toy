@@ -5,6 +5,7 @@ import TitleBar from '@/components/shell/TitleBar.vue'
 import { commands, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import type { FileBackend } from '@/lib/documents/documents'
+import { DocumentError } from '@/lib/documents/document-error'
 import { createDefaultGraph, type NodeGraph } from '@/lib/graph'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
 import { readGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
@@ -23,7 +24,10 @@ function fakeDisk(files: Record<string, string>) {
       files[suggestedName] = text
       return { handle: { name: suggestedName }, text }
     },
-    reopen: async (name) => (name in files ? { handle: { name }, text: files[name] } : null),
+    reopen: async (name) => {
+      if (!(name in files)) throw new DocumentError('file-gone', 'it was deleted')
+      return { handle: { name }, text: files[name] }
+    },
   }
   return { files, dialog, backend }
 }

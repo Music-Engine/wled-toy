@@ -4,7 +4,7 @@ import { SHADER_FILES, createBrowserBackend, createTauriBackend, type FileBacken
 import { useEngine } from '@/lib/engine/engine'
 import { ref } from 'vue'
 import { createDefaultGraph, generateGlsl, normalizeDoc, type FrozenValue, type NodeGraph } from '@/lib/graph'
-import { log } from '@/lib/app/logs'
+import { log, report } from '@/lib/app/logs'
 import { isTauri } from '@/lib/app/platform'
 import { bundleShader } from './shader-bundle'
 import { SHADER_FILE_EXTENSION } from './shader-document'
@@ -44,6 +44,6 @@ export async function exportStandaloneGlsl(): Promise<void> {
     const saved = await backend.saveAs(text, name, SHADER_FILE_EXTENSION)
     if (saved) log(`Exported ${saved.handle.name}`)
   } catch (e) {
-    log(`Export failed: ${(e as Error).message}`, 'error')
+    report(e, 'Export failed')
   }
 }

@@ -21,23 +21,23 @@ const sanitizeCount = (raw: unknown) => {
 describe('loadStored', () => {
   it('returns what sanitize makes of a valid value and records nothing', async () => {
     const { loadStored, storageFailures } = await load({ k: '{"count":3}' })
-    expect(loadStored('k', sanitizeCount, { count: 0 })).toEqual({ count: 3 })
+    expect(loadStored('k', 'the count', sanitizeCount, { count: 0 })).toEqual({ count: 3 })
     expect(storageFailures).toEqual([])
   })
 
   it('builds defaults given as a function only when they are needed', async () => {
     const { loadStored } = await load({ k: '{"count":3}' })
     const defaults = vi.fn(() => ({ count: 0 }))
-    expect(loadStored('k', sanitizeCount, defaults)).toEqual({ count: 3 })
+    expect(loadStored('k', 'the count', sanitizeCount, defaults)).toEqual({ count: 3 })
     expect(defaults).not.toHaveBeenCalled()
-    expect(loadStored('missing', sanitizeCount, defaults)).toEqual({ count: 0 })
+    expect(loadStored('missing', 'the count', sanitizeCount, defaults)).toEqual({ count: 0 })
     expect(defaults).toHaveBeenCalledOnce()
   })
 
   it('returns the defaults for a missing key without recording a failure', async () => {
     const { loadStored, storageFailures } = await load()
     const defaults = { count: 0 }
-    expect(loadStored('k', sanitizeCount, defaults)).toBe(defaults)
+    expect(loadStored('k', 'the count', sanitizeCount, defaults)).toBe(defaults)
     expect(storageFailures).toEqual([])
   })
 
@@ -45,7 +45,7 @@ describe('loadStored', () => {
     const { loadStored, storageFailures } = await import('./storage')
     expect(typeof localStorage).toBe('undefined')
     const defaults = { count: 0 }
-    expect(loadStored('k', sanitizeCount, defaults)).toBe(defaults)
+    expect(loadStored('k', 'the count', sanitizeCount, defaults)).toBe(defaults)
     expect(storageFailures).toEqual([])
   })
 
@@ -53,14 +53,14 @@ describe('loadStored', () => {
     vi.stubGlobal('localStorage', { getItem: () => { throw new DOMException('blocked', 'SecurityError') } })
     const { loadStored, storageFailures } = await import('./storage')
     const defaults = { count: 0 }
-    expect(loadStored('k', sanitizeCount, defaults)).toBe(defaults)
+    expect(loadStored('k', 'the count', sanitizeCount, defaults)).toBe(defaults)
     expect(storageFailures).toEqual([])
   })
 
   it('returns the defaults for corrupt JSON and records the key and cause', async () => {
     const { loadStored, storageFailures } = await load({ k: '{not json' })
     const defaults = { count: 0 }
-    expect(loadStored('k', sanitizeCount, defaults)).toBe(defaults)
+    expect(loadStored('k', 'the count', sanitizeCount, defaults)).toBe(defaults)
     expect(storageFailures).toHaveLength(1)
     expect(storageFailures[0].key).toBe('k')
     expect(storageFailures[0].cause).toBeInstanceOf(SyntaxError)
@@ -69,7 +69,7 @@ describe('loadStored', () => {
   it('returns the defaults when sanitize throws on a value of the wrong shape, and records the cause', async () => {
     const { loadStored, storageFailures } = await load({ k: '[1, 2]' })
     const defaults = { count: 0 }
-    expect(loadStored('k', sanitizeCount, defaults)).toBe(defaults)
-    expect(storageFailures).toEqual([{ key: 'k', cause: new Error('no count') }])
+    expect(loadStored('k', 'the count', sanitizeCount, defaults)).toBe(defaults)
+    expect(storageFailures).toEqual([{ key: 'k', name: 'the count', cause: new Error('no count') }])
   })
 })

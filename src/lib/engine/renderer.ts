@@ -1,5 +1,6 @@
 import { AUDIO_BINS, HISTORY_ROWS, WAVE_ROWS, WAVE_WIDTH, type AudioTextures } from '@/lib/audio/textures'
 import { AUDIO_EXTRA_SLOTS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from '@/lib/shader/glsl'
+import { EngineError } from './engine-error'
 
 const VERT = `#version 300 es
 in vec2 p;
@@ -69,7 +70,7 @@ export class ShaderRenderer {
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     const gl = canvas.getContext('webgl2')
-    if (!gl) throw new Error('WebGL2 is not supported in this browser')
+    if (!gl) throw new EngineError('webgl-unavailable', 'WebGL2 is not supported in this browser')
     this.gl = gl
 
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
@@ -122,9 +123,9 @@ export class ShaderRenderer {
     const t0 = performance.now()
     const indices = [...new Set(Array.from(userCode.matchAll(/\boutState([1-3])\b/g), (m) => Number(m[1])))].sort()
     // layer k is attachment k + 1, so a gap would leave an output with nowhere to land
-    if (indices.some((index, i) => index !== i + 1)) throw new Error(`outState indices must be contiguous from 1, found ${indices.join(', ')}`)
+    if (indices.some((index, i) => index !== i + 1)) throw new EngineError('state-outputs', `outState indices must be contiguous from 1, found ${indices.join(', ')}`)
     const stateLayers = indices.length
-    if (stateLayers > 0 && !this.floatTargets) throw new Error('this GPU cannot keep per-pixel state')
+    if (stateLayers > 0 && !this.floatTargets) throw new EngineError('no-float-targets', 'this GPU cannot keep per-pixel state')
     const program = this.link(PRELUDE + userCode)
     if (this.program) gl.deleteProgram(this.program)
     this.program = program
@@ -409,7 +410,7 @@ export class ShaderRenderer {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const info = gl.getProgramInfoLog(program) ?? 'link failed'
       gl.deleteProgram(program)
-      throw new Error(info)
+      throw new EngineError('shader-link', info)
     }
     return program
   }
@@ -442,13 +443,13 @@ export class ShaderRenderer {
   private compileShader(type: number, src: string): WebGLShader {
     const { gl } = this
     const shader = gl.createShader(type)
-    if (!shader) throw new Error('createShader failed')
+    if (!shader) throw new EngineError('shader-create', 'createShader failed')
     gl.shaderSource(shader, src)
     gl.compileShader(shader)
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       const info = gl.getShaderInfoLog(shader) ?? 'compile failed'
       gl.deleteShader(shader)
-      throw new Error(info)
+      throw new EngineError('shader-compile', info)
     }
     return shader
   }

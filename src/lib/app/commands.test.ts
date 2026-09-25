@@ -127,6 +127,19 @@ describe('registry', () => {
     expect(isEnabled(save)).toBe(false)
   })
 
+  it('a handler that rejects or throws is reported with the command id', async () => {
+    const { registerHandlers, runCommand, logs } = await load()
+    registerHandlers({
+      'file.save': async () => { throw new Error('disk full') },
+      'file.saveAs': () => { throw new Error('no dialog') },
+    })
+    const lines = () => logs.value.map((entry) => `${entry.level}: ${entry.message}`)
+    expect(runCommand('file.save')).toBe(true)
+    await vi.waitFor(() => expect(lines()).toEqual(['error: command file.save: disk full']))
+    expect(runCommand('file.saveAs')).toBe(true)
+    await vi.waitFor(() => expect(lines()).toEqual(['error: command file.save: disk full', 'error: command file.saveAs: no dialog']))
+  })
+
   it('releasing an old binding leaves a newer one for the same command alone', async () => {
     const { registerHandlers, runCommand } = await load()
     const first = vi.fn()

@@ -4,6 +4,7 @@ import {
   SHADER_FILES, createDocumentStore, createDownloadBackend, createFileSystemAccessBackend, createTauriBackend,
   type DocumentStoreOptions, type FileBackend,
 } from './documents'
+import { DocumentError } from './document-error'
 import type { FileFilter, TauriFiles } from './tauri-files'
 
 interface Doc {
@@ -98,7 +99,7 @@ describe('createDocumentStore', () => {
       open: async () => null,
       save: async () => { calls.push('save') },
       saveAs: async (text, name) => { calls.push(`saveAs ${name}`); return { handle: { name: 'chosen.test' }, text } },
-      reopen: async () => null,
+      reopen: async () => { throw new DocumentError('file-gone', 'it is gone') },
     }
     const store = createDocumentStore(docOptions({
       backend,
@@ -275,7 +276,10 @@ describe('open recent', () => {
   const reopeningBackend = (files: Record<string, string>): FileBackend => ({
     ...noopBackend,
     open: async () => ({ handle: { name: 'first.test' }, text: files['first.test'] }),
-    reopen: async (name) => (name in files ? { handle: { name }, text: files[name] } : null),
+    reopen: async (name) => {
+      if (!(name in files)) throw new DocumentError('file-gone', 'it was deleted', new Error('not found'))
+      return { handle: { name }, text: files[name] }
+    },
   })
 
   it('reopens a listed file through the backend and moves it to the top of the list', async () => {
@@ -300,7 +304,12 @@ describe('open recent', () => {
     await store.open()
     delete files['first.test']
 
-    await expect(store.openRecent('first.test')).rejects.toThrow('first.test can no longer be opened')
+    await expect(store.openRecent('first.test')).rejects.toMatchObject({
+      name: 'DocumentError',
+      code: 'file-gone',
+      message: 'first.test can no longer be opened from the recent list: it was deleted. Use Open instead.',
+      cause: new Error('not found'),
+    })
     expect(loaded).toHaveLength(1)
     expect(store.fileName.value).toBe('first.test')
     expect(store.recentFiles.value).toEqual([])
@@ -322,7 +331,7 @@ describe('open recent', () => {
   it('a backend without reopen cannot offer recent files', async () => {
     const store = createDocumentStore(docOptions({}))
     expect(store.canReopenRecent).toBe(false)
-    await expect(store.openRecent('anything.test')).rejects.toThrow('can no longer be opened')
+    await expect(store.openRecent('anything.test')).rejects.toMatchObject({ code: 'file-gone', message: expect.stringContaining('can no longer be opened') })
   })
 })
 
@@ -389,11 +398,11 @@ describe('createTauriBackend', () => {
     expect(disk).toEqual({})
   })
 
-  it('reopens by path without a dialog, and a path that is gone or out of scope is null', async () => {
+  it('reopens by path without a dialog, and a path that is gone or out of scope rejects as gone with the reason', async () => {
     const fake = fakeTauriFiles({ '/Users/me/a.wledgraph': 'one' })
     const backend = createTauriBackend(fake.load)
     expect(await backend.reopen!('/Users/me/a.wledgraph')).toEqual({ handle: { name: 'a.wledgraph', path: '/Users/me/a.wledgraph' }, text: 'one' })
-    expect(await backend.reopen!('/Users/me/gone.wledgraph')).toBeNull()
+    await expect(backend.reopen!('/Users/me/gone.wledgraph')).rejects.toMatchObject({ code: 'file-gone', cause: new Error('forbidden path: /Users/me/gone.wledgraph') })
     expect(fake.dialogs).toEqual([])
   })
 

@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
-import { log } from '@/lib/app/logs'
+import { log, report } from '@/lib/app/logs'
+import { EngineError } from './engine-error'
 
 export interface LibraryImage {
   /** What nodes store. The file name it was added under; stays the same when the image is renamed. */
@@ -39,7 +40,7 @@ export class ImageLibrary {
   constructor() {
     this.ready = store<{ id: string; name: string; blob: Blob }[]>('readonly', (s) => s.getAll())
       .then((saved) => saved.forEach((image) => this.images.push({ ...image, url: URL.createObjectURL(image.blob) })))
-      .catch(() => undefined)
+      .catch((cause) => report(new EngineError('media-store', 'The images of earlier visits could not be loaded', cause)))
   }
 
   get(id: string): LibraryImage | undefined {
@@ -59,9 +60,9 @@ export class ImageLibrary {
   /** Downloads an image into the library. The server has to allow cross-origin reads, or the browser refuses. */
   async addFromUrl(url: string): Promise<LibraryImage> {
     const response = await fetch(url)
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+    if (!response.ok) throw new EngineError('image-fetch', `${response.status} ${response.statusText}`)
     const blob = await response.blob()
-    if (!blob.type.startsWith('image/')) throw new Error(`that is ${blob.type || 'not an image'}`)
+    if (!blob.type.startsWith('image/')) throw new EngineError('not-an-image', `that is ${blob.type || 'not an image'}`)
     return this.add(blob, decodeURIComponent(new URL(url).pathname.split('/').pop() || 'linked image'))
   }
 
@@ -69,7 +70,7 @@ export class ImageLibrary {
     const image = this.get(id)
     if (!image?.blob || !name.trim()) return
     image.name = name.trim()
-    await store('readwrite', (s) => s.put({ id, name: image.name, blob: image.blob })).catch(() => undefined)
+    await store('readwrite', (s) => s.put({ id, name: image.name, blob: image.blob })).catch((cause) => report(new EngineError('media-store', `The new name of ${image.name} could not be kept`, cause)))
   }
 
   async remove(id: string) {
@@ -77,6 +78,6 @@ export class ImageLibrary {
     if (index < 0) return
     URL.revokeObjectURL(this.images[index].url)
     this.images.splice(index, 1)
-    await store('readwrite', (s) => s.delete(id)).catch(() => undefined)
+    await store('readwrite', (s) => s.delete(id)).catch((cause) => report(new EngineError('media-store', `${id} could not be removed for good and may come back`, cause)))
   }
 }

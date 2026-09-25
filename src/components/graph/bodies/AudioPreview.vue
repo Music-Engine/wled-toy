@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import DropdownField from '@/components/graph/ui/DropdownField.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { systemAudioBlocked } from '@/lib/audio/service'
+import { report } from '@/lib/app/logs'
 
 // every node body gets these; this one reads the shared audio service instead
 defineProps<{ nodeId: string; values: Record<string, unknown> }>()
@@ -63,7 +64,7 @@ function draw() {
 onMounted(() => {
   observer = new IntersectionObserver(([entry]) => (visible = entry.isIntersecting))
   observer.observe(canvas.value!)
-  void audio.refreshDevices().catch(() => undefined)
+  void audio.refreshDevices().catch((e) => report(e, 'Audio inputs could not be listed'))
   raf = requestAnimationFrame(draw)
 })
 onBeforeUnmount(() => {

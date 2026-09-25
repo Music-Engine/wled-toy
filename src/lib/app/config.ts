@@ -70,7 +70,7 @@ export function sanitize(input: unknown): Partial<AppConfig> {
   return out
 }
 
-export const config = reactive<AppConfig>(loadStored(STORAGE_KEY, (raw) => ({ ...DEFAULTS, ...sanitize(raw) }), { ...DEFAULTS }))
+export const config = reactive<AppConfig>(loadStored(STORAGE_KEY, 'your settings', (raw) => ({ ...DEFAULTS, ...sanitize(raw) }), { ...DEFAULTS }))
 
 // host/ledCount/protocol/universe/layout live on the active saved device (src/lib/devices.ts); config mirrors it both ways
 // so every existing read and write site keeps working against `config` directly.

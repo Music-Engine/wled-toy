@@ -86,7 +86,7 @@ export function sanitizeDeviceStore(input: unknown): DeviceStore {
   return { devices, activeDeviceId }
 }
 
-const store = reactive<DeviceStore>(loadStored(STORAGE_KEY, sanitizeDeviceStore, () => sanitizeDeviceStore(null)))
+const store = reactive<DeviceStore>(loadStored(STORAGE_KEY, 'your saved devices', sanitizeDeviceStore, () => sanitizeDeviceStore(null)))
 
 let lastSerialized: string | null = localStorage.getItem(STORAGE_KEY)
 

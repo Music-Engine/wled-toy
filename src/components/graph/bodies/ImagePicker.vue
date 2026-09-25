@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import FileSelector from '@/components/graph/ui/FileSelector.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { BUILT_IN_IMAGE } from '@/lib/engine/images'
-import { log } from '@/lib/app/logs'
+import { report } from '@/lib/app/logs'
 import type { SocketValue } from '@/lib/graph'
 
 const props = defineProps<{ nodeId: string; values: Record<string, SocketValue> }>()
@@ -22,7 +22,7 @@ async function onLink(url: string) {
   try {
     emit('update', { filename: (await images.addFromUrl(url)).id })
   } catch (e) {
-    log(`Could not load that image: ${(e as Error).message}`, 'error')
+    report(e, 'Could not load that image')
   }
 }
 </script>

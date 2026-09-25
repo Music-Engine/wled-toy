@@ -68,7 +68,7 @@ export function sanitizePreferences(input: unknown): Preferences {
   return out
 }
 
-export const preferences = reactive<Preferences>(loadStored(STORAGE_KEY, sanitizePreferences, { ...PREFERENCE_DEFAULTS }))
+export const preferences = reactive<Preferences>(loadStored(STORAGE_KEY, 'your preferences', sanitizePreferences, { ...PREFERENCE_DEFAULTS }))
 
 watch(() => JSON.stringify(preferences), (serialized) => localStorage.setItem(STORAGE_KEY, serialized))
 

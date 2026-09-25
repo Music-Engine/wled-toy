@@ -10,6 +10,7 @@ import { config } from '@/lib/app/config'
 import { logs } from '@/lib/app/logs'
 import { workspace } from '@/lib/app/workspace'
 import { documentSessions } from '@/lib/documents/document-session'
+import { DocumentError } from '@/lib/documents/document-error'
 import { useEngine } from '@/lib/engine/engine'
 import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph, type GraphNodeData } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
@@ -32,7 +33,7 @@ function mount(graph: NodeGraph | null) {
   const app = createApp({
     render: () => h('div', { style: 'width: 1000px; height: 600px' }, [h(KeepAlive, null, () => h(GraphPage)), h(DropOverlay)]),
   })
-  app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null, reopen: async () => null })
+  app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null, reopen: async () => { throw new DocumentError('file-gone', 'it is gone') } })
   app.provide(routerKey, { push: async (path: string) => { pushed.push(path) } } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined

@@ -110,3 +110,27 @@ it('one ack for a batch of frames: bytes add up, the round trip is timed on its 
   expect(bridge.stats.kbps).toBeCloseTo(24, 0)
   bridge.dispose()
 })
+
+it('reports a failing link once per outage: repeated retries stay quiet until a reconnect or a new cause', async () => {
+  vi.useFakeTimers()
+  const { createBridge } = await import('./bridge-client')
+  const { logs } = await import('@/lib/app/logs')
+  const transport = fakeTransport()
+  const bridge = createBridge(config, transport.open)
+  const errors = () => logs.value.filter((entry) => entry.level === 'error').map((entry) => entry.message)
+  const before = errors().length
+  const failLatest = (cause: unknown) => {
+    transport.links.at(-1)!.handlers.onClose(cause)
+    vi.advanceTimersByTime(1500)
+  }
+  bridge.connect()
+  for (let retry = 0; retry < 3; retry++) failLatest('bridge refused')
+  expect(errors().slice(before)).toEqual(['The link to the desktop bridge failed [bridge link-failed] (cause: bridge refused)'])
+
+  transport.links.at(-1)!.handlers.onOpen()
+  failLatest('bridge refused')
+  expect(errors().slice(before)).toHaveLength(2)
+  failLatest('port in use')
+  expect(errors().slice(before)).toHaveLength(3)
+  bridge.dispose()
+})

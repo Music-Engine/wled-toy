@@ -21,8 +21,8 @@ export interface BridgeConfigMessage {
 
 export interface TransportHandlers {
   onOpen(): void
-  /** At most once, also when the link never opened. Not called after `close()`. */
-  onClose(): void
+  /** At most once, also when the link never opened. Not called after `close()`. `cause` is why the link failed, when it did. */
+  onClose(cause?: unknown): void
   onMessage(message: BridgeMessage): void
 }
 
@@ -71,11 +71,11 @@ export function tauriTransport(handlers: TransportHandlers, load: () => Promise<
   let closed = false
   let inFlight = 0
 
-  const fail = () => {
+  const fail = (cause: unknown) => {
     if (closed) return
     closed = true
     ipc = null
-    handlers.onClose()
+    handlers.onClose(cause)
   }
 
   void (async () => {
@@ -96,12 +96,13 @@ export function tauriTransport(handlers: TransportHandlers, load: () => Promise<
     sendFrame(frame) {
       if (!ipc) return
       inFlight++
-      ipc.invoke('bridge_frame', frame).then(() => inFlight--, () => { inFlight--; fail() })
+      ipc.invoke('bridge_frame', frame).then(() => inFlight--, (cause) => { inFlight--; fail(cause) })
     },
     close() {
       const open = ipc
       closed = true
       ipc = null
+      // bridge_close cannot fail on the Rust side, so a rejection only means the webview is going away with it
       void open?.invoke('bridge_close').catch(() => undefined)
     },
   }

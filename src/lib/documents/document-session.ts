@@ -1,7 +1,7 @@
 import { computed, onScopeDispose, ref, shallowReactive, shallowRef, watchEffect, type ComputedRef, type Ref, type ShallowRef } from 'vue'
 import { getCommand, registerCommands } from '@/lib/app/commands'
 import { createDocumentStore, recentId, type DocumentStore, type DocumentStoreOptions } from './documents'
-import { log } from '@/lib/app/logs'
+import { log, report } from '@/lib/app/logs'
 import { preferences } from '@/lib/app/preferences'
 import { workspace, type Mode } from '@/lib/app/workspace'
 
@@ -78,7 +78,7 @@ export function createDocumentSession<T>({ mode, ...storeOptions }: DocumentSess
       error.value = null
     } catch (e) {
       error.value = `${what} failed: ${(e as Error).message}`
-      log(error.value, 'error')
+      report(e, `${what} failed`)
     }
   }
 

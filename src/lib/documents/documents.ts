@@ -4,6 +4,8 @@ import { baseName } from '@/lib/util/files'
 import { downloadText } from '@/lib/app/download'
 import { pickFile } from '@/lib/app/pick-file'
 import { loadStored } from '@/lib/app/storage'
+import { report } from '@/lib/app/logs'
+import { DocumentError } from './document-error'
 
 declare global {
   interface Window {
@@ -36,8 +38,8 @@ export interface FileBackend<H extends FileHandle = FileHandle> {
   open(extension: string, alsoAccept?: string[]): Promise<OpenedFile<H> | null>
   save(handle: H, text: string): Promise<void>
   saveAs(text: string, suggestedName: string, extension: string): Promise<OpenedFile<H> | null>
-  /** Opens a file this backend opened or saved before, by its handle's path or else its name, without a dialog. Null when it cannot. A backend that never can leaves this out. */
-  reopen?(id: string): Promise<OpenedFile<H> | null>
+  /** Opens a file this backend opened or saved before, by its handle's path or else its name, without a dialog. Rejects with a DocumentError saying why when it cannot. A backend that never can leaves this out. */
+  reopen?(id: string): Promise<OpenedFile<H>>
 }
 
 const isAbort = (err: unknown) => err instanceof DOMException && err.name === 'AbortError'
@@ -71,22 +73,25 @@ function handleStore<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) =
   }).finally(() => db.close()))
 }
 
-// without IndexedDB (a private window) the file still opens and saves; it only cannot be reopened from the recent list
-const rememberHandle = (handle: FileSystemFileHandle) => handleStore('readwrite', (store) => store.put(handle, handle.name)).catch(() => undefined)
+// without IndexedDB (a private window) the file still opens and saves, so this is reported rather than thrown
+const rememberHandle = (handle: FileSystemFileHandle) => handleStore('readwrite', (store) => store.put(handle, handle.name))
+  .catch((cause) => report(new DocumentError('handle-not-kept', `${handle.name} will not be offered under Open Recent: the browser could not keep it`, cause)))
 
 /** Reads and writes real files on disk, with the OS's own open/save dialogs. */
 export function createFileSystemAccessBackend(kind: FileKind = GRAPH_FILES): FileBackend<FsAccessHandle> {
   return {
     async reopen(name) {
-      const handle = await handleStore<FileSystemFileHandle | undefined>('readonly', (store) => store.get(name)).catch(() => undefined)
-      if (!handle) return null
+      const handle = await handleStore<FileSystemFileHandle | undefined>('readonly', (store) => store.get(name)).catch((cause) => {
+        throw new DocumentError('file-gone', 'the browser could not look it up', cause)
+      })
+      if (!handle) throw new DocumentError('file-gone', 'the browser no longer remembers it')
       // a handle from an earlier session has lost its permission; asking again needs the click that ran the command
       const permission = (await handle.queryPermission?.({ mode: 'read' })) ?? 'granted'
-      if (permission !== 'granted' && (await handle.requestPermission?.({ mode: 'read' })) !== 'granted') return null
+      if (permission !== 'granted' && (await handle.requestPermission?.({ mode: 'read' })) !== 'granted') throw new DocumentError('permission-denied', 'reading it was not allowed')
       try {
         return { handle: { name: handle.name, handle }, text: await (await handle.getFile()).text() }
-      } catch {
-        return null
+      } catch (cause) {
+        throw new DocumentError('file-gone', 'it could not be read', cause)
       }
     },
     async open(extension, alsoAccept = []) {
@@ -166,8 +171,8 @@ export function createTauriBackend(load: () => Promise<TauriFiles> = loadTauriFi
     async reopen(path) {
       try {
         return { handle: { name: baseName(path), path }, text: await (await load()).readTextFile(path) }
-      } catch {
-        return null
+      } catch (cause) {
+        throw new DocumentError('file-gone', 'it could not be read', cause)
       }
     },
     async open(extension, alsoAccept = []) {
@@ -226,7 +231,7 @@ export interface DocumentStore<T> {
   open(): Promise<void>
   /** Opens text that came without a file to write back to (a file dropped on the window). The document takes the name, Save asks where to put it as Save As does, and the recent list leaves it out because nothing could reopen it. */
   openText(name: string, text: string): void
-  /** Opens an entry of `recentFiles` by its `recentId`. An entry the backend can no longer open is dropped from the list and the call throws. */
+  /** Opens an entry of `recentFiles` by its `recentId`. An entry the backend can no longer open is dropped from the list and the call throws a DocumentError saying why. */
   openRecent(id: string): Promise<void>
   save(): Promise<void>
   saveAs(): Promise<void>
@@ -238,12 +243,12 @@ export interface DocumentStore<T> {
 const recentKey = (kind: string) => `wledtoy:${kind}:recent`
 
 function sanitizeRecentFiles(raw: unknown): RecentFile[] {
-  if (!Array.isArray(raw)) throw new Error('the recent list is not a list')
+  if (!Array.isArray(raw)) throw new DocumentError('bad-recent-list', 'the recent list is not a list')
   return raw as RecentFile[]
 }
 
 /** The recent list a document kind stored, for a screen that shows it before that kind's store exists. */
-export const storedRecentFiles = (kind: string) => loadStored(recentKey(kind), sanitizeRecentFiles, [])
+export const storedRecentFiles = (kind: string) => loadStored(recentKey(kind), `your recent ${kind} files`, sanitizeRecentFiles, [])
 
 const RECENT_FILES_LIMIT = 10
 
@@ -342,14 +347,17 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
       clearRecovery()
     },
     async openRecent(id) {
-      const opened = await backend.reopen?.(id)
-      if (opened) {
-        load(opened)
-        return
+      let opened: OpenedFile
+      try {
+        if (!backend.reopen) throw new DocumentError('file-gone', 'this browser cannot reopen files')
+        opened = await backend.reopen(id)
+      } catch (error) {
+        if (!(error instanceof DocumentError)) throw error
+        recentFiles.value = recentFiles.value.filter((f) => recentId(f) !== id)
+        localStorage.setItem(recentKey(kind), JSON.stringify(recentFiles.value))
+        throw new DocumentError(error.code, `${baseName(id)} can no longer be opened from the recent list: ${error.message}. Use Open instead.`, error.cause)
       }
-      recentFiles.value = recentFiles.value.filter((f) => recentId(f) !== id)
-      localStorage.setItem(recentKey(kind), JSON.stringify(recentFiles.value))
-      throw new Error(`${baseName(id)} can no longer be opened from the recent list. Use Open instead.`)
+      load(opened)
     },
     async save() {
       if (!fileHandle.value) {
