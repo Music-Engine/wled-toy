@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import InspectorRow from './InspectorRow.vue'
-import InspectorSection from './InspectorSection.vue'
+import InspectorRow from '@/ui/primitives/InspectorRow.vue'
+import InspectorSection from '@/ui/primitives/InspectorSection.vue'
 import { runCommand } from '@/lib/app/commands'
 import { config, type Protocol } from '@/lib/app/config'
 import { activeDeviceId, devices } from '@/lib/app/devices'

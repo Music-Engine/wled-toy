@@ -1,0 +1,72 @@
+/* Native controls of the dock panels: 20px high so a 24px inspector row keeps 2px of air around them. In the components layer so a utility on the element (a transparent border, a width) still wins. */
+@layer components {
+  .app-button,
+  .app-field {
+    height: 20px;
+    flex-shrink: 0;
+    border: 1px solid var(--ui-border-accented);
+    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--ui-text);
+    white-space: nowrap;
+  }
+
+  .app-button:hover:not(:disabled) {
+    background: var(--app-hover);
+  }
+
+  .app-button:disabled {
+    opacity: 0.45;
+  }
+
+  .app-field {
+    background: var(--app-surface);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .app-button:focus-visible,
+  .app-field:focus-visible,
+  .app-slider:focus-visible {
+    outline: 2px solid var(--ui-primary);
+    outline-offset: 1px;
+  }
+
+  .app-slider {
+    appearance: none;
+    min-width: 0;
+    flex: 1;
+    height: 20px;
+    background: transparent;
+  }
+
+  .app-slider::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--ui-primary) var(--fill, 0%), var(--ui-bg-accented) var(--fill, 0%));
+  }
+
+  .app-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: var(--ui-text-highlighted);
+  }
+
+  .app-slider::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--ui-primary) var(--fill, 0%), var(--ui-bg-accented) var(--fill, 0%));
+  }
+
+  .app-slider::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ui-text-highlighted);
+  }
+}

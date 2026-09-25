@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PrefGroup from './PrefGroup.vue'
-import PrefRow from './PrefRow.vue'
+import PrefGroup from '@/ui/primitives/PrefGroup.vue'
+import PrefRow from '@/ui/primitives/PrefRow.vue'
 import { isEnabled, getCommand, runCommand } from '@/lib/app/commands'
 import { resetStoredData } from '@/lib/app/config'
 import { resetPreferences } from '@/lib/app/preferences'

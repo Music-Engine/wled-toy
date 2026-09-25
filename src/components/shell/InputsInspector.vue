@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import InspectorRow from './InspectorRow.vue'
-import InspectorSection from './InspectorSection.vue'
+import InspectorRow from '@/ui/primitives/InspectorRow.vue'
+import InspectorSection from '@/ui/primitives/InspectorSection.vue'
 import { systemAudioBlocked } from '@/lib/audio/service'
 import { runCommand } from '@/lib/app/commands'
 import { useEngine } from '@/lib/engine/engine'

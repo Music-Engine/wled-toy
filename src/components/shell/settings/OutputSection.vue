@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import PrefGroup from './PrefGroup.vue'
-import PrefNumber from './PrefNumber.vue'
-import PrefRow from './PrefRow.vue'
+import PrefGroup from '@/ui/primitives/PrefGroup.vue'
+import PrefNumber from '@/ui/primitives/PrefNumber.vue'
+import PrefRow from '@/ui/primitives/PrefRow.vue'
 import { config } from '@/lib/app/config'
 import { Format } from '@/lib/util/format'
 

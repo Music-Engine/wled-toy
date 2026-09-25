@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import PrefGroup from './PrefGroup.vue'
-import PrefNumber from './PrefNumber.vue'
-import PrefRow from './PrefRow.vue'
-import PrefSegmented from './PrefSegmented.vue'
-import PrefSwitch from './PrefSwitch.vue'
+import PrefGroup from '@/ui/primitives/PrefGroup.vue'
+import PrefNumber from '@/ui/primitives/PrefNumber.vue'
+import PrefRow from '@/ui/primitives/PrefRow.vue'
+import PrefSegmented from '@/ui/primitives/PrefSegmented.vue'
+import PrefSwitch from '@/ui/primitives/PrefSwitch.vue'
 import { getCommand, isChecked, runCommand } from '@/lib/app/commands'
 import { preferences } from '@/lib/app/preferences'
 

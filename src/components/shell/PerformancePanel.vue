@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import Sparkline from '@/components/panels/Sparkline.vue'
+import Sparkline from '@/ui/primitives/Sparkline.vue'
 import type { BridgeStats, HistoryKey } from '@/lib/bridge/bridge-client'
 import { Format } from '@/lib/util/format'
 
