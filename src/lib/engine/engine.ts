@@ -14,6 +14,7 @@ import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
 import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/service'
 import { loadMedia, saveMedia, clearMedia, type MediaKey } from './media-store'
 import { MidiService } from './midi'
+import { SceneFades } from './fades'
 import { EngineError } from './engine-error'
 
 type LedListener = (frame: Uint8Array) => void
@@ -30,6 +31,7 @@ class Engine {
   readonly audio = new AudioService('/assets/audio.mp3')
   readonly bridge = createBridge(config)
   readonly midi = new MidiService()
+  readonly fades = new SceneFades()
   readonly images = new ImageLibrary()
   // library ids per layer of the renderer's image array, as last uploaded
   private imageLayers: string[] = []
@@ -264,6 +266,8 @@ class Engine {
 
   // LED output runs on a timer, not rAF, so it keeps going when the tab is hidden
   private readonly ledTick = () => {
+    // before the ready check: a scene recalled while the shader does not compile still lands
+    this.fades.advance(performance.now())
     if (!this.renderer?.ready) return
     // control nodes advance on the LED clock, the one that keeps running in a hidden tab; the preview reads the same values
     const now = performance.now()

@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, type Ref } from 'vue'
 import { log } from '@/lib/app/logs'
 
 export interface MidiMessage {
@@ -70,4 +70,34 @@ export class MidiService implements MidiReader {
     this.listeners.add(listener)
     return () => this.listeners.delete(listener)
   }
+}
+
+/** A knob a controller can move; `cc` is the controller it is bound to, or -1. */
+export interface MidiKnob {
+  id: string
+  min: number
+  max: number
+  cc: number
+}
+
+/**
+ * Knobs follow their controllers: a controller message first binds the knob waiting in `learning`, if any, then moves
+ * every knob bound to it across the knob's range. `knobs` is read after the bind, so the knob just bound moves at once.
+ * Returns the unsubscribe function.
+ */
+export function bindKnobs(midi: Pick<MidiService, 'onMessage'>, { knobs, learning, set }: {
+  knobs: () => readonly MidiKnob[]
+  learning: Ref<string | null>
+  set: (id: string, patch: { cc: number } | { value: number }) => void
+}): () => void {
+  return midi.onMessage((message) => {
+    if (message.kind !== 'cc') return
+    if (learning.value) {
+      set(learning.value, { cc: message.number })
+      learning.value = null
+    }
+    for (const knob of knobs()) {
+      if (knob.cc === message.number) set(knob.id, { value: Number((knob.min + (knob.max - knob.min) * message.value).toFixed(4)) })
+    }
+  })
 }

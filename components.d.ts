@@ -24,7 +24,6 @@ declare module 'vue' {
     OutputButton: typeof import('./src/components/shell/OutputButton.vue')['default']
     OutputInspector: typeof import('./src/components/shell/OutputInspector.vue')['default']
     OutputSection: typeof import('./src/components/shell/settings/OutputSection.vue')['default']
-    ParametersPanel: typeof import('./src/components/graph/ParametersPanel.vue')['default']
     PerformancePanel: typeof import('./src/components/shell/PerformancePanel.vue')['default']
     PreviewPanel: typeof import('./src/components/panels/PreviewPanel.vue')['default']
     ReferenceEntry: typeof import('./src/components/reference/ReferenceEntry.vue')['default']

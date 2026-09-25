@@ -2,7 +2,7 @@
 import { computed, inject, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, shallowRef } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import GlslCode from '@/features/shader-editor/GlslCode.vue'
-import ParametersPanel from '@/components/graph/ParametersPanel.vue'
+import ParametersPanel from '@/features/parameters/ParametersPanel.vue'
 import { socketColor } from '@/features/node-ui/sockets'
 import CommandScope from '@/features/commands/CommandScope.vue'
 import DockContribution from '@/features/shell/dock/DockContribution.vue'

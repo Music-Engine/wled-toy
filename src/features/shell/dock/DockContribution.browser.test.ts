@@ -3,7 +3,7 @@ import { KeepAlive, createApp, defineComponent, h, markRaw, nextTick, type Compo
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import DockContribution from './DockContribution.vue'
 import GraphNode from '@/features/node-ui/GraphNode.vue'
-import ParametersPanel from '@/components/graph/ParametersPanel.vue'
+import ParametersPanel from '@/features/parameters/ParametersPanel.vue'
 import DockTabs from './DockTabs.vue'
 import ProblemsList from '@/features/graph-editor/problems/ProblemsList.vue'
 import { useEngine } from '@/lib/engine/engine'

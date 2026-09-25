@@ -5,11 +5,13 @@ import RangeField from '@/features/node-ui/fields/RangeField.vue'
 // the knob and scene rows are drawn with the node look, and this panel can be open before any node has rendered
 import '@/features/node-ui/node.css'
 import '@/features/node-ui/fields/fields.css'
+import './parameters.css'
 import InspectorRow from '@/ui/primitives/InspectorRow.vue'
 import InspectorSection from '@/ui/primitives/InspectorSection.vue'
 import { useEngine } from '@/lib/engine/engine'
+import { bindKnobs } from '@/lib/engine/midi'
 import { isTauri } from '@/lib/app/platform'
-import { captureScene, fadeScene, type GraphNodeData, type Scene, type SocketValue, type StoredNode } from '@/lib/graph'
+import { captureScene, type GraphNodeData, type Scene, type SocketValue, type StoredNode } from '@/lib/graph'
 
 const props = defineProps<{ flowId: string }>()
 const scenes = defineModel<Scene[]>('scenes', { required: true })
@@ -51,21 +53,10 @@ async function learn(id: string) {
 }
 
 // a bound controller writes into the node, so the panel, the node and the saved graph all show where the hardware is
-const stop = midi.onMessage((message) => {
-  if (message.kind !== 'cc') return
-  if (learning.value) {
-    set(learning.value, { cc: message.number })
-    learning.value = null
-  }
-  for (const knob of knobs.value) {
-    if (knob.cc === message.number) set(knob.id, { value: Number((knob.min + (knob.max - knob.min) * message.value).toFixed(4)) })
-  }
-})
+const unbind = bindKnobs(midi, { knobs: () => knobs.value, learning, set })
 
 const fadeSeconds = ref(0.5)
 const activeScene = ref<string | null>(null)
-// a timer, not requestAnimationFrame: the LEDs keep running in a hidden tab, and a fade must finish there too
-let fadeTimer: ReturnType<typeof setTimeout> | undefined
 
 function saveScene() {
   const scene = captureScene(nodes.value as unknown as StoredNode[], `Scene ${scenes.value.length + 1}`)
@@ -73,18 +64,10 @@ function saveScene() {
   activeScene.value = scene.id
 }
 
-/** Moves every knob to the scene over `seconds`. A new recall takes over from wherever the last one had got to. */
 function recall(scene: Scene, seconds = fadeSeconds.value) {
-  clearTimeout(fadeTimer)
   activeScene.value = scene.id
   const from = Object.fromEntries(knobs.value.map((k) => [k.id, k.value]))
-  const started = performance.now()
-  const tick = () => {
-    const t = seconds <= 0 ? 1 : (performance.now() - started) / 1000 / seconds
-    for (const [id, value] of Object.entries(fadeScene(from, scene, t))) set(id, { value })
-    if (t < 1) fadeTimer = setTimeout(tick, 16)
-  }
-  tick()
+  engine.fades.start(from, scene, seconds, (id, value) => set(id, { value }), performance.now())
 }
 
 // a Scene Switch node asks for a scene by index; act when the index it puts out changes
@@ -99,9 +82,8 @@ const switchPoll = setInterval(() => {
 }, 1000 / 30)
 
 onBeforeUnmount(() => {
-  stop()
+  unbind()
   clearInterval(switchPoll)
-  clearTimeout(fadeTimer)
 })
 </script>
 
@@ -139,11 +121,3 @@ onBeforeUnmount(() => {
     </InspectorSection>
   </div>
 </template>
-
-<style>
-.nui-parameters .nui-field { flex: 1; }
-.nui-parameters-learn { flex: none; min-width: 4.5em; border-right: 0; border-radius: var(--nui-radius); }
-.nui-scene-recall { flex: none; border-right: 0; border-radius: var(--nui-radius); }
-.nui-scene-recall.is-active { background: var(--nui-accent); }
-.nui-scene-save { flex: none; border-right: 0; border-radius: var(--nui-radius); }
-</style>
