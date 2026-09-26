@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { Text } from '@codemirror/state'
-import { parseGlslErrors, toDiagnostics } from './glsl-language'
+import { parseGlslErrors, toDiagnostics } from './glsl-diagnostics'
 
 const LOG = "ERROR: 0:3: 'foo' : undeclared identifier\nERROR: 0:7: syntax error \n"
 

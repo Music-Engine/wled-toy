@@ -2,7 +2,7 @@ import { computed, provide, type Ref } from 'vue'
 import { graphIssuesKey } from '@/features/node-ui/graph-context'
 import type { GraphEditSession } from '@/lib/documents/graph-session'
 import type { GraphIssue } from '@/lib/graph'
-import { parseGlslErrors } from '@/lib/shader/glsl-language'
+import { parseGlslErrors } from '@/lib/shader/glsl-diagnostics'
 
 /**
  * Every problem the graph has, first to last: the document's own (a failed open or save), the compiler's error and issues,
