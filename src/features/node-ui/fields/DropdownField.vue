@@ -112,7 +112,7 @@ onBeforeUnmount(() => listen(false))
 </script>
 
 <template>
-  <div ref="root" class="nui-dropdown nodrag nowheel" :class="{ 'is-open': open }" @keydown="onKeydown">
+  <div ref="root" class="nui-dropdown nodrag" :class="{ 'is-open': open }" @keydown="onKeydown">
     <button type="button" class="nui-dropdown-button" role="combobox" :aria-expanded="open" :aria-label="label" @click="open = !open">
       <span class="nui-label">{{ selected?.label ?? modelValue }}</span>
       <svg viewBox="0 0 10 10"><path d="M2 3.5l3 3 3-3" /></svg>

@@ -25,7 +25,7 @@ const contrast = (c: number[]) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
 </script>
 
 <template>
-  <div class="nui-gradient nodrag nowheel">
+  <div class="nui-gradient nodrag">
     <div class="nui-inline">
       <div class="nui-button-group">
         <button type="button" class="nui-button" aria-label="Add stop" @click="addStop()">

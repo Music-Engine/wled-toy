@@ -189,13 +189,29 @@ it('a pinch, which is a trackpad scroll with Ctrl set, zooms', async () => {
   expect(flowPointAt(at).x).toBeCloseTo(under.x, 3)
 })
 
-it('the wheel over a field that uses it leaves the view alone', async () => {
+it('a mouse wheel over a field in a node zooms around the cursor as it does over the pane', async () => {
   mount(null)
   await expect.poll(() => flow().fitViewOnInitDone.value).toBe(true)
-  await expect.poll(() => document.querySelector('.vue-flow__node .nowheel')).not.toBeNull()
+  const range = '.vue-flow__node .nui-field[role="spinbutton"]'
+  await expect.poll(() => document.querySelector(range)).not.toBeNull()
   const before = view()
-  const field = rectOf('.vue-flow__node .nowheel')
-  await wheel({ x: field.left + field.width / 2, y: field.top + field.height / 2 }, 0, -100)
+  const field = rectOf(range)
+  const at = { x: Math.round(field.left + field.width / 2), y: Math.round(field.top + field.height / 2) }
+  const under = flowPointAt(at)
+  await wheel(at, 0, -100)
+  await expect.poll(() => view().zoom).toBeCloseTo(before.zoom * 1.2, 5)
+  expect(flowPointAt(at).x).toBeCloseTo(under.x, 3)
+  expect(flowPointAt(at).y).toBeCloseTo(under.y, 3)
+})
+
+it('the wheel over an open file list, which scrolls itself, leaves the view alone', async () => {
+  mount({ ...createDefaultGraph(), nodes: [node('a', 'imageTexture', 0, 0)], edges: [], scenes: [] })
+  await ready(1)
+  document.querySelector<HTMLElement>('.vue-flow__node .nui-file-browse')!.click()
+  await expect.poll(() => document.querySelector('.vue-flow__node .nui-file-list')).not.toBeNull()
+  const before = view()
+  const list = rectOf('.vue-flow__node .nui-file-list')
+  await wheel({ x: Math.round(list.left + list.width / 2), y: Math.round(list.top + list.height / 2) }, 0, -100)
   await new Promise((resolve) => setTimeout(resolve, 100))
   expect(view()).toEqual(before)
 })

@@ -29,7 +29,7 @@ const { editing, pressed, invalid, text, display, fill, set, commit, onPointerDo
 
 <template>
   <div
-    class="nui-field nodrag nowheel"
+    class="nui-field nodrag"
     :class="{ 'is-pressed': pressed, 'is-invalid': invalid }"
     role="spinbutton"
     :aria-label="label"

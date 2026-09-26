@@ -10,6 +10,7 @@ export function useWheelZoom(flow: VueFlowStore, el: Ref<HTMLElement | undefined
 
   function onWheel(e: WheelEvent) {
     const target = e.target as Element
+    // nowheel marks content that scrolls itself inside the viewport
     if (!target.closest('.vue-flow__viewport') || target.closest('.nowheel')) return
     e.preventDefault()
     gesture = classifyWheel(e as WheelEvent & { wheelDeltaY?: number }, gesture)

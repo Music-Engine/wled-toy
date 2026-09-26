@@ -77,7 +77,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', closeOnOutside
 </script>
 
 <template>
-  <div ref="root" class="nui-file nodrag nowheel" :class="{ 'is-open': open }" :title="label" @keydown.esc="open = false">
+  <div ref="root" class="nui-file nodrag" :class="{ 'is-open': open }" :title="label" @keydown.esc="open = false">
     <input ref="upload" type="file" :accept="accept" multiple hidden @change="onUpload">
     <div class="nui-button-group">
       <button type="button" class="nui-button nui-file-browse" :aria-label="`Browse ${label}`" :aria-expanded="open" @click="open ? (open = false) : show(false)">
@@ -109,7 +109,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', closeOnOutside
     </div>
 
     <div v-if="open" class="nui-file-menu">
-      <div v-if="!linking" class="nui-file-list" role="listbox">
+      <div v-if="!linking" class="nui-file-list nowheel" role="listbox">
         <div
           v-for="file in shown"
           :key="file.id"
