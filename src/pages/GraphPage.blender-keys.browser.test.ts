@@ -120,6 +120,10 @@ it('Cmd+X, as a key or as the native Cut item\'s cut event, dissolves the select
   await select('lift').then(settle)
   document.dispatchEvent(new ClipboardEvent('cut', { bubbles: true, cancelable: true }))
   await expect.poll(() => [flow.findNode('lift'), linked('bass', 'mix')]).toEqual([undefined, true])
+  // dissolving copies nothing, so a paste stays with the browser
+  const paste = new ClipboardEvent('paste', { bubbles: true, cancelable: true })
+  document.dispatchEvent(paste)
+  expect(paste.defaultPrevented).toBe(false)
 })
 
 it('F links the selected nodes left to right through a free socket', async () => {
