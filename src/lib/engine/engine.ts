@@ -1,8 +1,6 @@
 import { ref, watch } from 'vue'
 import { config } from '@/lib/app/config'
 import { log, report } from '@/lib/app/logs'
-import { checkTrackFile } from '@/lib/audio/track-file'
-import { Format } from '@/lib/util/format'
 import { ShaderRenderer, type FrameParams } from './renderer'
 import { AudioService, systemAudioBlocked } from '@/lib/audio/service'
 import { createBridge } from '@/lib/bridge/bridge-client'
@@ -12,10 +10,9 @@ import { DEFAULT_OUTPUT, LedPostProcess, type OutputSettings } from './output'
 import { preferences } from '@/lib/app/preferences'
 import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
 import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/service'
-import { loadMedia, saveMedia, clearMedia, type MediaKey } from './media-store'
 import { MidiService } from './midi'
 import { SceneFades } from './fades'
-import { EngineError } from './engine-error'
+import { EngineMedia } from './engine-media'
 
 type LedListener = (frame: Uint8Array) => void
 
@@ -33,8 +30,11 @@ class Engine {
   readonly midi = new MidiService()
   readonly fades = new SceneFades()
   readonly images = new ImageLibrary()
-  // library ids per layer of the renderer's image array, as last uploaded
-  private imageLayers: string[] = []
+  private readonly media = new EngineMedia(this.audio, this.images, () => this.renderer)
+  /** Name of the image the shader samples, for the UI. */
+  readonly imageName = this.media.imageName
+  /** What happened to the last track the user picked, for the places that offer the choice. */
+  readonly trackStatus = this.media.trackStatus
 
   private renderer: ShaderRenderer | null = null
   private readonly listeners = new Set<LedListener>()
@@ -57,10 +57,7 @@ class Engine {
       report(e)
     }
 
-    this.showImage('/assets/image.jpg')
-    // the user's own song and image from an earlier visit, when there are any
-    void loadMedia('image').then((stored) => stored && this.useImage(stored, false)).catch((cause) => report(new EngineError('media-store', 'Your image from the last visit could not be loaded', cause)))
-    void loadMedia('song').then((stored) => stored && this.useSong(stored, false)).catch((cause) => report(new EngineError('media-store', 'Your song from the last visit could not be loaded', cause)))
+    this.media.restore()
     void this.audio.configure({ source: preferences.audioSource === 'loopback' && systemAudioBlocked() ? 'file' : preferences.audioSource })
 
     this.bridge.connect()
@@ -100,86 +97,19 @@ class Engine {
     const [source] = (plan.resources.audioSource ?? []) as AudioSourceRequest[]
     if (source) void this.audio.configure(source)
     this.audio.setAnalyses((plan.resources.analysis ?? []) as AnalysisSettings[])
-    void this.showImages((plan.resources.image ?? []) as string[])
+    void this.media.showImages((plan.resources.image ?? []) as string[])
     const [oscPort = 0] = (plan.resources.osc ?? []) as number[]
     this.bridge.listenOsc(oscPort)
     // asking for MIDI shows a permission prompt, so it waits until a graph actually uses it
     if (plan.steps.some((step) => step.kind === 'midiIn')) void this.midi.enable()
   }
 
-  /** Decodes the images a graph's Image Texture nodes picked into the renderer's layers; only layers that changed are redone. */
-  private async showImages(ids: string[]) {
-    await this.images.ready
-    ids.forEach((id, layer) => {
-      if (this.imageLayers[layer] === id) return
-      const image = this.images.get(id)
-      if (!image) return log(`Image "${id}" is not in the library any more; open it again on its node`, 'warn')
-      this.imageLayers[layer] = id
-      const element = new Image()
-      element.onload = () => this.imageLayers[layer] === id && this.renderer?.setImageLayer(layer, element)
-      element.onerror = () => log(`${image.name} could not be read as an image`, 'error')
-      element.src = image.url
-    })
+  useImage(file: { blob: Blob; name: string } | null, remember = true) {
+    return this.media.useImage(file, remember)
   }
 
-  /** Name of the image the shader samples, for the UI. */
-  readonly imageName = ref('Built-in image')
-
-  /** Uses this picture as the image texture and remembers it for the next visit; null restores the built-in one. */
-  async useImage(file: { blob: Blob; name: string } | null, remember = true) {
-    const url = file ? URL.createObjectURL(file.blob) : '/assets/image.jpg'
-    this.showImage(url, () => file && URL.revokeObjectURL(url))
-    this.imageName.value = file?.name ?? 'Built-in image'
-    if (remember) await this.remember('image', file)
-  }
-
-  /** Plays this song as the audio file source and remembers it; null restores the built-in track. */
-  /** What happened to the last track the user picked, for the places that offer the choice. */
-  readonly trackStatus = ref<{ level: 'info' | 'error'; message: string } | null>(null)
-
-  /** Swaps the track now and, with `remember`, keeps it for the next launch. False when the file is not playable audio. */
-  async useSong(file: { blob: Blob; name: string } | null, remember = true): Promise<boolean> {
-    if (file && remember) {
-      const check = await checkTrackFile(file)
-      if (!check.ok) {
-        this.trackStatus.value = { level: 'error', message: `${check.reason} The track was not changed.` }
-        log(check.reason, 'error')
-        return false
-      }
-      await this.audio.setFile(file)
-      await this.remember('song', file)
-      const playing = this.audio.state.playing && this.audio.state.settings.source === 'file'
-      this.trackStatus.value = { level: 'info', message: `${file.name} (${Format.duration(check.seconds)}) is the default track now and at every launch. ${playing ? 'It is playing.' : 'It starts when you press Play.'}` }
-      return true
-    }
-    await this.audio.setFile(file)
-    if (remember) {
-      await this.remember('song', file)
-      this.trackStatus.value = { level: 'info', message: 'Back to the built-in track, now and at every launch.' }
-    }
-    return true
-  }
-
-  private async remember(key: MediaKey, file: { blob: Blob; name: string } | null) {
-    try {
-      await (file ? saveMedia(key, file) : clearMedia(key))
-    } catch (e) {
-      log(`Could not keep the ${key} for next time: ${(e as Error).message}`, 'warn')
-    }
-  }
-
-  private showImage(url: string, done?: () => void) {
-    const img = new Image()
-    img.onload = () => {
-      this.renderer?.setImage(img)
-      log(`Image texture loaded (${img.width}x${img.height})`)
-      done?.()
-    }
-    img.onerror = () => {
-      log('That file could not be read as an image', 'error')
-      done?.()
-    }
-    img.src = url
+  useSong(file: { blob: Blob; name: string } | null, remember = true): Promise<boolean> {
+    return this.media.useSong(file, remember)
   }
 
   /** How frames are finished and sent. A graph passes its Output node's settings; null goes back to plain Settings. */
