@@ -1,6 +1,6 @@
 import { config } from '@/lib/app/config'
 import { documentSessions } from '@/lib/documents/document-session'
-import { SHADER_FILES, createBrowserBackend, createTauriBackend, type FileBackend } from '@/lib/documents/documents'
+import { SHADER_FILES, createBrowserBackend, createTauriBackend, type FileBackend } from '@/lib/documents/file-backends'
 import { useEngine } from '@/lib/engine/engine'
 import { ref } from 'vue'
 import { createDefaultGraph, generateGlsl, normalizeDoc, type FrozenValue, type NodeGraph } from '@/lib/graph'

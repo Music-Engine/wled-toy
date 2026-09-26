@@ -4,7 +4,7 @@ import ShaderPage from './ShaderPage.vue'
 import TitleBar from '@/features/shell/TitleBar.vue'
 import { installKeyDispatcher, isMac, runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
-import type { FileBackend } from '@/lib/documents/documents'
+import type { FileBackend } from '@/lib/documents/file-backends'
 import { shaderFileBackendKey } from '@/lib/shader/shader-document'
 import { dockHost, workspace } from '@/lib/app/workspace'
 

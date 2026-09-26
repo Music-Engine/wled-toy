@@ -1,6 +1,6 @@
 import { computed, type InjectionKey } from 'vue'
 import { createDocumentSession, documentSessions, type DocumentSession } from '@/lib/documents/document-session'
-import type { FileBackend } from '@/lib/documents/documents'
+import type { FileBackend } from '@/lib/documents/file-backends'
 import { canonical, createDefaultGraph, type NodeGraph } from './doc'
 import { log } from '@/lib/app/logs'
 import { GRAPH_FILE_EXTENSION, readGraphFile, serializeGraphFile } from './file'

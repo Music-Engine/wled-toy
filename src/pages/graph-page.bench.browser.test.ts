@@ -12,7 +12,7 @@ import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { preferences, resetPreferences } from '@/lib/app/preferences'
 import { workspace } from '@/lib/app/workspace'
-import type { FileBackend } from '@/lib/documents/documents'
+import type { FileBackend } from '@/lib/documents/file-backends'
 import type { GraphNodeData } from '@/lib/graph'
 
 const RUN = import.meta.env.VITE_BENCH_UI === '1'
