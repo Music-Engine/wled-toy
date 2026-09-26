@@ -1,5 +1,5 @@
-import { AppError } from './app-error'
-import { report } from './logs'
+import { AppError } from '@/lib/app/app-error'
+import { report } from '@/lib/app/logs'
 import { onStorageFailure } from './storage'
 
 /** Tells the user, once per key, that what was stored under it was unreadable and is back to its defaults. */

@@ -1,5 +1,5 @@
 import { reactive, ref, watch } from 'vue'
-import { loadStored } from './storage'
+import { loadStored } from '@/lib/app/settings/storage'
 
 export type DockId = 'right' | 'bottom'
 export type Mode = 'shader' | 'graph' | 'reference'

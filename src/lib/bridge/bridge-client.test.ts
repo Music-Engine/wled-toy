@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import type { AppConfig } from '@/lib/app/config'
+import type { AppConfig } from '@/lib/app/settings/config'
 import type { BridgeConfigMessage, BridgeTransport, TransportHandlers } from './bridge-transport'
 
 // preferences.ts reads storage at import time

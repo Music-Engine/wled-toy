@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { applyDrop, classifyFile, dragHint, isConfigExport, isGraphEnvelope, planDrop, type DropTargets } from './file-drop'
-import { logs } from './logs'
-import { launchScreen } from './preferences'
-import type { Mode } from './workspace'
+import { logs } from '@/lib/app/logs'
+import { launchScreen } from '@/lib/app/settings/preferences'
+import type { Mode } from '@/lib/app/workspace'
 
 const file = (name: string, type = '') => ({ name, type })
 

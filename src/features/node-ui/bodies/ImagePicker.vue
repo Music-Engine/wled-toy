@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import FileSelector from '@/features/node-ui/fields/FileSelector.vue'
 import { useEngine } from '@/lib/engine/engine'
-import { BUILT_IN_IMAGE } from '@/lib/engine/images'
+import { BUILT_IN_IMAGE } from '@/lib/engine/media/images'
 import { report } from '@/lib/app/logs'
 import type { SocketValue } from '@/lib/graph'
 import '@/features/node-ui/node.css'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
-import type { DocumentSession, PromptChoice } from '@/lib/documents/document-session'
+import type { DocumentSession, PromptChoice } from '@/lib/documents/sessions/document-session'
 
 const props = defineProps<{ document: DocumentSession<unknown> }>()
 

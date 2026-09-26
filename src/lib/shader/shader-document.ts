@@ -1,7 +1,7 @@
 import type { InjectionKey } from 'vue'
-import { config } from '@/lib/app/config'
-import { createDocumentSession, type DocumentSession } from '@/lib/documents/document-session'
-import type { FileBackend } from '@/lib/documents/file-backends'
+import { config } from '@/lib/app/settings/config'
+import { createDocumentSession, type DocumentSession } from '@/lib/documents/sessions/document-session'
+import type { FileBackend } from '@/lib/documents/files/file-backends'
 
 /** Provide a backend under this key (a native one under Tauri, a fake in tests) and the shader page uses it instead of the browser's. */
 export const shaderFileBackendKey: InjectionKey<FileBackend> = Symbol('shaderFileBackend')

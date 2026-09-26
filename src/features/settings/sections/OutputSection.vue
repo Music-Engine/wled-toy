@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import PrefGroup from '@/ui/primitives/PrefGroup.vue'
 import PrefNumber from '@/ui/primitives/PrefNumber.vue'
 import PrefRow from '@/ui/primitives/PrefRow.vue'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { Format } from '@/lib/util/format'
 
 const fpsError = ref<string | null>(null)

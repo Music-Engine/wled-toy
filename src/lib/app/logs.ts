@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { AppError } from './app-error'
-import { copyText } from './clipboard'
-import { preferences } from './preferences'
+import { copyText } from '@/lib/app/files/clipboard'
+import { preferences } from '@/lib/app/settings/preferences'
 
 export type LogLevel = 'info' | 'warn' | 'error'
 

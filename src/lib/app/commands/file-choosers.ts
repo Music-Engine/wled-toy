@@ -1,9 +1,9 @@
-import { importConfig } from './config'
+import { importConfig } from '@/lib/app/settings/config'
 import { useEngine } from '@/lib/engine/engine'
-import { log, report } from './logs'
-import { pickFile } from './pick-file'
-import { isTauri } from './platform'
-import { loadTauriFiles } from '@/lib/documents/tauri-files'
+import { log, report } from '@/lib/app/logs'
+import { pickFile } from '@/lib/app/files/pick-file'
+import { isTauri } from '@/lib/app/platform'
+import { loadTauriFiles } from '@/lib/documents/files/tauri-files'
 import { baseName } from '@/lib/util/files'
 
 export async function chooseSong() {

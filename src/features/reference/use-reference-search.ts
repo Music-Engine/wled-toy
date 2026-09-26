@@ -1,5 +1,5 @@
 import { computed, nextTick, onActivated, ref, watch } from 'vue'
-import { copyText } from '@/lib/app/clipboard'
+import { copyText } from '@/lib/app/files/clipboard'
 import { CATEGORIES, NODES, nodeByName, type ShaderNode } from '@/lib/shader/catalog'
 import { matchNodes, referenceCategories, referenceSections } from '@/lib/shader/reference-search'
 

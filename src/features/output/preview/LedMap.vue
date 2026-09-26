@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useEngine } from '@/lib/engine/engine'
-import { layoutPositions, type Layout, type Segment } from '@/lib/engine/layout'
+import { layoutPositions, type Layout, type Segment } from '@/lib/engine/output/layout'
 import { SEEN } from './led-colors'
 
 const props = defineProps<{ layout: Layout }>()

@@ -2,10 +2,10 @@
 import { onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { until } from '@vueuse/core'
-import { importData } from '@/lib/app/config'
-import { applyDrop, dragHint, graphImageDrop, planDrop, type DropTargets } from '@/lib/app/file-drop'
+import { importData } from '@/lib/app/settings/config'
+import { applyDrop, dragHint, graphImageDrop, planDrop, type DropTargets } from '@/lib/app/files/file-drop'
 import { workspace } from '@/lib/app/workspace'
-import { documentSessions } from '@/lib/documents/document-session'
+import { documentSessions } from '@/lib/documents/sessions/document-session'
 import { useEngine } from '@/lib/engine/engine'
 
 const router = useRouter()

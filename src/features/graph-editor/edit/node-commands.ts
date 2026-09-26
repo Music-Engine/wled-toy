@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import type { VueFlowStore } from '@vue-flow/core'
 import { duplicateSelection } from '@/features/graph-editor/clipboard/use-node-clipboard'
-import type { GraphEditSession } from '@/lib/documents/graph-session'
+import type { GraphEditSession } from '@/lib/documents/sessions/graph-session'
 import { invertSelection, linkSelected, selectLinked, toggleMute, toggleShared } from './node-edits'
 
 interface NodeCommandTargets {

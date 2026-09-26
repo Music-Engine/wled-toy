@@ -1,8 +1,8 @@
 import { computed, reactive, ref, watch } from 'vue'
-import { activeDevice, addDevice, devices, duplicateDevice, removeDevice, updateDevice, type SavedDevice } from '@/lib/app/devices'
+import { activeDevice, addDevice, devices, duplicateDevice, removeDevice, updateDevice, type SavedDevice } from '@/lib/app/settings/devices'
 import { useEngine } from '@/lib/engine/engine'
 import { EngineError } from '@/lib/engine/engine-error'
-import { layoutCount, layoutKind, layoutSummary, onlySegment, parseLayout, parseLayoutJson, presetLayout, type Layout, type LayoutKind, type Segment } from '@/lib/engine/layout'
+import { layoutCount, layoutKind, layoutSummary, onlySegment, parseLayout, parseLayoutJson, presetLayout, type Layout, type LayoutKind, type Segment } from '@/lib/engine/output/layout'
 
 /** The device the settings form edits, its inline field errors, and the connection line of the active device. */
 export function useDeviceForm() {

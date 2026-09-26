@@ -1,4 +1,4 @@
-import { isMac } from './platform'
+import { isMac } from '@/lib/app/platform'
 
 export interface Accelerator {
   mod: boolean

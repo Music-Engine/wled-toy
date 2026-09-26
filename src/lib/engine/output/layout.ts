@@ -1,4 +1,4 @@
-import { EngineError } from './engine-error'
+import { EngineError } from '@/lib/engine/engine-error'
 
 /** Where each LED sits, in the 0..1 space the shader draws in (x right, y up), in wire order. */
 export type Segment =

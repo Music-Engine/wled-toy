@@ -1,7 +1,7 @@
 import { afterEach, expect, it } from 'vitest'
 import { KeepAlive, createApp, h, nextTick } from 'vue'
 import ReferencePage from './ReferencePage.vue'
-import { setClipboardWriter } from '@/lib/app/clipboard'
+import { setClipboardWriter } from '@/lib/app/files/clipboard'
 import { installKeyDispatcher, isMac } from '@/lib/app/commands'
 import { workspace } from '@/lib/app/workspace'
 import { CATEGORIES, NODES } from '@/lib/shader/catalog'

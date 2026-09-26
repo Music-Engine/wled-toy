@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
 import { useVueFlow } from '@vue-flow/core'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { createDefaultGraph, type GraphNodeData } from '@/lib/graph'
 import { resetLayout, workspace } from '@/lib/app/workspace'
 import { mountGraphPage } from '@/test/graph-page'

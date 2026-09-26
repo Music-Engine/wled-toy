@@ -3,8 +3,8 @@ import { userEvent } from 'vitest/browser'
 import { createApp, h, nextTick } from 'vue'
 import SettingsView from './SettingsView.vue'
 import { formatAccelerator } from '@/lib/app/commands'
-import { activeDevice, devices, removeDevice, setActiveDevice, updateDevice } from '@/lib/app/devices'
-import { applyPreferences, openSettings, preferences, resetPreferences, settingsView } from '@/lib/app/preferences'
+import { activeDevice, devices, removeDevice, setActiveDevice, updateDevice } from '@/lib/app/settings/devices'
+import { applyPreferences, openSettings, preferences, resetPreferences, settingsView } from '@/lib/app/settings/preferences'
 
 let unmount: (() => void) | undefined
 afterEach(async () => {

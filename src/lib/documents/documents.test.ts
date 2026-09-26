@@ -2,8 +2,8 @@ import { nextTick, reactive } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDocumentStore, type DocumentStoreOptions } from './documents'
 import { DocumentError } from './document-error'
-import { createTauriBackend, type FileBackend } from './file-backends'
-import type { FileFilter, TauriFiles } from './tauri-files'
+import { createTauriBackend, type FileBackend } from '@/lib/documents/files/file-backends'
+import type { FileFilter, TauriFiles } from '@/lib/documents/files/tauri-files'
 
 interface Doc {
   text: string

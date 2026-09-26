@@ -9,7 +9,7 @@ import PrefSwitch from '@/ui/primitives/PrefSwitch.vue'
 import { systemAudioBlocked } from '@/lib/audio/settings'
 import { runCommand } from '@/lib/app/commands'
 import { useEngine } from '@/lib/engine/engine'
-import { preferences } from '@/lib/app/preferences'
+import { preferences } from '@/lib/app/settings/preferences'
 
 const errors = reactive<Record<string, string | null>>({})
 const audio = useEngine().audio.state

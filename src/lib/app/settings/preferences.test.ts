@@ -118,7 +118,7 @@ describe('launch mode', () => {
 describe('log retention', () => {
   it('the log keeps as many lines as the preference says', async () => {
     const { preferences } = await load()
-    const { log, logs } = await import('./logs')
+    const { log, logs } = await import('@/lib/app/logs')
     preferences.logLines = 50
     for (let i = 0; i < 60; i++) log(`line ${i}`)
     expect(logs.value).toHaveLength(50)

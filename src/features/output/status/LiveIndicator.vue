@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEngine } from '@/lib/engine/engine'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 
 const { stats } = useEngine().bridge
 </script>

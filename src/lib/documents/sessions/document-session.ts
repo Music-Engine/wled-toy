@@ -1,8 +1,8 @@
 import { computed, onScopeDispose, ref, shallowReactive, shallowRef, watchEffect, type ComputedRef, type Ref, type ShallowRef } from 'vue'
 import { getCommand, registerCommands } from '@/lib/app/commands'
-import { createDocumentStore, recentId, type DocumentStore, type DocumentStoreOptions } from './documents'
+import { createDocumentStore, recentId, type DocumentStore, type DocumentStoreOptions } from '@/lib/documents/documents'
 import { log, report } from '@/lib/app/logs'
-import { preferences } from '@/lib/app/preferences'
+import { preferences } from '@/lib/app/settings/preferences'
 import { workspace, type Mode } from '@/lib/app/workspace'
 
 export type PromptChoice = 'save' | 'discard' | 'cancel' | 'recover'

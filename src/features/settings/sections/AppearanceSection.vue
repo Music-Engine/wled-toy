@@ -6,7 +6,7 @@ import PrefRow from '@/ui/primitives/PrefRow.vue'
 import PrefSegmented from '@/ui/primitives/PrefSegmented.vue'
 import PrefSwitch from '@/ui/primitives/PrefSwitch.vue'
 import { getCommand, isChecked, runCommand } from '@/lib/app/commands'
-import { preferences } from '@/lib/app/preferences'
+import { preferences } from '@/lib/app/settings/preferences'
 
 type Theme = 'light' | 'dark' | 'auto'
 

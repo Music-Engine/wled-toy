@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { ShaderRenderer } from '@/lib/engine/renderer'
+import { ShaderRenderer } from '@/lib/engine/render/renderer'
 import type { Features } from './dsp'
 import { AudioTextures, HISTORY_ROWS } from './textures'
 

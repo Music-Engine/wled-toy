@@ -8,7 +8,7 @@ import { getCommand, isEnabled, runCommand } from '@/lib/app/commands'
 import { recentId, storedRecentFiles, type RecentFile } from '@/lib/documents/documents'
 import { EXAMPLES } from '@/lib/shader/examples'
 import { activeGraphDocument } from '@/lib/graph/model/document'
-import { launchScreen, preferences } from '@/lib/app/preferences'
+import { launchScreen, preferences } from '@/lib/app/settings/preferences'
 import { version } from '@/lib/app/version'
 
 const router = useRouter()

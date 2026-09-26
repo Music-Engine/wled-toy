@@ -2,7 +2,7 @@
 import AppMenuBar from '@/features/commands/AppMenuBar.vue'
 import { useEngine } from '@/lib/engine/engine'
 import { acceleratorKbds, commandTitle, getCommand, hasNativeMenu, isEnabled, isMac, runCommand } from '@/lib/app/commands'
-import { activeDocument } from '@/lib/documents/document-session'
+import { activeDocument } from '@/lib/documents/sessions/document-session'
 import { isTauri } from '@/lib/app/platform'
 import { workspace } from '@/lib/app/workspace'
 

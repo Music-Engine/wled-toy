@@ -3,10 +3,10 @@ import { log, report } from '@/lib/app/logs'
 import type { AudioService } from '@/lib/audio/service'
 import { checkTrackFile } from '@/lib/audio/track-file'
 import { Format } from '@/lib/util/format'
-import { EngineError } from './engine-error'
+import { EngineError } from '@/lib/engine/engine-error'
 import type { ImageLibrary } from './images'
 import { loadMedia, saveMedia, clearMedia, type MediaKey } from './media-store'
-import type { ShaderRenderer } from './renderer'
+import type { ShaderRenderer } from '@/lib/engine/render/renderer'
 
 type MediaFile = { blob: Blob; name: string }
 

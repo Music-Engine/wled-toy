@@ -1,9 +1,9 @@
 import { afterEach, expect, it } from 'vitest'
 import { createApp, h, nextTick, type Component } from 'vue'
 import OutputInspector from './OutputInspector.vue'
-import { config } from '@/lib/app/config'
-import { activeDevice, addDevice, removeDevice, setActiveDevice } from '@/lib/app/devices'
-import { settingsView } from '@/lib/app/preferences'
+import { config } from '@/lib/app/settings/config'
+import { activeDevice, addDevice, removeDevice, setActiveDevice } from '@/lib/app/settings/devices'
+import { settingsView } from '@/lib/app/settings/preferences'
 
 const initial = { brightness: config.brightness, scanY: config.scanY, fps: config.fps, protocol: config.protocol, universe: config.universe, layout: config.layout }
 

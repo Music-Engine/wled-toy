@@ -1,7 +1,7 @@
 import { shallowRef } from 'vue'
-import { log, report } from './logs'
-import { launchScreen } from './preferences'
-import type { Mode } from './workspace'
+import { log, report } from '@/lib/app/logs'
+import { launchScreen } from '@/lib/app/settings/preferences'
+import type { Mode } from '@/lib/app/workspace'
 import { extension } from '@/lib/util/files'
 
 export type DropKind = 'audio' | 'image' | 'graph' | 'shader' | 'config' | 'unknown'

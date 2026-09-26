@@ -3,4 +3,4 @@ import './app-commands'
 
 export * from './registry'
 export * from './accelerators'
-export { isMac } from './platform'
+export { isMac } from '@/lib/app/platform'

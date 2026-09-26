@@ -4,7 +4,7 @@ import TransportGroup from '@/features/output/status/TransportGroup.vue'
 import OutputButton from '@/features/output/status/OutputButton.vue'
 import { runCommand } from '@/lib/app/commands'
 import { useEngine } from '@/lib/engine/engine'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { logs } from '@/lib/app/logs'
 import { workspace } from '@/lib/app/workspace'
 

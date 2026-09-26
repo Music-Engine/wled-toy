@@ -1,6 +1,6 @@
 import { computed, reactive, watch } from 'vue'
-import { layoutCount, parseLayout, type Layout } from '@/lib/engine/layout'
-import type { WireProtocol } from '@/lib/engine/output'
+import { layoutCount, parseLayout, type Layout } from '@/lib/engine/output/layout'
+import type { WireProtocol } from '@/lib/engine/output/output'
 import { clamp } from '@/lib/util/math'
 import { newId } from '@/lib/util/ids'
 import { loadStored } from './storage'

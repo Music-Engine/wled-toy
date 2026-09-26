@@ -2,8 +2,8 @@ import { computed, nextTick, ref, shallowRef, toRaw, watch, type Ref } from 'vue
 import { createDefaultGraph, generateGlsl, normalizeDoc, pruneScenes, storedDoc, type GeneratedShader, type NodeGraph, type Scene, type StoredEdge, type StoredNode } from '@/lib/graph'
 import { cloneJson } from '@/lib/util/json'
 import { compileKey } from './compile-key'
-import { createHistory } from './history'
-import { styledEdges, type LinkEnds, type SocketColor } from './links'
+import { createHistory } from '@/lib/documents/history'
+import { styledEdges, type LinkEnds, type SocketColor } from '@/lib/documents/edits/links'
 
 /**
  * The graph being edited: its compile schedule, the working copy it autosaves to, and its undo history. The editor binds

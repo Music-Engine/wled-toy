@@ -4,9 +4,9 @@ import { createApp, h, nextTick } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import LaunchScreen from './LaunchScreen.vue'
 import { registerHandlers } from '@/lib/app/commands'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { EXAMPLES } from '@/lib/shader/examples'
-import { launchScreen, preferences, resetPreferences } from '@/lib/app/preferences'
+import { launchScreen, preferences, resetPreferences } from '@/lib/app/settings/preferences'
 import { version } from '@/lib/app/version'
 
 const cleanups: Array<() => void> = []

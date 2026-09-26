@@ -1,4 +1,4 @@
-import { DEFAULT_OUTPUT } from '@/lib/engine/output'
+import { DEFAULT_OUTPUT } from '@/lib/engine/output/output'
 import { Color, defineNode, Enum, Float, Int } from '@/lib/graph/authoring'
 
 const PROTOCOLS = [

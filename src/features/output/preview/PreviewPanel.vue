@@ -2,9 +2,9 @@
 import { computed, onMounted, ref, watchEffect } from 'vue'
 import LedMap from './LedMap.vue'
 import { useEngine } from '@/lib/engine/engine'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { contextMenuItems } from '@/lib/app/commands'
-import { layoutPositions } from '@/lib/engine/layout'
+import { layoutPositions } from '@/lib/engine/output/layout'
 import { workspace, type PreviewView } from '@/lib/app/workspace'
 import { Format } from '@/lib/util/format'
 

@@ -2,7 +2,7 @@ import type { VueFlowStore } from '@vue-flow/core'
 import { selectNodes } from '@/features/graph-editor/canvas/use-box-select'
 import { connectLink } from '@/features/graph-editor/canvas/use-link-drag'
 import { deleteSelection } from '@/features/graph-editor/clipboard/use-node-clipboard'
-import { canConnect, dissolveLinks } from '@/lib/documents/links'
+import { canConnect, dissolveLinks } from '@/lib/documents/edits/links'
 import { storedShape, type GraphNodeData } from '@/lib/graph'
 
 // Blender's node editor commands on the selection. A flag switched off is written as undefined, which the saved graph leaves out.

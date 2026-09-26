@@ -7,7 +7,7 @@ import DevicesSection from './sections/DevicesSection.vue'
 import GeneralSection from './sections/GeneralSection.vue'
 import OutputSection from './sections/OutputSection.vue'
 import ShortcutsSection from './sections/ShortcutsSection.vue'
-import { settingsOpener, settingsView, type SettingsSection } from '@/lib/app/preferences'
+import { settingsOpener, settingsView, type SettingsSection } from '@/lib/app/settings/preferences'
 
 const sections: Array<{ id: SettingsSection; label: string; component: unknown }> = [
   { id: 'general', label: 'General', component: GeneralSection },

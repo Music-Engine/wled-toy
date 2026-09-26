@@ -1,6 +1,6 @@
 // The GLSL backend: turns a Program's pixel entries into the shader, in the order the Program lists them. Bodies run only
 // here, so what one declares through `ctx.require` is written back onto its Program node as plain data.
-import type { OutputSettings } from '@/lib/engine/output'
+import type { OutputSettings } from '@/lib/engine/output/output'
 import type { GlslChunk, NodeContext } from '@/lib/graph/define/context'
 import type { NodeShape, Socket } from '@/lib/graph/define/shape'
 import type { ImplicitDefault } from '@/lib/graph/define/types'

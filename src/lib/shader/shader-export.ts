@@ -1,6 +1,6 @@
-import { config } from '@/lib/app/config'
-import { documentSessions } from '@/lib/documents/document-session'
-import { SHADER_FILES, createBrowserBackend, createTauriBackend, type FileBackend } from '@/lib/documents/file-backends'
+import { config } from '@/lib/app/settings/config'
+import { documentSessions } from '@/lib/documents/sessions/document-session'
+import { SHADER_FILES, createBrowserBackend, createTauriBackend, type FileBackend } from '@/lib/documents/files/file-backends'
 import { useEngine } from '@/lib/engine/engine'
 import { ref } from 'vue'
 import { createDefaultGraph, generateGlsl, normalizeDoc, type FrozenValue, type NodeGraph } from '@/lib/graph'
@@ -8,7 +8,7 @@ import { log, report } from '@/lib/app/logs'
 import { isTauri } from '@/lib/app/platform'
 import { bundleShader } from './shader-bundle'
 import { SHADER_FILE_EXTENSION } from './shader-document'
-import { loadTauriFiles } from '@/lib/documents/tauri-files'
+import { loadTauriFiles } from '@/lib/documents/files/tauri-files'
 import { workspace } from '@/lib/app/workspace'
 
 /** Shown above the shader editor after a graph's code arrives there with values that no longer move; null once dismissed. */

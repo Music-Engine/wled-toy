@@ -1,7 +1,7 @@
 import type { AudioTextures } from '@/lib/audio/textures'
 import { PRELUDE } from '@/lib/shader/prelude'
 import { AudioInputs } from './audio-inputs'
-import { EngineError } from './engine-error'
+import { EngineError } from '@/lib/engine/engine-error'
 import { createPingPong, freePingPong, type PingPong } from './feedback-targets'
 import { bindFullScreenTriangle, linkProgram } from './gl-program'
 import { createTexture } from './gl-texture'

@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 import { log, report } from '@/lib/app/logs'
-import { EngineError } from './engine-error'
+import { EngineError } from '@/lib/engine/engine-error'
 
 export interface LibraryImage {
   /** What nodes store. The file name it was added under; stays the same when the image is renamed. */

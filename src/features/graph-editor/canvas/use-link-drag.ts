@@ -1,7 +1,7 @@
 import type { Connection, VueFlowStore } from '@vue-flow/core'
 import { socketColor } from '@/features/node-ui/sockets'
 import { log } from '@/lib/app/logs'
-import { canConnect } from '@/lib/documents/links'
+import { canConnect } from '@/lib/documents/edits/links'
 import { inputSocket, outputSocket, type DataType, type GraphNodeData } from '@/lib/graph'
 import { newId } from '@/lib/util/ids'
 

@@ -1,8 +1,8 @@
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { baseName } from '@/lib/util/files'
-import { loadStored } from '@/lib/app/storage'
+import { loadStored } from '@/lib/app/settings/storage'
 import { DocumentError } from './document-error'
-import type { FileBackend, FileHandle, OpenedFile } from './file-backends'
+import type { FileBackend, FileHandle, OpenedFile } from '@/lib/documents/files/file-backends'
 
 export interface RecentFile {
   name: string

@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 import LiveIndicator from './LiveIndicator.vue'
 import { useEngine } from '@/lib/engine/engine'
-import { config } from '@/lib/app/config'
-import { activeDevice, addDevice, devices, setActiveDevice } from '@/lib/app/devices'
-import { openSettings } from '@/lib/app/preferences'
+import { config } from '@/lib/app/settings/config'
+import { activeDevice, addDevice, devices, setActiveDevice } from '@/lib/app/settings/devices'
+import { openSettings } from '@/lib/app/settings/preferences'
 
 const engine = useEngine()
 const { stats } = engine.bridge

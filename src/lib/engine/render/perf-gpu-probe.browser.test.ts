@@ -4,8 +4,8 @@
 // emitted GLSL so readback strategies can be compared on an identical draw.
 import { describe, expect, it } from 'vitest'
 import { commands } from 'vitest/browser'
-import { layoutPositions } from '@/lib/engine/layout'
-import { ShaderRenderer } from '@/lib/engine/renderer'
+import { layoutPositions } from '@/lib/engine/output/layout'
+import { ShaderRenderer } from './renderer'
 import { PRELUDE } from '@/lib/shader/prelude'
 import { generateGlsl } from '@/lib/graph'
 import { readGraphFile } from '@/lib/graph/model/file'

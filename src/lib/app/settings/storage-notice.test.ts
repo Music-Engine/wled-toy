@@ -7,7 +7,7 @@ it('reports each key that failed to load once, with what was reset and why, for 
   vi.stubGlobal('localStorage', { getItem: (key: string) => (key === 'wledtoy:preferences' ? '[]' : '{broken') })
   const { loadStored } = await import('./storage')
   const { installStorageNotice } = await import('./storage-notice')
-  const { logs } = await import('./logs')
+  const { logs } = await import('@/lib/app/logs')
   const sanitizeObject = (raw: unknown) => {
     if (Array.isArray(raw)) throw new Error('not an object')
     return raw

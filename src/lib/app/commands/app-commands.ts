@@ -1,16 +1,16 @@
 import { useColorMode } from '@vueuse/core'
 import { systemAudioBlocked } from '@/lib/audio/settings'
-import { copyText } from './clipboard'
-import { config, exportConfig } from './config'
-import { activeDeviceId, devices, setActiveDevice } from './devices'
+import { copyText } from '@/lib/app/files/clipboard'
+import { config, exportConfig } from '@/lib/app/settings/config'
+import { activeDeviceId, devices, setActiveDevice } from '@/lib/app/settings/devices'
 import { useEngine } from '@/lib/engine/engine'
-import { isStripLayout } from '@/lib/engine/layout'
+import { isStripLayout } from '@/lib/engine/output/layout'
 import { EXAMPLES } from '@/lib/shader/examples'
 import { chooseConfig, chooseImage, chooseSong } from './file-choosers'
-import { clearLogs, copyAllLogs, copyLogLine, log, logContext, shownLogs } from './logs'
-import { isMac, isTauri } from './platform'
+import { clearLogs, copyAllLogs, copyLogLine, log, logContext, shownLogs } from '@/lib/app/logs'
+import { isMac, isTauri } from '@/lib/app/platform'
 import { palette, registerCommands, type Command } from './registry'
-import { contextProblem, DOCK_TABS, isMaximized, resetLayout, showTab, toggleMaximize, workspace } from './workspace'
+import { contextProblem, DOCK_TABS, isMaximized, resetLayout, showTab, toggleMaximize, workspace } from '@/lib/app/workspace'
 
 let colorMode: ReturnType<typeof useColorMode> | undefined
 const theme = () => (colorMode ??= useColorMode()).store

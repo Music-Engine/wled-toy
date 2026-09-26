@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from 'vitest'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { EXAMPLES } from './examples'
 import { NODES, type Param } from './catalog'
 import { PRELUDE } from './prelude'

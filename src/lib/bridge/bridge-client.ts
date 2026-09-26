@@ -1,7 +1,7 @@
 import { reactive } from 'vue'
 import { log, report } from '@/lib/app/logs'
 import { BridgeError } from './bridge-error'
-import type { AppConfig } from '@/lib/app/config'
+import type { AppConfig } from '@/lib/app/settings/config'
 import { openBridgeTransport, type BridgeMessage, type BridgeTransport, type TransportHandlers } from './bridge-transport'
 
 export type BridgeStatus = 'connecting' | 'connected' | 'disconnected'

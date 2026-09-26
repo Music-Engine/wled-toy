@@ -14,7 +14,7 @@ WLEDToy: Vue 3 + Vite frontend, Tauri v2 shell (`src-tauri/`, Rust), node graphs
 
 ## Rules
 
-1. Fit in. Reuse what exists before adding: one logger (`src/lib/app/logs.ts`), one config, one command registry (`src/lib/app/registry.ts`), one error type per module. Imports: `./x` for siblings, `@/...` for everything else, never `../`. No new dependency without a concrete cost it removes.
+1. Fit in. Reuse what exists before adding: one logger (`src/lib/app/logs.ts`), one config, one command registry (`src/lib/app/commands/registry.ts`), one error type per module. Imports: `./x` for siblings, `@/...` for everything else, never `../`. No new dependency without a concrete cost it removes.
 2. Minimal diff. Do what was asked. No drive-by refactors, no speculative options, no dead code. Do not hoist a value into a constant or lookup table unless it is shared, names a magic number, or is real data (palettes, option lists).
 3. Fail loudly. No swallowed errors, no silent fallbacks. Invariants are checked where data is created: graph files are linted on load (`src/lib/graph/model/lint.ts`), node values are typed at the socket. Old graph versions are rejected, never migrated.
 4. Traceable. One job per function, one owner per piece of state. Domain names (socket, scene, layout, output), not implementation names. Comments say why, never what, and never use em or en dashes.
@@ -27,7 +27,7 @@ WLEDToy: Vue 3 + Vite frontend, Tauri v2 shell (`src-tauri/`, Rust), node graphs
 ## Nuance
 
 - Changing packet building in `bridge.ts` requires `node bridge.fixtures.ts`; `bridge.fixtures.test.ts` and `cargo test` fail on stale goldens.
-- Every command in `app-commands.ts` needs a unique accelerator per mode; a unit test enforces it.
+- Every command in `src/lib/app/commands/app-commands.ts` needs a unique accelerator per mode; a unit test enforces it.
 - Generated GLSL names keep the `n_<id>` prefix so they never shadow prelude helpers (`bass()`, `beat()`, ...).
 - Output node settings in a graph doc override Settings while that graph runs. Intentional.
 - `compile/__snapshots__/gate` holds the GLSL and plan JSON of every graph under `graphs/` and every node kind alone, in normal and standalone mode. A PR that changes any `__snapshots__` folder under `src/lib/graph` needs the `snapshot-change` label; a moved snapshot without a reason is a bug.

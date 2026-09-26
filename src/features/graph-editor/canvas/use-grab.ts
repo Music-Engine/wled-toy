@@ -1,6 +1,6 @@
 import { onBeforeUnmount, onDeactivated, ref } from 'vue'
 import type { VueFlowStore } from '@vue-flow/core'
-import type { GraphEditSession } from '@/lib/documents/graph-session'
+import type { GraphEditSession } from '@/lib/documents/sessions/graph-session'
 
 type Point = { x: number; y: number }
 

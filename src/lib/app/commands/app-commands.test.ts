@@ -13,15 +13,15 @@ vi.stubGlobal('window', { addEventListener: () => undefined })
 async function load() {
   vi.resetModules()
   return {
-    ...(await import('./commands')),
-    ...(await import('./workspace')),
-    ...(await import('./logs')),
-    ...(await import('./clipboard')),
+    ...(await import('@/lib/app/commands')),
+    ...(await import('@/lib/app/workspace')),
+    ...(await import('@/lib/app/logs')),
+    ...(await import('@/lib/app/files/clipboard')),
   }
 }
 
 // the first import transforms the engine and everything it pulls in, which alone can outlast a test's timeout under a full run
-beforeAll(() => import('./commands'), 30_000)
+beforeAll(() => import('@/lib/app/commands'), 30_000)
 beforeEach(() => stored.clear())
 afterEach(() => vi.restoreAllMocks())
 

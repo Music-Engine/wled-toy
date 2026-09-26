@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { installKeyDispatcher, isMac, markNativeMenuInstalled, palette, registerHandlers } from './commands'
-import { resetLayout, workspace } from './workspace'
+import { installKeyDispatcher, isMac, markNativeMenuInstalled, palette, registerHandlers } from '@/lib/app/commands'
+import { resetLayout, workspace } from '@/lib/app/workspace'
 
 const cleanups: Array<() => void> = []
 beforeEach(() => cleanups.push(installKeyDispatcher()))

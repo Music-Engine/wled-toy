@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { useEngine } from '@/lib/engine/engine'
 import { SEEN } from './led-colors'
 

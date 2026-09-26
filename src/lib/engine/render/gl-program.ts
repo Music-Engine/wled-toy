@@ -1,4 +1,4 @@
-import { EngineError } from './engine-error'
+import { EngineError } from '@/lib/engine/engine-error'
 import { VERT } from './renderer-shaders'
 
 /** The one triangle every pass draws, covering the viewport; `VERT` reads it as attribute 0. */

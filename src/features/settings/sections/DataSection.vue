@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import PrefGroup from '@/ui/primitives/PrefGroup.vue'
 import PrefRow from '@/ui/primitives/PrefRow.vue'
 import { isEnabled, getCommand, runCommand } from '@/lib/app/commands'
-import { resetStoredData } from '@/lib/app/config'
-import { resetPreferences } from '@/lib/app/preferences'
+import { resetStoredData } from '@/lib/app/settings/config'
+import { resetPreferences } from '@/lib/app/settings/preferences'
 
 const confirmingReset = ref(false)
 const can = (id: string) => !!getCommand(id) && isEnabled(getCommand(id)!)

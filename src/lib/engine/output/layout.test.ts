@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { EngineError } from './engine-error'
+import { EngineError } from '@/lib/engine/engine-error'
 import { isStripLayout, layoutCount, layoutKind, layoutPositions, layoutSummary, onlySegment, parseLayout, parseLayoutJson, presetLayout, type Layout, type Segment } from './layout'
 
 const xy = (layout: Layout) => {

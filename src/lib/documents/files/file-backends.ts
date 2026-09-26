@@ -1,9 +1,9 @@
 import { loadTauriFiles, type TauriFiles } from './tauri-files'
 import { baseName } from '@/lib/util/files'
-import { downloadText } from '@/lib/app/download'
-import { pickFile } from '@/lib/app/pick-file'
+import { downloadText } from '@/lib/app/files/download'
+import { pickFile } from '@/lib/app/files/pick-file'
 import { report } from '@/lib/app/logs'
-import { DocumentError } from './document-error'
+import { DocumentError } from '@/lib/documents/document-error'
 
 declare global {
   interface Window {

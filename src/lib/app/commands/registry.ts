@@ -1,8 +1,8 @@
 import { computed, reactive, ref, shallowReactive } from 'vue'
 import { acceleratorKbds, inEditableTarget, matchesAccelerator, parseAccelerator } from './accelerators'
-import { report } from './logs'
-import { isMac } from './platform'
-import { workspace, type Mode } from './workspace'
+import { report } from '@/lib/app/logs'
+import { isMac } from '@/lib/app/platform'
+import { workspace, type Mode } from '@/lib/app/workspace'
 
 export interface Command {
   id: string
