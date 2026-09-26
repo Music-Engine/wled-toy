@@ -56,10 +56,6 @@ export type MenuNode = MenuItem | MenuSeparator | Submenu
 const registered = shallowReactive<Array<Command | CommandList>>([])
 const handlers = shallowReactive(new Map<string, () => unknown>())
 
-export const commands = computed(() => registered.flatMap((entry) => ('list' in entry ? entry.list() : entry)))
-
-export const palette = reactive({ open: false, view: 'commands' as 'commands' | 'shortcuts' })
-
 /** Adds commands in menu order. An id that exists already is replaced where it stands, which is how a placeholder gets its real command. */
 export function registerCommands(entries: Array<Command | CommandList>): () => void {
   for (const entry of entries) {
@@ -83,12 +79,6 @@ export function registerHandlers(map: Record<string, () => unknown>): () => void
   }
 }
 
-export const getCommand = (id: string) => commands.value.find((command) => command.id === id)
-export const commandTitle = (command: Command) => (typeof command.title === 'function' ? command.title() : command.title)
-export const isVisible = (command: Command) => (!command.modes || command.modes.includes(workspace.mode)) && (command.when?.() ?? true)
-export const isEnabled = (command: Command) => (handlers.has(command.id) || !!command.run) && (command.enabled?.() ?? true)
-export const isChecked = (command: Command) => command.checked?.() ?? false
-
 /** Runs a command the way every surface does. False when it is hidden, disabled or unknown. */
 export function runCommand(id: string): boolean {
   const command = getCommand(id)
@@ -98,6 +88,16 @@ export function runCommand(id: string): boolean {
   void (async () => run())().catch((error) => report(error, `command ${id}`))
   return true
 }
+
+export const commands = computed(() => registered.flatMap((entry) => ('list' in entry ? entry.list() : entry)))
+
+export const palette = reactive({ open: false, view: 'commands' as 'commands' | 'shortcuts' })
+
+export const getCommand = (id: string) => commands.value.find((command) => command.id === id)
+export const commandTitle = (command: Command) => (typeof command.title === 'function' ? command.title() : command.title)
+export const isVisible = (command: Command) => (!command.modes || command.modes.includes(workspace.mode)) && (command.when?.() ?? true)
+export const isEnabled = (command: Command) => (handlers.has(command.id) || !!command.run) && (command.enabled?.() ?? true)
+export const isChecked = (command: Command) => command.checked?.() ?? false
 
 /** The visible commands as menus: submenus stand where their first command does. */
 export function menuTree(): Submenu[] {

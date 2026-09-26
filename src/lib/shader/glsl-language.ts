@@ -3,6 +3,10 @@ import { EditorView } from '@codemirror/view'
 import { glslHover, signatureHelp } from './glsl-completions'
 import { glslHighlighter, glslLanguage } from './glsl-highlight'
 
+export function glsl() {
+  return new LanguageSupport(glslLanguage, [syntaxHighlighting(glslHighlighter), glslHover, signatureHelp, editorTheme])
+}
+
 const editorTheme = EditorView.theme({
   '&': { height: '100%', backgroundColor: 'var(--ui-bg)', color: 'var(--ui-text)', fontSize: '14px' },
   '.cm-scroller': { fontFamily: 'var(--font-mono)', lineHeight: '1.6' },
@@ -57,7 +61,3 @@ const editorTheme = EditorView.theme({
   '.cm-searchMatch-selected': { backgroundColor: 'color-mix(in oklab, var(--ui-primary) 45%, transparent)' },
   '.cm-selectionMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-text) 12%, transparent)' },
 })
-
-export function glsl() {
-  return new LanguageSupport(glslLanguage, [syntaxHighlighting(glslHighlighter), glslHover, signatureHelp, editorTheme])
-}

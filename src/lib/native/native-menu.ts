@@ -32,33 +32,17 @@ export interface MenuApi {
   PredefinedMenuItem: { 'new'(options: { item: Predefined }): Promise<Resource> }
 }
 
-const itemsOf = (nodes: NativeNode[]): NativeItem[] => nodes.flatMap((node) => (node.type === 'item' ? [node] : node.type === 'submenu' ? itemsOf(node.items) : []))
-
-// what cannot be patched: which items exist, where, of which kind and on which key
-const structureOf = (nodes: NativeNode[]): unknown[] => nodes.map((node) =>
-  (node.type === 'item' ? [node.id, node.accelerator, node.checked !== undefined] : node.type === 'submenu' ? [node.text, structureOf(node.items)] : node.item))
-
-/**
- * What a native item does. Undo, Redo and Select All go to whatever holds the text cursor; without one they act on
- * the graph, and do nothing in the other modes. The predefined Undo and Redo only ever reach text, which left them dead in a graph.
- */
-export function runNativeItem(id: string) {
-  if (id === 'edit.undo' || id === 'edit.redo') return runHistoryItem(id === 'edit.undo' ? 'undo' : 'redo')
-  if (id !== 'edit.selectAll') return runCommand(id)
-  const focused = document.activeElement
-  if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement) return focused.select()
-  const editable = focused?.closest('[contenteditable="true"]')
-  // CodeMirror's content is such an element and reads the selection back from the DOM; an editor that binds shader.selectAll gets to do it itself
-  if (editable) return (editable.closest('.cm-editor') && runCommand('shader.selectAll')) || getSelection()?.selectAllChildren(editable)
-  return workspace.mode === 'graph' && runCommand('graph.selectAll')
-}
-
-function runHistoryItem(step: 'undo' | 'redo') {
-  const focused = document.activeElement
-  // CodeMirror keeps its own history; the browser's would not know its edits
-  if (focused?.closest('.cm-editor')) return runCommand(`shader.${step}`)
-  if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement || focused?.closest('[contenteditable="true"]')) return document.execCommand(step)
-  return workspace.mode === 'graph' && runCommand(`graph.${step}`)
+/** macOS only: Windows and Linux keep the menubar the window draws. */
+export async function installNativeMenu(load: () => Promise<MenuApi> = () => import('@tauri-apps/api/menu')): Promise<void> {
+  if (!isTauri() || !isMac()) return
+  const menu = createNativeMenu(await load())
+  await menu.sync()
+  markNativeMenuInstalled()
+  let timer: ReturnType<typeof setTimeout> | undefined
+  watch(() => JSON.stringify(nativeMenuModel()), () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => menu.sync().catch(menu.report), 50)
+  })
 }
 
 export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = runNativeItem) {
@@ -141,15 +125,31 @@ export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = ru
   return { sync, report: reportFailure }
 }
 
-/** macOS only: Windows and Linux keep the menubar the window draws. */
-export async function installNativeMenu(load: () => Promise<MenuApi> = () => import('@tauri-apps/api/menu')): Promise<void> {
-  if (!isTauri() || !isMac()) return
-  const menu = createNativeMenu(await load())
-  await menu.sync()
-  markNativeMenuInstalled()
-  let timer: ReturnType<typeof setTimeout> | undefined
-  watch(() => JSON.stringify(nativeMenuModel()), () => {
-    clearTimeout(timer)
-    timer = setTimeout(() => menu.sync().catch(menu.report), 50)
-  })
+/**
+ * What a native item does. Undo, Redo and Select All go to whatever holds the text cursor; without one they act on
+ * the graph, and do nothing in the other modes. The predefined Undo and Redo only ever reach text, which left them dead in a graph.
+ */
+export function runNativeItem(id: string) {
+  if (id === 'edit.undo' || id === 'edit.redo') return runHistoryItem(id === 'edit.undo' ? 'undo' : 'redo')
+  if (id !== 'edit.selectAll') return runCommand(id)
+  const focused = document.activeElement
+  if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement) return focused.select()
+  const editable = focused?.closest('[contenteditable="true"]')
+  // CodeMirror's content is such an element and reads the selection back from the DOM; an editor that binds shader.selectAll gets to do it itself
+  if (editable) return (editable.closest('.cm-editor') && runCommand('shader.selectAll')) || getSelection()?.selectAllChildren(editable)
+  return workspace.mode === 'graph' && runCommand('graph.selectAll')
 }
+
+function runHistoryItem(step: 'undo' | 'redo') {
+  const focused = document.activeElement
+  // CodeMirror keeps its own history; the browser's would not know its edits
+  if (focused?.closest('.cm-editor')) return runCommand(`shader.${step}`)
+  if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement || focused?.closest('[contenteditable="true"]')) return document.execCommand(step)
+  return workspace.mode === 'graph' && runCommand(`graph.${step}`)
+}
+
+const itemsOf = (nodes: NativeNode[]): NativeItem[] => nodes.flatMap((node) => (node.type === 'item' ? [node] : node.type === 'submenu' ? itemsOf(node.items) : []))
+
+// what cannot be patched: which items exist, where, of which kind and on which key
+const structureOf = (nodes: NativeNode[]): unknown[] => nodes.map((node) =>
+  (node.type === 'item' ? [node.id, node.accelerator, node.checked !== undefined] : node.type === 'submenu' ? [node.text, structureOf(node.items)] : node.item))

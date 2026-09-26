@@ -14,11 +14,17 @@ import { workspace } from '@/lib/app/workspace'
 /** Shown above the shader editor after a graph's code arrives there with values that no longer move; null once dismissed. */
 export const graphCodeNotice = ref<string | null>(null)
 
-/** What a graph loses when its code leaves the graph: the values that only a running graph computes, and what they were frozen at. */
-export function frozenNotice(frozen: FrozenValue[]): string | null {
-  if (!frozen.length) return null
-  const list = frozen.map((f) => `${f.title} "${f.output}" at ${f.value}`).join(', ')
-  return `${frozen.length === 1 ? '1 value is' : `${frozen.length} values are`} frozen in this code: ${list}. ${frozen.length === 1 ? 'It only updates' : 'They only update'} inside a running graph, once per frame, so the shader will not follow ${frozen.length === 1 ? 'it' : 'them'}.`
+let backend: FileBackend | undefined
+
+export async function exportStandaloneGlsl(): Promise<void> {
+  try {
+    const { name, text } = standaloneGlsl()
+    backend ??= isTauri() ? createTauriBackend(loadTauriFiles, SHADER_FILES) : createBrowserBackend(SHADER_FILES)
+    const saved = await backend.saveAs(text, name, SHADER_FILE_EXTENSION)
+    if (saved) log(`Exported ${saved.handle.name}`)
+  } catch (e) {
+    report(e, 'Export failed')
+  }
 }
 
 /** The shader of the mode on screen as one self-contained file, and the name to suggest for it. Throws when a graph does not compile. */
@@ -35,15 +41,9 @@ export function standaloneGlsl(): { name: string; text: string } {
   return { name, text: bundleShader(generated.code, name) }
 }
 
-let backend: FileBackend | undefined
-
-export async function exportStandaloneGlsl(): Promise<void> {
-  try {
-    const { name, text } = standaloneGlsl()
-    backend ??= isTauri() ? createTauriBackend(loadTauriFiles, SHADER_FILES) : createBrowserBackend(SHADER_FILES)
-    const saved = await backend.saveAs(text, name, SHADER_FILE_EXTENSION)
-    if (saved) log(`Exported ${saved.handle.name}`)
-  } catch (e) {
-    report(e, 'Export failed')
-  }
+/** What a graph loses when its code leaves the graph: the values that only a running graph computes, and what they were frozen at. */
+export function frozenNotice(frozen: FrozenValue[]): string | null {
+  if (!frozen.length) return null
+  const list = frozen.map((f) => `${f.title} "${f.output}" at ${f.value}`).join(', ')
+  return `${frozen.length === 1 ? '1 value is' : `${frozen.length} values are`} frozen in this code: ${list}. ${frozen.length === 1 ? 'It only updates' : 'They only update'} inside a running graph, once per frame, so the shader will not follow ${frozen.length === 1 ? 'it' : 'them'}.`
 }

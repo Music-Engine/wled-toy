@@ -9,15 +9,6 @@ import { ImageInputs } from './image-inputs'
 import { LedTarget } from './led-target'
 import { PRESENT, UNIFORMS, type UniformLocations } from './renderer-shaders'
 
-export interface FrameParams {
-  time: number
-  /** Seconds since this kind of frame (preview or LED) was last drawn; feedback decays by it. Defaults to 1/60. */
-  dt?: number
-  frame: number
-  ledCount: number
-  scanY: number
-}
-
 export class ShaderRenderer {
   private readonly gl: WebGL2RenderingContext
   private program: WebGLProgram | null = null
@@ -197,4 +188,13 @@ export class ShaderRenderer {
     if (this.controls && u.iControl) gl.uniform4fv(u.iControl, this.controls)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
+}
+
+export interface FrameParams {
+  time: number
+  /** Seconds since this kind of frame (preview or LED) was last drawn; feedback decays by it. Defaults to 1/60. */
+  dt?: number
+  frame: number
+  ledCount: number
+  scanY: number
 }

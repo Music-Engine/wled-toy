@@ -1,9 +1,13 @@
 import { allItems, GRAPH_NODE_TYPE, newNodeData, type EnumOption, type GraphNodeData, type NodeItem, type StoredNode } from '@/lib/graph'
 
-const socketsOf = (item: NodeItem, values: GraphNodeData['values']) => {
-  const shape = item.shape(values)
-  return JSON.stringify([shape.inputs.map((s) => [s.name, s.label, s.type.id, s.linkable]), shape.outputs.map((s) => [s.name, s.label, s.type.id])])
-}
+/** Every registered kind in every socket arrangement it has, each expanded and collapsed. Positions are left to the gallery. */
+export const galleryNodes = (): StoredNode[] => allItems().flatMap((item) => galleryVariants(item).flatMap(({ label, values }) => {
+  const id = label ? `${item.id}:${label}` : item.id
+  return [
+    { id, type: GRAPH_NODE_TYPE, position: { x: 0, y: 0 }, data: newNodeData(item.id, values) },
+    { id: `${id}~collapsed`, type: GRAPH_NODE_TYPE, position: { x: 0, y: 0 }, data: { ...newNodeData(item.id, values), collapsed: true } },
+  ]
+}))
 
 /** The default values, then one set per enum option that gives the node sockets no earlier set gave it. */
 export function galleryVariants(item: NodeItem): { label: string; values: GraphNodeData['values'] }[] {
@@ -22,11 +26,7 @@ export function galleryVariants(item: NodeItem): { label: string; values: GraphN
   return variants
 }
 
-/** Every registered kind in every socket arrangement it has, each expanded and collapsed. Positions are left to the gallery. */
-export const galleryNodes = (): StoredNode[] => allItems().flatMap((item) => galleryVariants(item).flatMap(({ label, values }) => {
-  const id = label ? `${item.id}:${label}` : item.id
-  return [
-    { id, type: GRAPH_NODE_TYPE, position: { x: 0, y: 0 }, data: newNodeData(item.id, values) },
-    { id: `${id}~collapsed`, type: GRAPH_NODE_TYPE, position: { x: 0, y: 0 }, data: { ...newNodeData(item.id, values), collapsed: true } },
-  ]
-}))
+const socketsOf = (item: NodeItem, values: GraphNodeData['values']) => {
+  const shape = item.shape(values)
+  return JSON.stringify([shape.inputs.map((s) => [s.name, s.label, s.type.id, s.linkable]), shape.outputs.map((s) => [s.name, s.label, s.type.id])])
+}

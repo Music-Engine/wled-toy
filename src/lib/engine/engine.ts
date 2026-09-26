@@ -17,6 +17,13 @@ import { EngineMedia } from '@/lib/engine/media/engine-media'
 
 type LedListener = (frame: Uint8Array) => void
 
+let engine: Engine | null = null
+
+export function useEngine(): Engine {
+  engine ??= new Engine()
+  return engine
+}
+
 /**
  * One renderer, audio source and UDP bridge shared by shader and graph mode, so
  * streaming keeps running while switching modes. The preview canvas is moved
@@ -221,13 +228,6 @@ class Engine {
     if (!document.hidden) this.listeners.forEach((listener) => listener(leds))
     if (this.streaming.value) this.bridge.sendFrame(leds)
   }
-}
-
-let engine: Engine | null = null
-
-export function useEngine(): Engine {
-  engine ??= new Engine()
-  return engine
 }
 
 if (import.meta.hot) {

@@ -2,13 +2,7 @@
  * Structural checks over rendered nodes, one per class of visual artifact. Each returns a line per violation,
  * so a failing test names the node and the element. Rects are compared, so they hold at any canvas zoom.
  */
-const SLACK = 0.75
-
-const nodesIn = (root: ParentNode) => [...root.querySelectorAll<HTMLElement>('.vue-flow__node')]
-const name = (node: HTMLElement, el?: Element) => `${node.dataset.id}${el ? ` <${el.tagName.toLowerCase()} class="${el.getAttribute('class') ?? ''}">` : ''}`
-const centerX = (r: DOMRect) => r.left + r.width / 2
-const centerY = (r: DOMRect) => r.top + r.height / 2
-const clips = (el: Element) => ['hidden', 'clip', 'auto', 'scroll'].includes(getComputedStyle(el).overflowX)
+export const galleryChecks = { emptyNodes, horizontalOverflow, detachedSockets, strayRangeFills, clippedText, overlappingSiblings, fieldSlivers, clippedFocusRings }
 
 export function emptyNodes(root: ParentNode): string[] {
   return nodesIn(root).filter((node) => {
@@ -121,4 +115,10 @@ export function clippedFocusRings(root: ParentNode): string[] {
   return problems
 }
 
-export const galleryChecks = { emptyNodes, horizontalOverflow, detachedSockets, strayRangeFills, clippedText, overlappingSiblings, fieldSlivers, clippedFocusRings }
+const SLACK = 0.75
+
+const nodesIn = (root: ParentNode) => [...root.querySelectorAll<HTMLElement>('.vue-flow__node')]
+const name = (node: HTMLElement, el?: Element) => `${node.dataset.id}${el ? ` <${el.tagName.toLowerCase()} class="${el.getAttribute('class') ?? ''}">` : ''}`
+const centerX = (r: DOMRect) => r.left + r.width / 2
+const centerY = (r: DOMRect) => r.top + r.height / 2
+const clips = (el: Element) => ['hidden', 'clip', 'auto', 'scroll'].includes(getComputedStyle(el).overflowX)

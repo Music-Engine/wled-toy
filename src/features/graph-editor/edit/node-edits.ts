@@ -7,9 +7,6 @@ import { storedShape, type GraphNodeData } from '@/lib/graph'
 
 // Blender's node editor commands on the selection. A flag switched off is written as undefined, which the saved graph leaves out.
 
-const dataOf = (flow: VueFlowStore, id: string) => flow.findNode(id)?.data as GraphNodeData | undefined
-const selectedIds = (flow: VueFlowStore) => new Set(flow.getSelectedNodes.value.map((n) => n.id))
-
 /** H and Ctrl+H: sets the flag on every selected node, or clears it when all of them have it. */
 export function toggleShared(flow: VueFlowStore, flag: 'collapsed' | 'hideUnused') {
   const nodes = flow.getSelectedNodes.value
@@ -54,3 +51,6 @@ export function selectLinked(flow: VueFlowStore, direction: 'from' | 'to') {
   const linked = selected.flatMap((n) => (direction === 'from' ? flow.getIncomers(n.id) : flow.getOutgoers(n.id)))
   selectNodes(flow, new Set([...selected, ...linked].map((n) => n.id)))
 }
+
+const dataOf = (flow: VueFlowStore, id: string) => flow.findNode(id)?.data as GraphNodeData | undefined
+const selectedIds = (flow: VueFlowStore) => new Set(flow.getSelectedNodes.value.map((n) => n.id))

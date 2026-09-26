@@ -10,9 +10,6 @@ export interface RecentFile {
   path?: string
 }
 
-/** What `openRecent` takes: two files of one name in different folders are two entries. */
-export const recentId = (file: { name: string; path?: string }) => file.path ?? file.name
-
 export interface DocumentStoreOptions<T> {
   /** Namespaces this document's localStorage keys, e.g. "graph"; also lets a future document kind share this controller. */
   kind: string
@@ -50,18 +47,6 @@ export interface DocumentStore<T> {
   recoverFromAutosave(): void
   discardRecovery(): void
 }
-
-const recentKey = (kind: string) => `wledtoy:${kind}:recent`
-
-function sanitizeRecentFiles(raw: unknown): RecentFile[] {
-  if (!Array.isArray(raw)) throw new DocumentError('bad-recent-list', 'the recent list is not a list')
-  return raw as RecentFile[]
-}
-
-/** The recent list a document kind stored, for a screen that shows it before that kind's store exists. */
-export const storedRecentFiles = (kind: string) => loadStored(recentKey(kind), `your recent ${kind} files`, sanitizeRecentFiles, [])
-
-const RECENT_FILES_LIMIT = 10
 
 export function createDocumentStore<T>(options: DocumentStoreOptions<T>): DocumentStore<T> {
   const { kind, extension, openExtensions, backend, serialize, parse, createNew, getSnapshot, onLoad, autosaveDebounceMs = 800 } = options
@@ -194,4 +179,19 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
     },
     discardRecovery: clearRecovery,
   }
+}
+
+/** The recent list a document kind stored, for a screen that shows it before that kind's store exists. */
+export const storedRecentFiles = (kind: string) => loadStored(recentKey(kind), `your recent ${kind} files`, sanitizeRecentFiles, [])
+
+/** What `openRecent` takes: two files of one name in different folders are two entries. */
+export const recentId = (file: { name: string; path?: string }) => file.path ?? file.name
+
+const RECENT_FILES_LIMIT = 10
+
+const recentKey = (kind: string) => `wledtoy:${kind}:recent`
+
+function sanitizeRecentFiles(raw: unknown): RecentFile[] {
+  if (!Array.isArray(raw)) throw new DocumentError('bad-recent-list', 'the recent list is not a list')
+  return raw as RecentFile[]
 }

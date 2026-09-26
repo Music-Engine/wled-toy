@@ -22,18 +22,10 @@ export interface TypeHandler {
   layout: 'inline' | 'block'
 }
 
-/** Widgets by type id, the counterpart of `typeHandlers` in the React editor. */
-const handlers: Record<string, TypeHandler> = {
-  float: { component: RangeField, layout: 'inline' },
-  int: { component: RangeField, layout: 'inline' },
-  vec2: { component: VectorField, layout: 'block' },
-  vec3: { component: VectorField, layout: 'block' },
-  vec4: { component: VectorField, layout: 'block' },
-  color: { component: ColorSwatch, layout: 'inline' },
-  bool: { component: CheckboxField, layout: 'inline' },
-  enum: { component: DropdownField, layout: 'block' },
-  text: { component: TextField, layout: 'inline' },
-  ramp: { component: GradientEditor, layout: 'block' },
+/** A generic socket holds a number or a vector, so its value decides the widget. */
+export function handlerFor(socket: Socket, value: unknown): TypeHandler | undefined {
+  if (socket.type.id === 'genType') return Array.isArray(value) ? handlers.vec3 : handlers.float
+  return handlers[socket.type.id]
 }
 
 /**
@@ -47,8 +39,16 @@ export const nodeBodies: Record<string, Component> = {
   viewer: ViewerScope,
 }
 
-/** A generic socket holds a number or a vector, so its value decides the widget. */
-export function handlerFor(socket: Socket, value: unknown): TypeHandler | undefined {
-  if (socket.type.id === 'genType') return Array.isArray(value) ? handlers.vec3 : handlers.float
-  return handlers[socket.type.id]
+/** Widgets by type id, the counterpart of `typeHandlers` in the React editor. */
+const handlers: Record<string, TypeHandler> = {
+  float: { component: RangeField, layout: 'inline' },
+  int: { component: RangeField, layout: 'inline' },
+  vec2: { component: VectorField, layout: 'block' },
+  vec3: { component: VectorField, layout: 'block' },
+  vec4: { component: VectorField, layout: 'block' },
+  color: { component: ColorSwatch, layout: 'inline' },
+  bool: { component: CheckboxField, layout: 'inline' },
+  enum: { component: DropdownField, layout: 'block' },
+  text: { component: TextField, layout: 'inline' },
+  ramp: { component: GradientEditor, layout: 'block' },
 }
