@@ -1,5 +1,5 @@
 import { nextTick, watch } from 'vue'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 function fakeLocalStorage(initial: Record<string, string> = {}) {
   const store = new Map(Object.entries(initial))
@@ -9,6 +9,14 @@ function fakeLocalStorage(initial: Record<string, string> = {}) {
     removeItem: (key: string) => { store.delete(key) },
   }
 }
+
+// the first import transforms the graph model and everything config pulls in, which alone can outlast a test's timeout under a full run
+beforeAll(async () => {
+  vi.stubGlobal('window', { addEventListener: () => undefined })
+  vi.stubGlobal('localStorage', fakeLocalStorage())
+  await import('./config')
+  vi.unstubAllGlobals()
+}, 30_000)
 
 beforeEach(() => {
   vi.resetModules()
