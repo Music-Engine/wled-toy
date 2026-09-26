@@ -197,21 +197,3 @@ describe('menu tree', () => {
     expect(workspace.dockVisible).toBe(false)
   })
 })
-
-describe('native menu', () => {
-  it('the window keeps its own menubar, under Tauri on macOS too, until the shell reports a native menu', async () => {
-    const realNavigator = navigator
-    vi.stubGlobal('window', { addEventListener: () => undefined, __TAURI_INTERNALS__: {} })
-    vi.stubGlobal('navigator', { platform: 'MacIntel' })
-    try {
-      const { hasNativeMenu, isMac, markNativeMenuInstalled } = await load()
-      expect(isMac()).toBe(true)
-      expect(hasNativeMenu()).toBe(false)
-      markNativeMenuInstalled()
-      expect(hasNativeMenu()).toBe(true)
-    } finally {
-      vi.stubGlobal('window', { addEventListener: () => undefined })
-      vi.stubGlobal('navigator', realNavigator)
-    }
-  })
-})

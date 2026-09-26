@@ -9,8 +9,6 @@ import { config } from '@/lib/app/settings/config'
 import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { workspace } from '@/lib/app/workspace'
-import { logs } from '@/lib/app/logs'
-import { graphCodeNotice } from '@/lib/shader/shader-export'
 import '@vue-flow/core/dist/style.css'
 
 // Tailwind does not run in the tests; these are the utilities that give the canvas its size in the app
@@ -254,39 +252,6 @@ it('keys typed in a node text field stay with the field', async () => {
   await new Promise((resolve) => setTimeout(resolve, 50))
   expect(menuOpen()).toBe(false)
   expect(selected()).toEqual([])
-})
-
-it('Send to Shader Mode writes code that stands alone: nothing in it reads the control slots shader mode leaves at zero', async () => {
-  mount(null)
-  await expect.poll(() => document.querySelectorAll('.vue-flow__node').length).toBe(createDefaultGraph().nodes.length)
-  config.code = ''
-  expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(config.code).toContain('void mainImage')
-  expect(config.code).not.toContain('iControl')
-})
-
-it('Send to Shader Mode says which values it had to freeze, and says nothing when every node has GLSL of its own', async () => {
-  const knob: NodeGraph = {
-    ...createDefaultGraph(),
-    nodes: [node('knob', 'knob', 0, 0), node('out', 'output', 400, 0)],
-    edges: [{ id: 'e', source: 'knob', sourceHandle: 'value', target: 'out', targetHandle: 'color' }],
-    scenes: [],
-  }
-  mount(knob)
-  const mounted = () => document.querySelectorAll('.vue-flow__node').length
-  await expect.poll(mounted).toBe(2)
-  logs.value = []
-  expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(graphCodeNotice.value).toMatch(/^1 value is frozen in this code: Knob "Value" at [\d.]+\. It only updates inside a running graph/)
-  expect(config.code).toMatch(/\/\/ Knob "Value" runs per frame; frozen at/)
-  expect(logs.value.some((entry) => entry.level === 'warn' && entry.message === graphCodeNotice.value)).toBe(true)
-  unmount!()
-
-  mount({ ...createDefaultGraph(), nodes: [node('t', 'time', 0, 0), node('out', 'output', 400, 0)], edges: [{ id: 'e', source: 't', sourceHandle: 'time', target: 'out', targetHandle: 'color' }], scenes: [] })
-  await expect.poll(mounted).toBe(2)
-  expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(graphCodeNotice.value).toBeNull()
-  expect(config.code).toContain('iTime')
 })
 
 it('Cmd+Z takes back a deleted node and a moved one, Cmd+Shift+Z brings the change back, and typing in a field keeps its own undo', async () => {

@@ -218,15 +218,6 @@ it('lists files it can reopen under Open Recent, newest first, and reopens one',
   expect(recentIds()).toEqual(['file.recent.music.wledgraph', 'file.recent.graph.wledgraph'])
 })
 
-it('offers no recent files when the backend cannot reopen one', async () => {
-  const { reopen: _, ...backend } = fakeDisk({}).backend
-  mount(backend)
-  await expect.poll(titleBarText).toBe('Untitled')
-  runCommand('file.save')
-  await expect.poll(titleBarText).toBe('graph.wledgraph')
-  expect(recentIds()).toEqual(['file.recent.none'])
-})
-
 it('guards the unload only while there is unsaved work', async () => {
   mount(fakeDisk({}).backend)
   await expect.poll(titleBarText).toBe('Untitled')

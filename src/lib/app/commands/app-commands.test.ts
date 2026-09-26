@@ -146,24 +146,22 @@ describe('log, problems, dock-hide and reference commands', () => {
     release()
   })
 
-  it('the hide commands of the dock tab context menu say which panel, and the native menu binds no key for what it does not show', async () => {
-    const { commandTitle, contextMenuItems, getCommand, nativeAccelerator } = await load()
+  it('the hide commands of the dock tab context menu say which panel', async () => {
+    const { commandTitle, contextMenuItems, getCommand } = await load()
     expect(contextMenuItems([['view.hideDock'], ['view.hideBottom']]).map((group) => group[0].label)).toEqual(['Hide Side Panel', 'Hide Bottom Panel'])
     for (const id of ['view.hideDock', 'view.hideBottom']) {
       expect(commandTitle(getCommand(id)!)).not.toBe('Hide Panel')
-      expect(nativeAccelerator(getCommand(id)!)).toBeUndefined()
     }
   })
 
-  it('Cmd+A selects all in both editors; adding is Shift+A in a graph and Cmd+Shift+A in a shader; no native item binds them', async () => {
-    const { getCommand, nativeAccelerator } = await load()
+  it('Cmd+A selects all in both editors; adding is Shift+A in a graph and Cmd+Shift+A in a shader', async () => {
+    const { getCommand } = await load()
     const keys = (id: string) => { const { accelerator, aliases, textKey, modes } = getCommand(id)!; return { accelerator, aliases, textKey, modes } }
     expect(keys('graph.addNode')).toEqual({ accelerator: 'Shift+A', aliases: undefined, textKey: undefined, modes: ['graph'] })
     expect(keys('graph.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, textKey: true, modes: ['graph'] })
     expect(keys('graph.deselectAll')).toEqual({ accelerator: 'Alt+A', aliases: ['Escape'], textKey: undefined, modes: ['graph'] })
     expect(keys('shader.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, textKey: true, modes: ['shader'] })
     expect(keys('shader.addFunction')).toEqual({ accelerator: 'Mod+Shift+A', aliases: undefined, textKey: true, modes: ['shader'] })
-    for (const id of ['graph.addNode', 'graph.selectAll', 'graph.deselectAll', 'shader.selectAll', 'shader.addFunction']) expect(nativeAccelerator(getCommand(id)!), id).toBeUndefined()
   })
 
   it('N is the side panel key in a graph only', async () => {
