@@ -1,7 +1,7 @@
 import { StateField, type EditorState, type Text } from '@codemirror/state'
 import { hoverTooltip, showTooltip, type Tooltip } from '@codemirror/view'
 import { snippetCompletion, type Completion, type CompletionContext, type CompletionResult } from '@codemirror/autocomplete'
-import { CATEGORIES, GLSL_EXTRA_BUILTINS, GLSL_KEYWORDS, GLSL_TYPES, NODES, categoryById, nodeByName, type ShaderNode } from './catalog'
+import { CATEGORIES, GLSL_EXTRA_BUILTINS, GLSL_KEYWORDS, GLSL_TYPES, NODES, categoryById, nodeByName, type ShaderNode } from '@/lib/shader/catalog'
 import { highlightGlslHtml } from './glsl-highlight'
 
 function nodeInfo(node: ShaderNode, activeParam = -1): HTMLElement {

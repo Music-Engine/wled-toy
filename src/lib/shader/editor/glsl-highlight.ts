@@ -1,6 +1,6 @@
 import { StreamLanguage, type StreamParser } from '@codemirror/language'
 import { highlightCode, tagHighlighter, tags as t, Tag } from '@lezer/highlight'
-import { GLSL_EXTRA_BUILTINS, GLSL_KEYWORDS, GLSL_TYPES, NODES, nodeByName } from './catalog'
+import { GLSL_EXTRA_BUILTINS, GLSL_KEYWORDS, GLSL_TYPES, NODES, nodeByName } from '@/lib/shader/catalog'
 
 const apiTag = Tag.define()
 const uniformTag = Tag.define()

@@ -10,9 +10,9 @@ import { bracketMatching, foldGutter, foldKeymap, indentOnInput } from '@codemir
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, snippet } from '@codemirror/autocomplete'
 import { lintGutter, lintKeymap, setDiagnostics } from '@codemirror/lint'
 import { highlightSelectionMatches, searchKeymap } from '@codemirror/search'
-import { glslCompletions } from '@/lib/shader/glsl-completions'
-import { toDiagnostics } from '@/lib/shader/glsl-diagnostics'
-import { glsl } from '@/lib/shader/glsl-language'
+import { glslCompletions } from '@/lib/shader/editor/glsl-completions'
+import { toDiagnostics } from '@/lib/shader/editor/glsl-diagnostics'
+import { glsl } from '@/lib/shader/editor/glsl-language'
 import './shader-editor.css'
 
 const props = defineProps<{ error: string | null }>()
