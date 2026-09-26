@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { commands } from 'vitest/browser'
 import { rangePeak } from '@/lib/audio/dsp'
-import { DEFAULT_ANALYSIS } from '@/lib/audio/service'
+import { DEFAULT_ANALYSIS } from '@/lib/audio/settings'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'

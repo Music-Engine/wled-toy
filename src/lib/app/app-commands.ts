@@ -1,5 +1,5 @@
 import { useColorMode } from '@vueuse/core'
-import { systemAudioBlocked } from '@/lib/audio/service'
+import { systemAudioBlocked } from '@/lib/audio/settings'
 import { copyText } from './clipboard'
 import { config, exportConfig } from './config'
 import { activeDeviceId, devices, setActiveDevice } from './devices'

@@ -1,7 +1,7 @@
 // The offline side of the engine's LED tick, shared by the demo-graph test and the bench harness: the synthetic
 // track both run on, and the analysis slots AudioService would have opened for a compiled graph.
 import { Analyzer, type Features } from '@/lib/audio/dsp'
-import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/service'
+import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/settings'
 import { AudioTextures } from '@/lib/audio/textures'
 import type { FramePlan } from '@/lib/graph/compile/js/frame'
 

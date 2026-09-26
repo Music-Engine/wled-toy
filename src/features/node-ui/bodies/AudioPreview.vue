@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import DropdownField from '@/features/node-ui/fields/DropdownField.vue'
 import { useEngine } from '@/lib/engine/engine'
-import { systemAudioBlocked } from '@/lib/audio/service'
+import { systemAudioBlocked } from '@/lib/audio/settings'
 import { report } from '@/lib/app/logs'
 import '@/features/node-ui/node.css'
 import '@/features/node-ui/fields/fields.css'
