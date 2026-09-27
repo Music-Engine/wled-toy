@@ -3,7 +3,7 @@
 import { Analyzer, type Features } from '@/lib/audio/dsp'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, type AnalysisSettings } from '@/lib/audio/service'
 import { AudioTextures } from '@/lib/audio/textures'
-import type { ControlPlan } from '@/lib/graph/compile/control'
+import type { FramePlan } from '@/lib/graph/compile/frame'
 import type { AudioSourceRequest } from '@/lib/graph/nodes/audio/audio'
 
 export const SAMPLE_RATE = 48000
@@ -61,7 +61,7 @@ export interface Slot {
 }
 
 /** As AudioService does it: slot 0 is the default analysis, FFT nodes add slots, the Audio Source sets gain and gate. */
-export function openSlots(control: ControlPlan, sampleRate = SAMPLE_RATE): Slot[] {
+export function openSlots(control: FramePlan, sampleRate = SAMPLE_RATE): Slot[] {
   const [source = DEFAULT_AUDIO] = (control.resources.audioSource ?? []) as AudioSourceRequest[]
   return [DEFAULT_ANALYSIS, ...(control.resources.analysis ?? []) as AnalysisSettings[]].slice(0, MAX_ANALYSES).map((wanted) => {
     const settings = { ...wanted, bands: Math.max(12, Math.round(wanted.bands)), hop: Math.min(wanted.hop, wanted.windowSize) }

@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { BLEND_FUNCTIONS } from '@/lib/graph/compile/glsl/color-mix'
-import { Bool, Color, Enum, Float } from '@/lib/graph/define/types'
+import { Bool, Color, defineNode, Enum, Float } from '@/lib/graph/authoring'
+import { BLEND_FUNCTIONS } from '@/lib/graph/nodes/glsl/blend'
 
 export const BLEND_MODES = [
   { value: 'mix', label: 'Mix', group: 'Mix' }, { value: 'add', label: 'Add', group: 'Lighten' }, { value: 'multiply', label: 'Multiply', group: 'Darken' }, { value: 'screen', label: 'Screen', group: 'Lighten' },

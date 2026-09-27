@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { hsvToRgbChunk, rgbToHsvChunk } from '@/lib/graph/compile/glsl/color'
-import { Color, Float, Vec3 } from '@/lib/graph/define/types'
+import { Color, defineNode, Float, Vec3 } from '@/lib/graph/authoring'
+import { hsvToRgbChunk, rgbToHsvChunk } from '@/lib/graph/nodes/glsl/color'
 
 export const hsvToRgbNode = defineNode('hsv2rgb', {
   title: 'HSV to RGB',

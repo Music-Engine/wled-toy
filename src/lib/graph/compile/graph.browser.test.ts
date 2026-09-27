@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Color, GRAPH_FS, canCast, createDefaultGraph, firstCompatibleSocket } from '@/lib/graph'
+import { GRAPH_FS, canCast, createDefaultGraph, firstCompatibleSocket } from '@/lib/graph'
+import { Color } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { graph, link, node, renderGraph } from '@/lib/graph/testing'
 

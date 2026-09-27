@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Vec2 } from '@/lib/graph/define/types'
+import { defineNode, Vec2 } from '@/lib/graph/authoring'
 
 export const vector2Node = defineNode('vector2', {
   title: 'Vector 2',

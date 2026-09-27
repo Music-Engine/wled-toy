@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { BLEND_FUNCTIONS } from '@/lib/graph/compile/glsl/color-mix'
-import { Bool, Color, Enum, Float } from '@/lib/graph/define/types'
+import { Bool, Color, defineNode, Enum, Float } from '@/lib/graph/authoring'
+import { BLEND_FUNCTIONS } from '@/lib/graph/nodes/glsl/blend'
 import { BLEND_MODES, type BlendMode } from './color-mix'
 
 /** `mode` is `connectable: false`, so it is known at shape-build time and the node includes only that one blend function. */

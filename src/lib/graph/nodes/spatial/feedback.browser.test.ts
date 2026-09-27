@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ShaderRenderer } from '@/lib/engine/renderer'
-import { ControlRunner } from '@/lib/graph/compile/control'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node, toByte } from '@/lib/graph/testing'
 
 /** Renders `frames` LED frames at `fps`; `knob(frame)` sets the graph's knob each frame. Returns the red byte of every LED per frame. */
@@ -9,7 +8,7 @@ function run(doc: ReturnType<typeof graph>, frames: number, fps: number, knob: (
   const canvas = document.createElement('canvas')
   const renderer = new ShaderRenderer(canvas)
   const gl = canvas.getContext('webgl2')!
-  const runner = new ControlRunner()
+  const runner = new FrameRunner()
   const out: number[][] = []
   for (let frame = 0; frame < frames; frame++) {
     doc.nodes.find((n) => n.data.kind === 'knob')!.data.values.value = knob(frame)
@@ -17,7 +16,7 @@ function run(doc: ReturnType<typeof graph>, frames: number, fps: number, knob: (
     expect(shader.error).toBeNull()
     if (frame === 0) renderer.compile(shader.code)
     runner.load(shader.control)
-    renderer.setControls(runner.step({ time: frame / fps, dt: 1 / fps, frame }))
+    renderer.setControls(runner.step({ time: frame / fps, dt: 1 / fps, frameIndex: frame }))
     const colors = renderer.renderLeds({ time: frame / fps, dt: 1 / fps, frame, ledCount: leds, scanY: 0.5 })
     out.push(Array.from({ length: leds }, (_, i) => toByte(colors[i * 3])))
   }
@@ -42,10 +41,10 @@ describe('Trails', () => {
     const renderer = new ShaderRenderer(document.createElement('canvas'))
     const shader = generateGlsl(graph([node('k', 'knob', { value: 0 }), node('t', 'trails', { decay: 5 }), node('o', 'output')], [['k.value', 't.color'], ['t.color', 'o.color']]))
     const lit = generateGlsl(graph([node('k', 'knob', { value: 1 }), node('t', 'trails', { decay: 5 }), node('o', 'output')], [['k.value', 't.color'], ['t.color', 'o.color']]))
-    const runner = new ControlRunner()
+    const runner = new FrameRunner()
     const frame = (s: typeof shader) => {
       runner.load(s.control)
-      renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frame: 0 }))
+      renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0 }))
       return toByte(renderer.renderLeds({ time: 0, dt: 1 / 30, frame: 0, ledCount: 1, scanY: 0.5 })[0])
     }
     renderer.compile(shader.code)

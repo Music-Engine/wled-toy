@@ -19,7 +19,7 @@ import { log } from '@/lib/app/logs'
 import { useEngine } from '@/lib/engine/engine'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from '@/components/graph/graph-context'
-import { createGraphDocument, graphFileBackendKey, storedDoc, type GraphDocument } from '@/lib/graph/model/document'
+import { createGraphDocument, graphFileBackendKey, type GraphSession } from '@/lib/graph/model/document'
 import { createHistory } from '@/lib/documents/history'
 import { frozenNotice, graphCodeNotice } from '@/lib/shader/shader-export'
 import { filterFs, type MenuPreset } from '@/lib/shader/menu-fs'
@@ -28,8 +28,8 @@ import { graphImageDrop } from '@/lib/app/file-drop'
 import { classifyWheel, type WheelGesture } from './wheel-source'
 import {
   GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, itemFor,
-  newNodeData, normalizeDoc, outputSocket, pruneScenes, rateOf, shapeOf,
-  type GraphDoc, type GraphIssue, type GraphNodeData, type LinkType, type NodeItem, type StoredEdge,
+  newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
+  type NodeGraph, type GraphIssue, type GraphNodeData, type LinkType, type NodeItem, type StoredEdge,
 } from '@/lib/graph'
 
 interface PendingLink {
@@ -68,7 +68,7 @@ const pointer = { x: 0, y: 0 }
 const generated = shallowRef(generateGlsl(initial))
 const compileError = ref<string | null>(null)
 const compiledLineNodes = shallowRef<(string | null)[]>([])
-let lastSaved: GraphDoc | null = config.graph
+let lastSaved: NodeGraph | null = config.graph
 let lastCompiled = ''
 let regenTimer: ReturnType<typeof setTimeout> | undefined
 let liveTimer: ReturnType<typeof setTimeout> | undefined
@@ -175,14 +175,14 @@ watch([storedNodeFields, storedEdgeKey, scenes], () => {
 
 window.addEventListener('pagehide', flushSave)
 
-function replaceGraph(doc: GraphDoc) {
+function replaceGraph(doc: NodeGraph) {
   nodes.value = doc.nodes
   scenes.value = doc.scenes ?? []
   edges.value = styledEdges(doc)
 }
 
 /** A hand-written file has no edge styles; the editor colors a link by its source socket when it is drawn. */
-function styledEdges(doc: GraphDoc): Edge[] {
+function styledEdges(doc: NodeGraph): Edge[] {
   const byId = new Map(doc.nodes.map((n) => [n.id, n.data]))
   return doc.edges.map((e) => {
     const from = e.style?.stroke ? undefined : outputSocket(byId.get(e.source), e.sourceHandle)
@@ -200,7 +200,7 @@ watch(() => config.graph, (graph) => {
 // The file is what Save wrote last; config.graph stays the working copy that every edit lands in, that other tabs follow
 // and that a reload comes back to. A loaded file replaces the graph like another tab's save does, and the watcher above
 // then writes it into the working copy.
-const graphDocument = shallowRef<GraphDocument>()
+const graphDocument = shallowRef<GraphSession>()
 const fileBackend = inject(graphFileBackendKey, createBrowserBackend, true)
 
 // after mount, because the first snapshot is what "unedited" means and Vue Flow's store has no edges before that
@@ -280,7 +280,7 @@ function isValidConnection(c: Connection) {
   const from = outputSocket(dataOf(c.source), c.sourceHandle)
   const to = inputSocket(dataOf(c.target), c.targetHandle)
   // a control-rate node computes once per frame, so nothing that exists only per pixel can feed it
-  const perPixelIntoControl = rateOf(shapeOf(dataOf(c.source))!) === 'pixel' && rateOf(shapeOf(dataOf(c.target))!) === 'control'
+  const perPixelIntoControl = placement(storedShape(dataOf(c.source))!) === 'pixel' && placement(storedShape(dataOf(c.target))!) === 'frame'
   return !!from && !!to && canCast(from.type, to.type) && !perPixelIntoControl
 }
 

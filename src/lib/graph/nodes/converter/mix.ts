@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Bool, Enum, GenType } from '@/lib/graph/define/types'
+import { Bool, defineNode, Enum, GenType } from '@/lib/graph/authoring'
 
 const MODES = [{ value: 'mix', label: 'Mix' }, { value: 'switch', label: 'Switch' }] as const
 

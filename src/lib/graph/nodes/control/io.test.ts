@@ -1,17 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ControlRunner } from '@/lib/graph/compile/control'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
 
 vi.stubGlobal('navigator', {})
 const { MidiService } = await import('@/lib/engine/midi')
 
-const frame = { time: 0, dt: 1 / 30, frame: 0 }
+const frame = { time: 0, dt: 1 / 30, frameIndex: 0 }
 
 function firstSlot(doc: ReturnType<typeof graph>, extra: object) {
   const shader = generateGlsl(doc)
   expect(shader.error).toBeNull()
-  const runner = new ControlRunner()
+  const runner = new FrameRunner()
   runner.load(shader.control)
   return () => runner.step({ ...frame, ...extra })[0]
 }

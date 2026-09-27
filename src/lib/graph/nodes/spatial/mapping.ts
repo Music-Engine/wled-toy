@@ -1,13 +1,11 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Vec3 } from '@/lib/graph/define/types'
-import { textureVector } from '@/lib/graph/nodes/texture/vector'
+import { defineNode, Float, Vec3 } from '@/lib/graph/authoring'
 
 export const mappingNode = defineNode('mapping', {
   title: 'Mapping',
   description: 'Moves, turns and scales a coordinate before a texture or image reads it: scale around the pivot, rotate around it (in turns), then add the location.',
   category: 'math',
   input: {
-    vector: textureVector,
+    vector: { type: Vec3, label: 'Vector', default: { expr: 'vec3(uv, 0.0)', label: 'uv' } },
     location: { type: Vec3, default: [0, 0, 0] },
     rotation: { type: Float, label: 'Rotation (turns)', default: 0, props: { step: 0.01, decimals: 3 } },
     scale: { type: Vec3, default: [1, 1, 1] },

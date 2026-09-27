@@ -33,7 +33,7 @@ export interface StoredEdge {
  */
 export const GRAPH_VERSION = 3
 
-export interface GraphDoc {
+export interface NodeGraph {
   version: number
   nodes: StoredNode[]
   edges: StoredEdge[]
@@ -46,12 +46,51 @@ export const GRAPH_NODE_TYPE = 'shader'
 export const newNodeData = (kind: string, values: GraphNodeData['values'] = {}): GraphNodeData => ({ kind, values })
 
 /** A current-version graph, tidied: an input holds one link (the newest wins) and scenes are what parseScenes accepts. */
-export function normalizeDoc(doc: GraphDoc): GraphDoc {
+export function normalizeDoc(doc: NodeGraph): NodeGraph {
   const byInput = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
   return { version: GRAPH_VERSION, nodes: doc.nodes, edges: [...byInput.values()], scenes: parseScenes(doc.scenes) }
 }
 
-export function createDefaultGraph(): GraphDoc {
+interface NodeLike {
+  id: string
+  type?: string
+  position: { x: number; y: number }
+  data?: GraphNodeData
+}
+
+interface EdgeLike {
+  id: string
+  source: string
+  target: string
+  sourceHandle?: string | null
+  targetHandle?: string | null
+  style?: unknown
+}
+
+/**
+ * The one shape and key order a graph is stored in. The editor's snapshot and a freshly parsed file both go through it,
+ * so a file that was just opened serializes to the text it was compared against and does not count as edited.
+ */
+export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[], scenes: NodeGraph['scenes']): NodeGraph {
+  // plain JSON: structuredClone rejects the reactive proxies Vue leaves nested in node data
+  return JSON.parse(JSON.stringify({
+    nodes: nodes.map((n) => ({ id: n.id, type: n.type ?? GRAPH_NODE_TYPE, position: { x: n.position.x, y: n.position.y }, data: n.data })),
+    edges: edges.map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      sourceHandle: e.sourceHandle ?? null,
+      targetHandle: e.targetHandle ?? null,
+      style: e.style,
+    })),
+    scenes: scenes ?? [],
+    version: GRAPH_VERSION,
+  }))
+}
+
+export const canonical = (doc: NodeGraph) => storedDoc(doc.nodes, doc.edges, doc.scenes)
+
+export function createDefaultGraph(): NodeGraph {
   const node = (id: string, kind: string, x: number, y: number, values: GraphNodeData['values'] = {}): StoredNode => ({
     id, type: GRAPH_NODE_TYPE, position: { x, y }, data: { kind, values },
   })

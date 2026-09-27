@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { commonChunk } from '@/lib/graph/compile/glsl/common'
-import { Color, Float, Vec3 } from '@/lib/graph/define/types'
+import { Color, defineNode, Float, Vec3 } from '@/lib/graph/authoring'
+import { commonChunk } from '@/lib/graph/nodes/glsl/common'
 import { textureVector } from './vector'
 
 export const whiteNoiseNode = defineNode('whiteNoise', {

@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Bool, Float } from '@/lib/graph/define/types'
+import { Bool, defineNode, Float } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 export const integratorNode = defineNode('integrator', {

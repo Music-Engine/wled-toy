@@ -2,10 +2,10 @@
 // Streams are settled first (./streams), per-frame nodes are planned (./control-plan), and nodes that run in the
 // shader are emitted (./emit); this file only walks the graph's sinks and packs the result.
 import type { OutputSettings } from '@/lib/engine/output'
-import { itemFor } from '@/lib/graph/define/registry'
-import type { GraphDoc } from '@/lib/graph/model/doc'
+import { itemFor } from '@/lib/graph/registry'
+import type { NodeGraph } from '@/lib/graph/model/doc'
 import { Compilation, GraphError, type CompileOptions, type FrozenValue, type GraphIssue } from './compilation'
-import type { ControlPlan } from './control'
+import type { FramePlan } from './frame'
 import { planControl } from './control-plan'
 import { assemble, evaluate } from './emit'
 import { resolveNode } from './streams'
@@ -15,7 +15,7 @@ export type { CompileOptions, FrozenValue, GraphIssue } from './compilation'
 export interface GeneratedShader {
   code: string
   /** What runs on the CPU each frame, and which of its results the shader reads from `iControl`. */
-  control: ControlPlan
+  control: FramePlan
   /** Wire settings from the graph's Output node; null when it has none. */
   output: OutputSettings | null
   error: string | null
@@ -27,19 +27,19 @@ export interface GeneratedShader {
   frozen: FrozenValue[]
 }
 
-export function generateGlsl(doc: GraphDoc, options: CompileOptions = {}): GeneratedShader {
+export function generateGlsl(doc: NodeGraph, options: CompileOptions = {}): GeneratedShader {
   const c = new Compilation(doc, options)
   const finish = (error: string | null, errorNode: string | null): GeneratedShader =>
     ({ ...assemble(c), control: c.plan, output: c.output, error, errorNode, issues: c.issues, frozen: c.frozen })
 
-  const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).item.isOutput)
-  if (!sinks.some((n) => c.lookup(n.id).item.exec)) return finish('Add an Output node to see anything.', null)
+  const sinks = doc.nodes.filter((n) => itemFor(n.data.kind) && c.lookup(n.id).shape.isOutput)
+  if (!sinks.some((n) => c.lookup(n.id).shape.exec)) return finish('Add an Output node to see anything.', null)
   try {
     // a sink that only runs per frame (Scene Switch) or only settles streams (Audio Source) draws nothing, but takes part
     for (const sink of sinks) {
-      const { item } = c.lookup(sink.id)
-      if (item.exec) evaluate(c, sink.id)
-      else if (item.run) planControl(c, sink.id)
+      const { shape } = c.lookup(sink.id)
+      if (shape.exec) evaluate(c, sink.id)
+      else if (shape.run) planControl(c, sink.id)
       else resolveNode(c, sink.id)
     }
     return finish(null, null)

@@ -1,8 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import type { ControlValue, InputDef, NodeItemOptions, OutputDef } from '@/lib/graph/define/node'
-import type { Value } from '@/lib/graph/define/value'
-import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/compile/glsl/math'
-import { Enum, Float, Vec3 } from '@/lib/graph/define/types'
+import { defineNode, Enum, Float, Vec3, type FrameValue, type InputDef, type NodeItemOptions, type OutputDef, type Value } from '@/lib/graph/authoring'
+import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/nodes/glsl/math'
 
 type V = [number, number, number]
 const map = (a: V, fn: (x: number, i: number) => number): V => [fn(a[0], 0), fn(a[1], 1), fn(a[2], 2)]
@@ -55,7 +52,7 @@ export const VECTOR_OPS = {
 } satisfies Record<string, VectorOp>
 
 export type VectorOpName = keyof typeof VECTOR_OPS
-export const VECTOR_OP_OPTIONS = Object.entries(VECTOR_OPS).map(([value, op]) => ({ value: value as VectorOpName, label: op.label, group: op.group }))
+const VECTOR_OP_OPTIONS = Object.entries(VECTOR_OPS).map(([value, op]) => ({ value: value as VectorOpName, label: op.label, group: op.group }))
 
 const asVector = (v: number | number[]): V => (Array.isArray(v) ? [v[0] ?? 0, v[1] ?? 0, v[2] ?? 0] : [v, v, v])
 
@@ -68,6 +65,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
     title: 'Vector Math',
     description: 'Operations on whole vectors: add, scale, cross and dot products, distance, projection, wrap and snap. Combine XYZ builds a vector from numbers.',
     category: 'converter',
+    presets: VECTOR_OP_OPTIONS.map((o) => ({ title: o.label, values: { op: o.value } })),
     input: {
       op: { type: Enum(VECTOR_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
       a: vec([0.5, 0.5, 0]),
@@ -81,7 +79,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
       const expr = def.glsl(input.a.expr, input.b?.expr ?? 'vec3(0.0)', input.c?.expr ?? 'vec3(0.0)', input.scale?.expr ?? '1.0')
       return def.out === 'vector' ? { vector: ctx.declare('vec3', expr) } : { value: ctx.declare('float', expr) }
     },
-    run: (input: Record<string, any>): Record<string, ControlValue> => {
+    run: (input: Record<string, any>): Record<string, FrameValue> => {
       const result = def.js(asVector(input.a), asVector(input.b ?? 0), asVector(input.c ?? 0), (input.scale as number) ?? 1)
       return def.out === 'vector' ? { vector: result as V } : { value: result as number }
     },

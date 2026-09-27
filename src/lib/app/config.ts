@@ -1,7 +1,7 @@
 import { reactive, watch } from 'vue'
 import { activeDevice, activeDeviceId, devices, resetStoredDevices, restoreDevices, sanitizeDeviceStore, updateActiveDevice, type SavedDevice } from './devices'
 import { EXAMPLE } from '@/lib/shader/glsl'
-import { GRAPH_VERSION, type GraphDoc } from '@/lib/graph/model/doc'
+import { GRAPH_VERSION, type NodeGraph } from '@/lib/graph/model/doc'
 import { layoutCount, parseLayout, type Layout } from '@/lib/engine/layout'
 import { log } from './logs'
 import { isTauri } from './platform'
@@ -22,7 +22,7 @@ export interface AppConfig {
   scanY: number
   brightness: number
   code: string
-  graph: GraphDoc | null
+  graph: NodeGraph | null
   /** Where the LEDs physically are; null is a straight strip along the preview's scanline. Sets ledCount when present. */
   layout: Layout | null
 }
@@ -56,10 +56,10 @@ export function sanitize(input: unknown): Partial<AppConfig> {
   if (typeof src.scanY === 'number') out.scanY = clamp(src.scanY, 0, 1)
   if (typeof src.brightness === 'number') out.brightness = clamp(src.brightness, 0, 1)
   if (typeof src.code === 'string') out.code = src.code
-  const graph = src.graph as Partial<GraphDoc> | null | undefined
+  const graph = src.graph as Partial<NodeGraph> | null | undefined
   if (graph && Array.isArray(graph.nodes) && Array.isArray(graph.edges)) {
     // no migrations: a graph from an older version is dropped rather than half-understood
-    out.graph = graph.version === GRAPH_VERSION ? (graph as GraphDoc) : null
+    out.graph = graph.version === GRAPH_VERSION ? (graph as NodeGraph) : null
     if (!out.graph) log(`A saved graph from an older version (${graph.version ?? 1}) was discarded; this version is ${GRAPH_VERSION}`, 'warn')
   }
   if ('layout' in src) {

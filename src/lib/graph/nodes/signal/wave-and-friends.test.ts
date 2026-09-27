@@ -1,15 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { NodeItem } from '@/lib/graph/define/node'
-import { generateGlsl } from '@/lib/graph/compile/compile'
-import { ControlRunner } from '@/lib/graph/compile/control'
+import type { NodeItem } from '@/lib/graph/authoring'
+import { FrameRunner, generateGlsl, itemFor } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
-import { bandsNode } from '@/lib/graph/nodes/audio/bands'
 import { clockDividerNode } from './clock-divider'
 import { integratorNode } from './integrator'
 import { stepSequencerNode } from './step-sequencer'
 import { waveNode } from './wave'
 
-const frame = (n: number, fps = 30) => ({ time: n / fps, dt: 1 / fps, frame: n })
+const frame = (n: number, fps = 30) => ({ time: n / fps, dt: 1 / fps, frameIndex: n })
 
 function simulate(item: NodeItem, values: Record<string, unknown>, output: string, input: (t: number) => Record<string, unknown>, seconds: number, fps = 30): number[] {
   const shape = item.shape(values)
@@ -35,9 +33,9 @@ describe('Wave', () => {
   it('on the CPU an unlinked Input follows the engine clock', () => {
     const { control, error } = generateGlsl(graph([node('w', 'wave', { shape: 'saw', frequency: 1 }), node('e', 'envelopeFollower', { attack: 0, release: 0 }), node('o', 'output')], [['w.value', 'e.signal'], ['e.envelope', 'o.color']]))
     expect(error).toBeNull()
-    const runner = new ControlRunner()
+    const runner = new FrameRunner()
     runner.load(control)
-    expect(runner.step({ time: 0.25, dt: 1 / 30, frame: 1 })[0]).toBeCloseTo(0.25, 5)
+    expect(runner.step({ time: 0.25, dt: 1 / 30, frameIndex: 1 })[0]).toBeCloseTo(0.25, 5)
   })
 
   it('in the shader it uses iTime by default', () => {
@@ -81,10 +79,11 @@ describe('Step Sequencer', () => {
 
 describe('Bands', () => {
   it('has as many outputs as asked and folds the analysis bands into them', () => {
-    expect(bandsNode.shape({ count: '4' }).outputs.map((o) => o.label)).toEqual(['Band 1', 'Band 2', 'Band 3', 'Band 4'])
-    expect(bandsNode.shape({}).outputs).toHaveLength(8)
+    const bands = itemFor('bands')!
+    expect(bands.shape({ count: '4' }).outputs.map((o) => o.label)).toEqual(['Band 1', 'Band 2', 'Band 3', 'Band 4'])
+    expect(bands.shape({}).outputs).toHaveLength(8)
     const features = { bands: Float32Array.from({ length: 16 }, (_, i) => i / 15) }
-    const out = bandsNode.shape({ count: '4' }).run!({ spectrum: null, count: '4' }, undefined, { ...frame(0), audio: { analyses: [features as never], sampleRate: 48000 } })
+    const out = bands.shape({ count: '4' }).run!({ spectrum: null, count: '4' }, undefined, { ...frame(0), audio: { analyses: [features as never], sampleRate: 48000 } })
     expect(out.band1).toBeCloseTo(3 / 15)
     expect(out.band4).toBeCloseTo(1)
   })

@@ -1,6 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define';
-import { Float, Vec3 } from '@/lib/graph/define/types';
-import { swizzle } from '@/lib/graph/define/value';
+import { defineNode, Float, swizzle, Vec3 } from '@/lib/graph/authoring';
 
 export const combineXyzNode = defineNode('combineXYZ', {
   title: 'Combine XYZ',

@@ -1,21 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { ControlRunner, castControl, generateGlsl, type ControlPlan } from '@/lib/graph'
+import { createDefaultGraph, FrameRunner, generateGlsl, type FramePlan } from '@/lib/graph'
+import { castFrameValue, type FrameBinding } from './frame'
 import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { Float } from '@/lib/graph/define/socket-types'
 import { graph, node } from '@/lib/graph/testing'
 
-const frame = (n: number) => ({ time: n / 30, dt: 1 / 30, frame: n })
+const frame = (n: number) => ({ time: n / 30, dt: 1 / 30, frameIndex: n })
 
-describe('castControl', () => {
+describe('castFrameValue', () => {
   it('follows the GLSL cast rules on plain numbers', () => {
-    expect(castControl(0.5, 3)).toEqual([0.5, 0.5, 0.5])
-    expect(castControl([1, 2, 3, 4], 2)).toEqual([1, 2])
-    expect(castControl([1, 2], 4)).toEqual([1, 2, 0, 1])
-    expect(castControl([7, 8, 9], 1)).toBe(7)
+    expect(castFrameValue(0.5, 3)).toEqual([0.5, 0.5, 0.5])
+    expect(castFrameValue([1, 2, 3, 4], 2)).toEqual([1, 2])
+    expect(castFrameValue([1, 2], 4)).toEqual([1, 2, 0, 1])
+    expect(castFrameValue([7, 8, 9], 1)).toBe(7)
   })
 })
 
-describe('ControlRunner', () => {
+describe('FrameRunner', () => {
   const counter = defineNode('testCounter', {
     title: 'Counter', description: '', category: 'signal',
     input: { step: { type: Float, default: 1 } },
@@ -23,14 +24,14 @@ describe('ControlRunner', () => {
     state: () => ({ count: 0 }),
     run: ({ step }, state) => ({ count: (state.count += step as number) }),
   })
-  const plan = (step: number): ControlPlan => ({
+  const plan = (step: number): FramePlan => ({
     steps: [{ nodeId: 'c', kind: counter.id, run: counter.base.run!, state: counter.base.state, inputs: { step: { constant: step } }, dims: { step: 1 } }],
     exports: [{ step: 0, output: 'count', slot: 5, dim: 1 }],
     resources: {},
   })
 
   it('keeps state between frames and across a new plan for the same node', () => {
-    const runner = new ControlRunner()
+    const runner = new FrameRunner()
     runner.load(plan(1))
     runner.step(frame(0))
     expect(runner.step(frame(1))[5]).toBe(2)
@@ -39,7 +40,7 @@ describe('ControlRunner', () => {
   })
 
   it('drops state when the node is gone or the clock is reset', () => {
-    const runner = new ControlRunner()
+    const runner = new FrameRunner()
     runner.load(plan(1))
     runner.step(frame(0))
     runner.load({ steps: [], exports: [], resources: {} })
@@ -47,6 +48,21 @@ describe('ControlRunner', () => {
     expect(runner.step(frame(1))[5]).toBe(1)
     runner.reset()
     expect(runner.step(frame(2))[5]).toBe(1)
+  })
+
+  it('refuses a plan that names an unknown frame builtin', () => {
+    const unknown = { ...plan(1), steps: [{ ...plan(1).steps[0], inputs: { step: { frame: 'tick' } as unknown as FrameBinding } }] }
+    expect(() => new FrameRunner().load(unknown)).toThrow('"tick"')
+  })
+
+  it('every input binding survives JSON, including a frame builtin', () => {
+    const wave = graph([node('k', 'knob'), node('w', 'wave'), node('o', 'output')], [['k.value', 'w.frequency'], ['w.value', 'o.color']])
+    for (const doc of [createDefaultGraph(), wave]) {
+      const { steps } = generateGlsl(doc).control
+      const parsed: FramePlan = JSON.parse(JSON.stringify({ steps }))
+      steps.forEach((step, i) => expect(parsed.steps[i].inputs).toEqual(step.inputs))
+    }
+    expect(generateGlsl(wave).control.steps.flatMap((step) => Object.values(step.inputs))).toContainEqual({ frame: 'time' })
   })
 })
 
@@ -91,7 +107,7 @@ describe('control-rate sinks', () => {
     expect(error).toBeNull()
     expect(control.steps.map((s) => s.nodeId)).toEqual(['k', 's'])
     expect(control.exports).toEqual([])
-    const runner = new ControlRunner()
+    const runner = new FrameRunner()
     runner.load(control)
     runner.step(frame(0))
     expect(runner.output('s', 'scene')).toBe(2)

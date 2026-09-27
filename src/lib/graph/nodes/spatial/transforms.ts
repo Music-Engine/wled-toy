@@ -1,6 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Enum, Float, Vec2 } from '@/lib/graph/define/types'
-import { swizzle } from '@/lib/graph/define/value'
+import { defineNode, Enum, Float, swizzle, Vec2 } from '@/lib/graph/authoring'
 
 const uvInput = { type: Vec2, label: 'UV', default: { expr: 'uv', label: 'uv' } } as const
 const center = { type: Vec2, default: [0.5, 0.5] } as const

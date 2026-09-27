@@ -5,10 +5,10 @@ import { DEFAULT_ANALYSIS } from '@/lib/audio/service'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'
-import { ControlRunner } from './control'
-import type { GraphDoc } from '@/lib/graph/model/doc'
+import { FrameRunner } from './frame'
+import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
-import { shapeOf } from '@/lib/graph/define/registry'
+import { storedShape } from '@/lib/graph/registry'
 import { graph, node } from '@/lib/graph/testing'
 import { BEAT, BREAKDOWN, FPS, SAMPLE_RATE, SECONDS, feedSlots, openSlots, section, synthTrack } from '@/lib/graph/testing/offline'
 
@@ -21,9 +21,9 @@ const files = import.meta.glob('/graphs/*.wledgraph', { query: '?raw', import: '
 const graphs = Object.entries(files).map(([path, text]) => [path.split('/').pop()!.replace('.wledgraph', ''), text] as const)
 
 /** Things that load and compile but will disappoint: nodes stacked on each other (boxes estimated from the editor's 20 px rows). */
-function warnings(doc: GraphDoc): string[] {
+function warnings(doc: NodeGraph): string[] {
   const boxes = doc.nodes.flatMap((node) => {
-    const shape = shapeOf(node.data)
+    const shape = storedShape(node.data)
     if (!shape) return []
     const rows = shape.outputs.length + shape.inputs.reduce((sum, s) => sum + (Array.isArray(s.default) && s.type.id !== 'color' ? 1 + s.default.length : 1), 0)
     return [{ id: node.id, x: node.position.x, y: node.position.y, w: 200, h: 34 + 22 * rows }]
@@ -49,7 +49,7 @@ interface Run {
 }
 
 /** The engine's LED tick, offline: hops up to the frame's time are analyzed, then controls step, audio uploads, LEDs render. */
-function play(doc: GraphDoc, track: Float32Array): Run {
+function play(doc: NodeGraph, track: Float32Array): Run {
   const shader = generateGlsl(doc)
   expect(shader.error, `graph error at node "${shader.errorNode}": ${shader.error}`).toBeNull()
   expect(shader.issues.map((issue) => `${issue.nodeId}: ${issue.message}`), 'graph issues').toEqual([])
@@ -65,7 +65,7 @@ function play(doc: GraphDoc, track: Float32Array): Run {
   }
   matrix.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: MATRIX_SIDE, height: MATRIX_SIDE, serpentine: false, origin: 'top-left' }] }))
 
-  const runner = new ControlRunner()
+  const runner = new FrameRunner()
   runner.load(shader.control)
   const slots = openSlots(shader.control, SAMPLE_RATE)
 
@@ -77,12 +77,12 @@ function play(doc: GraphDoc, track: Float32Array): Run {
     run.audio.push({
       level: f?.level ?? 0,
       kick: f?.gate ? Math.sqrt(Math.min(1, rangePeak(f.spectrum, SAMPLE_RATE, f.spectrum.length * 2, 60, 150) * f.gain)) : 0,
-      beat: !!f?.beat,
+      beat: f?.beat ?? false,
       bands: Float32Array.from(f?.bands ?? new Float32Array(DEFAULT_ANALYSIS.bands)),
       chroma: Float32Array.from(f?.chroma ?? new Float32Array(12)),
     })
 
-    const controls = runner.step({ time, dt: 1 / FPS, frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
     for (const renderer of [strip, matrix]) {
       renderer.setControls(controls)
       if (f) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))

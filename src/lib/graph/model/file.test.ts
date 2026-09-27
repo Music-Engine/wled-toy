@@ -1,34 +1,34 @@
 import { describe, expect, it } from 'vitest'
 import { normalizeDoc } from './doc'
-import { GraphFileError, parseGraphFile, readGraphFile, serializeGraphFile } from './file'
+import { GraphFileError, readGraphFile, serializeGraphFile } from './file'
 import { graph, node } from '@/lib/graph/testing'
 
 const doc = normalizeDoc(graph([node('uv', 'uv'), node('out', 'output')], [['uv.x', 'out.color']]))
 
-describe('serializeGraphFile / parseGraphFile', () => {
+describe('serializeGraphFile / readGraphFile', () => {
   it('round-trips a graph unchanged', () => {
-    expect(parseGraphFile(serializeGraphFile(doc))).toEqual(doc)
+    expect(readGraphFile(serializeGraphFile(doc)).doc).toEqual(doc)
   })
 
   it('rejects malformed JSON', () => {
-    expect(() => parseGraphFile('not json')).toThrow(GraphFileError)
+    expect(() => readGraphFile('not json')).toThrow(GraphFileError)
   })
 
   it('rejects a file from a different app', () => {
-    expect(() => parseGraphFile(JSON.stringify({ app: 'other', formatVersion: 1, graph: doc }))).toThrow(/not a wledtoy graph file/)
+    expect(() => readGraphFile(JSON.stringify({ app: 'other', formatVersion: 1, graph: doc }))).toThrow(/not a wledtoy graph file/)
   })
 
   it('rejects an unsupported envelope format version', () => {
-    expect(() => parseGraphFile(JSON.stringify({ app: 'wledtoy', formatVersion: 99, graph: doc }))).toThrow(/format version 99/)
+    expect(() => readGraphFile(JSON.stringify({ app: 'wledtoy', formatVersion: 99, graph: doc }))).toThrow(/format version 99/)
   })
 
   it('rejects a graph saved by an older graph version', () => {
     const old = JSON.stringify({ app: 'wledtoy', formatVersion: 1, graph: { ...doc, version: 2 } })
-    expect(() => parseGraphFile(old)).toThrow(/older version \(2\)/)
+    expect(() => readGraphFile(old)).toThrow(/older version \(2\)/)
   })
 
   it('rejects a graph missing nodes or edges', () => {
-    expect(() => parseGraphFile(JSON.stringify({ app: 'wledtoy', formatVersion: 1, graph: { version: 3 } }))).toThrow(GraphFileError)
+    expect(() => readGraphFile(JSON.stringify({ app: 'wledtoy', formatVersion: 1, graph: { version: 3 } }))).toThrow(GraphFileError)
   })
 })
 

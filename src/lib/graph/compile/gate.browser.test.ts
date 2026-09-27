@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { Color, allItems, canCast, generateGlsl, type CompileOptions, type GeneratedShader, type NodeItem } from '@/lib/graph'
-import type { GraphDoc } from '@/lib/graph/model/doc'
+import { allItems, canCast, generateGlsl, type GeneratedShader, type NodeItem } from '@/lib/graph'
+import { Color } from '@/lib/graph/define/socket-types'
+import type { CompileOptions } from './compile'
+import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { graph, node } from '@/lib/graph/testing'
 
@@ -13,7 +15,7 @@ const modes: Record<string, CompileOptions> = {
   standalone: { standalone: true, controls: () => 0.5 },
 }
 
-function alone(item: NodeItem): GraphDoc {
+function alone(item: NodeItem): NodeGraph {
   if (item.id === 'output') return graph([node('n', 'output')])
   const out = item.base.outputs[0]
   const drawable = out && canCast(out.type, Color)
@@ -21,15 +23,14 @@ function alone(item: NodeItem): GraphDoc {
 }
 
 function planJson({ control, issues, error, errorNode, frozen }: GeneratedShader): string {
-  const steps = control.steps.map(({ nodeId, kind, inputs, dims, run, state }) => ({ nodeId, kind, inputs, dims, run: !!run, state: !!state }))
+  const steps = control.steps.map(({ nodeId, kind, inputs, dims, run, state }) => ({ nodeId, kind, inputs, dims, run: run !== undefined, state: state !== undefined }))
   const plan = { steps, exports: control.exports, resources: control.resources, issues, error, errorNode, frozen }
-  // a `frame` input binding is a function too; like `run`, only its presence is recorded
-  return `${JSON.stringify(plan, (_, value) => (typeof value === 'function' ? true : value), 2)}\n`
+  return `${JSON.stringify(plan, null, 2)}\n`
 }
 
 const written = new Set<string>()
 
-async function snapshot(name: string, doc: GraphDoc) {
+async function snapshot(name: string, doc: NodeGraph) {
   for (const [mode, options] of Object.entries(modes)) {
     const shader = generateGlsl(doc, options)
     const base = `./__snapshots__/gate/${name}.${mode}`

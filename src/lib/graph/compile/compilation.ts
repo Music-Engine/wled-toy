@@ -1,12 +1,11 @@
 // What every compile stage reads and writes: the graph, the code being built, the per-frame plan, and the issues found.
 import type { OutputSettings } from '@/lib/engine/output'
-import type { ControlValue, InputSocket, NodeShape } from '@/lib/graph/define/node'
-import { isImplicit, isLinkable } from '@/lib/graph/define/sockets'
-import { itemFor } from '@/lib/graph/define/registry'
+import type { FrameValue, GlslChunk } from '@/lib/graph/define/context'
+import { isImplicit, isLinkable, type InputSocket, type NodeShape } from '@/lib/graph/define/shape'
+import { itemFor } from '@/lib/graph/registry'
 import type { Value } from '@/lib/graph/define/value'
-import type { GraphDoc, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
-import type { ControlPlan } from './control'
-import type { GlslChunk } from './glsl/chunk'
+import type { NodeGraph, GraphNodeData, StoredNode } from '@/lib/graph/model/doc'
+import type { FramePlan } from './frame'
 
 export interface GraphIssue {
   nodeId: string | null
@@ -27,7 +26,7 @@ export interface CompileOptions {
    */
   standalone?: boolean
   /** The last value a per-frame node produced, for baking. */
-  controls?: (nodeId: string, output: string) => ControlValue | undefined
+  controls?: (nodeId: string, output: string) => FrameValue | undefined
 }
 
 export class GraphError extends Error {
@@ -36,7 +35,7 @@ export class GraphError extends Error {
   }
 }
 
-export const isGeneric = (socket: InputSocket) => isLinkable(socket) && socket.type.glsl === 'genType'
+export const isGenericSocket = (socket: InputSocket) => isLinkable(socket) && socket.type.glsl === 'genType'
 
 export class Compilation {
   readonly nodes: Map<string, StoredNode>
@@ -44,7 +43,7 @@ export class Compilation {
   readonly issues: GraphIssue[] = []
   readonly frozen: FrozenValue[] = []
   readonly chunks = new Set<GlslChunk>()
-  readonly plan: ControlPlan = { steps: [], exports: [], resources: {} }
+  readonly plan: FramePlan = { steps: [], exports: [], resources: {} }
   output: OutputSettings | null = null
   /** Nodes on the current evaluation path, for loop detection. */
   readonly visiting = new Set<string>()
@@ -61,10 +60,10 @@ export class Compilation {
   // what ./emit produced
   readonly emitted = new Map<string, Record<string, Value>>()
 
-  private readonly incoming: Map<string, GraphDoc['edges'][number]>
+  private readonly incoming: Map<string, NodeGraph['edges'][number]>
   private readonly shapes = new Map<string, NodeShape>()
 
-  constructor(readonly doc: GraphDoc, readonly options: CompileOptions) {
+  constructor(readonly doc: NodeGraph, readonly options: CompileOptions) {
     this.nodes = new Map(doc.nodes.map((n) => [n.id, n]))
     this.incoming = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
   }
@@ -74,16 +73,16 @@ export class Compilation {
   }
 
   /** The node and the shape its values give it, settled once per node. */
-  lookup(id: string): { node: StoredNode; item: NodeShape } {
+  lookup(id: string): { node: StoredNode; shape: NodeShape } {
     const node = this.nodes.get(id)!
-    let item = this.shapes.get(id)
-    if (!item) {
+    let shape = this.shapes.get(id)
+    if (!shape) {
       const kind = itemFor(node.data.kind)
       if (!kind) throw new GraphError(`Unknown node type "${node.data.kind}"`, id)
-      item = kind.shape(node.data.values)
-      this.shapes.set(id, item)
+      shape = kind.shape(node.data.values)
+      this.shapes.set(id, shape)
     }
-    return { node, item }
+    return { node, shape }
   }
 
   enter(id: string) {
@@ -96,7 +95,7 @@ export class Compilation {
   }
 
   /** Where a socket's link comes from, when it has one and the source node exists. */
-  sourceOf(nodeId: string, socket: InputSocket): { id: string; output: string } | undefined {
+  linkSource(nodeId: string, socket: InputSocket): { id: string; output: string } | undefined {
     const edge = this.incoming.get(`${nodeId}:${socket.name}`)
     return edge?.sourceHandle && this.nodes.has(edge.source) ? { id: edge.source, output: edge.sourceHandle } : undefined
   }
@@ -106,7 +105,8 @@ export class Compilation {
     const raw = data.values[socket.name] ?? socket.default
     if (socket.type.check(raw)) return raw
     this.issues.push({ nodeId, message: `${socket.label || socket.type.label} is not valid; the default is used` })
-    return isImplicit(socket.default) ? socket.type.initial() : socket.default
+    if (isImplicit(socket.default)) return socket.type.initial()
+    return socket.default
   }
 
   emit(nodeId: string, text: string) {

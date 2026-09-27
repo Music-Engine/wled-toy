@@ -9,7 +9,7 @@ import { ImageLibrary } from './images'
 import { layoutPositions } from './layout'
 import { DEFAULT_OUTPUT, LedPostProcess, type OutputSettings } from './output'
 import { preferences } from '@/lib/app/preferences'
-import { ControlRunner, type ControlPlan } from '@/lib/graph/compile/control'
+import { FrameRunner, type FramePlan } from '@/lib/graph/compile/frame'
 import type { AudioSourceRequest } from '@/lib/graph/nodes/audio/audio'
 import type { AnalysisSettings } from '@/lib/audio/service'
 import { oscPortFrom } from '@/lib/graph/nodes/control/midi-osc'
@@ -37,7 +37,7 @@ class Engine {
   private renderer: ShaderRenderer | null = null
   private readonly listeners = new Set<LedListener>()
   private readonly stopWatchers: Array<() => void> = []
-  private readonly controls = new ControlRunner()
+  private readonly controls = new FrameRunner()
   private readonly post = new LedPostProcess()
   private output: OutputSettings = DEFAULT_OUTPUT
   private lastControlStep = performance.now()
@@ -92,7 +92,7 @@ class Engine {
   }
 
   /** What graph mode computes on the CPU each frame. Shader mode passes nothing. Node state carries over between plans. */
-  setControlPlan(plan: ControlPlan = { steps: [], exports: [], resources: {} }) {
+  setControlPlan(plan: FramePlan = { steps: [], exports: [], resources: {} }) {
     this.controls.load(plan)
     // the graph's Audio Source says what is captured (the first one, if it has several); its FFT nodes say how it is analyzed
     const [source] = (plan.resources.audioSource ?? []) as AudioSourceRequest[]
@@ -263,7 +263,7 @@ class Engine {
     this.renderer.setControls(this.controls.step({
       time: params.time,
       dt,
-      frame: params.frame,
+      frameIndex: params.frame,
       audio: this.audio.features ? { analyses: this.audio.takeFeatures(), sampleRate: this.audio.state.sampleRate } : undefined,
       midi: this.midi,
       osc: this.bridge.oscArgs,

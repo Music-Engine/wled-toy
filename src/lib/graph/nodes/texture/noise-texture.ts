@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { noiseChunk } from '@/lib/graph/compile/glsl/noise'
-import { Color, Float } from '@/lib/graph/define/types'
+import { Color, defineNode, Float } from '@/lib/graph/authoring'
+import { noiseChunk } from '@/lib/graph/nodes/glsl/noise'
 import { textureVector } from './vector'
 
 export const noiseTextureNode = defineNode('noiseTexture', {

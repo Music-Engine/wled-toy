@@ -7,7 +7,7 @@ import TitleBar from '@/components/shell/TitleBar.vue'
 import { runCommand } from '@/lib/app/commands'
 import { config } from '@/lib/app/config'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile } from '@/lib/graph/model/file'
+import { readGraphFile } from '@/lib/graph/model/file'
 import { preferences, resetPreferences } from '@/lib/app/preferences'
 import { workspace } from '@/lib/app/workspace'
 import type { GraphNodeData } from '@/lib/graph'
@@ -103,5 +103,5 @@ it('a save after an edit stores the edit, and the working copy survives a pagehi
 
   runCommand('file.save')
   await expect.poll(dirty).toBe(false)
-  expect(parseGraphFile(files['graph.wledgraph']).nodes.find((n) => n.id === node.id)!.data!.values[name]).toBe(42.5)
+  expect(readGraphFile(files['graph.wledgraph']).doc.nodes.find((n) => n.id === node.id)!.data!.values[name]).toBe(42.5)
 })

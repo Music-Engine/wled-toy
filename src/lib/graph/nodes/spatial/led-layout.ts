@@ -1,6 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Vec2, Vec3 } from '@/lib/graph/define/types'
-import { swizzle } from '@/lib/graph/define/value'
+import { defineNode, Float, swizzle, Vec2, Vec3 } from '@/lib/graph/authoring'
 
 export const ledLayoutNode = defineNode('ledLayout', {
   title: 'LED Layout',

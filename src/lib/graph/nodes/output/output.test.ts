@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { DEFAULT_OUTPUT } from '@/lib/engine/output'
-import { generateGlsl } from '@/lib/graph/compile/compile'
+import { generateGlsl } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
 
 it('an untouched Output node asks for nothing: Settings stay in charge', () => {

@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/compile/glsl/math'
-import { Bool, Enum, GenType } from '@/lib/graph/define/types'
+import { Bool, defineNode, Enum, GenType } from '@/lib/graph/authoring'
+import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/nodes/glsl/math'
 
 interface MathOp {
   label: string
@@ -74,7 +73,7 @@ export const MATH_OPS = {
 } satisfies Record<string, MathOp>
 
 export type MathOpName = keyof typeof MATH_OPS
-export const MATH_OP_OPTIONS = Object.entries(MATH_OPS).map(([value, op]) => ({ value: value as MathOpName, label: op.label, group: op.group }))
+const MATH_OP_OPTIONS = Object.entries(MATH_OPS).map(([value, op]) => ({ value: value as MathOpName, label: op.label, group: op.group }))
 
 const componentWise = (fn: (a: number, b: number, c: number) => number, a: number | number[], b: number | number[], c: number | number[]) =>
   (Array.isArray(a) ? a.map((x, i) => fn(x, (b as number[])[i], (c as number[])[i])) : fn(a, b as number, c as number))
@@ -87,6 +86,8 @@ export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName })
     title: 'Math',
     description: 'Every operation of Blender\'s Math node. Pick the operation and the sockets follow: Power takes Base and Exponent, Wrap takes Value, Min and Max. Works on numbers and, per component, on vectors and colors.',
     category: 'converter',
+    // every operation is its own menu entry, so "sine" or "ping-pong" finds Math set to it
+    presets: MATH_OP_OPTIONS.map((o) => ({ title: o.label, group: o.group, values: { op: o.value } })),
     input: {
       op: { type: Enum(MATH_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
       clamp: { type: Bool, default: false, connectable: false },

@@ -6,7 +6,7 @@ import { commands } from 'vitest/browser'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'
-import { ControlRunner } from './control'
+import { FrameRunner } from './frame'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { FPS, SAMPLE_RATE, feedSlots, openSlots, synthTrack } from '@/lib/graph/testing/offline'
 
@@ -138,7 +138,7 @@ function benchmark(name: string, text: string) {
     previewGl?.finish()
   }
 
-  const runner = new ControlRunner()
+  const runner = new FrameRunner()
   runner.load(shader.control)
   const track = synthTrack(Math.ceil(FRAMES / FPS) + 1)
   const slots = openSlots(shader.control, SAMPLE_RATE)
@@ -164,7 +164,7 @@ function benchmark(name: string, text: string) {
     const f = analyses[0]
 
     const t1 = performance.now()
-    const controls = runner.step({ time, dt: 1 / FPS, frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
     const stepMs = performance.now() - t1
 
     const t2 = performance.now()
@@ -208,8 +208,8 @@ function benchmark(name: string, text: string) {
   const heapEnd = heapUsed()
 
   // the stages whose per-frame numbers sit under the 0.1 ms clock quantum, measured again over a batch
-  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frame: FRAMES, audio: undefined })
-  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frame: FRAMES, audio: undefined }) })
+  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, audio: undefined })
+  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, audio: undefined }) })
   const batchedSetControls = batched(BATCH, () => primary.setControls(lastControls))
   const extraTextures = slots.slice(1).map((slot) => slot.textures)
   const batchedSetAudio = batched(BATCH, () => primary.setAudio(slots[0].textures, extraTextures))

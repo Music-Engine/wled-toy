@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Text } from '@/lib/graph/define/types'
+import { defineNode, Float, Text } from '@/lib/graph/authoring'
 import { risingEdge } from './shared'
 
 const parse = (steps: string) => steps.split(/[\s,]+/).map(Number).filter(Number.isFinite)

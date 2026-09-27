@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { GRAPH_FS } from '@/lib/graph/menu/fs'
+import { GRAPH_FS } from '@/lib/graph'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { graph, node, renderGraph } from '@/lib/graph/testing'
 import { MATH_OPS, mathNode, type MathOpName } from './math'

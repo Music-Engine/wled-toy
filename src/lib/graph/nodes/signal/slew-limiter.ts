@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { defineNode, Float } from '@/lib/graph/authoring'
 
 const rate = (fallback: number) => ({ type: Float, default: fallback, props: { min: 0, step: 0.1, decimals: 2 } })
 
