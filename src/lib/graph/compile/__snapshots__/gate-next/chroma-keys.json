@@ -1,0 +1,23 @@
+{
+  "glsl": {
+    "frame": null,
+    "issues": [
+      {
+        "nodeId": "hueKnob",
+        "message": "Knob runs only in JavaScript and has no body to emit yet"
+      }
+    ],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": [
+      {
+        "nodeId": "hueKnob",
+        "message": "Knob runs only in JavaScript and has no body to emit yet"
+      }
+    ]
+  }
+}

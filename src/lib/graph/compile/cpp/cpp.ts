@@ -53,7 +53,7 @@ export function pixelDefinitions(program: Program, code: string): string[] {
  * `pixelState`, so a slot the body leaves alone keeps its value. A slot of several floats goes through the header's
  * `stateSlot`, since C++ cannot assign to a run of components.
  */
-function pixelStateReads(code: string): string {
+export function pixelStateReads(code: string): string {
   return code
     .replace(/^(uniform highp sampler2DArray iState;|layout\(location = \d+\) out vec4 outState\d+;)\n/gm, '')
     .replace(/^ {2}(outState\d+) = texelFetch\(iState, ivec3\(gl_FragCoord\.xy, (\d+)\), 0\);$/gm, '  [[maybe_unused]] vec4& $1 = pixelState[int(ledIndex)][$2];')

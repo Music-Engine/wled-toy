@@ -26,6 +26,10 @@ export interface NodeShape {
   includes: GlslChunk[]
   inputs: Socket[]
   outputs: OutputSocket[]
+  body?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
+  varies?: 'pixel'
+  probe?: string
+  /** The node's pixel body, or its `body` for the old pipeline. */
   pixel?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
   frame?(input: Record<string, any>, info: FrameContext): Record<string, FrameValue>
   resolve?(input: Record<string, any>, resources: Resources): ResolveResult

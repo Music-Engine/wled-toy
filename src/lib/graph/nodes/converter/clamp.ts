@@ -13,7 +13,7 @@ export const clampNode = defineNode('clamp', {
     max: { type: GenType, default: 1 },
   },
   output: { result: GenType },
-  pixel: ({ type, value, min, max }, ctx) => ({
+  body: ({ type, value, min, max }, ctx) => ({
     result: ctx.declare(ctx.gen, type === 'range'
       ? `clamp(${value.expr}, min(${min.expr}, ${max.expr}), max(${min.expr}, ${max.expr}))`
       : `clamp(${value.expr}, ${min.expr}, ${max.expr})`),

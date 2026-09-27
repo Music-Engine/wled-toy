@@ -28,7 +28,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
     ...(shape === 'pulse' && { width: { type: Float, default: 0.1, props: { min: 0.001, max: 1, decimals: 3 } } }),
   },
   output: { value: Float },
-  pixel: (input, ctx) => {
+  body: (input, ctx) => {
     const cycle = ctx.declare('float', `${input.input.expr} * ${input.frequency.expr} + ${input.phase.expr}`, 'cycle').expr
     const p = ctx.declare('float', `fract(${cycle})`, 'p').expr
     const cell = `floor(${cycle})`

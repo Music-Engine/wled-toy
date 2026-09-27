@@ -11,7 +11,7 @@ import { isImplicit, type DataType } from './types'
  */
 export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S extends StateDef = {}>(
   id: string,
-  definition: NodeItemOptions<I, O, S> | ((values: Record<string, any>) => NodeItemOptions<I, O, S>),
+  definition: NodeDefinition<I, O, S> | ((values: Record<string, any>) => NodeDefinition<I, O, S>),
 ): NodeItem {
   const options = typeof definition === 'function' ? definition : () => definition
   const base = toShape(id, options({}))
@@ -23,7 +23,7 @@ export function defineNode<const I extends Record<string, InputDef>, const O ext
   }
 }
 
-export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
+export interface NodeDefinition<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
   title: string
   description: string
   category: CategoryId
@@ -35,11 +35,21 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
   includes?: GlslChunk[]
   input: I
   output: O
+  /**
+   * Emits the node's code once, in the C-family subset GLSL and the C++ header share. The compiler runs it in the frame
+   * pass or the pixel pass, whichever its inputs need; `state` slots live in global or pixel state to match.
+   */
+  body?(input: Inputs<I, 'pixel'>, ctx: NodeContext<PixelState<S>>): Outputs<O, 'pixel'>
+  /** `pixel` when the value differs per pixel whatever is linked in (a position, a texture sample), so the node never runs per frame. */
+  varies?: 'pixel'
+  /** The output the host reads back once per frame. */
+  probe?: keyof O & string
   /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader, and can hold pixel-scope `state`. */
   pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext<PixelState<S>>): Outputs<O, 'pixel'>
   /**
    * Once per frame, in JS. A node with only `frame` can hold frame-scope `state`, and its inputs must not vary per pixel. A node with
-   * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise.
+   * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise. Beside `body`, it
+   * serves only the old pipeline, which runs the body as `pixel`.
    */
   frame?(input: Inputs<I, 'frame'>, info: FrameContext<State<S>>): Outputs<O, 'frame'>
   /**
@@ -53,7 +63,7 @@ export interface NodeItemOptions<I extends Record<string, InputDef>, O extends R
    * pixel-scope state starts over on every recompile, resize and clock reset.
    */
   state?: S
-  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). */
+  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). Ignored beside `body`. */
   stateScope?: Rate
   presets?: NodePreset[]
 }
@@ -78,10 +88,13 @@ export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any
 
 function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef>(
   id: string,
-  { title, signature, isOutput, includes, input, output, pixel, frame, state, stateScope = 'frame', resolve }: NodeItemOptions<I, O, S>,
+  { title, signature, isOutput, includes, input, output, body, varies, probe, pixel, frame, state, stateScope = 'frame', resolve }: NodeDefinition<I, O, S>,
 ): NodeShape {
-  if (!pixel && !frame && !resolve) throw new Error(`${id}: a node needs pixel, frame or resolve`)
-  if (state) checkState(id, state, stateScope, { pixel, frame })
+  if (!body && !pixel && !frame && !resolve) throw new Error(`${id}: a node needs body, pixel, frame or resolve`)
+  if (body && pixel) throw new Error(`${id}: body replaces pixel, so a node has one or the other`)
+  // the old pipeline runs a body as a pixel body, so its state is pixel state there
+  const scope = body ? 'pixel' : stateScope
+  if (state) checkState(id, state, scope, { pixel: pixel ?? body, frame })
   return {
     title,
     signature: signature ?? '',
@@ -89,11 +102,14 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     includes: includes ?? [],
     inputs: Object.entries(input).map(([name, def]) => buildInputSocket(id, name, def)),
     outputs: Object.entries(output).map(([name, def]) => buildOutputSocket(id, name, def)),
-    pixel: pixel as NodeShape['pixel'],
+    body: body as NodeShape['body'],
+    varies,
+    probe,
+    pixel: (pixel ?? body) as NodeShape['pixel'],
     frame: frame as NodeShape['frame'],
     resolve: resolve as NodeShape['resolve'],
     state,
-    stateScope: state && stateScope,
+    stateScope: state && scope,
   }
 }
 

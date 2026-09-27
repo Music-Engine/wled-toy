@@ -11,6 +11,7 @@ export const outputNode = defineNode('output', {
   title: 'Output',
   description: 'Final LED color, and how it gets to the wire. These settings travel with the graph and replace the ones in Settings while the graph is running.',
   category: 'output',
+  varies: 'pixel',
   signature: 'c = vec4(color, 1.0);',
   isOutput: true,
   input: {

@@ -93,7 +93,7 @@ export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName })
       ...(c && { c: { type: GenType, label: c, default: def.defaults?.[1] ?? 0.5 } }),
     },
     output: { result: GenType },
-    pixel: (input, ctx) => {
+    body: (input, ctx) => {
       if (def.helper) ctx.include(mathHelper(def.helper, ctx.gen as MathType))
       const [x, y, z] = [input.a, input.b, input.c].map((v) => v?.expr ?? '0.0')
       const result = def.glsl(x, y, z)

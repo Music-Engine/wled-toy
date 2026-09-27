@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { DEFAULT_OUTPUT } from '@/lib/engine/output/output'
 import type { ResolveResult } from './context'
-import type { NodeItemOptions } from './define'
+import type { NodeDefinition } from './define'
 import { AudioStream, Bool, Color, Enum, Float, GenType, Int, Vec3 } from './socket-types'
 import type { Value } from './value'
 
@@ -14,7 +14,7 @@ const input = {
 }
 const output = { level: Float, result: GenType }
 
-type Options = NodeItemOptions<typeof input, typeof output>
+type Options = NodeDefinition<typeof input, typeof output>
 type Pixel = NonNullable<Options['pixel']>
 type Frame = NonNullable<Options['frame']>
 type PixelInput = Parameters<Pixel>[0]
@@ -72,7 +72,7 @@ describe('what a node body returns', () => {
 
 describe('what a frame body finds in info.state', () => {
   const state = { count: Int, on: Bool, stage: Enum([{ value: 'idle', label: 'Idle' }, { value: 'run', label: 'Run' }]) }
-  type StatefulFrame = NonNullable<NodeItemOptions<typeof input, typeof output, typeof state>['frame']>
+  type StatefulFrame = NonNullable<NodeDefinition<typeof input, typeof output, typeof state>['frame']>
 
   it('gets each slot as its type per frame, writable', () => {
     expectTypeOf<Parameters<StatefulFrame>[1]['state']>().toEqualTypeOf<{ count: number; on: boolean; stage: 'idle' | 'run' }>()
@@ -90,7 +90,7 @@ describe('what a frame body finds in info.state', () => {
 
 describe('what a pixel body finds in ctx.state', () => {
   const state = { level: Float, tint: Color }
-  type StatefulPixel = NonNullable<NodeItemOptions<typeof input, typeof output, typeof state>['pixel']>
+  type StatefulPixel = NonNullable<NodeDefinition<typeof input, typeof output, typeof state>['pixel']>
 
   it('gets each slot as a GLSL value it assigns through emit', () => {
     expectTypeOf<Parameters<StatefulPixel>[1]['state']>().toEqualTypeOf<{ readonly level: Value; readonly tint: Value }>()

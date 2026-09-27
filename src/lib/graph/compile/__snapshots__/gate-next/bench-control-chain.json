@@ -1,0 +1,23 @@
+{
+  "glsl": {
+    "frame": null,
+    "issues": [
+      {
+        "nodeId": "audio",
+        "message": "Audio runs only in JavaScript and has no body to emit yet"
+      }
+    ],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": [
+      {
+        "nodeId": "audio",
+        "message": "Audio runs only in JavaScript and has no body to emit yet"
+      }
+    ]
+  }
+}

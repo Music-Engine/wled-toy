@@ -6,6 +6,7 @@ export const uvNode = defineNode('uv', {
   title: 'UV',
   description: 'Pixel position: uv in 2D, x along the strip, y for the preview row.',
   category: 'input',
+  varies: 'pixel',
   signature: 'vec2 uv',
   input: {},
   output: { uv: { type: Vec2, label: 'UV' }, x: Float, y: Float },

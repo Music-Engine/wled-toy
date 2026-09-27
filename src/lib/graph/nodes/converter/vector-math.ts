@@ -1,4 +1,4 @@
-import { defineNode, Enum, Float, Vec3, type FrameValue, type InputDef, type NodeItemOptions, type OutputDef, type Value } from '@/lib/graph/authoring'
+import { defineNode, Enum, Float, Vec3, type FrameValue, type InputDef, type NodeDefinition, type OutputDef, type Value } from '@/lib/graph/authoring'
 import { mathHelper, type MathHelper, type MathType } from '@/lib/graph/nodes/glsl/math'
 
 type V = [number, number, number]
@@ -59,7 +59,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
   const def: VectorOp = VECTOR_OPS[op] ?? VECTOR_OPS.add
   const vec = (fallback: number[]) => ({ type: Vec3, label: 'Vector', default: fallback })
   // the output differs by operation, so this shape is typed loosely and `def` carries the real contract
-  const options: NodeItemOptions<Record<string, InputDef>, Record<string, OutputDef>> = {
+  const options: NodeDefinition<Record<string, InputDef>, Record<string, OutputDef>> = {
     title: 'Vector Math',
     description: 'Operations on whole vectors: add, scale, cross and dot products, distance, projection, wrap and snap. Combine XYZ builds a vector from numbers.',
     category: 'converter',
@@ -72,7 +72,7 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
       ...(def.scalar && { scale: { type: Float, label: def.scalar, default: 1 } }),
     },
     output: def.out === 'vector' ? { vector: Vec3 } : { value: Float },
-    pixel: (input: Record<string, any>, ctx): Record<string, Value> => {
+    body: (input: Record<string, any>, ctx): Record<string, Value> => {
       if (def.helper) ctx.include(mathHelper(def.helper, def.helperType ?? 'vec3'))
       const expr = def.glsl(input.a.expr, input.b?.expr ?? 'vec3(0.0)', input.c?.expr ?? 'vec3(0.0)', input.scale?.expr ?? '1.0')
       return def.out === 'vector' ? { vector: ctx.declare('vec3', expr) } : { value: ctx.declare('float', expr) }
