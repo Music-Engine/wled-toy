@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { nodeItem } from '@/lib/graph/registry'
 import { buildCpp, cppCompiler, runOffline } from '@/lib/graph/testing/cpp'
 import { glslCompiler, usermodCompiler } from './compilers'
 import { corpusGraphs, corpusKinds } from './corpus'
@@ -30,8 +31,9 @@ describe.skipIf(!cppCompiler)('the usermod target (needs g++ or c++ on PATH)', (
     expect(failed).toEqual(['bench-gpu-heavy'])
   }, 120_000)
 
-  it('shades a kind whose frame pass feeds the pixel pass as the old pipeline did per pixel', () => {
-    const framed = kinds.filter(([, doc]) => glslCompiler().compile(doc).program?.frame)
+  // the old pipeline has no C++ for a stateful kind; signal-nodes.test.ts checks those against their frame bodies
+  it('shades a stateless kind whose frame pass feeds the pixel pass as the old pipeline did per pixel', () => {
+    const framed = kinds.filter(([name, doc]) => !nodeItem(name)!.base.state && glslCompiler().compile(doc).program?.frame)
     expect(framed.map(([name]) => name)).toEqual(['time', 'math', 'vectorMath', 'combineXYZ', 'wave'])
     for (const [name, doc] of framed) {
       const { output } = buildCpp(`${usermodCompiler(LEDS).compile(doc).program!.code}${ONE_FRAME.join('\n')}`, { run: true })

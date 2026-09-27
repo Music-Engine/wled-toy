@@ -25,7 +25,7 @@ describe('node state at definition time', () => {
     ['Audio', AudioStream],
     ['Number or vector', GenType],
   ])('refuses a %s slot in pixel scope and names it', (label, type) => {
-    expect(define({ state: { a: Float, b: type }, stateScope: 'pixel', pixel })).toThrow(`t.b: pixel-scope state holds a number or a vector of 1 to 4 components, not ${label}`)
+    expect(define({ state: { a: Float, b: type }, stateScope: 'pixel', pixel })).toThrow(`t.b: shader state holds a number or a vector of 1 to 4 components, not ${label}`)
   })
 
   it('still refuses frame-scope state on a node with a pixel body', () => {
@@ -46,6 +46,6 @@ describe('a definition with one body', () => {
 
   it('ignores stateScope, and still keeps only number or vector slots', () => {
     expect(defineNode('t', { ...base, state: { a: Float }, stateScope: 'frame', body: pixel }).base.stateScope).toBe('pixel')
-    expect(define({ state: { a: Bool }, body: pixel })).toThrow('t.a: pixel-scope state holds a number or a vector of 1 to 4 components, not Boolean')
+    expect(define({ state: { a: Bool }, body: pixel })).toThrow('t.a: shader state holds a number or a vector of 1 to 4 components, not Boolean')
   })
 })

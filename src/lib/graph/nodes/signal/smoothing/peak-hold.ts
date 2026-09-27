@@ -8,6 +8,14 @@ export const peakHoldNode = defineNode('peakHold', {
   input: { signal: { type: Float, default: 0 }, hold: seconds(0.2), decay: seconds(0.5) },
   output: { peak: Float },
   state: { value: Float, held: Float },
+  body: ({ signal, hold, decay }, ctx) => {
+    const { value, held } = ctx.state
+    const above = ctx.declare('float', `float(${signal.expr} >= ${value.expr})`, 'above').expr
+    ctx.emit(`${held.expr} = ${above} > 0.5 ? 0.0 : ${held.expr} + iTimeDelta;`)
+    ctx.emit(`if (${above} < 0.5 && ${held.expr} > ${hold.expr}) ${value.expr} = max(${signal.expr}, ${value.expr} * exp(-iTimeDelta / max(${decay.expr}, 0.0001)));`)
+    ctx.emit(`if (${above} > 0.5) ${value.expr} = ${signal.expr};`)
+    return { peak: value }
+  },
   frame: ({ signal, hold, decay }, { state, dt }) => {
     const level = signal
     if (level >= state.value) {

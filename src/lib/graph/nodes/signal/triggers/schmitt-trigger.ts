@@ -1,4 +1,4 @@
-import { Bool, defineNode, Float } from '@/lib/graph/authoring'
+import { defineNode, Float } from '@/lib/graph/authoring'
 
 const level = (fallback: number) => ({ type: Float, default: fallback, props: { decimals: 3 } })
 
@@ -8,10 +8,15 @@ export const schmittTriggerNode = defineNode('schmittTrigger', {
   category: 'signal',
   input: { signal: { type: Float, default: 0 }, low: level(0.4), high: level(0.6) },
   output: { gate: Float },
-  state: { on: Bool },
+  state: { on: Float },
+  body: ({ signal, low, high }, ctx) => {
+    const { on } = ctx.state
+    ctx.emit(`${on.expr} = ${on.expr} > 0.5 ? float(${signal.expr} > ${low.expr}) : float(${signal.expr} >= ${high.expr});`)
+    return { gate: on }
+  },
   frame: ({ signal, low, high }, { state }) => {
-    if (!state.on && signal >= high) state.on = true
-    else if (state.on && signal <= low) state.on = false
-    return { gate: state.on ? 1 : 0 }
+    if (!state.on && signal >= high) state.on = 1
+    else if (state.on && signal <= low) state.on = 0
+    return { gate: state.on }
   },
 })

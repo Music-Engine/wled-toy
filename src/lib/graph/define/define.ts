@@ -49,7 +49,7 @@ export interface NodeDefinition<I extends Record<string, InputDef>, O extends Re
   /**
    * Once per frame, in JS. A node with only `frame` can hold frame-scope `state`, and its inputs must not vary per pixel. A node with
    * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise. Beside `body`, it
-   * serves only the old pipeline, which runs the body as `pixel`.
+   * serves only the old pipeline, which runs the body as `pixel`; with `state`, it runs this frame body alone instead.
    */
   frame?(input: Inputs<I, 'frame'>, info: FrameContext<State<S>>): Outputs<O, 'frame'>
   /**
@@ -63,7 +63,7 @@ export interface NodeDefinition<I extends Record<string, InputDef>, O extends Re
    * pixel-scope state starts over on every recompile, resize and clock reset.
    */
   state?: S
-  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). Ignored beside `body`. */
+  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). Ignored beside `body` unless `frame` is there too. */
   stateScope?: Rate
   presets?: NodePreset[]
 }
@@ -92,9 +92,12 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
 ): NodeShape {
   if (!body && !pixel && !frame && !resolve) throw new Error(`${id}: a node needs body, pixel, frame or resolve`)
   if (body && pixel) throw new Error(`${id}: body replaces pixel, so a node has one or the other`)
-  // the old pipeline runs a body as a pixel body, so its state is pixel state there
-  const scope = body ? 'pixel' : stateScope
-  if (state) checkState(id, state, scope, { pixel: pixel ?? body, frame })
+  // the old pipeline runs a body as its pixel body, with pixel state; beside a stateful frame body it runs that frame body
+  // alone, with frame state
+  const framed = Boolean(frame && state)
+  const oldPixel = framed ? pixel : pixel ?? body
+  const scope = body && !framed ? 'pixel' : stateScope
+  if (state) checkState(id, state, scope, { body, pixel: oldPixel, frame })
   return {
     title,
     signature: signature ?? '',
@@ -105,7 +108,7 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     body: body as NodeShape['body'],
     varies,
     probe,
-    pixel: (pixel ?? body) as NodeShape['pixel'],
+    pixel: oldPixel as NodeShape['pixel'],
     frame: frame as NodeShape['frame'],
     resolve: resolve as NodeShape['resolve'],
     state,
@@ -113,17 +116,18 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
   }
 }
 
-function checkState(id: string, state: StateDef, scope: Rate, bodies: { pixel?: unknown; frame?: unknown }): void {
+function checkState(id: string, state: StateDef, scope: Rate, bodies: { body?: unknown; pixel?: unknown; frame?: unknown }): void {
   if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; a pixel body needs stateScope pixel`)
-  if (scope === 'frame') return
-  if (bodies.frame || !bodies.pixel) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
+  if (scope === 'pixel' && (bodies.frame || !bodies.pixel)) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
+  // the new compiler keeps a body's slots in pixel or global state whatever the old pipeline does
+  if (scope === 'frame' && !bodies.body) return
   for (const [name, type] of Object.entries(state)) {
-    if (!keepsPerPixel(type)) throw new Error(`${id}.${name}: pixel-scope state holds a number or a vector of 1 to 4 components, not ${type.label}`)
+    if (!keepsInShader(type)) throw new Error(`${id}.${name}: shader state holds a number or a vector of 1 to 4 components, not ${type.label}`)
   }
 }
 
-// the state targets hold floats only, four to a layer
-const keepsPerPixel = (type: DataType<any>) => type.kind === 'value' && type.dim !== undefined && type.dim >= 1 && type.dim <= 4
+// pixel state and global state hold floats only, four to a layer or texel
+const keepsInShader = (type: DataType<any>) => type.kind === 'value' && type.dim !== undefined && type.dim >= 1 && type.dim <= 4
 
 function buildInputSocket(item: string, name: string, def: InputDef): Socket {
   const options: SocketDef = 'type' in def ? def : { type: def }

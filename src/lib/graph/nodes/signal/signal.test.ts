@@ -93,20 +93,21 @@ describe('triggers', () => {
   })
 })
 
-// what each state() factory returned, with the nested `{ high }` edge objects flattened into Bool slots
+// what each state() factory returned, with the nested `{ high }` edge objects flattened into slots and every flag and
+// stage a number, since a body keeps its slots as floats
 it.each(([
-  [counterNode, { count: 0, triggerHigh: false, resetHigh: false }],
-  [toggleNode, { on: false, high: false }],
-  [clockDividerNode, { count: 0, triggerHigh: false, resetHigh: false }],
-  [integratorNode, { value: 0, high: false }],
-  [sampleHoldNode, { held: 0, high: false }],
-  [envelopeNode, { stage: 'idle', level: 0, high: false }],
+  [counterNode, { count: 0, triggerHigh: 0, resetHigh: 0 }],
+  [toggleNode, { on: false, high: 0 }],
+  [clockDividerNode, { count: 0, triggerHigh: 0, resetHigh: 0 }],
+  [integratorNode, { value: 0, high: 0 }],
+  [sampleHoldNode, { held: 0, high: 0 }],
+  [envelopeNode, { stage: 0, level: 0, high: 0 }],
   [envelopeFollowerNode, { value: 0 }],
   [slewLimiterNode, { value: 0 }],
   [peakHoldNode, { value: 0, held: 0 }],
-  [schmittTriggerNode, { on: false }],
+  [schmittTriggerNode, { on: 0 }],
   // `steps` and `values` left state for `resolve`, so only the slots that stayed are compared
-  [stepSequencerNode, { index: 0, triggerHigh: false, resetHigh: false }],
+  [stepSequencerNode, { index: 0, triggerHigh: 0, resetHigh: 0 }],
 ] as const).map(([item, expected]) => [item.id, item, expected] as const))('%s starts every slot where its old state factory started', (_, item, expected) => {
   expect(initialState(item.base.state!)).toEqual(expected)
 })
