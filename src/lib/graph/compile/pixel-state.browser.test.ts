@@ -19,8 +19,8 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
       },
     }),
     defineNode('pixelTwin', {
-      ...common, title: 'Pixel Twin', stateScope: 'pixel',
-      pixel: ({ rate }, ctx) => {
+      ...common, title: 'Pixel Twin',
+      body: ({ rate }, ctx) => {
         ctx.emit(`${ctx.state.value.expr} += ${rate.expr} * iTimeDelta;`)
         return { value: ctx.state.value }
       },

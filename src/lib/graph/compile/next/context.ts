@@ -1,7 +1,7 @@
 // What the stages of a compile share: the nodes in topo order with what each annotation settled on them, the issues,
 // and the stage contracts createCompiler checks. Everything a target returns is plain data; this context is not.
 import type { OutputSettings } from '@/lib/engine/output/output'
-import type { ResolveResult } from '@/lib/graph/define/context'
+import type { ResolveResult, Uniform } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import type { GraphIssue } from '@/lib/graph/compile/front-end/program'
@@ -20,6 +20,8 @@ export interface CompileContext {
   resources: Record<string, unknown[]>
   /** The Output node's wire settings. */
   settings: OutputSettings | null
+  /** By `resources`: every output a uniform feeds, in topo order. */
+  uniforms: ProgramUniform[]
   /** The table the previous compile returned; `state` reads it and fills `slots`. */
   previous: SlotTable
   slots: SlotTable
@@ -47,6 +49,9 @@ export interface CompiledNode {
 }
 
 export type LinkSource = { id: string; output: string }
+
+/** A uniform as a program lists it: the node output it feeds and its float of `iControl`, the block the host writes. */
+export type ProgramUniform = Uniform & { node: string; output: string; offset: number }
 
 /**
  * Where each node's slots sit, kept across compiles so state survives an edit. Pixel state is keyed by node id; global

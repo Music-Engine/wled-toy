@@ -9,7 +9,7 @@ export const whiteNoiseNode = defineNode('whiteNoise', {
   includes: [commonChunk],
   input: { vector: textureVector },
   output: { fac: Float, color: Color },
-  pixel: ({ vector }, ctx) => {
+  body: ({ vector }, ctx) => {
     const fac = ctx.declare('float', `node_hash(${vector.expr}.xy + ${vector.expr}.z)`, 'fac')
     const color = ctx.declare('vec3', `vec3(${fac.expr}, node_hash(${vector.expr}.yz + 17.3 + ${vector.expr}.x), node_hash(${vector.expr}.zx + 41.7 + ${vector.expr}.y))`)
     return { fac, color }

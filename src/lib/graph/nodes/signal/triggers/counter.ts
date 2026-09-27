@@ -1,4 +1,4 @@
-import { Bool, defineNode, Float, fmt, Int } from '@/lib/graph/authoring'
+import { defineNode, Float, fmt, Int } from '@/lib/graph/authoring'
 import { risingEdge, risingEdgeFlag, wrappedCount } from '@/lib/graph/nodes/shared/signal'
 
 export const counterNode = defineNode('counter', {
@@ -12,6 +12,7 @@ export const counterNode = defineNode('counter', {
   },
   output: { count: Float, phase: Float },
   state: { count: Float, triggerHigh: Float, resetHigh: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ steps, trigger, reset }, ctx) => {
     const { count, triggerHigh, resetHigh } = ctx.state
     const up = risingEdgeFlag(ctx, triggerHigh, trigger, 'up')
@@ -33,9 +34,15 @@ export const toggleNode = defineNode('toggle', {
   category: 'signal',
   input: { trigger: { type: Float, default: 0 } },
   output: { state: Float },
-  state: { on: Bool, high: Float },
+  state: { on: Float, high: Float },
+  frameOnlyInOldPipeline: true,
+  body: ({ trigger }, ctx) => {
+    const { on, high } = ctx.state
+    ctx.emit(`if (${risingEdgeFlag(ctx, high, trigger, 'flip')} > 0.5) ${on.expr} = 1.0 - ${on.expr};`)
+    return { state: on }
+  },
   frame: ({ trigger }, { state }) => {
-    if (risingEdge(state, 'high', trigger)) state.on = !state.on
-    return { state: state.on ? 1 : 0 }
+    if (risingEdge(state, 'high', trigger)) state.on = 1 - state.on
+    return { state: state.on }
   },
 })

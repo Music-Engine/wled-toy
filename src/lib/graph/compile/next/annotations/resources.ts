@@ -1,5 +1,7 @@
 // What each node's `resolve` settles while compiling: what its stream outputs carry, the data its body gets, what the
-// engine has to provide and what is wrong. Topo order resolves every stream source before the nodes it feeds.
+// engine has to provide, the uniforms its outputs read and what is wrong. Topo order resolves every stream source
+// before the nodes it feeds, and numbers the uniforms.
+import { CONTROL_VECTORS } from '@/lib/shader/prelude'
 import type { Socket } from '@/lib/graph/define/shape'
 import { canCast } from '@/lib/graph/define/types'
 import { resourceIndex, type ResolveResult } from '@/lib/graph/define/context'
@@ -25,6 +27,10 @@ function resolveNode(ctx: CompileContext, node: CompiledNode): void {
   const stored = shape.inputs.filter((s) => !s.linkable).map((s) => [s.name, storedValue(node, s)])
   node.resolved = shape.resolve({ ...node.streams, ...Object.fromEntries(stored) }, ctx.resources)
   register(ctx, node.id, node.resolved)
+  for (const [output, uniform] of Object.entries(node.resolved.uniforms ?? {})) {
+    if (ctx.uniforms.length === CONTROL_VECTORS * 4) throw new GraphError('Too many knobs, MIDI and OSC values reach the shader', node.id)
+    ctx.uniforms.push({ ...uniform, node: node.id, output, offset: ctx.uniforms.length })
+  }
   if (node.id === ctx.output) ctx.settings = node.resolved.output ?? null
 }
 

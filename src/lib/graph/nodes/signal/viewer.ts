@@ -8,5 +8,8 @@ export const viewerNode = defineNode('viewer', {
   isOutput: true,
   input: { value: { type: Float, default: 0 } },
   output: { value: Float },
+  body: ({ value }) => ({ value }),
+  probe: 'value',
+  frameOnlyInOldPipeline: true,
   frame: ({ value }) => ({ value }),
 })

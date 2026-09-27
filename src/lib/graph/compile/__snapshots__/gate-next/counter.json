@@ -1,6 +1,7 @@
 {
   "glsl": {
     "probes": {},
+    "uniforms": [],
     "resources": {},
     "output": {
       "protocol": "settings",

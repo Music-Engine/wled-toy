@@ -14,6 +14,7 @@ export const stepSequencerNode = defineNode('stepSequencer', {
   },
   output: { value: Float, step: Float },
   state: { index: Float, triggerHigh: Float, resetHigh: Float },
+  frameOnlyInOldPipeline: true,
   resolve: ({ steps }) => ({ data: { values: parse(steps) } }),
   body: ({ trigger, reset }, ctx) => {
     const values = ctx.resolved.values as number[]

@@ -11,9 +11,9 @@ export const BLEND_MODES = [
 
 export type BlendMode = (typeof BLEND_MODES)[number]['value']
 
-/** `mode` is `linkable: false`, so it is known at shape-build time and the node includes only that one blend function. */
+/** Unlinkable `mode`, so only its blend function is included */
 export const colorMixNode = defineNode('colorMix', ({ mode = 'mix' }: { mode?: BlendMode }) => {
-  const { fn, chunk } = BLEND_FUNCTIONS[mode] ?? BLEND_FUNCTIONS.mix
+  const { fn: blendFunction, chunk } = BLEND_FUNCTIONS[mode] ?? BLEND_FUNCTIONS.mix
   return {
     title: 'Color Mix',
     description: 'Blend two colors with one of the usual layer modes. Factor is how much of the blend replaces Color 1.',
@@ -28,9 +28,9 @@ export const colorMixNode = defineNode('colorMix', ({ mode = 'mix' }: { mode?: B
       color2: { type: Color, label: 'Color 2', default: [0, 0, 0] },
     },
     output: { color: Color },
-    pixel: ({ clampResult, clampFactor, factor, color1, color2 }, ctx) => {
-      const f = clampFactor ? `clamp(${factor.expr}, 0.0, 1.0)` : factor.expr
-      const blend = `${fn}(${f}, ${color1.expr}, ${color2.expr})`
+    body: ({ clampResult, clampFactor, factor, color1, color2 }, ctx) => {
+      const weight = clampFactor ? `clamp(${factor.expr}, 0.0, 1.0)` : factor.expr
+      const blend = `${blendFunction}(${weight}, ${color1.expr}, ${color2.expr})`
       return { color: ctx.declare('vec3', clampResult ? `clamp(${blend}, 0.0, 1.0)` : blend) }
     },
   }

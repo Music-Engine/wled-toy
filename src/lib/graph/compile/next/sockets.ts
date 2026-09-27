@@ -2,7 +2,7 @@
 import type { Socket } from '@/lib/graph/define/shape'
 import type { DataType } from '@/lib/graph/define/types'
 import { GraphError } from '@/lib/graph/compile/front-end/program'
-import type { CompileContext, CompiledNode, LinkSource } from './context'
+import type { CompileContext, CompiledNode, LinkSource, ProgramUniform } from './context'
 
 export const isGenericSocket = (socket: Socket) => socket.linkable && socket.type.id === 'genType'
 
@@ -22,3 +22,7 @@ export function storedValue(node: CompiledNode, socket: Socket): unknown {
   if (!socket.type.check(raw)) throw new GraphError(`${socket.label || socket.name} is ${JSON.stringify(raw)}, not a valid ${socket.type.label}`, node.id)
   return raw
 }
+
+/** The uniform a linked output reads, if it reads one. */
+export const linkedUniform = (ctx: CompileContext, source: LinkSource): ProgramUniform | undefined =>
+  ctx.uniforms.find((uniform) => uniform.node === source.id && uniform.output === source.output)

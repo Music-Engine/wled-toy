@@ -8,6 +8,7 @@ export const peakHoldNode = defineNode('peakHold', {
   input: { signal: { type: Float, default: 0 }, hold: seconds(0.2), decay: seconds(0.5) },
   output: { peak: Float },
   state: { value: Float, held: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ signal, hold, decay }, ctx) => {
     const { value, held } = ctx.state
     const above = ctx.declare('float', `float(${signal.expr} >= ${value.expr})`, 'above').expr

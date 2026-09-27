@@ -97,7 +97,7 @@ describe('triggers', () => {
 // stage a number, since a body keeps its slots as floats
 it.each(([
   [counterNode, { count: 0, triggerHigh: 0, resetHigh: 0 }],
-  [toggleNode, { on: false, high: 0 }],
+  [toggleNode, { on: 0, high: 0 }],
   [clockDividerNode, { count: 0, triggerHigh: 0, resetHigh: 0 }],
   [integratorNode, { value: 0, high: 0 }],
   [sampleHoldNode, { held: 0, high: 0 }],

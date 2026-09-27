@@ -8,17 +8,17 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
   const { Color, defineNode, Float } = await import('@/lib/graph/authoring')
   const kinds = [
     defineNode('stateFloat', {
-      title: 'State Float', description: 'test', category: 'signal', stateScope: 'pixel',
+      title: 'State Float', description: 'test', category: 'signal',
       input: { rate: Float }, output: { value: Float }, state: { value: Float },
-      pixel: ({ rate }, ctx) => {
+      body: ({ rate }, ctx) => {
         ctx.emit(`${ctx.state.value.expr} += ${rate.expr};`)
         return { value: ctx.state.value }
       },
     }),
     defineNode('stateColor', {
-      title: 'State Color', description: 'test', category: 'signal', stateScope: 'pixel',
+      title: 'State Color', description: 'test', category: 'signal',
       input: { color: Color }, output: { color: Color }, state: { tint: Color },
-      pixel: ({ color }, ctx) => {
+      body: ({ color }, ctx) => {
         ctx.emit(`${ctx.state.tint.expr} = ${color.expr};`)
         return { color: ctx.state.tint }
       },

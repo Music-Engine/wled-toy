@@ -8,7 +8,7 @@ import type { GlslChunk } from '@/lib/graph/define/context'
 import { glslForm } from '@/lib/graph/compile/glsl/glsl-types'
 import { stateLoads, stateTargets } from '@/lib/graph/compile/glsl/glsl-state'
 import { resolveChunks } from '@/lib/graph/compile/glsl/glsl'
-import type { CompileContext, Slots, Target } from '@/lib/graph/compile/next/context'
+import type { CompileContext, ProgramUniform, Slots, Target } from '@/lib/graph/compile/next/context'
 import { emitPass, type PassCode, type Spelling } from '@/lib/graph/compile/next/emit'
 
 export const glsl = (): Target<GlslProgram> => ({
@@ -23,6 +23,7 @@ export const glsl = (): Target<GlslProgram> => ({
       pixel: pixelShader(ctx, pixel, { chunks: pixel.chunks, globals: texels > 0 ? ['uniform highp sampler2D iGlobal;'] : [], beforeMain: [] }),
       frame,
       probes: probed,
+      uniforms: ctx.uniforms,
       resources: ctx.resources,
       output: ctx.settings,
     }
@@ -36,6 +37,8 @@ export interface GlslProgram {
   frame: FrameSource | null
   /** The global state float each probe node's output is written to, by node id, in the order `frame.probes` lists their texels. */
   probes: Record<string, number>
+  /** What the host writes into the prelude's `iControl` before each frame, in the order of their offsets. */
+  uniforms: ProgramUniform[]
   /** What nodes registered while compiling, by kind. */
   resources: Record<string, unknown[]>
   /** Wire settings from the graph's Output node. */

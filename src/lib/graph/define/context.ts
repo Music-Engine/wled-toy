@@ -81,7 +81,17 @@ export interface ResolveResult {
   issues?: string[]
   /** The Output node's wire settings: how the finished colors are processed and sent. */
   output?: OutputSettings
+  /** By output name: a value the host writes before each frame, which that output reads instead of a body's. */
+  uniforms?: Record<string, Uniform>
 }
+
+/** One float the host writes before each frame, and where it takes it from; `default` holds until it writes one. */
+export type Uniform = { default: number } & (
+  | { kind: 'knob'; label: string; min: number; max: number; cc: number }
+  // a gate is 1 while the controller or key is above 0
+  | { kind: 'midi'; message: 'cc' | 'note'; channel: number; number: number; gate: boolean }
+  | { kind: 'osc'; address: string; argument: number }
+)
 
 /** What the nodes resolved before this one registered, by kind, in the order the front end met them. */
 export type Resources = Readonly<Record<string, readonly unknown[] | undefined>>

@@ -13,11 +13,11 @@ export const mappingNode = defineNode('mapping', {
     pivot: { type: Vec3, default: [0.5, 0.5, 0] },
   },
   output: { vector: Vec3 },
-  pixel: ({ vector, location, rotation, scale, pivot }, ctx) => {
-    const p = ctx.declare('vec3', `(${vector.expr} - ${pivot.expr}) * ${scale.expr}`, 'p').expr
-    const a = ctx.declare('float', `${rotation.expr} * 6.2831853`, 'a').expr
-    // turning the lookup by -a turns the picture by +a
-    const turned = `vec3(${p}.x * cos(${a}) + ${p}.y * sin(${a}), ${p}.y * cos(${a}) - ${p}.x * sin(${a}), ${p}.z)`
+  body: ({ vector, location, rotation, scale, pivot }, ctx) => {
+    const point = ctx.declare('vec3', `(${vector.expr} - ${pivot.expr}) * ${scale.expr}`, 'p').expr
+    const radians = ctx.declare('float', `${rotation.expr} * 6.2831853`, 'a').expr
+    // Lookup turned by -angle turns the picture by +angle
+    const turned = `vec3(${point}.x * cos(${radians}) + ${point}.y * sin(${radians}), ${point}.y * cos(${radians}) - ${point}.x * sin(${radians}), ${point}.z)`
     return { vector: ctx.declare('vec3', `${turned} + ${pivot.expr} + ${location.expr}`) }
   },
 })

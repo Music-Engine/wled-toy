@@ -31,7 +31,7 @@ export const imageTextureNode = defineNode('imageTexture', {
     if (layer < IMAGE_LAYERS) return { requires, data: { layer } }
     return { requires, data: { layer: 0 }, issues: [`A graph can show ${IMAGE_LAYERS} different images; this one shows the first instead`] }
   },
-  pixel: ({ interpolation, extension, colorSpace, alphaMode, vector }, ctx) => {
+  body: ({ interpolation, extension, colorSpace, alphaMode, vector }, ctx) => {
     const layer = ctx.resolved.layer as number
     ctx.require('glsl')
     const p = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr

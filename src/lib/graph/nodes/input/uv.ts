@@ -10,5 +10,5 @@ export const uvNode = defineNode('uv', {
   signature: 'vec2 uv',
   input: {},
   output: { uv: { type: Vec2, label: 'UV' }, x: Float, y: Float },
-  pixel: () => ({ uv, x: swizzle(uv, 'x'), y: swizzle(uv, 'y') }),
+  body: () => ({ uv, x: swizzle(uv, 'x'), y: swizzle(uv, 'y') }),
 })

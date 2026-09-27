@@ -43,7 +43,7 @@ function unit(ctx: CompileContext, frame: PassCode, pixel: PassCode, leds: numbe
   const texels = vectorsReached(ctx.slots.global)
   const framePass = texels > 0 ? ['void framePass() {', ...frame.lines.map((l) => `  ${l.text}`), '}', ''] : []
   const chunks = texels > 0 ? [...frame.chunks, ...pixel.chunks] : pixel.chunks
-  const source = pixelShader(ctx, pixel, { chunks, globals: [], beforeMain: framePass })
+  const source = pixelShader(ctx, pixel, { chunks, globals: controlBlock(ctx), beforeMain: framePass })
   const definitions = [
     `constexpr int ledCount = ${leds};`,
     ...(layers ? [`vec4 pixelState[ledCount][${layers}] = {};`] : []),
@@ -52,6 +52,14 @@ function unit(ctx: CompileContext, frame: PassCode, pixel: PassCode, leds: numbe
     ...renderFrame(texels > 0),
   ]
   return ['#include "wledtoy.h"', '', 'namespace wledtoy {', '', definitions.join('\n'), '}', ''].join('\n')
+}
+
+/** The uniforms the prelude declares for GLSL, here at their defaults for the host to overwrite. */
+function controlBlock(ctx: CompileContext): string[] {
+  const defaults = ctx.uniforms.map((uniform) => uniform.default)
+  if (defaults.length === 0) return []
+  const vectors = Array.from({ length: Math.ceil(defaults.length / 4) }, (_, v) => `vec4(${[0, 1, 2, 3].map((c) => defaults[v * 4 + c] ?? 0).join(', ')})`)
+  return [`vec4 iControl[${vectors.length}] = { ${vectors.join(', ')} };`]
 }
 
 // the LED pass of the GLSL prelude's main(), after the frame pass when there is one: each LED shaded where it sits, or

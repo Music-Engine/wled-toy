@@ -15,7 +15,7 @@ const input = {
 const output = { level: Float, result: GenType }
 
 type Options = NodeDefinition<typeof input, typeof output>
-type Pixel = NonNullable<Options['pixel']>
+type Pixel = NonNullable<Options['body']>
 type Frame = NonNullable<Options['frame']>
 type PixelInput = Parameters<Pixel>[0]
 type FrameInput = Parameters<Frame>[0]
@@ -90,7 +90,7 @@ describe('what a frame body finds in info.state', () => {
 
 describe('what a pixel body finds in ctx.state', () => {
   const state = { level: Float, tint: Color }
-  type StatefulPixel = NonNullable<NodeDefinition<typeof input, typeof output, typeof state>['pixel']>
+  type StatefulPixel = NonNullable<NodeDefinition<typeof input, typeof output, typeof state>['body']>
 
   it('gets each slot as a GLSL value it assigns through emit', () => {
     expectTypeOf<Parameters<StatefulPixel>[1]['state']>().toEqualTypeOf<{ readonly level: Value; readonly tint: Value }>()
