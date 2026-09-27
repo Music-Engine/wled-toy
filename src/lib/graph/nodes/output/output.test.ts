@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { DEFAULT_OUTPUT } from '@/lib/engine/output'
+import { DEFAULT_OUTPUT } from '@/lib/engine/output/output'
 import { generateGlsl } from '@/lib/graph'
 import { graph, node } from '@/lib/graph/testing'
 

@@ -1,6 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { Filterbank } from './dsp'
-import { AudioService, DEFAULT_ANALYSIS } from './service'
+import { AudioService } from './service'
+import { DEFAULT_ANALYSIS } from './settings'
 
 let service: AudioService | undefined
 afterEach(() => {

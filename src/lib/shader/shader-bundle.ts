@@ -1,5 +1,5 @@
 import { AUDIO_BINS, HISTORY_ROWS, WAVE_ROWS, WAVE_WIDTH } from '@/lib/audio/textures'
-import { AUDIO_EXTRA_SLOTS, CONTROL_VECTORS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from './glsl'
+import { AUDIO_EXTRA_SLOTS, CONTROL_VECTORS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from './prelude'
 
 /** What a host has to feed each uniform of the prelude; the header of a bundle quotes the ones it declares. */
 export const UNIFORM_CONTRACT: Record<string, string> = {

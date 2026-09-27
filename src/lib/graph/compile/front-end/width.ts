@@ -1,6 +1,6 @@
 // Generic widths: before anything is emitted, each node's `gen` type is settled from the widest type linked or stored
 // on its generic sockets, walking from the sinks in the order emission and planning will.
-import type { GlslType } from '@/lib/shader/glsl'
+import type { GlslType } from '@/lib/shader/catalog'
 import type { Rate, Socket } from '@/lib/graph/define/shape'
 import { componentCount, vectorType } from '@/lib/graph/define/value'
 import type { GraphNodeData } from '@/lib/graph/model/doc'

@@ -1,7 +1,7 @@
 // The Program: what the front end decided about a graph, as plain data, and all the backends read. It holds no
 // functions and no class instances; a node's bodies and socket types resolve through the registry at build version.
-import type { OutputSettings } from '@/lib/engine/output'
-import type { GlslType } from '@/lib/shader/glsl'
+import type { OutputSettings } from '@/lib/engine/output/output'
+import type { GlslType } from '@/lib/shader/catalog'
 import type { FrameValue } from '@/lib/graph/define/context'
 import type { NodeShape } from '@/lib/graph/define/shape'
 import { nodeItem } from '@/lib/graph/registry'

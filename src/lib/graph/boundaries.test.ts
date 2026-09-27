@@ -3,7 +3,7 @@ import { expect, it } from 'vitest'
 
 const GRAPH = 'src/lib/graph'
 const FIXTURES = `${GRAPH}/boundaries.fixtures`
-const DEFINE_OUTSIDE = ['@/lib/shader/glsl', '@/lib/audio/dsp', '@/lib/engine/midi', '@/lib/engine/output']
+const DEFINE_OUTSIDE = ['@/lib/shader/catalog', '@/lib/audio/dsp', '@/lib/engine/midi', '@/lib/engine/output/output', '@/lib/util/json']
 
 // a node reaches the graph only through authoring; a helper two categories need lives in nodes/shared (or nodes/glsl for
 // GLSL chunks) rather than being imported from one of them, so categories stay independent of each other

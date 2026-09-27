@@ -1,4 +1,5 @@
 import type { StoredNode } from './doc'
+import { newId } from '@/lib/util/ids'
 
 /** A snapshot of every Knob: values by knob node id. */
 export interface Scene {
@@ -11,7 +12,7 @@ const isKnob = (node: StoredNode) => node.data.kind === 'knob'
 
 export function captureScene(nodes: StoredNode[], name: string): Scene {
   const values = Object.fromEntries(nodes.filter(isKnob).map((n) => [n.id, typeof n.data.values.value === 'number' ? n.data.values.value : 0.5]))
-  return { id: `scene-${Date.now().toString(36)}`, name, values }
+  return { id: `scene-${newId()}`, name, values }
 }
 
 /**

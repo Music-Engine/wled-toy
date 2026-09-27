@@ -1,0 +1,63 @@
+import { syntaxHighlighting, LanguageSupport } from '@codemirror/language'
+import { EditorView } from '@codemirror/view'
+import { glslHover, signatureHelp } from './glsl-completions'
+import { glslHighlighter, glslLanguage } from './glsl-highlight'
+
+export function glsl() {
+  return new LanguageSupport(glslLanguage, [syntaxHighlighting(glslHighlighter), glslHover, signatureHelp, editorTheme])
+}
+
+const editorTheme = EditorView.theme({
+  '&': { height: '100%', backgroundColor: 'var(--ui-bg)', color: 'var(--ui-text)', fontSize: '14px' },
+  '.cm-scroller': { fontFamily: 'var(--font-mono)', lineHeight: '1.6' },
+  '.cm-content': { caretColor: 'var(--ui-primary)', padding: '12px 0' },
+  '.cm-gutters': { backgroundColor: 'var(--ui-bg)', color: 'var(--ui-text-dimmed)', border: 'none' },
+  '.cm-activeLine': { backgroundColor: 'color-mix(in oklab, var(--ui-bg-elevated) 60%, transparent)' },
+  '.cm-activeLineGutter': { backgroundColor: 'transparent', color: 'var(--ui-text)' },
+  '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
+    backgroundColor: 'color-mix(in oklab, var(--ui-primary) 28%, transparent) !important',
+  },
+  '.cm-cursor': { borderLeftColor: 'var(--ui-primary)' },
+  '.cm-matchingBracket': { backgroundColor: 'color-mix(in oklab, var(--ui-primary) 20%, transparent)', outline: 'none' },
+  '.cm-tooltip': { backgroundColor: 'var(--ui-bg-elevated)', color: 'var(--ui-text)', border: '1px solid var(--ui-border)', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 8px 24px rgb(0 0 0 / 0.35)' },
+  '.cm-tooltip-autocomplete > ul': { fontFamily: 'var(--font-mono)', maxHeight: '18em' },
+  '.cm-tooltip-autocomplete > ul > li': { padding: '2px 8px' },
+  '.cm-tooltip-autocomplete > ul > li[aria-selected]': { backgroundColor: 'color-mix(in oklab, var(--ui-primary) 30%, transparent)', color: 'var(--ui-text-highlighted)' },
+  '.cm-completionSection': { color: 'var(--ui-text-muted)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '4px 8px', borderBottom: '1px solid var(--ui-border)', opacity: '1' },
+  '.cm-completionDetail': { color: 'var(--ui-text-muted)', fontStyle: 'normal', marginLeft: '0.75em' },
+  '.cm-completionInfo': { padding: '0' },
+  '.cm-glsl-doc': { padding: '8px 10px', maxWidth: '400px', fontSize: '13px', fontFamily: 'var(--font-sans)' },
+  '.cm-glsl-doc-head': { display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ui-text-muted)', fontSize: '12px', marginBottom: '4px' },
+  '.cm-glsl-doc-swatch': { width: '8px', height: '8px', borderRadius: '2px' },
+  '.cm-glsl-doc code': { display: 'block', fontFamily: 'var(--font-mono)', color: 'var(--ui-text-highlighted)', marginBottom: '4px' },
+  '.cm-glsl-doc-active': { color: 'var(--ui-primary)', fontWeight: '700', textDecoration: 'underline' },
+  '.cm-glsl-doc p': { margin: '0', color: 'var(--ui-text-toned)' },
+  '.cm-diagnostic': { fontFamily: 'var(--font-mono)' },
+  '.cm-panels': { backgroundColor: 'var(--app-chrome)', color: 'var(--ui-text)', fontFamily: 'var(--font-sans)' },
+  '.cm-panels-top': { borderBottom: '1px solid var(--app-hairline)' },
+  '.cm-panels-bottom': { borderTop: '1px solid var(--app-hairline)' },
+  '.cm-panel.cm-search': { padding: '4px 32px 4px 8px' },
+  '.cm-panel.cm-search input, .cm-panel.cm-search button, .cm-panel.cm-search label': { margin: '2px 6px 2px 0' },
+  '.cm-panel.cm-search label': { display: 'inline-flex', alignItems: 'center', gap: '4px', verticalAlign: 'middle', fontSize: '12px', color: 'var(--ui-text-muted)', whiteSpace: 'nowrap' },
+  '.cm-panel.cm-search input[type=checkbox]': { margin: '0', accentColor: 'var(--ui-primary)' },
+  '.cm-textfield': {
+    height: '20px', width: '200px', padding: '0 6px', fontSize: '12px', lineHeight: '18px', fontFamily: 'var(--font-mono)',
+    backgroundColor: 'var(--app-surface)', border: '1px solid var(--ui-border-accented)', borderRadius: '4px',
+  },
+  '.cm-textfield::placeholder': { color: 'var(--ui-text-dimmed)' },
+  '.cm-button': {
+    height: '20px', padding: '0 8px', fontSize: '12px', lineHeight: '18px', backgroundImage: 'none',
+    backgroundColor: 'transparent', border: '1px solid var(--ui-border-accented)', borderRadius: '4px',
+  },
+  '.cm-button:hover': { backgroundColor: 'var(--app-hover)' },
+  '.cm-button:active': { backgroundImage: 'none', backgroundColor: 'var(--ui-bg-accented)' },
+  '.cm-textfield:focus-visible, .cm-button:focus-visible': { outline: '2px solid var(--ui-primary)', outlineOffset: '1px' },
+  '.cm-panel.cm-search [name=close]': {
+    top: '6px', right: '8px', width: '20px', height: '20px', borderRadius: '4px',
+    fontSize: '16px', lineHeight: '18px', color: 'var(--ui-text-muted)', cursor: 'default',
+  },
+  '.cm-panel.cm-search [name=close]:hover': { backgroundColor: 'var(--app-hover)', color: 'var(--ui-text)' },
+  '.cm-searchMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-warning) 30%, transparent)', outline: 'none' },
+  '.cm-searchMatch-selected': { backgroundColor: 'color-mix(in oklab, var(--ui-primary) 45%, transparent)' },
+  '.cm-selectionMatch': { backgroundColor: 'color-mix(in oklab, var(--ui-text) 12%, transparent)' },
+})

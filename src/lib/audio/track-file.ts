@@ -1,3 +1,5 @@
+import { extension } from '@/lib/util/files'
+
 export type TrackCheck = { ok: true; seconds: number } | { ok: false; reason: string }
 
 const EXTENSIONS = ['mp3', 'wav', 'ogg', 'oga', 'opus', 'flac', 'm4a', 'aac', 'webm']
@@ -22,9 +24,8 @@ export function probeDuration(blob: Blob): Promise<number> {
 
 /** Whether a picked file can stand in for the built-in track: an audio type or extension, not empty, and decodable here. */
 export async function checkTrackFile(file: { blob: Blob; name: string }, probe = probeDuration): Promise<TrackCheck> {
-  const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : ''
   // a file dropped in from the desktop app or an odd server often has no type, so the extension counts too
-  if (!file.blob.type.startsWith('audio/') && !EXTENSIONS.includes(extension)) {
+  if (!file.blob.type.startsWith('audio/') && !EXTENSIONS.includes(extension(file.name))) {
     return { ok: false, reason: `${file.name} is not an audio file (${file.blob.type || 'unknown type'}). Use ${EXTENSIONS.slice(0, 6).join(', ')} or another format this system plays.` }
   }
   if (file.blob.size === 0) return { ok: false, reason: `${file.name} is empty.` }
@@ -36,5 +37,3 @@ export async function checkTrackFile(file: { blob: Blob; name: string }, probe =
     return { ok: false, reason: `${file.name} could not be decoded. The format may not be supported here, or the file is damaged.` }
   }
 }
-
-export const formatDuration = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`

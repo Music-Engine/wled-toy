@@ -1,11 +1,11 @@
 import { computed, type InjectionKey } from 'vue'
-import { createDocumentSession, documentSessions, type DocumentSession } from '@/lib/documents/document-session'
-import type { FileBackend } from '@/lib/documents/documents'
+import { createDocumentSession, documentSessions, type DocumentSession } from '@/lib/documents/sessions/document-session'
+import type { FileBackend } from '@/lib/documents/files/file-backends'
 import { canonical, createDefaultGraph, type NodeGraph } from './doc'
 import { log } from '@/lib/app/logs'
 import { GRAPH_FILE_EXTENSION, readGraphFile, serializeGraphFile } from './file'
 
-export type { DocumentPrompt, PromptChoice } from '@/lib/documents/document-session'
+export type { DocumentPrompt, PromptChoice } from '@/lib/documents/sessions/document-session'
 
 /** Call inside a component or an effect scope: the unload guard and the autosave end with it. */
 export function createGraphDocument(options: { backend: FileBackend; getSnapshot: () => NodeGraph; onLoad: (doc: NodeGraph) => void }): GraphSession {

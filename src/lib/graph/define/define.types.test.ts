@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { DEFAULT_OUTPUT } from '@/lib/engine/output'
+import { DEFAULT_OUTPUT } from '@/lib/engine/output/output'
 import type { ResolveResult } from './context'
 import type { NodeItemOptions } from './define'
 import { AudioStream, Bool, Color, Enum, Float, GenType, Int, Vec3 } from './socket-types'

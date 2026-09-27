@@ -1,4 +1,4 @@
-import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/glsl'
+import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/prelude'
 import { Color, defineNode, Enum, Float, Reference, resourceIndex } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 import { colorChunk } from './chunks/image-texture-chunk'

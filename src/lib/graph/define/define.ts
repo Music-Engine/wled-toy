@@ -1,4 +1,4 @@
-import { titleCase, type CategoryId } from '@/lib/shader/glsl'
+import { titleCase, type CategoryId } from '@/lib/shader/catalog'
 import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { Inputs, Outputs, PixelState, State, StateDef } from './infer'
 import type { NodeItem, NodePreset, NodeShape, OutputSocket, Rate, Socket, WidgetProps } from './shape'

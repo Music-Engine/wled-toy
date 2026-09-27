@@ -1,4 +1,5 @@
 import { reactive, ref, watch } from 'vue'
+import { loadStored } from '@/lib/app/settings/storage'
 
 export type DockId = 'right' | 'bottom'
 export type Mode = 'shader' | 'graph' | 'reference'
@@ -93,16 +94,8 @@ export function sanitize(raw: unknown): Layout {
   return out
 }
 
-function load(): Layout {
-  try {
-    return sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'))
-  } catch {
-    return defaults()
-  }
-}
-
 /** `mode` and `problemCount` are runtime only: the shell sets the mode, the active page's ProblemsList the count. */
-export const workspace = reactive({ ...load(), mode: 'shader' as Mode, problemCount: 0 })
+export const workspace = reactive({ ...loadStored(STORAGE_KEY, 'your panel layout', sanitize, defaults()), mode: 'shader' as Mode, problemCount: 0 })
 
 watch(() => {
   const { mode, problemCount, ...layout } = workspace
@@ -111,6 +104,23 @@ watch(() => {
 
 export function resetLayout() {
   Object.assign(workspace, defaults())
+}
+
+// in memory only: the layout that is saved is the maximized one, so a reload stays maximized with nothing to restore
+const beforeMaximize = ref<Pick<Layout, 'dockVisible' | 'bottomVisible' | 'stripVisible'> | null>(null)
+
+export const isMaximized = () => beforeMaximize.value !== null
+
+/** Hides every panel around the editor, or brings back the ones the last maximize hid. */
+export function toggleMaximize() {
+  if (beforeMaximize.value) {
+    Object.assign(workspace, beforeMaximize.value)
+    beforeMaximize.value = null
+    return
+  }
+  const { dockVisible, bottomVisible, stripVisible } = workspace
+  beforeMaximize.value = { dockVisible, bottomVisible, stripVisible }
+  Object.assign(workspace, { dockVisible: false, bottomVisible: false, stripVisible: false })
 }
 
 /** The tabs a dock shows in the current mode, in `DOCK_TABS` order. */

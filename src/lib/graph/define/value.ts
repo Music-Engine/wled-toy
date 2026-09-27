@@ -1,4 +1,4 @@
-import type { GlslType } from '@/lib/shader/glsl'
+import type { GlslType } from '@/lib/shader/catalog'
 
 /** A GLSL expression and the concrete type it evaluates to. */
 export interface Value {

@@ -1,0 +1,196 @@
+@import '@fontsource-variable/inter/wght.css';
+
+/*
+ * Node editor look, after Blender. Sizes are in em so a node scales with its font size.
+ * Rules: one name per color, hover always lightens, pressed darkens, focus is always the accent ring.
+ * Metrics are Blender's at interface scale 1, written as pixels over the 12px font: 20px header and rows,
+ * 2px between rows, 10px sockets, 4px corners, 1px dark outlines, 8 to 10px glyphs.
+ */
+.nui {
+  --nui-surface: #303030;
+  --nui-surface-folded: #212121;
+  --nui-field: #545454;
+  --nui-field-hover: #646464;
+  --nui-field-pressed: #343434;
+  --nui-button: #282828;
+  --nui-menu: #1d1d1d;
+  --nui-accent: #4772b3;
+  --nui-text: #fff;
+  --nui-text-dim: #b0b0b0;
+  --nui-error: #f54646;
+  --nui-outline: #101010;
+  --nui-radius: calc(4em / 12);
+  --nui-field-height: calc(20em / 12);
+  --nui-row-gap: calc(2em / 12);
+  --nui-gap: calc(5em / 12);
+  --nui-pad: calc(6em / 12);
+  --nui-socket: calc(10em / 12);
+  --nui-glyph: calc(10em / 12);
+  --nui-glyph-small: calc(8em / 12);
+
+  font-family: 'Inter Variable', Inter, system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--nui-text);
+}
+
+.nui :focus-visible {
+  outline: 2px solid var(--nui-accent);
+  outline-offset: 1px;
+}
+/*
+ * A field clips its content, so a ring on the input inside it survives only as a sliver in the field's padding.
+ * The field wears the ring instead, flush, so it fits the gap between rows.
+ */
+.nui-field:has(:focus-visible) { outline: 2px solid var(--nui-accent); }
+.nui-field :focus-visible { outline: none; }
+
+.nui-node {
+  min-width: calc(140em / 12);
+  border: 1px solid var(--nui-outline);
+  border-radius: var(--nui-radius);
+  background: var(--nui-surface);
+  box-shadow: 0 0 5px rgb(0 0 0 / 0.5);
+}
+.nui-node.is-source { min-width: 10em; }
+.nui-node.is-wide { width: 20em; }
+.nui-node:hover { border-color: var(--nui-field); }
+.nui-node.is-selected { border-color: var(--nui-text); }
+.nui-node.is-error { border-color: var(--nui-error); }
+.nui-node.is-collapsed { background: var(--nui-surface-folded); }
+.nui-node.is-muted { opacity: 0.55; }
+.nui-node.is-muted .nui-header { filter: grayscale(1); }
+
+.nui-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--nui-gap);
+  min-height: calc(20em / 12);
+  padding: 0 var(--nui-pad);
+  border-radius: calc(var(--nui-radius) - 1px) calc(var(--nui-radius) - 1px) 0 0;
+  cursor: grab;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+.nui-node.is-collapsed .nui-header { border-radius: calc(var(--nui-radius) - 1px); }
+
+.nui-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+}
+.nui-rename {
+  min-width: 0;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: var(--nui-field);
+  color: inherit;
+  font: inherit;
+  user-select: text;
+  outline: none;
+}
+
+.nui-collapse {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(16em / 12);
+  height: calc(16em / 12);
+  cursor: pointer;
+}
+.nui-collapse svg {
+  width: var(--nui-glyph);
+  height: var(--nui-glyph);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5));
+  transition: transform 0.15s ease;
+}
+.nui-node.is-collapsed .nui-collapse svg { transform: rotate(-90deg); }
+
+/*
+ * Folded sockets are zero-width columns in the header's flow, so the header grows to fit the
+ * longer side and every socket stays reachable. The outer margin undoes the header's padding;
+ * the inner one keeps the half socket inside the node clear of the arrow and title.
+ */
+.nui-folded {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: calc(4em / 12);
+  align-self: stretch;
+  width: 0;
+  min-width: 0;
+  padding: calc(4em / 12) 0;
+}
+.nui-folded.is-in { margin: 0 var(--nui-gap) 0 calc(-1 * var(--nui-pad)); }
+.nui-folded.is-out { margin: 0 calc(-1 * var(--nui-pad)) 0 var(--nui-gap); }
+.nui-folded:empty { display: none; }
+.nui-folded .vue-flow__handle.nui-socket {
+  position: relative;
+  inset: auto;
+  flex: none;
+  transform: translateX(-50%);
+}
+.nui-folded .vue-flow__handle.nui-socket.is-diamond { transform: translateX(-50%) rotate(45deg) scale(0.85); }
+
+.nui-warning {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  color: #ffd84a;
+}
+
+.nui-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nui-row-gap);
+  padding: var(--nui-pad) 0;
+}
+
+.nui-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--nui-gap);
+  min-height: var(--nui-field-height);
+  padding: 0 calc(var(--nui-pad) + var(--nui-socket) / 2);
+}
+.nui-row.is-output { justify-content: flex-end; }
+.nui-block { padding: 0 calc(var(--nui-pad) + var(--nui-socket) / 2); }
+
+.nui-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.nui-implicit {
+  /* without this a flex item never gets narrower than its text, so it cannot ellipsize and squeezes its siblings instead */
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.4em;
+  border-radius: var(--nui-radius);
+  background: rgb(0 0 0 / 0.35);
+  color: var(--nui-text-dim);
+  font-size: calc(10em / 12);
+}
+
+/* Sockets sit centered on the node edge. Vue Flow already centers a handle on the row's edge; only the look changes. */
+.vue-flow__handle.nui-socket {
+  width: var(--nui-socket);
+  height: var(--nui-socket);
+  border: 1px solid var(--nui-outline);
+  border-radius: 50%;
+}
+.vue-flow__handle-left.nui-socket.is-diamond { border-radius: 1px; transform: translate(-50%, -50%) rotate(45deg) scale(0.85); }
+.vue-flow__handle-right.nui-socket.is-diamond { border-radius: 1px; transform: translate(50%, -50%) rotate(45deg) scale(0.85); }

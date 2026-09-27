@@ -1,16 +1,20 @@
 import { afterEach, expect, it } from 'vitest'
 import { KeepAlive, createApp, h, nextTick } from 'vue'
 import ReferencePage from './ReferencePage.vue'
-import { setClipboardWriter } from '@/lib/app/clipboard'
-import { CATEGORIES, NODES } from '@/lib/shader/glsl'
+import { setClipboardWriter } from '@/lib/app/files/clipboard'
+import { installKeyDispatcher, isMac } from '@/lib/app/commands'
+import { workspace } from '@/lib/app/workspace'
+import { CATEGORIES, NODES } from '@/lib/shader/catalog'
 
 let unmount: (() => void) | undefined
 afterEach(() => {
   unmount?.()
+  workspace.mode = 'shader'
   setClipboardWriter((text) => { void navigator.clipboard.writeText(text) })
 })
 
 function mount() {
+  workspace.mode = 'reference'
   const root = document.createElement('div')
   root.style.height = '600px'
   document.body.append(root)
@@ -18,7 +22,8 @@ function mount() {
   // Nuxt UI is not installed here; ReferencePage uses only native elements plus GlslCode, CommandScope and the reference components, none of which needs it
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => { removeKeys(); app.unmount(); root.remove() }
   return root
 }
 
@@ -26,6 +31,7 @@ function press(target: EventTarget, key: string, init: KeyboardEventInit = {}) {
   target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }))
 }
 
+const mod = isMac() ? { metaKey: true } : { ctrlKey: true }
 const search = (root: HTMLElement) => root.querySelector<HTMLInputElement>('input')!
 const categoryOptions = (root: HTMLElement) => [...root.querySelectorAll<HTMLButtonElement>('[role="option"]')]
 const entryNames = (root: HTMLElement) => [...root.querySelectorAll<HTMLElement>('[data-entry]')].map((el) => el.dataset.entry)
@@ -222,7 +228,7 @@ it('Enter on a focused row copies it, and Cmd/Ctrl+C copies whichever row has fo
   expect(written).toEqual([node.signature])
 
   // the key still bubbles from whichever row the browser has focused, not from window itself
-  press(row, 'c', { metaKey: true })
+  press(row, 'c', mod)
   await nextTick()
   expect(written).toEqual([node.signature, node.signature])
 })
@@ -233,7 +239,7 @@ it('Cmd/Ctrl+C is left alone when nothing reference-specific has focus', async (
   setClipboardWriter((text) => { written.push(text) })
   const input = search(root)
   input.focus()
-  press(input, 'c', { metaKey: true })
+  press(input, 'c', mod)
   await nextTick()
   expect(written).toEqual([])
 })

@@ -29,9 +29,11 @@ pub enum Level {
 #[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Message {
+    /// The `count` frames sent since the last ack, up to `frame_id`: `udp_ms` is their mean, `bytes` their sum.
     #[serde(rename_all = "camelCase")]
     Ack {
         frame_id: u32,
+        count: u32,
         udp_ms: f64,
         bytes: usize,
     },
@@ -90,23 +92,77 @@ impl FrameQueue {
         dropped
     }
 
-    /// Blocks until a frame arrives; None once the queue is closed.
-    fn pop(&self) -> Option<Vec<u8>> {
+    /// Blocks until a frame arrives, the queue is closed, or `until` passes.
+    fn pop(&self, until: Option<Instant>) -> Next {
         let mut state = self.state.lock().unwrap();
         loop {
             if state.1 {
-                return None;
+                return Next::Closed;
             }
             if let Some(frame) = state.0.pop_front() {
-                return Some(frame);
+                return Next::Frame(frame);
             }
-            state = self.ready.wait(state).unwrap();
+            state = match until {
+                None => self.ready.wait(state).unwrap(),
+                Some(until) => {
+                    let left = until.saturating_duration_since(Instant::now());
+                    if left.is_zero() {
+                        return Next::Idle;
+                    }
+                    self.ready.wait_timeout(state, left).unwrap().0
+                }
+            };
         }
     }
 
     fn close(&self) {
         self.state.lock().unwrap().1 = true;
         self.ready.notify_all();
+    }
+}
+
+#[derive(Debug, PartialEq)]
+enum Next {
+    Frame(Vec<u8>),
+    Idle,
+    Closed,
+}
+
+/// Acks of the frames sent since the last flush: one Channel message per interval instead of one per frame.
+#[derive(Default)]
+struct Acks {
+    since: Option<Instant>,
+    last_id: u32,
+    count: u32,
+    udp_ms: f64,
+    bytes: usize,
+}
+
+impl Acks {
+    const INTERVAL: Duration = Duration::from_millis(100);
+
+    fn add(&mut self, now: Instant, frame_id: u32, udp_ms: f64, bytes: usize) {
+        self.since.get_or_insert(now);
+        self.last_id = frame_id;
+        self.count += 1;
+        self.udp_ms += udp_ms;
+        self.bytes += bytes;
+    }
+
+    /// When the pending acks are due, so the last frames of a stream are acked one interval after the first of them.
+    fn due(&self) -> Option<Instant> {
+        self.since.map(|since| since + Self::INTERVAL)
+    }
+
+    fn take(&mut self) -> Option<Message> {
+        self.since?;
+        let acks = std::mem::take(self);
+        Some(Message::Ack {
+            frame_id: acks.last_id,
+            count: acks.count,
+            udp_ms: acks.udp_ms / f64::from(acks.count),
+            bytes: acks.bytes,
+        })
     }
 }
 
@@ -229,7 +285,18 @@ fn send_frames(shared: &Arc<Shared>, socket: &UdpSocket) {
     let _ = getrandom::fill(&mut cid);
     let mut seq = 1;
     let mut last_error: Option<Instant> = None;
-    while let Some(frame) = shared.frames.pop() {
+    let mut acks = Acks::default();
+    loop {
+        let frame = match shared.frames.pop(acks.due()) {
+            Next::Frame(frame) => frame,
+            Next::Idle => {
+                if let Some(ack) = acks.take() {
+                    (shared.emit)(ack);
+                }
+                continue;
+            }
+            Next::Closed => return,
+        };
         let Some(frame_id) = frame_id(&frame) else {
             continue;
         };
@@ -256,11 +323,13 @@ fn send_frames(shared: &Arc<Shared>, socket: &UdpSocket) {
                 }
             }
         }
-        (shared.emit)(Message::Ack {
-            frame_id,
-            udp_ms: started.elapsed().as_secs_f64() * 1000.0,
-            bytes,
-        });
+        let now = Instant::now();
+        acks.add(now, frame_id, (now - started).as_secs_f64() * 1000.0, bytes);
+        if acks.due().is_some_and(|due| now >= due) {
+            if let Some(ack) = acks.take() {
+                (shared.emit)(ack);
+            }
+        }
     }
 }
 
@@ -435,11 +504,12 @@ pub fn bridge_config(
 }
 
 /// The body is the raw frame, never JSON: see `Connection::send_frame`.
+/// Async so it runs on the async runtime: a plain command runs on the main thread, once per LED frame.
 #[tauri::command]
-pub fn bridge_frame(
+pub async fn bridge_frame(
     window: WebviewWindow,
-    bridges: State<Bridges>,
-    request: Request,
+    bridges: State<'_, Bridges>,
+    request: Request<'_>,
 ) -> Result<(), String> {
     let InvokeBody::Raw(frame) = request.body() else {
         return Err("a frame is a binary body".into());
@@ -580,11 +650,78 @@ mod tests {
         assert_eq!(queue.push(vec![1]), None);
         assert_eq!(queue.push(vec![2]), None);
         assert_eq!(queue.push(vec![3]), Some(vec![1]));
-        assert_eq!(queue.pop(), Some(vec![2]));
-        assert_eq!(queue.pop(), Some(vec![3]));
+        assert_eq!(queue.pop(None), Next::Frame(vec![2]));
+        assert_eq!(queue.pop(None), Next::Frame(vec![3]));
+        assert_eq!(queue.pop(Some(Instant::now())), Next::Idle);
         queue.push(vec![4]);
         queue.close();
-        assert_eq!(queue.pop(), None);
+        assert_eq!(queue.pop(None), Next::Closed);
+    }
+
+    #[test]
+    fn acks_are_one_message_per_interval_with_the_count_bytes_and_mean_udp_time() {
+        let start = Instant::now();
+        let mut acks = Acks::default();
+        assert_eq!((acks.due(), acks.take()), (None, None));
+        acks.add(start, 5, 1.0, 100);
+        acks.add(start + Duration::from_millis(40), 6, 3.0, 300);
+        acks.add(start + Duration::from_millis(90), 7, 2.0, 200);
+        assert_eq!(acks.due(), Some(start + Acks::INTERVAL));
+        assert_eq!(
+            acks.take(),
+            Some(Message::Ack {
+                frame_id: 7,
+                count: 3,
+                udp_ms: 2.0,
+                bytes: 600
+            })
+        );
+        assert_eq!((acks.due(), acks.take()), (None, None));
+        let later = start + Duration::from_secs(1);
+        acks.add(later, 8, 0.5, 30);
+        assert_eq!(acks.due(), Some(later + Acks::INTERVAL));
+    }
+
+    #[test]
+    fn frames_pushed_out_of_the_queue_are_dropped_one_message_each_and_the_rest_acked_in_a_batch() {
+        let (connection, messages) = connect(9);
+        let blocked = connection.0.target.lock().unwrap();
+        for id in 1..=5 {
+            connection.send_frame(frame(id, &[1, 2, 3]));
+        }
+        // the UDP thread takes at most one frame before it waits on the target, so at least two of frames 1 to 3 were pushed out
+        let mut dropped = Vec::new();
+        while let Ok(Message::Drop { frame_id }) = messages.try_recv() {
+            dropped.push(frame_id);
+        }
+        assert!(
+            dropped.len() >= 2 && dropped.iter().all(|id| (1..=3).contains(id)),
+            "{dropped:?}"
+        );
+        drop(blocked);
+
+        let mut acked = 0;
+        while acked + dropped.len() < 5 {
+            match messages
+                .recv_timeout(Duration::from_secs(5))
+                .expect("no ack")
+            {
+                Message::Ack {
+                    frame_id,
+                    count,
+                    bytes,
+                    ..
+                } => {
+                    acked += count as usize;
+                    assert_eq!(bytes, 0);
+                    if acked + dropped.len() == 5 {
+                        assert_eq!(frame_id, 5);
+                    }
+                }
+                other => panic!("unexpected {other:?}"),
+            }
+        }
+        assert_eq!(acked + dropped.len(), 5);
     }
 
     #[test]
@@ -622,10 +759,11 @@ mod tests {
         assert_eq!(
             json(Message::Ack {
                 frame_id: 7,
+                count: 3,
                 udp_ms: 0.5,
                 bytes: 30
             }),
-            r#"{"type":"ack","frameId":7,"udpMs":0.5,"bytes":30}"#
+            r#"{"type":"ack","frameId":7,"count":3,"udpMs":0.5,"bytes":30}"#
         );
         assert_eq!(
             json(Message::Drop { frame_id: 8 }),

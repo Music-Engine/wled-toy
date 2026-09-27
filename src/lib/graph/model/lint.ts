@@ -24,8 +24,19 @@ function lintNodes(doc: NodeGraph): string[] {
       problems.push(`${node.id}: unknown node kind "${node.data?.kind}"`)
       continue
     }
-    problems.push(...lintValues(node, shape))
+    problems.push(...lintValues(node, shape), ...lintFlags(node))
   }
+  return problems
+}
+
+function lintFlags(node: StoredNode): string[] {
+  const problems: string[] = []
+  for (const name of ['hideUnused', 'muted'] as const) {
+    const value = node.data[name]
+    if (value !== undefined && typeof value !== 'boolean') problems.push(`${node.id}.${name}: ${JSON.stringify(value)} is not true or false`)
+  }
+  const { label } = node.data
+  if (label !== undefined && typeof label !== 'string') problems.push(`${node.id}.label: ${JSON.stringify(label)} is not text`)
   return problems
 }
 

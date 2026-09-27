@@ -2,28 +2,29 @@
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useElementSize } from '@vueuse/core'
-import DockContribution from './components/shell/DockContribution.vue'
-import DropOverlay from './components/shell/DropOverlay.vue'
-import LedStrip from './components/panels/LedStrip.vue'
-import LogPanel from './components/panels/LogPanel.vue'
-import StatusBar from './components/shell/StatusBar.vue'
-import AboutDialog from './components/shell/AboutDialog.vue'
-import BottomPanel from './components/shell/BottomPanel.vue'
-import CommandPalette from './components/shell/CommandPalette.vue'
-import InputsInspector from './components/shell/InputsInspector.vue'
-import LaunchScreen from './components/shell/LaunchScreen.vue'
-import OutputInspector from './components/shell/OutputInspector.vue'
-import PerformancePanel from './components/shell/PerformancePanel.vue'
-import RightDock from './components/shell/RightDock.vue'
-import SettingsView from './components/shell/SettingsView.vue'
-import ShareAudioPrompt from './components/shell/ShareAudioPrompt.vue'
-import SplitHandle from './components/shell/SplitHandle.vue'
-import TitleBar from './components/shell/TitleBar.vue'
-import { installKeyDispatcher, registerHandlers } from './lib/app/commands'
-import { config } from './lib/app/config'
+import DockContribution from '@/features/shell/dock/DockContribution.vue'
+import DropOverlay from '@/features/documents/DropOverlay.vue'
+import LedStrip from '@/features/output/preview/LedStrip.vue'
+import LogPanel from '@/features/logs/LogPanel.vue'
+import PreviewPanel from '@/features/output/preview/PreviewPanel.vue'
+import StatusBar from '@/features/shell/StatusBar.vue'
+import AboutDialog from '@/features/shell/AboutDialog.vue'
+import BottomPanel from '@/features/shell/dock/BottomPanel.vue'
+import CommandPalette from '@/features/commands/CommandPalette.vue'
+import InputsInspector from '@/features/audio/InputsInspector.vue'
+import LaunchScreen from '@/features/documents/LaunchScreen.vue'
+import OutputInspector from '@/features/output/OutputInspector.vue'
+import PerformancePanel from '@/features/performance/PerformancePanel.vue'
+import RightDock from '@/features/shell/dock/RightDock.vue'
+import SettingsView from '@/features/settings/SettingsView.vue'
+import ShareAudioPrompt from '@/features/audio/ShareAudioPrompt.vue'
+import SplitHandle from '@/features/shell/dock/SplitHandle.vue'
+import TitleBar from '@/features/shell/TitleBar.vue'
+import { inEditableTarget, installKeyDispatcher, registerHandlers } from '@/lib/app/commands'
+import { config } from '@/lib/app/settings/config'
 import { useEngine } from './lib/engine/engine'
-import { isStripLayout } from './lib/engine/layout'
-import { launchScreen, openSettings, preferences } from './lib/app/preferences'
+import { isStripLayout } from '@/lib/engine/output/layout'
+import { launchScreen, openSettings, preferences } from '@/lib/app/settings/preferences'
 import { DOCK_SIZES, workspace } from './lib/app/workspace'
 
 const aboutOpen = ref(false)
@@ -49,7 +50,7 @@ const bottomHeight = computed(() => Math.min(workspace.bottomHeight, bottomMax.v
 
 // a desktop window has no page menu; text fields and the code editor keep theirs for paste and spelling
 function onContextMenu(e: MouseEvent) {
-  if (!(e.target as HTMLElement | null)?.closest('input, textarea, [contenteditable="true"], .cm-editor')) e.preventDefault()
+  if (!inEditableTarget(e)) e.preventDefault()
 }
 
 const releaseHandlers = registerHandlers({
@@ -107,7 +108,9 @@ onBeforeUnmount(() => {
           @update:model-value="workspace.dockWidth = $event"
           @collapse="workspace.dockVisible = false"
         />
-        <RightDock v-show="dockShown" :style="{ width: `${dockWidth}px` }" />
+        <RightDock v-show="dockShown" :style="{ width: `${dockWidth}px` }">
+          <PreviewPanel class="shrink-0" />
+        </RightDock>
       </div>
       <LedStrip v-if="workspace.stripVisible && isStripLayout(config.layout)" />
       <StatusBar />

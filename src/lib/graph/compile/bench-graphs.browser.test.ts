@@ -3,8 +3,8 @@
 // stage instead of looking at the pixels.
 import { describe, expect, it } from 'vitest'
 import { commands } from 'vitest/browser'
-import { layoutPositions } from '@/lib/engine/layout'
-import { ShaderRenderer } from '@/lib/engine/renderer'
+import { layoutPositions } from '@/lib/engine/output/layout'
+import { ShaderRenderer } from '@/lib/engine/render/renderer'
 import { generateGlsl } from './compile'
 import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import { readGraphFile } from '@/lib/graph/model/file'

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ShaderRenderer } from '@/lib/engine/renderer'
+import { ShaderRenderer } from '@/lib/engine/render/renderer'
 import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node, toByte } from '@/lib/graph/testing'
 

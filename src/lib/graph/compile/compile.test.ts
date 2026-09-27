@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, nodeItem, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4 } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
-import { GLSL_TYPES } from '@/lib/shader/glsl'
+import { GLSL_TYPES } from '@/lib/shader/catalog'
 import { GRAPH_FS } from '@/lib/graph/menu/fs'
 import { graph, node } from '@/lib/graph/testing'
 import { buildProgram } from './compile'
@@ -79,6 +79,35 @@ describe('generateGlsl', () => {
     const lines = code.split('\n')
     expect(lineNodes[lines.findIndex((l) => l.includes('n_m =')) + 1]).toBe('m')
     expect(lineNodes[lines.findIndex((l) => l.includes('c = vec4(vec3')) + 1]).toBe('o')
+  })
+})
+
+describe('mute', () => {
+  const muted = (id: string, kind: string) => ({ ...node(id, kind), data: { kind, values: {}, muted: true } })
+  const code = (doc: NodeGraph) => generateGlsl(doc).code
+
+  it('a muted node between a source and a sink hands the sink the source, through a chain of muted nodes too', () => {
+    const direct = code(graph([node('v', 'value'), node('o', 'output')], [['v.value', 'o.color']]))
+    expect(code(graph([node('v', 'value'), muted('m', 'math'), node('o', 'output')], [['v.value', 'm.a'], ['m.result', 'o.color']]))).toBe(direct)
+    expect(code(graph(
+      [node('v', 'value'), muted('m', 'math'), muted('n', 'math'), node('o', 'output')],
+      [['v.value', 'm.b'], ['m.result', 'n.a'], ['n.result', 'o.color']],
+    ))).toBe(direct)
+  })
+
+  it('a muted node with no input to pass leaves the sink on its fallback', () => {
+    const unlinked = code(graph([node('o', 'output')]))
+    expect(code(graph([muted('m', 'math'), node('o', 'output')], [['m.result', 'o.color']]))).toBe(unlinked)
+  })
+
+  it('a muted sink still draws', () => {
+    const drawn = code(graph([node('v', 'value'), node('o', 'output')], [['v.value', 'o.color']]))
+    expect(code(graph([node('v', 'value'), muted('o', 'output')], [['v.value', 'o.color']]))).toBe(drawn)
+  })
+
+  it('a loop of muted nodes is still a loop', () => {
+    const doc = graph([muted('a', 'math'), muted('b', 'math'), node('o', 'output')], [['a.result', 'b.a'], ['b.result', 'a.a'], ['a.result', 'o.color']])
+    expect(generateGlsl(doc).error).toMatch(/loop/)
   })
 })
 

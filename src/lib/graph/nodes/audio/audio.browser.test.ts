@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Features } from '@/lib/audio/dsp'
 import { AudioTextures } from '@/lib/audio/textures'
-import { ShaderRenderer } from '@/lib/engine/renderer'
+import { ShaderRenderer } from '@/lib/engine/render/renderer'
 import { FrameRunner, generateGlsl } from '@/lib/graph'
 import { graph, node, toByte } from '@/lib/graph/testing'
 

@@ -2,7 +2,8 @@ import type { LogLevel } from '@/lib/app/logs'
 import { bridgeEndpoint, type BridgeEndpoint } from '@/lib/app/platform'
 
 export type BridgeMessage =
-  | { type: 'ack'; frameId: number; udpMs: number; bytes: number }
+  /** The `count` frames sent since the previous ack, up to `frameId`: `udpMs` is their mean, `bytes` their sum. */
+  | { type: 'ack'; frameId: number; count: number; udpMs: number; bytes: number }
   /** Only the Tauri bridge sends it: a frame that newer ones pushed out of its send queue. */
   | { type: 'drop'; frameId: number }
   | { type: 'log'; level: LogLevel; msg: string }
@@ -20,8 +21,8 @@ export interface BridgeConfigMessage {
 
 export interface TransportHandlers {
   onOpen(): void
-  /** At most once, also when the link never opened. Not called after `close()`. */
-  onClose(): void
+  /** At most once, also when the link never opened. Not called after `close()`. `cause` is why the link failed, when it did. */
+  onClose(cause?: unknown): void
   onMessage(message: BridgeMessage): void
 }
 
@@ -70,11 +71,11 @@ export function tauriTransport(handlers: TransportHandlers, load: () => Promise<
   let closed = false
   let inFlight = 0
 
-  const fail = () => {
+  const fail = (cause: unknown) => {
     if (closed) return
     closed = true
     ipc = null
-    handlers.onClose()
+    handlers.onClose(cause)
   }
 
   void (async () => {
@@ -95,12 +96,13 @@ export function tauriTransport(handlers: TransportHandlers, load: () => Promise<
     sendFrame(frame) {
       if (!ipc) return
       inFlight++
-      ipc.invoke('bridge_frame', frame).then(() => inFlight--, () => { inFlight--; fail() })
+      ipc.invoke('bridge_frame', frame).then(() => inFlight--, (cause) => { inFlight--; fail(cause) })
     },
     close() {
       const open = ipc
       closed = true
       ipc = null
+      // bridge_close cannot fail on the Rust side, so a rejection only means the webview is going away with it
       void open?.invoke('bridge_close').catch(() => undefined)
     },
   }

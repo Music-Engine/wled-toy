@@ -1,5 +1,5 @@
-import { layoutPositions, type Layout } from '@/lib/engine/layout'
-import { ShaderRenderer } from '@/lib/engine/renderer'
+import { layoutPositions, type Layout } from '@/lib/engine/output/layout'
+import { ShaderRenderer } from '@/lib/engine/render/renderer'
 import { generateGlsl, type GeneratedShader } from '@/lib/graph/compile/compile'
 import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import type { NodeItem } from '@/lib/graph/define/shape'

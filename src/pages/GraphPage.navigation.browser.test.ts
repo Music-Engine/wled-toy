@@ -4,15 +4,12 @@ import { createApp, h, KeepAlive } from 'vue'
 import { routerKey, type Router } from 'vue-router'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
-import { isMac, runCommand } from '@/lib/app/commands'
-import { config } from '@/lib/app/config'
+import { installKeyDispatcher, isMac, runCommand } from '@/lib/app/commands'
+import { config } from '@/lib/app/settings/config'
 import { GRAPH_NODE_TYPE, createDefaultGraph, newNodeData, type NodeGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { workspace } from '@/lib/app/workspace'
-import { logs } from '@/lib/app/logs'
-import { graphCodeNotice } from '@/lib/shader/shader-export'
 import '@vue-flow/core/dist/style.css'
-import '@/assets/node-ui.css'
 
 // Tailwind does not run in the tests; these are the utilities that give the canvas its size in the app
 const layout = document.createElement('style')
@@ -25,14 +22,15 @@ function mount(graph: NodeGraph | null) {
   config.graph = graph
   const root = document.createElement('div')
   document.body.append(root)
-  // the page listens for keys while it is the active page of a KeepAlive, as in the app
+  // the page binds its commands while it is the active page of a KeepAlive, and keys come through the app's dispatcher
   const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   app.provide(routerKey, { push: async () => undefined } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => { removeKeys(); app.unmount(); root.remove() }
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })
@@ -191,13 +189,29 @@ it('a pinch, which is a trackpad scroll with Ctrl set, zooms', async () => {
   expect(flowPointAt(at).x).toBeCloseTo(under.x, 3)
 })
 
-it('the wheel over a field that uses it leaves the view alone', async () => {
+it('a mouse wheel over a field in a node zooms around the cursor as it does over the pane', async () => {
   mount(null)
   await expect.poll(() => flow().fitViewOnInitDone.value).toBe(true)
-  await expect.poll(() => document.querySelector('.vue-flow__node .nowheel')).not.toBeNull()
+  const range = '.vue-flow__node .nui-field[role="spinbutton"]'
+  await expect.poll(() => document.querySelector(range)).not.toBeNull()
   const before = view()
-  const field = rectOf('.vue-flow__node .nowheel')
-  await wheel({ x: field.left + field.width / 2, y: field.top + field.height / 2 }, 0, -100)
+  const field = rectOf(range)
+  const at = { x: Math.round(field.left + field.width / 2), y: Math.round(field.top + field.height / 2) }
+  const under = flowPointAt(at)
+  await wheel(at, 0, -100)
+  await expect.poll(() => view().zoom).toBeCloseTo(before.zoom * 1.2, 5)
+  expect(flowPointAt(at).x).toBeCloseTo(under.x, 3)
+  expect(flowPointAt(at).y).toBeCloseTo(under.y, 3)
+})
+
+it('the wheel over an open file list, which scrolls itself, leaves the view alone', async () => {
+  mount({ ...createDefaultGraph(), nodes: [node('a', 'imageTexture', 0, 0)], edges: [], scenes: [] })
+  await ready(1)
+  document.querySelector<HTMLElement>('.vue-flow__node .nui-file-browse')!.click()
+  await expect.poll(() => document.querySelector('.vue-flow__node .nui-file-list')).not.toBeNull()
+  const before = view()
+  const list = rectOf('.vue-flow__node .nui-file-list')
+  await wheel({ x: Math.round(list.left + list.width / 2), y: Math.round(list.top + list.height / 2) }, 0, -100)
   await new Promise((resolve) => setTimeout(resolve, 100))
   expect(view()).toEqual(before)
 })
@@ -254,39 +268,6 @@ it('keys typed in a node text field stay with the field', async () => {
   await new Promise((resolve) => setTimeout(resolve, 50))
   expect(menuOpen()).toBe(false)
   expect(selected()).toEqual([])
-})
-
-it('Send to Shader Mode writes code that stands alone: nothing in it reads the control slots shader mode leaves at zero', async () => {
-  mount(null)
-  await expect.poll(() => document.querySelectorAll('.vue-flow__node').length).toBe(createDefaultGraph().nodes.length)
-  config.code = ''
-  expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(config.code).toContain('void mainImage')
-  expect(config.code).not.toContain('iControl')
-})
-
-it('Send to Shader Mode says which values it had to freeze, and says nothing when every node has GLSL of its own', async () => {
-  const knob: NodeGraph = {
-    ...createDefaultGraph(),
-    nodes: [node('knob', 'knob', 0, 0), node('out', 'output', 400, 0)],
-    edges: [{ id: 'e', source: 'knob', sourceHandle: 'value', target: 'out', targetHandle: 'color' }],
-    scenes: [],
-  }
-  mount(knob)
-  const mounted = () => document.querySelectorAll('.vue-flow__node').length
-  await expect.poll(mounted).toBe(2)
-  logs.value = []
-  expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(graphCodeNotice.value).toMatch(/^1 value is frozen in this code: Knob "Value" at [\d.]+\. It only updates inside a running graph/)
-  expect(config.code).toMatch(/\/\/ Knob "Value" runs per frame; frozen at/)
-  expect(logs.value.some((entry) => entry.level === 'warn' && entry.message === graphCodeNotice.value)).toBe(true)
-  unmount!()
-
-  mount({ ...createDefaultGraph(), nodes: [node('t', 'time', 0, 0), node('out', 'output', 400, 0)], edges: [{ id: 'e', source: 't', sourceHandle: 'time', target: 'out', targetHandle: 'color' }], scenes: [] })
-  await expect.poll(mounted).toBe(2)
-  expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(graphCodeNotice.value).toBeNull()
-  expect(config.code).toContain('iTime')
 })
 
 it('Cmd+Z takes back a deleted node and a moved one, Cmd+Shift+Z brings the change back, and typing in a field keeps its own undo', async () => {

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
-import { CATEGORIES } from '@/lib/shader/glsl'
+import { CATEGORIES } from '@/lib/shader/catalog'
 import { placement, type NodeItem, type NodeShape, type Socket } from './define/shape'
 import { allItems } from './registry'
 import { isImplicit, type EnumOption } from './define/types'

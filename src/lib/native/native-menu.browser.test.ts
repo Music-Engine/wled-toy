@@ -1,142 +1,15 @@
 import { nextTick, reactive } from 'vue'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { commands, hasNativeMenu, isVisible, markNativeMenuInstalled, registerCommands, registerHandlers } from '@/lib/app/commands'
-import { useEngine } from '@/lib/engine/engine'
+import { describe, expect, it, vi } from 'vitest'
+import { hasNativeMenu, registerCommands, registerHandlers } from '@/lib/app/commands'
 // replaces the Open Recent placeholder with the list, as the app does
 import '@/lib/graph/model/document'
-import { createNativeMenu, installNativeMenu, type MenuApi } from './native-menu'
-import { resetLayout, workspace } from '@/lib/app/workspace'
+import { createNativeMenu, installNativeMenu } from './native-menu'
+import { workspace } from '@/lib/app/workspace'
+import { cleanups, fakeMenuApi, setPlatform, setTauri, useMacDesktop } from '@/test/native-menu'
 
-const setPlatform = (value: string) => Object.defineProperty(navigator, 'platform', { value, configurable: true })
-const setTauri = (on: boolean) => {
-  if (on) (window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__ = {}
-  else delete (window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__
-}
+useMacDesktop()
 
-const cleanups: Array<() => void> = []
-
-// app.quit exists under Tauri only, and the menu is installed on macOS only
-beforeEach(() => {
-  // checked state reads the engine, whose bridge must pick its transport before the page claims to be a Tauri window
-  useEngine()
-  setTauri(true)
-  setPlatform('MacIntel')
-})
-
-afterEach(() => {
-  vi.useRealTimers()
-  cleanups.splice(0).forEach((cleanup) => cleanup())
-  markNativeMenuInstalled(false)
-  setTauri(false)
-  delete (navigator as { platform?: string }).platform
-  resetLayout()
-  workspace.mode = 'shader'
-})
-
-interface FakeNode {
-  kind: 'Menu' | 'Submenu' | 'MenuItem' | 'CheckMenuItem' | 'Predefined'
-  options: { id?: string; text?: string; enabled?: boolean; checked?: boolean; accelerator?: string; item?: string; items?: FakeNode[]; action?: () => void }
-  closed: boolean
-}
-
-/** Stands in for `@tauri-apps/api/menu`: remembers what was built, which menu is the app menu, and every call that changed an item. */
-function fakeMenuApi() {
-  const created: FakeNode[] = []
-  const calls: string[] = []
-  const state = { appMenu: null as FakeNode | null, windowsMenu: null as FakeNode | null, helpMenu: null as FakeNode | null }
-  const make = (kind: FakeNode['kind'], options: object) => {
-    const node: FakeNode = { kind, options: { ...options }, closed: false }
-    created.push(node)
-    return {
-      node,
-      close: async () => { node.closed = true },
-      setText: async (text: string) => { calls.push(`setText ${node.options.id} ${text}`); node.options.text = text },
-      setEnabled: async (enabled: boolean) => { calls.push(`setEnabled ${node.options.id} ${enabled}`); node.options.enabled = enabled },
-      setChecked: async (checked: boolean) => { calls.push(`setChecked ${node.options.id} ${checked}`); node.options.checked = checked },
-      setAsAppMenu: async () => {
-        const replaced = state.appMenu
-        state.appMenu = node
-        return replaced ? { close: async () => undefined } : null
-      },
-      setAsWindowsMenuForNSApp: async () => { state.windowsMenu = node },
-      setAsHelpMenuForNSApp: async () => { state.helpMenu = node },
-    }
-  }
-  // a submenu gets the handles `new` returned; the fake keeps the nodes behind them
-  const nodesOf = (options: { items?: unknown[] }) => ({ ...options, items: (options.items as { node: FakeNode }[] | undefined)?.map((handle) => handle.node) })
-  const api: MenuApi = {
-    Menu: { new: async (options = {}) => make('Menu', nodesOf(options)) },
-    Submenu: { new: async (options) => make('Submenu', nodesOf(options)) },
-    MenuItem: { new: async (options) => make('MenuItem', options) },
-    CheckMenuItem: { new: async (options) => make('CheckMenuItem', options) },
-    PredefinedMenuItem: { new: async (options) => make('Predefined', options) },
-  }
-  const find = (id: string, from: FakeNode[] = state.appMenu?.options.items ?? []): FakeNode | undefined =>
-    from.flatMap((node) => (node.options.id === id ? [node] : node.options.items ? [find(id, node.options.items)] : [])).find(Boolean)
-  const submenu = (...path: string[]) => path.reduce<FakeNode | undefined>((menu, text) => menu?.options.items?.find((node) => node.kind === 'Submenu' && node.options.text === text), state.appMenu ?? undefined)
-  const outline = (menu: FakeNode | undefined) => menu?.options.items?.map((node) =>
-    (node.kind === 'Predefined' ? `<${node.options.item}>` : node.kind === 'Submenu' ? `${node.options.text} >` : `${node.options.text}${node.options.accelerator ? ` [${node.options.accelerator}]` : ''}`))
-  /** What the system does on a click: a check item flips its own mark before the action runs. */
-  const click = (id: string) => {
-    const node = find(id)!
-    if (node.kind === 'CheckMenuItem') node.options.checked = !node.options.checked
-    node.options.action!()
-  }
-  const built = (kind: FakeNode['kind']) => created.filter((node) => node.kind === kind)
-  return { api, state, calls, created, find, submenu, outline, click, built }
-}
-
-describe('the menu model', () => {
-  it('puts the app menu first, Edit after File and Window before Help, and hands Window and Help to the system', async () => {
-    workspace.mode = 'graph'
-    const fake = fakeMenuApi()
-    await createNativeMenu(fake.api).sync()
-
-    expect(fake.outline(fake.state.appMenu!)).toEqual(['WLEDtoy >', 'File >', 'Edit >', 'View >', 'Window >', 'Help >'])
-    expect(fake.outline(fake.submenu('WLEDtoy'))).toEqual([
-      'About WLEDtoy', '<Separator>', 'Preferences... [CmdOrCtrl+,]', '<Separator>', '<Services>', '<Separator>',
-      '<Hide>', '<HideOthers>', '<ShowAll>', '<Separator>', 'Quit WLEDtoy [CmdOrCtrl+Q]',
-    ])
-    expect(fake.outline(fake.submenu('Window'))).toEqual(['<Minimize>', '<Maximize>', '<Separator>', '<CloseWindow>'])
-    expect(fake.state.windowsMenu).toBe(fake.submenu('Window'))
-    expect(fake.state.helpMenu).toBe(fake.submenu('Help'))
-  })
-
-  it('maps the registry tree: submenus, separators between groups, check items, disabled items', async () => {
-    workspace.mode = 'graph'
-    const fake = fakeMenuApi()
-    await createNativeMenu(fake.api).sync()
-
-    expect(fake.outline(fake.submenu('File'))).toEqual([
-      'New Graph [CmdOrCtrl+N]', 'Open... [CmdOrCtrl+O]', 'Open Recent >', 'Save [CmdOrCtrl+S]', 'Save As... [CmdOrCtrl+Shift+S]', 'Revert [CmdOrCtrl+Alt+R]', 'Export >',
-      '<Separator>', 'Set Audio >', 'Set Image >',
-      '<Separator>', 'Import Config... [CmdOrCtrl+Alt+O]', 'Export Config... [CmdOrCtrl+Alt+S]',
-    ])
-    expect(fake.outline(fake.submenu('File', 'Open Recent'))).toEqual(['No Recent Files [CmdOrCtrl+Shift+O]'])
-    expect(fake.find('file.recent.none')!.options.enabled).toBe(false)
-    expect(fake.outline(fake.submenu('File', 'Set Audio'))).toEqual([
-      'From File... [CmdOrCtrl+Alt+U]', 'Use Built-in Track [CmdOrCtrl+Alt+Shift+U]', '<Separator>', 'Microphone [CmdOrCtrl+Alt+Y]', 'System Audio (not available in the desktop app) [CmdOrCtrl+Alt+Shift+Y]',
-    ])
-    // WKWebView delivers no audio through getDisplayMedia
-    expect(fake.find('audio.system')!.options.enabled).toBe(false)
-    expect(fake.find('mode.graph')).toMatchObject({ kind: 'CheckMenuItem', options: { checked: true } })
-    expect(fake.find('mode.shader')).toMatchObject({ kind: 'CheckMenuItem', options: { checked: false } })
-    // nothing binds file.save until the graph page mounts
-    expect(fake.find('file.save')).toMatchObject({ kind: 'MenuItem', options: { enabled: false } })
-    expect(fake.outline(fake.submenu('Help'))).toEqual(['Shader Reference', 'Keyboard Shortcuts [CmdOrCtrl+Alt+K]', 'Launch Screen [CmdOrCtrl+Alt+Shift+W]'])
-  })
-
-  it('has the predefined Edit items text fields need, and a Select All of its own on Cmd+A in every mode', async () => {
-    for (const mode of ['shader', 'graph', 'reference'] as const) {
-      workspace.mode = mode
-      const fake = fakeMenuApi()
-      await createNativeMenu(fake.api).sync()
-      expect(fake.outline(fake.submenu('Edit'))).toEqual(['Undo [CmdOrCtrl+Z]', 'Redo [CmdOrCtrl+Shift+Z]', '<Separator>', '<Cut>', '<Copy>', '<Paste>', 'Select All [CmdOrCtrl+A]'])
-      // the predefined one would take the key and tell the page nothing
-      expect(fake.built('Predefined').map((node) => node.options.item)).not.toContain('SelectAll')
-    }
-  })
-
+describe('native items', () => {
   it('Select All selects the text of the focused field or editable, else the nodes of a graph, else nothing', async () => {
     const selectNodes = vi.fn()
     cleanups.push(registerHandlers({ 'graph.selectAll': selectNodes }))
@@ -218,41 +91,6 @@ describe('the menu model', () => {
     workspace.mode = 'reference'
     run('edit.undo')
     expect(graph.undo).toHaveBeenCalledOnce()
-  })
-
-  it('shows no hide item: the dock tab context menu keeps those', async () => {
-    const fake = fakeMenuApi()
-    await createNativeMenu(fake.api).sync()
-    expect(fake.find('view.hideDock')).toBeUndefined()
-    expect(fake.find('view.hideBottom')).toBeUndefined()
-    expect(fake.find('view.toggleDock')).toMatchObject({ kind: 'CheckMenuItem', options: { text: 'Side Panel', accelerator: 'CmdOrCtrl+B' } })
-    expect(fake.find('view.toggleBottom')).toMatchObject({ kind: 'CheckMenuItem', options: { text: 'Bottom Panel', accelerator: 'CmdOrCtrl+J' } })
-  })
-
-  it('gives a native accelerator to exactly the commands the registry dispatches on a Cmd/Ctrl key', async () => {
-    for (const mode of ['graph', 'shader', 'reference'] as const) {
-      workspace.mode = mode
-      const fake = fakeMenuApi()
-      await createNativeMenu(fake.api).sync()
-      for (const command of commands.value.filter((c) => isVisible(c) && !c.contextOnly)) {
-        const bound = !command.page && !!command.accelerator?.startsWith('Mod+')
-        expect([command.id, !!fake.find(command.id)!.options.accelerator]).toEqual([command.id, bound])
-      }
-    }
-  })
-
-  it('leaves the keys of page listeners and keys without Cmd/Ctrl to the page', async () => {
-    workspace.mode = 'graph'
-    const graph = fakeMenuApi()
-    await createNativeMenu(graph.api).sync()
-    for (const id of ['graph.addNode', 'graph.selectAll', 'graph.deselectAll', 'graph.searchNodes', 'graph.copy', 'graph.cut', 'graph.paste', 'graph.delete', 'graph.fitView', 'help.reference', 'help.about']) {
-      expect([id, graph.find(id)!.options.accelerator]).toEqual([id, undefined])
-    }
-    workspace.mode = 'shader'
-    const shader = fakeMenuApi()
-    await createNativeMenu(shader.api).sync()
-    for (const id of ['shader.compile', 'shader.addFunction', 'shader.selectAll']) expect([id, shader.find(id)!.options.accelerator]).toEqual([id, undefined])
-    expect(shader.find('output.toggleStream')!.options.accelerator).toBe('CmdOrCtrl+Shift+Enter')
   })
 })
 

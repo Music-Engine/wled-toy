@@ -1,4 +1,4 @@
-import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/glsl'
+import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/catalog'
 import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, type DataType, type InputDef, type NodeItem } from '@/lib/graph/authoring'
 
 const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : graphType(param.type))

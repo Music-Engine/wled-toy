@@ -1,20 +1,28 @@
 import { ref, watch } from 'vue'
-import { config } from '@/lib/app/config'
-import { log } from '@/lib/app/logs'
-import { checkTrackFile, formatDuration } from '@/lib/audio/track-file'
-import { ShaderRenderer, type FrameParams } from './renderer'
-import { AudioService, systemAudioBlocked } from '@/lib/audio/service'
+import { config } from '@/lib/app/settings/config'
+import { log, report } from '@/lib/app/logs'
+import { ShaderRenderer, type FrameParams } from '@/lib/engine/render/renderer'
+import { AudioService } from '@/lib/audio/service'
+import { systemAudioBlocked } from '@/lib/audio/settings'
 import { createBridge } from '@/lib/bridge/bridge-client'
-import { ImageLibrary } from './images'
-import { layoutPositions } from './layout'
-import { DEFAULT_OUTPUT, LedPostProcess, type OutputSettings } from './output'
-import { preferences } from '@/lib/app/preferences'
+import { ImageLibrary } from '@/lib/engine/media/images'
+import { layoutPositions } from '@/lib/engine/output/layout'
+import { DEFAULT_OUTPUT, LedPostProcess, type OutputSettings } from '@/lib/engine/output/output'
+import { preferences } from '@/lib/app/settings/preferences'
 import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
-import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/service'
-import { loadMedia, saveMedia, clearMedia, type MediaKey } from './media-store'
+import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/settings'
 import { MidiService } from './midi'
+import { SceneFades } from './fades'
+import { EngineMedia } from '@/lib/engine/media/engine-media'
 
 type LedListener = (frame: Uint8Array) => void
+
+let engine: Engine | null = null
+
+export function useEngine(): Engine {
+  engine ??= new Engine()
+  return engine
+}
 
 /**
  * One renderer, audio source and UDP bridge shared by shader and graph mode, so
@@ -28,9 +36,13 @@ class Engine {
   readonly audio = new AudioService('/assets/audio.mp3')
   readonly bridge = createBridge(config)
   readonly midi = new MidiService()
+  readonly fades = new SceneFades()
   readonly images = new ImageLibrary()
-  // library ids per layer of the renderer's image array, as last uploaded
-  private imageLayers: string[] = []
+  private readonly media = new EngineMedia(this.audio, this.images, () => this.renderer)
+  /** Name of the image the shader samples, for the UI. */
+  readonly imageName = this.media.imageName
+  /** What happened to the last track the user picked, for the places that offer the choice. */
+  readonly trackStatus = this.media.trackStatus
 
   private renderer: ShaderRenderer | null = null
   private readonly listeners = new Set<LedListener>()
@@ -50,13 +62,10 @@ class Engine {
     try {
       this.renderer = new ShaderRenderer(this.canvas)
     } catch (e) {
-      log((e as Error).message, 'error')
+      report(e)
     }
 
-    this.showImage('/assets/image.jpg')
-    // the user's own song and image from an earlier visit, when there are any
-    void loadMedia('image').then((stored) => stored && this.useImage(stored, false)).catch(() => undefined)
-    void loadMedia('song').then((stored) => stored && this.useSong(stored, false)).catch(() => undefined)
+    this.media.restore()
     void this.audio.configure({ source: preferences.audioSource === 'loopback' && systemAudioBlocked() ? 'file' : preferences.audioSource })
 
     this.bridge.connect()
@@ -96,86 +105,19 @@ class Engine {
     const [source] = (plan.resources.audioSource ?? []) as AudioSourceRequest[]
     if (source) void this.audio.configure(source)
     this.audio.setAnalyses((plan.resources.analysis ?? []) as AnalysisSettings[])
-    void this.showImages((plan.resources.image ?? []) as string[])
+    void this.media.showImages((plan.resources.image ?? []) as string[])
     const [oscPort = 0] = (plan.resources.osc ?? []) as number[]
     this.bridge.listenOsc(oscPort)
     // asking for MIDI shows a permission prompt, so it waits until a graph actually uses it
     if (plan.steps.some((step) => step.kind === 'midiIn')) void this.midi.enable()
   }
 
-  /** Decodes the images a graph's Image Texture nodes picked into the renderer's layers; only layers that changed are redone. */
-  private async showImages(ids: string[]) {
-    await this.images.ready
-    ids.forEach((id, layer) => {
-      if (this.imageLayers[layer] === id) return
-      const image = this.images.get(id)
-      if (!image) return log(`Image "${id}" is not in the library any more; open it again on its node`, 'warn')
-      this.imageLayers[layer] = id
-      const element = new Image()
-      element.onload = () => this.imageLayers[layer] === id && this.renderer?.setImageLayer(layer, element)
-      element.onerror = () => log(`${image.name} could not be read as an image`, 'error')
-      element.src = image.url
-    })
+  useImage(file: { blob: Blob; name: string } | null, remember = true) {
+    return this.media.useImage(file, remember)
   }
 
-  /** Name of the image the shader samples, for the UI. */
-  readonly imageName = ref('Built-in image')
-
-  /** Uses this picture as the image texture and remembers it for the next visit; null restores the built-in one. */
-  async useImage(file: { blob: Blob; name: string } | null, remember = true) {
-    const url = file ? URL.createObjectURL(file.blob) : '/assets/image.jpg'
-    this.showImage(url, () => file && URL.revokeObjectURL(url))
-    this.imageName.value = file?.name ?? 'Built-in image'
-    if (remember) await this.remember('image', file)
-  }
-
-  /** Plays this song as the audio file source and remembers it; null restores the built-in track. */
-  /** What happened to the last track the user picked, for the places that offer the choice. */
-  readonly trackStatus = ref<{ level: 'info' | 'error'; message: string } | null>(null)
-
-  /** Swaps the track now and, with `remember`, keeps it for the next launch. False when the file is not playable audio. */
-  async useSong(file: { blob: Blob; name: string } | null, remember = true): Promise<boolean> {
-    if (file && remember) {
-      const check = await checkTrackFile(file)
-      if (!check.ok) {
-        this.trackStatus.value = { level: 'error', message: `${check.reason} The track was not changed.` }
-        log(check.reason, 'error')
-        return false
-      }
-      await this.audio.setFile(file)
-      await this.remember('song', file)
-      const playing = this.audio.state.playing && this.audio.state.settings.source === 'file'
-      this.trackStatus.value = { level: 'info', message: `${file.name} (${formatDuration(check.seconds)}) is the default track now and at every launch. ${playing ? 'It is playing.' : 'It starts when you press Play.'}` }
-      return true
-    }
-    await this.audio.setFile(file)
-    if (remember) {
-      await this.remember('song', file)
-      this.trackStatus.value = { level: 'info', message: 'Back to the built-in track, now and at every launch.' }
-    }
-    return true
-  }
-
-  private async remember(key: MediaKey, file: { blob: Blob; name: string } | null) {
-    try {
-      await (file ? saveMedia(key, file) : clearMedia(key))
-    } catch (e) {
-      log(`Could not keep the ${key} for next time: ${(e as Error).message}`, 'warn')
-    }
-  }
-
-  private showImage(url: string, done?: () => void) {
-    const img = new Image()
-    img.onload = () => {
-      this.renderer?.setImage(img)
-      log(`Image texture loaded (${img.width}x${img.height})`)
-      done?.()
-    }
-    img.onerror = () => {
-      log('That file could not be read as an image', 'error')
-      done?.()
-    }
-    img.src = url
+  useSong(file: { blob: Blob; name: string } | null, remember = true): Promise<boolean> {
+    return this.media.useSong(file, remember)
   }
 
   /** How frames are finished and sent. A graph passes its Output node's settings; null goes back to plain Settings. */
@@ -230,8 +172,17 @@ class Engine {
     this.renderer?.dispose()
   }
 
-  private frameParams(): FrameParams {
-    return { time: this.elapsed(), frame: this.frame, ledCount: config.ledCount, scanY: config.scanY }
+  // one object for both passes so neither allocates per frame; the renderer reads it during the call and keeps no reference
+  private readonly params: FrameParams = { time: 0, dt: 0, frame: 0, ledCount: 0, scanY: 0 }
+
+  private frameParams(dt: number): FrameParams {
+    const { params } = this
+    params.time = this.elapsed()
+    params.dt = dt
+    params.frame = this.frame
+    params.ledCount = config.ledCount
+    params.scanY = config.scanY
+    return params
   }
 
   private restartSendTimer() {
@@ -245,7 +196,7 @@ class Engine {
     const now = performance.now()
     // rAF ticks land a little early or late; the 2 ms slack keeps a 30 fps cap from skipping every third frame of a 60 Hz display
     if (preferences.previewFps && now - this.lastPreview < 1000 / preferences.previewFps - 2) return
-    this.renderer.renderPreview({ ...this.frameParams(), dt: Math.min(0.1, (now - this.lastPreview) / 1000) }, preferences.previewHeight)
+    this.renderer.renderPreview(this.frameParams(Math.min(0.1, (now - this.lastPreview) / 1000)), preferences.previewHeight)
     this.lastPreview = now
     this.frame++
     this.bridge.countRender()
@@ -253,11 +204,13 @@ class Engine {
 
   // LED output runs on a timer, not rAF, so it keeps going when the tab is hidden
   private readonly ledTick = () => {
+    // before the ready check: a scene recalled while the shader does not compile still lands
+    this.fades.advance(performance.now())
     if (!this.renderer?.ready) return
     // control nodes advance on the LED clock, the one that keeps running in a hidden tab; the preview reads the same values
     const now = performance.now()
     const dt = Math.min(0.1, (now - this.lastControlStep) / 1000)
-    const params = { ...this.frameParams(), dt }
+    const params = this.frameParams(dt)
     this.renderer.setControls(this.controls.step({
       time: params.time,
       dt,
@@ -275,13 +228,6 @@ class Engine {
     if (!document.hidden) this.listeners.forEach((listener) => listener(leds))
     if (this.streaming.value) this.bridge.sendFrame(leds)
   }
-}
-
-let engine: Engine | null = null
-
-export function useEngine(): Engine {
-  engine ??= new Engine()
-  return engine
 }
 
 if (import.meta.hot) {

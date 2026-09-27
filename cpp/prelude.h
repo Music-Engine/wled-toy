@@ -1,4 +1,4 @@
-// The prelude helpers the catalog nodes and the standalone audio stand-ins call, ported from src/lib/shader/glsl.ts.
+// The prelude helpers the catalog nodes and the standalone audio stand-ins call, ported from src/lib/shader/prelude.ts.
 #pragma once
 
 #include "runtime.h"

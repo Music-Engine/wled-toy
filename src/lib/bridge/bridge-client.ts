@@ -1,6 +1,7 @@
 import { reactive } from 'vue'
-import { log } from '@/lib/app/logs'
-import type { AppConfig } from '@/lib/app/config'
+import { log, report } from '@/lib/app/logs'
+import { BridgeError } from './bridge-error'
+import type { AppConfig } from '@/lib/app/settings/config'
 import { openBridgeTransport, type BridgeMessage, type BridgeTransport, type TransportHandlers } from './bridge-transport'
 
 export type BridgeStatus = 'connecting' | 'connected' | 'disconnected'
@@ -49,6 +50,8 @@ export function createBridge(config: AppConfig, openTransport: (handlers: Transp
   let link: BridgeTransport | null = null
   let reconnectTimer: ReturnType<typeof setTimeout> | undefined
   let disposed = false
+  // a retry every 1.5 s against a bridge that keeps failing would repeat the same report; one per outage and cause is enough
+  let reportedCause: string | null = null
 
   const publish = setInterval(() => {
     const now = performance.now()
@@ -94,13 +97,19 @@ export function createBridge(config: AppConfig, openTransport: (handlers: Transp
   }
 
   function onOpen() {
+    reportedCause = null
     stats.status = 'connected'
     log('UDP bridge connected')
     sendConfig()
   }
 
-  function onClose() {
+  function onClose(cause?: unknown) {
     if (disposed) return
+    const message = cause instanceof Error ? cause.message : String(cause)
+    if (cause !== undefined && message !== reportedCause) {
+      reportedCause = message
+      report(new BridgeError('link-failed', 'The link to the desktop bridge failed', cause))
+    }
     stats.status = 'disconnected'
     stats.device = null
     log('UDP bridge disconnected, retrying', 'warn')
@@ -110,8 +119,12 @@ export function createBridge(config: AppConfig, openTransport: (handlers: Transp
   function onMessage(msg: BridgeMessage) {
     switch (msg.type) {
       case 'ack': {
+        // an ack covers every frame up to frameId; the round trip is measured on that newest one
         const sentAt = pending.get(msg.frameId)
-        pending.delete(msg.frameId)
+        for (const id of pending.keys()) {
+          if (id > msg.frameId) break
+          pending.delete(id)
+        }
         if (sentAt !== undefined) raw.rtt = smooth(raw.rtt, performance.now() - sentAt)
         raw.udp = smooth(raw.udp, msg.udpMs)
         raw.bytes += msg.bytes

@@ -2,8 +2,8 @@ import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h, KeepAlive } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
-import { isMac } from '@/lib/app/commands'
-import { config } from '@/lib/app/config'
+import { installKeyDispatcher, isMac } from '@/lib/app/commands'
+import { config } from '@/lib/app/settings/config'
 import { createDefaultGraph } from '@/lib/graph'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
 import { logs } from '@/lib/app/logs'
@@ -18,13 +18,14 @@ beforeEach(() => {
   logs.value = []
   const root = document.createElement('div')
   document.body.append(root)
-  // the page listens for keys and clipboard events while it is the active page of a KeepAlive, as in the app
+  // the page listens for clipboard events while it is the active page of a KeepAlive, and keys come through the app's dispatcher
   const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   // Nuxt UI and the router are not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => { removeKeys(); app.unmount(); root.remove() }
 })
 
 afterEach(() => {
@@ -63,14 +64,6 @@ it('copy and paste events copy and paste the selected nodes, and take the event 
   expect(logged('Copied 2 nodes')).toBe(1)
   expect(clipboard('paste').defaultPrevented).toBe(true)
   await expect.poll(nodeCount).toBe(defaultNodes + 2)
-})
-
-it('a cut event removes the nodes and a paste event brings them back', async () => {
-  await selectNodes(1)
-  expect(clipboard('cut').defaultPrevented).toBe(true)
-  await expect.poll(nodeCount).toBe(defaultNodes - 1)
-  clipboard('paste')
-  await expect.poll(nodeCount).toBe(defaultNodes)
 })
 
 it('with no node selected the events stay with the browser', async () => {

@@ -1,6 +1,7 @@
 import { rangePeak, type Features } from '@/lib/audio/dsp'
-import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/service'
+import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/settings'
 import { AudioStream, defineNode, Enum, Float, Int, resourceIndex, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
+import { sameJson } from '@/lib/util/json'
 
 const SOURCES = [{ value: 'file', label: 'Song' }, { value: 'device', label: 'Capture Device' }, { value: 'loopback', label: 'System audio' }] as const
 const CHANNELS = [{ value: 'mono', label: 'Mono Sum' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }] as const
@@ -51,7 +52,7 @@ export const fftNode = defineNode('fft', {
   resolve: ({ windowSize, hop, window, scale, bands, fmin, fmax }, resources) => {
     // spread over the default so the keys keep its order: equal settings must serialize equally to share a slot
     const settings: AnalysisSettings = { ...DEFAULT_ANALYSIS, windowSize: Number(windowSize), hop: Number(hop), window, scale, bands, fmin, fmax }
-    if (JSON.stringify(settings) === JSON.stringify(DEFAULT_ANALYSIS)) return { streams: { spectrum: { slot: 0 } } }
+    if (sameJson(settings, DEFAULT_ANALYSIS)) return { streams: { spectrum: { slot: 0 } } }
     const requires = [{ kind: 'analysis', config: settings }]
     // slot 0 is the default analysis, so the first distinct FFT is slot 1
     const slot = resourceIndex(resources, 'analysis', settings) + 1

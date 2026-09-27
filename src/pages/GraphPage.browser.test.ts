@@ -1,15 +1,16 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h } from 'vue'
 import GraphPage from './GraphPage.vue'
-import TitleBar from '@/components/shell/TitleBar.vue'
-import { commands, runCommand } from '@/lib/app/commands'
-import { config } from '@/lib/app/config'
-import type { FileBackend } from '@/lib/documents/documents'
+import TitleBar from '@/features/shell/TitleBar.vue'
+import { commandTitle, commands, runCommand } from '@/lib/app/commands'
+import { config } from '@/lib/app/settings/config'
+import type { FileBackend } from '@/lib/documents/files/file-backends'
+import { DocumentError } from '@/lib/documents/document-error'
 import { createDefaultGraph, type NodeGraph } from '@/lib/graph'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
 import { readGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
 import { logs } from '@/lib/app/logs'
-import { preferences, resetPreferences } from '@/lib/app/preferences'
+import { preferences, resetPreferences } from '@/lib/app/settings/preferences'
 import { workspace } from '@/lib/app/workspace'
 import sampleFile from '../../graphs/high-contrast-music.wledgraph?raw'
 
@@ -23,7 +24,10 @@ function fakeDisk(files: Record<string, string>) {
       files[suggestedName] = text
       return { handle: { name: suggestedName }, text }
     },
-    reopen: async (name) => (name in files ? { handle: { name }, text: files[name] } : null),
+    reopen: async (name) => {
+      if (!(name in files)) throw new DocumentError('file-gone', 'it was deleted')
+      return { handle: { name }, text: files[name] }
+    },
   }
   return { files, dialog, backend }
 }
@@ -214,13 +218,14 @@ it('lists files it can reopen under Open Recent, newest first, and reopens one',
   expect(recentIds()).toEqual(['file.recent.music.wledgraph', 'file.recent.graph.wledgraph'])
 })
 
-it('offers no recent files when the backend cannot reopen one', async () => {
+it('offers no recent files when the backend cannot reopen one, even after a save', async () => {
   const { reopen: _, ...backend } = fakeDisk({}).backend
   mount(backend)
   await expect.poll(titleBarText).toBe('Untitled')
   runCommand('file.save')
   await expect.poll(titleBarText).toBe('graph.wledgraph')
   expect(recentIds()).toEqual(['file.recent.none'])
+  expect(commandTitle(commands.value.find((command) => command.id === 'file.recent.none')!)).toBe('Not Available in This Browser')
 })
 
 it('guards the unload only while there is unsaved work', async () => {
