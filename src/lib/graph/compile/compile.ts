@@ -58,6 +58,7 @@ function buildSink(c: FrontEnd, id: string): void {
   else emitPixel(c, id)
 }
 
+export { offlineUnit } from '@/lib/graph/compile/cpp/cpp'
 export type { CompileOptions } from '@/lib/graph/compile/front-end/front-end'
 export type { FrozenValue } from '@/lib/graph/compile/glsl/glsl'
 export { glslForm } from '@/lib/graph/compile/glsl/glsl-types'

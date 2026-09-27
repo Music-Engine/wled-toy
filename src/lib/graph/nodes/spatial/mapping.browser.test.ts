@@ -1,23 +1,28 @@
 import { describe, expect, it } from 'vitest'
+import { commands } from 'vitest/browser'
 import { graph, node, renderGraph } from '@/lib/graph/testing'
 
-const reds = (values: object, leds = 8) =>
-  renderGraph(graph([node('uv', 'uv'), node('m', 'mapping', values as never), node('s', 'separateXYZ'), node('o', 'output')], [['uv.uv', 'm.vector'], ['m.vector', 's.vector'], ['s.x', 'o.color']]), { leds }).leds.map(([r]) => r)
+const reds = async (values: object, target: 'js' | 'cpp') =>
+  (await renderGraph(graph([node('uv', 'uv'), node('m', 'mapping', values as never), node('s', 'separateXYZ'), node('o', 'output')], [['uv.uv', 'm.vector'], ['m.vector', 's.vector'], ['s.x', 'o.color']]), { target })).leds.map(([r]) => r)
 
 const x = (i: number, n = 8) => Math.round(((i + 0.5) / n) * 255)
 
-describe('Mapping', () => {
-  it('leaves coordinates alone at rest', () => {
-    expect(reds({})).toEqual([...Array(8).keys()].map((i) => x(i)))
+const compiler = await commands.cppCompiler()
+
+describe.for([['js', ''], ['cpp', ' (needs g++ or c++ on PATH)']] as const)('Mapping through %s%s', ([target]) => {
+  it.skipIf(target === 'cpp' && !compiler)('leaves coordinates alone at rest', async () => {
+    expect(await reds({}, target)).toEqual([...Array(8).keys()].map((i) => x(i)))
   })
 
-  it('moves by Location, scales around the pivot, and turns by Rotation', () => {
-    expect(reds({ location: [0.25, 0, 0] }).slice(0, 4)).toEqual([0, 1, 2, 3].map((i) => Math.round(((i + 0.5) / 8 + 0.25) * 255)))
-    expect(reds({ scale: [2, 1, 1] })).toEqual([...Array(8).keys()].map((i) => Math.round(Math.min(1, Math.max(0, ((i + 0.5) / 8 - 0.5) * 2 + 0.5)) * 255)))
+  it.skipIf(target === 'cpp' && !compiler)('moves by Location, scales around the pivot, and turns by Rotation', async () => {
+    expect((await reds({ location: [0.25, 0, 0] }, target)).slice(0, 4)).toEqual([0, 1, 2, 3].map((i) => Math.round(((i + 0.5) / 8 + 0.25) * 255)))
+    expect(await reds({ scale: [2, 1, 1] }, target)).toEqual([...Array(8).keys()].map((i) => Math.round(Math.min(1, Math.max(0, ((i + 0.5) / 8 - 0.5) * 2 + 0.5)) * 255)))
     // half a turn around the center mirrors the strip
-    expect(reds({ rotation: 0.5 })).toEqual([...Array(8).keys()].map((i) => x(7 - i)))
+    expect(await reds({ rotation: 0.5 }, target)).toEqual([...Array(8).keys()].map((i) => x(7 - i)))
   })
+})
 
+describe('Mapping', () => {
   it('Range Select is 1 between its bounds', () => {
     const { leds } = renderGraph(graph([node('r', 'rangeSelect', { from: 0.25, to: 0.5 }), node('o', 'output')], [['r.mask', 'o.color']]))
     expect(leds.map(([r]) => r)).toEqual([0, 0, 255, 255, 0, 0, 0, 0])
