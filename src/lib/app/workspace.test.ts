@@ -94,6 +94,22 @@ describe('persistence', () => {
     expect(setItem).toHaveBeenCalledTimes(1)
     expect(JSON.parse(stored.get('wledtoy:workspace')!).dockWidth).toBe(309)
   })
+
+  it('a layout change still waiting for its write lands when the page hides', async () => {
+    const listeners = new Map<string, () => void>()
+    vi.stubGlobal('window', { addEventListener: (type: string, listener: () => void) => listeners.set(type, listener) })
+    const { workspace } = await reload()
+    const setItem = vi.spyOn(localStorage, 'setItem')
+    workspace.dockWidth = 333
+    await nextTick()
+    listeners.get('pagehide')!()
+    expect(setItem).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(stored.get('wledtoy:workspace')!).dockWidth).toBe(333)
+    vi.advanceTimersByTime(300)
+    expect(setItem).toHaveBeenCalledTimes(1)
+    vi.unstubAllGlobals()
+    vi.stubGlobal('localStorage', { getItem: (key: string) => stored.get(key) ?? null, setItem: (key: string, value: string) => stored.set(key, value) })
+  })
 })
 
 describe('tabs', () => {
