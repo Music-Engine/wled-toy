@@ -79,6 +79,20 @@ async function engineRate(fps: number, previewFps: number, code: string, seconds
   return { rate: +rate.toFixed(1), ledRenderMs: +(engine.bridge.stats.ledRenderMs ?? 0).toFixed(2), gapP50: p(0.5), gapP90: p(0.9), gapMax: p(1) }
 }
 
+/** Mounts the LED strip 1200 px wide. */
+function mountStrip() {
+  // browser tests run without Tailwind; this is the box the strip's classes give it in the app
+  const style = document.createElement('style')
+  style.textContent = '.led-monitor { position: relative; height: 64px; overflow: hidden } .led-monitor canvas { position: absolute; inset: 0; width: 100%; height: 100% }'
+  const host = document.createElement('div')
+  host.style.width = '1200px'
+  document.head.append(style)
+  document.body.append(host)
+  const app = createApp(LedStrip)
+  app.mount(host)
+  return { host, unmount: () => { app.unmount(); host.remove(); style.remove() } }
+}
+
 // Chromium truncates a timer interval to whole milliseconds and WebKit fires a repeating timer late, so a plain
 // setInterval at 1000 / fps never delivers fps: 62.5 for 60 in Chromium, 50 in Safari. The clock has to hold the rate.
 it('the LED clock holds the configured fps within two percent', async () => {
@@ -93,15 +107,7 @@ it('the LED strip draws off the tick', async () => {
   config.ledCount = 300
   const bare = await engineRate(60, -1, PLAIN, 3)
 
-  // browser tests run without Tailwind; this is the box the strip's classes give it in the app
-  const style = document.createElement('style')
-  style.textContent = '.led-monitor { position: relative; height: 64px; overflow: hidden } .led-monitor canvas { position: absolute; inset: 0; width: 100%; height: 100% }'
-  const host = document.createElement('div')
-  host.style.width = '1200px'
-  document.head.append(style)
-  document.body.append(host)
-  const app = createApp(LedStrip)
-  app.mount(host)
+  const strip = mountStrip()
   const draws = vi.spyOn(CanvasRenderingContext2D.prototype, 'putImageData')
   let frames = 0
   let raf = requestAnimationFrame(function count() {
@@ -112,9 +118,7 @@ it('the LED strip draws off the tick', async () => {
   cancelAnimationFrame(raf)
   const drawn = draws.mock.calls.length
   draws.mockRestore()
-  app.unmount()
-  host.remove()
-  style.remove()
+  strip.unmount()
   config.ledCount = ledCount
 
   expect(Math.abs(withStrip.rate - bare.rate)).toBeLessThanOrEqual(bare.rate * 0.05)
@@ -122,6 +126,20 @@ it('the LED strip draws off the tick', async () => {
   expect(drawn).toBeGreaterThan(0)
   expect(drawn).toBeLessThanOrEqual(frames + 1)
 }, 30_000)
+
+// a move to a display of another density, or a page zoom, fires no resize
+it('the LED strip follows a display density change', async () => {
+  const strip = mountStrip()
+  const canvas = strip.host.querySelector('canvas')!
+  await expect.poll(() => canvas.width).toBe(Math.round(1200 * devicePixelRatio))
+  Object.defineProperty(window, 'devicePixelRatio', { value: devicePixelRatio * 2, configurable: true })
+  try {
+    await expect.poll(() => canvas.width).toBe(Math.round(1200 * devicePixelRatio))
+  } finally {
+    delete (window as { devicePixelRatio?: number }).devicePixelRatio
+    strip.unmount()
+  }
+})
 
 describe.skipIf(!enabled)('LED clock probe', () => {
   it('bare setInterval reaches the configured rate', async () => {

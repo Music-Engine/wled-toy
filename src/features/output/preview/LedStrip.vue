@@ -20,6 +20,7 @@ let pixels = new ImageData(1, 1)
 let falloff: CanvasGradient | undefined
 let dense = false
 let [w, h, dpr] = [0, 0, 1]
+let cssBox = { width: 0, height: 0 }
 // the LED count the mask, glow and falloff were laid out for; 0 lays them out again on the next draw
 let laidOut = 0
 let drawnRevision = -1
@@ -35,23 +36,30 @@ onMounted(() => {
 })
 
 useResizeObserver(root, ([entry]) => {
+  cssBox = entry.contentRect
+  fit()
+})
+
+useVisibleFrames(root, draw)
+
+/** Sizes the backing stores to the box at the current density. A density change alone (another display, page zoom) fires no resize, so a draw checks for it. */
+function fit() {
   dpr = devicePixelRatio
-  w = Math.round(entry.contentRect.width * dpr)
-  h = Math.round(entry.contentRect.height * dpr)
+  w = Math.round(cssBox.width * dpr)
+  h = Math.round(cssBox.height * dpr)
   for (const canvas of [backdrop.value!, glow.value!, lights.value!]) {
     canvas.width = w
     canvas.height = h
   }
   laidOut = 0
   drawnRevision = -1
-})
-
-useVisibleFrames(root, draw)
+}
 
 /** Draws the engine's latest LED frame (4 header bytes, then RGB triplets) unless it is the one already drawn. */
 function draw() {
   const frame = engine.ledFrame()
   const revision = engine.ledRevision()
+  if (devicePixelRatio !== dpr) fit()
   if (!frame || !contexts || revision === drawnRevision || !w || !h) return
   const n = Math.min(config.ledCount, (frame.length - 4) / 3)
   if (n < 1) return

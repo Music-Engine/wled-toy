@@ -13,6 +13,7 @@ const lights = ref<HTMLCanvasElement>()
 const glow = ref<HTMLCanvasElement>()
 const blur = ref(0)
 let [w, h, dpr] = [0, 0, 1]
+let cssBox = { width: 0, height: 0 }
 const box = { left: 0, top: 0, width: 0, height: 0, radius: 0 }
 let drawnRevision = -1
 let contexts: Record<'lights' | 'glow', CanvasRenderingContext2D> | undefined
@@ -30,19 +31,25 @@ onMounted(() => {
 })
 
 useResizeObserver(root, ([entry]) => {
-  dpr = devicePixelRatio
-  w = Math.round(entry.contentRect.width * dpr)
-  h = Math.round(entry.contentRect.height * dpr)
-  for (const canvas of [lights.value!, glow.value!]) {
-    canvas.width = w
-    canvas.height = h
-  }
-  layOut()
+  cssBox = entry.contentRect
+  fit()
 })
 
 watch(() => props.layout, layOut, { deep: true })
 
 useVisibleFrames(root, draw)
+
+/** Sizes the backing stores to the box at the current density. A density change alone (another display, page zoom) fires no resize, so a draw checks for it. */
+function fit() {
+  dpr = devicePixelRatio
+  w = Math.round(cssBox.width * dpr)
+  h = Math.round(cssBox.height * dpr)
+  for (const canvas of [lights.value!, glow.value!]) {
+    canvas.width = w
+    canvas.height = h
+  }
+  layOut()
+}
 
 /** Fits the layout into the current box: where the LEDs go, how big they are and how far their glow reaches. */
 function layOut() {
@@ -63,6 +70,7 @@ function layOut() {
 function draw() {
   const frame = engine.ledFrame()
   const revision = engine.ledRevision()
+  if (devicePixelRatio !== dpr) fit()
   if (!frame || !contexts || revision === drawnRevision || !w || !h) return
   drawnRevision = revision
   const ctx = contexts.lights
