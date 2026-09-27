@@ -6,6 +6,6 @@ export const timeNode = defineNode('time', {
   category: 'input',
   input: {},
   output: { time: Float, delta: { type: Float, label: 'Delta Time' }, frame: Float },
-  pixel: () => ({ time: { expr: 'iTime', type: 'float' }, delta: { expr: 'iTimeDelta', type: 'float' }, frame: { expr: 'float(iFrame)', type: 'float' } }),
+  body: () => ({ time: { expr: 'iTime', type: 'float' }, delta: { expr: 'iTimeDelta', type: 'float' }, frame: { expr: 'float(iFrame)', type: 'float' } }),
   frame: (_, { time, dt, frameIndex }) => ({ time, delta: dt, frame: frameIndex }),
 })

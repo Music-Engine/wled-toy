@@ -1,4 +1,4 @@
-export { defineNode, type InputDef, type NodeItemOptions, type OutputDef } from './define/define'
+export { defineNode, type InputDef, type NodeDefinition, type OutputDef } from './define/define'
 export type { NodeItem } from './define/shape'
 export {
   AudioStream,

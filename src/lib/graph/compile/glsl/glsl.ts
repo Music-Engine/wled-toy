@@ -161,7 +161,7 @@ function assemble(e: Emission): { code: string; lineNodes: (string | null)[] } {
 }
 
 /** `chunks` and everything they require, each once, dependencies first. */
-function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
+export function resolveChunks(chunks: Iterable<GlslChunk>): GlslChunk[] {
   const ordered: GlslChunk[] = []
   const seen = new Set<GlslChunk>()
   const visit = (chunk: GlslChunk) => {

@@ -17,10 +17,8 @@ const perSlot = (call: (sampler: (name: string) => string, head: string) => stri
 export const IMAGE_LAYERS = 8
 export const IMAGE_LAYER_SIZE = 512
 
-export const PRELUDE = `#version 300 es
-precision highp float;
-
-uniform vec3  iResolution;
+/** The uniforms the engine binds, which every pass that runs node bodies declares: the pixel prelude and a graph's frame pass. */
+export const PRELUDE_UNIFORMS = `uniform vec3  iResolution;
 uniform float iTime;
 uniform int   iFrame;
 uniform float iLedCount;
@@ -48,7 +46,12 @@ uniform sampler2D iPrevFrame;
 // seconds since this pass last drew
 uniform float iTimeDelta;
 // per-frame values computed on the CPU by graph mode; slot k is iControl[k / 4][k % 4]
-uniform vec4 iControl[${CONTROL_VECTORS}];
+uniform vec4 iControl[${CONTROL_VECTORS}];`
+
+export const PRELUDE = `#version 300 es
+precision highp float;
+
+${PRELUDE_UNIFORMS}
 
 layout(location = 0) out vec4 outColor;
 
