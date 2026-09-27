@@ -54,6 +54,8 @@ struct stateSlot : slotComponents<components<V>()> {
 inline vec3 iResolution;
 inline float iTime = 0.0f;
 inline int iFrame = 0;
+// seconds since the previous frame, as GLSL's iTimeDelta: the step stateful nodes integrate over
+inline float iTimeDelta = 0.0f;
 inline float iLedCount = 1.0f;
 inline float iScanY = 0.5f;
 // The 16 GEQ bands WLED's AudioReactive usermod publishes as fftResult, scaled to 0..1: what fft() reads where GLSL

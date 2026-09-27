@@ -17,7 +17,7 @@ export const pass = (): Annotation => ({
 /** A node with only `resolve` emits nothing, so its pass is never read; a JavaScript-only node cannot be emitted at all. */
 function nodePass(ctx: CompileContext, node: CompiledNode): Pass {
   const { shape } = node
-  if (shape.frame && !shape.pixel) throw new GraphError(`${shape.title} runs only in JavaScript and has no body to emit yet`, node.id)
+  if (shape.frame && !shape.body && !shape.pixel) throw new GraphError(`${shape.title} runs only in JavaScript and has no body to emit yet`, node.id)
   if (shape.varies === 'pixel') return 'pixel'
   return valueInputs(shape).some((socket) => readsPerPixel(ctx, node, socket)) ? 'pixel' : 'frame'
 }

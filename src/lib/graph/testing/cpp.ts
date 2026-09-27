@@ -35,9 +35,39 @@ export interface OfflineOptions {
 }
 
 /** Renders a pixel-only graph through its C++ unit, frame i at time i / FPS: per frame, one [r, g, b] per LED, 0 to 255. */
-export function runOffline(doc: NodeGraph, { leds, frames, feed = [] }: OfflineOptions): number[][][] {
+export function runOffline(doc: NodeGraph, options: OfflineOptions): number[][][] {
+  return renderUnit(offlineUnit(buildProgram(doc, {}), { leds: options.leds }), options)
+}
+
+/**
+ * Renders a usermod target's unit as runOffline renders the old one, with iTimeDelta at 1 / FPS, so a frame pass steps
+ * its global state as the engine would. Takes the code, since only compile/ reaches the new compiler until cut-over.
+ */
+export function runUsermod(code: string, options: OfflineOptions): number[][][] {
+  return renderUnit([code, ...USERMOD_MAIN].join('\n'), options)
+}
+
+// the host's side of a usermod unit: what runOffline's unit reads per stdin line, and the frame time the host fills
+const USERMOD_MAIN = [
+  '#include <cstdio>',
+  '',
+  'int main() {',
+  '  static wledtoy::vec3 colors[wledtoy::ledCount];',
+  `  wledtoy::iTimeDelta = 1.0f / ${FPS}.0f;`,
+  '  float time;',
+  '  for (int frame = 0; std::scanf("%f", &time) == 1; frame++) {',
+  '    for (float& band : wledtoy::iAudioBands) if (std::scanf("%f", &band) != 1) return 1;',
+  '    wledtoy::renderFrame(time, frame, colors);',
+  '    for (const wledtoy::vec3& c : colors) std::printf("%d %d %d ", int(c.x * 255.0f + 0.5f), int(c.y * 255.0f + 0.5f), int(c.z * 255.0f + 0.5f));',
+  '    std::printf("\\n");',
+  '  }',
+  '}',
+  '',
+]
+
+function renderUnit(unit: string, { leds, frames, feed = [] }: OfflineOptions): number[][][] {
   if (feed.some((bands) => bands.length !== 16)) throw new Error('Each feed row holds the 16 bands of iAudioBands')
-  const binary = offlineBinary(offlineUnit(buildProgram(doc, {}), { leds }))
+  const binary = offlineBinary(unit)
   const input = Array.from({ length: frames }, (_, frame) => [frame / FPS, ...(feed[frame] ?? new Array(16).fill(0))].join(' ')).join('\n')
   const ran = spawnSync(binary, { input, encoding: 'utf8' })
   if (ran.status !== 0) throw new Error(`The offline unit exited with ${ran.status}: ${ran.stderr}`)

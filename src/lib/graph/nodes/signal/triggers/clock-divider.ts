@@ -1,5 +1,5 @@
-import { Bool, defineNode, Float, Int } from '@/lib/graph/authoring'
-import { risingEdge } from '@/lib/graph/nodes/shared/signal'
+import { defineNode, Float, fmt, Int } from '@/lib/graph/authoring'
+import { risingEdge, risingEdgeFlag, wrappedCount } from '@/lib/graph/nodes/shared/signal'
 
 export const clockDividerNode = defineNode('clockDivider', {
   title: 'Clock Divider',
@@ -11,7 +11,16 @@ export const clockDividerNode = defineNode('clockDivider', {
     reset: { type: Float, default: 0 },
   },
   output: { trigger: Float, phase: Float },
-  state: { count: Int, triggerHigh: Bool, resetHigh: Bool },
+  state: { count: Float, triggerHigh: Float, resetHigh: Float },
+  body: ({ divide, trigger, reset }, ctx) => {
+    const { count, triggerHigh, resetHigh } = ctx.state
+    const restart = risingEdgeFlag(ctx, resetHigh, reset, 'restart')
+    ctx.emit(`if (${restart} > 0.5) ${count.expr} = 0.0;`)
+    const up = risingEdgeFlag(ctx, triggerHigh, trigger, 'up')
+    const fired = ctx.declare('float', `${up} * float(${count.expr} == 0.0)`, 'fired')
+    ctx.emit(`if (${up} > 0.5) ${count.expr} = ${wrappedCount(`${count.expr} + 1.0`, fmt(divide))};`)
+    return { trigger: fired, phase: ctx.declare('float', `${count.expr} / ${fmt(divide)}`, 'phase') }
+  },
   frame: ({ divide, trigger, reset }, { state }) => {
     if (risingEdge(state, 'resetHigh', reset)) state.count = 0
     let fired = 0

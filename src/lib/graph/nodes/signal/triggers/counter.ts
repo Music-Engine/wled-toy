@@ -1,5 +1,5 @@
-import { Bool, defineNode, Float, Int } from '@/lib/graph/authoring'
-import { risingEdge } from '@/lib/graph/nodes/shared/signal'
+import { Bool, defineNode, Float, fmt, Int } from '@/lib/graph/authoring'
+import { risingEdge, risingEdgeFlag, wrappedCount } from '@/lib/graph/nodes/shared/signal'
 
 export const counterNode = defineNode('counter', {
   title: 'Counter',
@@ -11,7 +11,15 @@ export const counterNode = defineNode('counter', {
     reset: { type: Float, default: 0 },
   },
   output: { count: Float, phase: Float },
-  state: { count: Int, triggerHigh: Bool, resetHigh: Bool },
+  state: { count: Float, triggerHigh: Float, resetHigh: Float },
+  body: ({ steps, trigger, reset }, ctx) => {
+    const { count, triggerHigh, resetHigh } = ctx.state
+    const up = risingEdgeFlag(ctx, triggerHigh, trigger, 'up')
+    const restart = risingEdgeFlag(ctx, resetHigh, reset, 'restart')
+    ctx.emit(`if (${up} > 0.5) ${count.expr} = ${wrappedCount(`${count.expr} + 1.0`, fmt(steps))};`)
+    ctx.emit(`if (${restart} > 0.5) ${count.expr} = 0.0;`)
+    return { count, phase: ctx.declare('float', `${count.expr} / ${fmt(steps)}`, 'phase') }
+  },
   frame: ({ steps, trigger, reset }, { state }) => {
     if (risingEdge(state, 'triggerHigh', trigger)) state.count = (state.count + 1) % steps
     if (risingEdge(state, 'resetHigh', reset)) state.count = 0
@@ -25,7 +33,7 @@ export const toggleNode = defineNode('toggle', {
   category: 'signal',
   input: { trigger: { type: Float, default: 0 } },
   output: { state: Float },
-  state: { on: Bool, high: Bool },
+  state: { on: Bool, high: Float },
   frame: ({ trigger }, { state }) => {
     if (risingEdge(state, 'high', trigger)) state.on = !state.on
     return { state: state.on ? 1 : 0 }

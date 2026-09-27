@@ -1,5 +1,5 @@
 import { defineNode, Float } from '@/lib/graph/authoring'
-import { approach } from '@/lib/graph/nodes/shared/signal'
+import { approach, approachFraction } from '@/lib/graph/nodes/shared/signal'
 import { seconds } from '@/lib/graph/nodes/shared/sockets'
 
 export const envelopeFollowerNode = defineNode('envelopeFollower', {
@@ -9,6 +9,12 @@ export const envelopeFollowerNode = defineNode('envelopeFollower', {
   input: { signal: { type: Float, default: 0 }, attack: seconds(0.01), release: seconds(0.3) },
   output: { envelope: Float },
   state: { value: Float },
+  body: ({ signal, attack, release }, ctx) => {
+    const { value } = ctx.state
+    const time = ctx.declare('float', `${signal.expr} > ${value.expr} ? ${attack.expr} : ${release.expr}`, 'time').expr
+    ctx.emit(`${value.expr} += (${signal.expr} - ${value.expr}) * ${approachFraction(time)};`)
+    return { envelope: value }
+  },
   frame: ({ signal, attack, release }, { state, dt }) => {
     const target = signal
     state.value += (target - state.value) * approach(dt, (target > state.value ? attack : release))

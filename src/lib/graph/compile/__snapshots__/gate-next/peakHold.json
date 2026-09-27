@@ -1,0 +1,45 @@
+{
+  "glsl": {
+    "probes": {},
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "frame": {
+      "texels": 1,
+      "probes": []
+    },
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {
+        "n": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          },
+          "held": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "n:peak": {
+          "peak": {
+            "type": "float",
+            "offset": 2
+          }
+        }
+      }
+    }
+  },
+  "usermod": {
+    "issues": []
+  }
+}
