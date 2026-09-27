@@ -2,7 +2,7 @@
 // track both run on, and the analysis slots AudioService would have opened for a compiled graph.
 import { Analyzer, type Features } from '@/lib/audio/dsp'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/settings'
-import { AudioTextures } from '@/lib/audio/textures'
+import { AUDIO_BINS, AudioTextures } from '@/lib/audio/textures'
 import type { FramePlan } from '@/lib/graph/compile/js/frame'
 
 export const SAMPLE_RATE = 48000
@@ -94,4 +94,16 @@ export function feedSlots(slots: Slot[], track: Float32Array, time: number, samp
   const analyses = slots.map((slot) => slot.features && { ...slot.features, ...slot.pending })
   for (const slot of slots) slot.pending = { onset: false, beat: false }
   return { analyses, hops }
+}
+
+/**
+ * iAudioBands for each of `frames` frames of the track, as runOffline takes them. The usermod has WLED's one analysis, and
+ * the header's fft() reads the band nearest the frequency GLSL's samples the spectrum at, so a band is the spectrum at its center.
+ */
+export function usermodBands(frames: number, track = synthTrack()): number[][] {
+  const [slot] = openSlots({ steps: [], exports: [], resources: {} })
+  return Array.from({ length: frames }, (_, frame) => {
+    feedSlots([slot], track, frame / FPS)
+    return Array.from({ length: 16 }, (_, band) => slot.textures.spectrum[Math.floor(((band + 0.5) / 16) * AUDIO_BINS)] / 255)
+  })
 }

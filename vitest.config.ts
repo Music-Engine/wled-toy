@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { playwright } from '@vitest/browser-playwright'
+import type { BrowserCommand, TestProject } from 'vitest/node'
 
 // audio tests: a synthetic microphone, no permission prompt, and an AudioContext that may start without a click
 const MEDIA_ARGS = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required']
@@ -10,6 +11,13 @@ const SWIFTSHADER_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshade
 // BENCH_GPU=1 asks for the real GPU instead, for benchmark runs; BENCH_GPU=headed also drops headless mode
 const GPU = process.env.BENCH_GPU === '1' || process.env.BENCH_GPU === 'headed'
 const GPU_ARGS = ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist']
+
+// the C++ harness spawns a compiler, which only the test server can, so browser tests reach it through these
+type CppHarness = typeof import('@/lib/graph/testing/cpp')
+const cppHarness = (project: TestProject) => project.import<CppHarness>('/src/lib/graph/testing/cpp.ts')
+const cppCompiler: BrowserCommand<[]> = async ({ project }) => (await cppHarness(project)).cppCompiler ?? null
+const runOffline: BrowserCommand<Parameters<CppHarness['runOffline']>> = async ({ project }, doc, options) =>
+  (await cppHarness(project)).runOffline(doc, options)
 
 const TIMING_TESTS = ['src/lib/engine/led-clock.browser.test.ts']
 const BROWSER = {
@@ -20,6 +28,7 @@ const BROWSER = {
     launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
   }),
   instances: [{ browser: 'chromium' as const }],
+  commands: { cppCompiler, runOffline },
 }
 
 export default defineConfig({

@@ -17,6 +17,9 @@ export function cpp(program: Program, options: CppOptions): string {
   return ['#include "wledtoy.h"', '', 'namespace wledtoy {', '', cppDefinitions(program, options), '}', ''].join('\n')
 }
 
+/** The unit with a `main` that renders one frame per stdin line (the time, then the 16 audio bands) and prints its LED bytes. */
+export const offlineUnit = (program: Program, options: CppOptions) => [cpp(program, options), ...OFFLINE_MAIN].join('\n')
+
 /** The program's globals and functions without the include and namespace around them, so several fit in one unit. */
 export function cppDefinitions(program: Program, { leds }: CppOptions): string {
   rejectFrameSteps(program)
@@ -77,6 +80,23 @@ const RENDER_FRAME = [
   '    vec4 c(0.0f, 0.0f, 0.0f, 1.0f);',
   '    mainImage(c, uv, ledIndex);',
   '    colors[i] = clamp(vec3(c.xyz), 0.0f, 1.0f);',
+  '  }',
+  '}',
+  '',
+]
+
+// the harness's stand-in for the usermod: reads what the host would fill, so one build serves any run of frames
+const OFFLINE_MAIN = [
+  '#include <cstdio>',
+  '',
+  'int main() {',
+  '  static wledtoy::vec3 colors[wledtoy::ledCount];',
+  '  float time;',
+  '  for (int frame = 0; std::scanf("%f", &time) == 1; frame++) {',
+  '    for (float& band : wledtoy::iAudioBands) if (std::scanf("%f", &band) != 1) return 1;',
+  '    wledtoy::renderFrame(time, frame, colors);',
+  '    for (const wledtoy::vec3& c : colors) std::printf("%d %d %d ", int(c.x * 255.0f + 0.5f), int(c.y * 255.0f + 0.5f), int(c.z * 255.0f + 0.5f));',
+  '    std::printf("\\n");',
   '  }',
   '}',
   '',
