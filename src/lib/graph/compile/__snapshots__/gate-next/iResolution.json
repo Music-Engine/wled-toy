@@ -13,6 +13,14 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,7 +32,8 @@
         "n:out": {
           "out": {
             "type": "vec3",
-            "offset": 0
+            "offset": 0,
+            "kind": "iResolution"
           }
         }
       }

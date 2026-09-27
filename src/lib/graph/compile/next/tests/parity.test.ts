@@ -5,7 +5,7 @@ import { allItems, nodeItem, valueInputs } from '@/lib/graph/registry'
 import { alone, graph, node } from '@/lib/graph/testing'
 import { buildProgram, generateGlsl } from '@/lib/graph/compile/compile'
 import { cpp } from '@/lib/graph/compile/cpp/cpp'
-import { glslCompiler, usermodCompiler } from '@/lib/graph/compile/next/compilers'
+import { createGlslCompiler, createUsermodCompiler } from '@/lib/graph/compile/next/compilers'
 import { corpusGraphs } from '@/lib/graph/compile/next/corpus'
 
 const graphs = corpusGraphs()
@@ -15,7 +15,7 @@ const LEDS = 30
 /** Both pipelines run the whole graph per pixel: the old one has no frame step, the new one no frame pass. */
 function pixelOnly(doc: NodeGraph): boolean {
   const old = generateGlsl(doc)
-  const next = glslCompiler().compile(doc).program
+  const next = createGlslCompiler().compile(doc).program
   return old.error === null && old.frame.steps.length === 0 && next !== null && next.frame === null
 }
 
@@ -35,9 +35,9 @@ const oldUnit = (doc: NodeGraph) => {
 }
 
 function expectSameCode(doc: NodeGraph) {
-  expect(glslCompiler().compile(doc).program!.pixel).toBe(generateGlsl(doc).code)
+  expect(createGlslCompiler().compile(doc).program!.pixel).toBe(generateGlsl(doc).code)
   const unit = oldUnit(doc)
-  if (unit) expect(usermodCompiler(LEDS).compile(doc).program!.code).toBe(unit)
+  if (unit) expect(createUsermodCompiler(LEDS).compile(doc).program!.code).toBe(unit)
 }
 
 describe('a pixel-only graph compiles to the old pipeline\'s code, byte for byte', () => {

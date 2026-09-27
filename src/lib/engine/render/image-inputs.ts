@@ -40,13 +40,18 @@ export class ImageInputs {
     gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, 0, 0, 0, layer, IMAGE_LAYER_SIZE, IMAGE_LAYER_SIZE, 1, gl.RGBA, gl.UNSIGNED_BYTE, canvas)
   }
 
+  /** Binds the image textures the program samples. */
   bind(u: UniformLocations) {
     const { gl } = this
-    gl.activeTexture(gl.TEXTURE1)
-    gl.bindTexture(gl.TEXTURE_2D, this.imageTex)
-    gl.activeTexture(gl.TEXTURE2)
-    gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.layersTex)
-    gl.uniform1i(u.iImages ?? null, 2)
-    gl.uniform1i(u.iImage ?? null, 1)
+    if (u.iImage) {
+      gl.activeTexture(gl.TEXTURE1)
+      gl.bindTexture(gl.TEXTURE_2D, this.imageTex)
+      gl.uniform1i(u.iImage, 1)
+    }
+    if (u.iImages) {
+      gl.activeTexture(gl.TEXTURE2)
+      gl.bindTexture(gl.TEXTURE_2D_ARRAY, this.layersTex)
+      gl.uniform1i(u.iImages, 2)
+    }
   }
 }

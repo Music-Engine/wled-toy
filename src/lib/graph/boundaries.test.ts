@@ -18,8 +18,8 @@ function nodesAllow(file: string, from: string): boolean {
 const defineAllows = (file: string, from: string) =>
   from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
-// outside compile/ only its entry points are reachable: the compiler, and the frame runner the engine steps
-const COMPILE_ENTRIES = /(^|\/)compile\/(compile|js\/frame)$/
+// outside compile/ only its entry points are reachable: the old compiler and its frame runner, and the new compilers
+const COMPILE_ENTRIES = /(^|\/)compile\/(compile|js\/frame|next\/compilers)$/
 
 const stageAllows = (file: string, from: string) =>
   file.startsWith('compile/') || !/(^|\/)compile\//.test(from) || COMPILE_ENTRIES.test(from)

@@ -9,12 +9,13 @@ import { ImageLibrary } from '@/lib/engine/media/images'
 import { layoutPositions } from '@/lib/engine/output/layout'
 import { DEFAULT_OUTPUT, LedPostProcess, type OutputSettings } from '@/lib/engine/output/output'
 import { preferences } from '@/lib/app/settings/preferences'
-import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
+import { emptySlots, type GlslProgram, type ProgramUniform, type SlotTable } from '@/lib/graph'
 import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/settings'
 import { MidiService } from './midi'
 import { SceneFades } from './fades'
 import { nextDeadline } from './clock'
 import { EngineMedia } from '@/lib/engine/media/engine-media'
+import { Runtime } from './runtime'
 
 let engine: Engine | null = null
 
@@ -44,13 +45,13 @@ class Engine {
   readonly trackStatus = this.media.trackStatus
 
   private renderer: ShaderRenderer | null = null
+  private runtime: Runtime | null = null
   private leds: Uint8Array | null = null
   private revision = 0
   private readonly stopWatchers: Array<() => void> = []
-  private readonly controls = new FrameRunner()
   private readonly post = new LedPostProcess()
   private output: OutputSettings = DEFAULT_OUTPUT
-  private lastControlStep = performance.now()
+  private lastLedTick = performance.now()
   private lastPreview = performance.now()
   private startTime = performance.now()
   private frame = 0
@@ -62,6 +63,7 @@ class Engine {
     this.canvas.className = 'block aspect-video w-full'
     try {
       this.renderer = new ShaderRenderer(this.canvas)
+      this.runtime = new Runtime(this.renderer)
     } catch (e) {
       report(e)
     }
@@ -80,37 +82,54 @@ class Engine {
     log('WLEDtoy ready')
   }
 
-  compile(code: string, source: string): boolean {
-    if (!this.renderer) return false
-    // hand-written shaders have no CPU side; a graph sets its plan before it compiles
-    if (source === 'shader') {
-      this.setControlPlan()
-      this.setOutput(null)
-    }
+  /** Runs a hand-written shader: nothing to write, probe or open, and the last graph's global state kept for its return. */
+  compile(code: string): boolean {
+    return this.load({ pixel: code, frame: null, lineNodes: { pixel: [], frame: [] }, probes: {}, uniforms: [], resources: {}, output: null }, this.readSlots(), 'shader')
+  }
+
+  /** Runs a graph's program with its state laid out by `slots`, the table its compile returned; on failure the running one stays. */
+  load(program: GlslProgram, slots: SlotTable, source = 'graph'): boolean {
+    if (!this.runtime) return false
     try {
-      const ms = this.renderer.compile(code)
+      const ms = this.runtime.load(program, slots)
       this.compileError.value = null
-      log(`Compiled ${source} in ${ms.toFixed(1)} ms`)
-      return true
+      if (ms !== null) log(`Compiled ${source} in ${ms.toFixed(1)} ms`)
     } catch (e) {
       this.compileError.value = (e as Error).message
       log(`Compile failed (${source})`, 'error')
       return false
     }
+    this.openResources(program)
+    this.setOutput(program.output)
+    return true
   }
 
-  /** What graph mode computes on the CPU each frame. Shader mode passes nothing. Node state carries over between plans. */
-  setControlPlan(plan: FramePlan = { steps: [], exports: [], resources: {} }) {
-    this.controls.load(plan)
+  /** The table the running program's state is laid out by, for the next compile to keep. */
+  readSlots(): SlotTable {
+    return this.runtime?.slots ?? emptySlots()
+  }
+
+  /** Writes a uniform of the running program; it holds until written again or the next load. */
+  set(uniform: ProgramUniform, value: number) {
+    this.runtime?.set(uniform, value)
+  }
+
+  /** The value a probe node read back on the last LED tick, or undefined when it is not in the running program. */
+  readProbe(nodeId: string): number | undefined {
+    return this.runtime?.readProbe(nodeId)
+  }
+
+  /** Opens what the program asks the host for: the audio source and analyses, the images, the OSC port and MIDI. */
+  private openResources({ resources, uniforms }: GlslProgram) {
     // the graph's Audio Source says what is captured (the first one, if it has several); its FFT nodes say how it is analyzed
-    const [source] = (plan.resources.audioSource ?? []) as AudioSourceRequest[]
+    const [source] = (resources.audioSource ?? []) as AudioSourceRequest[]
     if (source) void this.audio.configure(source)
-    this.audio.setAnalyses((plan.resources.analysis ?? []) as AnalysisSettings[])
-    void this.media.showImages((plan.resources.image ?? []) as string[])
-    const [oscPort = 0] = (plan.resources.osc ?? []) as number[]
+    this.audio.setAnalyses((resources.analysis ?? []) as AnalysisSettings[])
+    void this.media.showImages((resources.image ?? []) as string[])
+    const [oscPort = 0] = (resources.osc ?? []) as number[]
     this.bridge.listenOsc(oscPort)
     // asking for MIDI shows a permission prompt, so it waits until a graph actually uses it
-    if (plan.steps.some((step) => step.kind === 'midiIn')) void this.midi.enable()
+    if (uniforms.some((uniform) => uniform.kind === 'midi')) void this.midi.enable()
   }
 
   useImage(file: { blob: Blob; name: string } | null, remember = true) {
@@ -131,9 +150,9 @@ class Engine {
     if (fpsChanged) this.restartSendTimer()
   }
 
-  /** The latest value a control-rate node produced, or undefined when it is not part of the running graph. */
-  controlOutput(nodeId: string, output: string) {
-    return this.controls.output(nodeId, output)
+  /** What a node output of the running graph holds now, for code that freezes it; reads the GPU back. */
+  readControlOutput(nodeId: string, output: string) {
+    return this.runtime?.readValue(nodeId, output)
   }
 
   /** The last LED frame (4 header bytes, then RGB triplets), or null before the first tick. Views read it on their own clock, never inside the tick. */
@@ -164,8 +183,7 @@ class Engine {
   resetTime() {
     this.startTime = performance.now()
     this.frame = 0
-    this.controls.reset()
-    this.renderer?.resetFeedback()
+    this.runtime?.reset()
     log('Time reset')
   }
 
@@ -211,11 +229,11 @@ class Engine {
 
   private readonly renderLoop = () => {
     this.rafId = requestAnimationFrame(this.renderLoop)
-    if (!this.renderer?.ready || !this.canvas.isConnected) return
+    if (!this.runtime?.ready || !this.canvas.isConnected) return
     const now = performance.now()
     // rAF ticks land a little early or late; the 2 ms slack keeps a 30 fps cap from skipping every third frame of a 60 Hz display
     if (preferences.previewFps && now - this.lastPreview < 1000 / preferences.previewFps - 2) return
-    this.renderer.renderPreview(this.frameParams(Math.min(0.1, (now - this.lastPreview) / 1000)), preferences.previewHeight)
+    this.runtime.preview(this.frameParams(Math.min(0.1, (now - this.lastPreview) / 1000)), preferences.previewHeight)
     this.lastPreview = now
     this.frame++
     this.bridge.countRender()
@@ -226,28 +244,20 @@ class Engine {
   private readonly ledTick = () => {
     // before the ready check: a scene recalled while the shader does not compile still lands
     this.fades.advance(performance.now())
-    if (!this.renderer?.ready) return
-    // control nodes advance on the LED clock, the one that keeps running in a hidden tab; the preview reads the same values
+    const { runtime } = this
+    if (!runtime?.ready) return
+    // the frame pass runs on the LED clock, the one that keeps running in a hidden tab; the preview reads the same global state
     const now = performance.now()
-    const dt = Math.min(0.1, (now - this.lastControlStep) / 1000)
-    const params = this.frameParams(dt)
+    const params = this.frameParams(Math.min(0.1, (now - this.lastLedTick) / 1000))
+    this.lastLedTick = now
+    runtime.readMidiAndOsc(this.midi, this.bridge.oscArgs)
     const analyses = this.audio.features ? this.audio.takeFeatures() : null
-    this.renderer.setControls(this.controls.step({
-      time: params.time,
-      dt,
-      frameIndex: params.frame,
-      audio: analyses ? { analyses, sampleRate: this.audio.state.sampleRate } : undefined,
-      midi: this.midi,
-      osc: this.bridge.oscArgs,
-    }))
-    this.lastControlStep = now
     const [first, ...extra] = this.audio.slots
-    if (first?.features) this.renderer.setAudio(first.textures, extra.map((slot) => slot.textures), analyses?.[0] ?? null)
+    if (first?.features) runtime.feed(first.textures, extra.map((slot) => slot.textures), analyses?.[0] ?? null)
     const t0 = performance.now()
-    this.renderer.renderGlobalState(params)
-    const leds = this.post.process(this.renderer.renderLeds(params), config.brightness, this.output)
-    this.renderer.readProbes()
+    const leds = this.post.process(runtime.tick(params), config.brightness, this.output)
     this.bridge.recordLedRender(performance.now() - t0)
+    this.fades.readSwitch(runtime)
     this.leds = leds
     this.revision++
     if (this.streaming.value) this.bridge.sendFrame(leds)

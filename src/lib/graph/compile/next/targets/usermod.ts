@@ -5,7 +5,7 @@ import { cppSource, pixelStateReads } from '@/lib/graph/compile/cpp/cpp'
 import { GraphError } from '@/lib/graph/compile/front-end/program'
 import type { CompileContext, Target } from '@/lib/graph/compile/next/context'
 import { emitPass, type PassCode, type Spelling } from '@/lib/graph/compile/next/emit'
-import { components, pixelShader, vectorsReached } from './glsl'
+import { components, emitPixelShader, vectorsReached } from './glsl'
 import { glslForm } from '@/lib/graph/compile/glsl/glsl-types'
 
 export const usermod = ({ leds }: { leds: number }): Target<UsermodProgram> => ({
@@ -43,7 +43,7 @@ function unit(ctx: CompileContext, frame: PassCode, pixel: PassCode, leds: numbe
   const texels = vectorsReached(ctx.slots.global)
   const framePass = texels > 0 ? ['void framePass() {', ...frame.lines.map((l) => `  ${l.text}`), '}', ''] : []
   const chunks = texels > 0 ? [...frame.chunks, ...pixel.chunks] : pixel.chunks
-  const source = pixelShader(ctx, pixel, { chunks, globals: controlBlock(ctx), beforeMain: framePass })
+  const source = emitPixelShader(ctx, pixel, { chunks, globals: controlBlock(ctx), beforeMain: framePass })
   const definitions = [
     `constexpr int ledCount = ${leds};`,
     ...(layers ? [`vec4 pixelState[ledCount][${layers}] = {};`] : []),

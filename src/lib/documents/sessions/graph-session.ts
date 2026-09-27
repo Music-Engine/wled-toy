@@ -1,6 +1,7 @@
 import { computed, nextTick, ref, shallowRef, toRaw, watch, type Ref } from 'vue'
-import { createDefaultGraph, generateGlsl, normalizeDoc, pruneScenes, storedDoc, type GeneratedShader, type NodeGraph, type Scene, type StoredEdge, type StoredNode } from '@/lib/graph'
+import { createDefaultGraph, normalizeDoc, pruneScenes, storedDoc, type CompileResult, type GlslProgram, type NodeGraph, type ProgramUniform, type Scene, type SlotTable, type StoredEdge, type StoredNode } from '@/lib/graph'
 import { cloneJson } from '@/lib/util/json'
+import { clamp } from '@/lib/util/math'
 import { compileKey } from './compile-key'
 import { createHistory } from '@/lib/documents/history'
 import { styledEdges, type LinkEnds, type SocketColor } from '@/lib/documents/edits/links'
@@ -9,18 +10,20 @@ import { styledEdges, type LinkEnds, type SocketColor } from '@/lib/documents/ed
  * The graph being edited: its compile schedule, the working copy it autosaves to, and its undo history. The editor binds
  * `nodes`, `edges` and `scenes` to the canvas and calls `start` and `stop` as it is shown and hidden.
  */
-export function createGraphSession({ workingCopy, storeEdges, colorOf, target }: GraphSessionOptions) {
+export function createGraphSession({ workingCopy, storeEdges, colorOf, target, compiler }: GraphSessionOptions) {
   const initial = normalizeDoc(workingCopy.graph ?? createDefaultGraph())
   const nodes = ref(initial.nodes) as Ref<StoredNode[]>
   const edges = ref(styledEdges(initial, colorOf)) as Ref<StoredEdge[]>
   const scenes = ref(initial.scenes ?? []) as Ref<Scene[]>
 
-  const generated = shallowRef(generateGlsl(initial))
+  const generated = shallowRef(compiler.compile(initial, { slots: target.readSlots() }))
   const compileError = ref<string | null>(null)
-  const compiledLineNodes = shallowRef<(string | null)[]>([])
+  // what the program the target last took emitted on each line, for tracing its GLSL errors to nodes
+  const compiledLineNodes = shallowRef<GlslProgram['lineNodes']>({ pixel: [], frame: [] })
   let active = false
   let lastSaved: NodeGraph | null = workingCopy.graph
   let lastCompiled = ''
+  let running: GlslProgram | null = null
   // the compile key `generated` was built from and the one the target last took
   let generatedKey = ''
   let appliedKey = ''
@@ -36,29 +39,41 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target }:
   const snapshot = () => storedSnapshot.value
 
   /**
-   * Knob turns, scene fades and MIDI change the CPU plan but not the shader, so they apply at once. A change to the
-   * shader waits for the edits to pause (`compileNow`), and its plan waits with it: the two index the same uniform slots.
+   * Knob turns, scene fades and MIDI bindings write a uniform and never compile, so they apply at once. A program whose
+   * shaders changed waits for the edits to pause (`compileNow`); one that only changed what the host reads loads at once.
    */
   function regenerate(compileNow = true) {
     const key = compileKey(nodes.value, storeEdges())
     if (key !== generatedKey || scenes.value !== prunedScenes) pruneStaleScenes()
     if (key !== generatedKey) {
       generatedKey = key
-      generated.value = generateGlsl(snapshot())
+      generated.value = compiler.compile(snapshot(), { slots: target.readSlots() })
     }
-    const shader = generated.value
-    if (!active || shader.error || key === appliedKey) return
-    if (shader.code !== lastCompiled && !compileNow) {
-      clearTimeout(regenTimer)
-      regenTimer = setTimeout(regenerate, 250)
-      return
+    if (!active) return
+    const { program, slots } = generated.value
+    const code = program && `${program.frame?.code ?? ''}\n${program.pixel}`
+    if (program && key !== appliedKey) {
+      if (code !== lastCompiled && !compileNow) {
+        clearTimeout(regenTimer)
+        regenTimer = setTimeout(regenerate, 250)
+      } else {
+        compileError.value = target.load(program, slots)
+        compiledLineNodes.value = program.lineNodes
+        if (!compileError.value) running = program
+        appliedKey = key
+        lastCompiled = code!
+      }
     }
-    target.plan(shader)
-    appliedKey = key
-    if (shader.code === lastCompiled) return
-    compileError.value = target.compile(shader.code)
-    compiledLineNodes.value = shader.lineNodes
-    lastCompiled = shader.code
+    writeKnobUniforms()
+  }
+
+  /** Every knob's value from its node into the running program, clamped as the Knob node does. */
+  function writeKnobUniforms() {
+    for (const uniform of running?.uniforms ?? []) {
+      if (uniform.kind !== 'knob') continue
+      const value = nodes.value.find((n) => n.id === uniform.node)?.data.values.value
+      if (typeof value === 'number') target.set(uniform, clamp(value, Math.min(uniform.min, uniform.max), Math.max(uniform.min, uniform.max)))
+    }
   }
 
   /** Deleting a knob takes its values out of every scene. */
@@ -193,11 +208,14 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target }:
 
 export type GraphEditSession = ReturnType<typeof createGraphSession>
 
-/** Where a generated program runs: the engine in the app, kept out of this module so the timing rules test without one. */
+/** Where a compiled program runs: the engine in the app, kept out of this module so the timing rules test without one. */
 export interface GraphTarget {
-  /** The per-frame plan and the wire settings; they index the same uniform slots as the shader they were built with. */
-  plan(shader: GeneratedShader): void
-  compile(code: string): string | null
+  /** The slot table of the running program; a compile keeps a node's slots from it. */
+  readSlots(): SlotTable
+  /** Runs `program` with its state laid out by `slots`; returns the GLSL error, or null. */
+  load(program: GlslProgram, slots: SlotTable): string | null
+  /** Writes one uniform of the running program. */
+  set(uniform: ProgramUniform, value: number): void
 }
 
 type Timer = ReturnType<typeof setTimeout> | undefined
@@ -209,4 +227,5 @@ export interface GraphSessionOptions {
   storeEdges: () => readonly (LinkEnds & { id: string; style?: unknown })[]
   colorOf: SocketColor
   target: GraphTarget
+  compiler: { compile(doc: NodeGraph, options: { slots: SlotTable }): CompileResult<GlslProgram> }
 }

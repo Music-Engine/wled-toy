@@ -15,6 +15,14 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": [
@@ -28,7 +36,8 @@
         "n:value": {
           "value": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "viewer"
           }
         }
       }

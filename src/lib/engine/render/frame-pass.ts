@@ -13,6 +13,8 @@ export interface FrameSource {
 /** A linked frame pass, and the array its probes are read back into, made here so no tick allocates. */
 export class FramePass {
   readonly program: WebGLProgram
+  /** Texels the pass draws; global state past them is left as it is. */
+  readonly texels: number
   readonly uniforms: UniformLocations
   readonly probeTexels: readonly number[]
   readonly probes: Float32Array
@@ -20,6 +22,7 @@ export class FramePass {
   constructor(gl: WebGL2RenderingContext, source: FrameSource) {
     const program = linkProgram(gl, source.code)
     this.program = program
+    this.texels = source.texels
     this.uniforms = Object.fromEntries(UNIFORMS.map((n) => [n, gl.getUniformLocation(program, n)]))
     this.probeTexels = source.probes
     this.probes = new Float32Array(source.probes.length * 4)

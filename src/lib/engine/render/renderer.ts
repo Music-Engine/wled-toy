@@ -7,7 +7,7 @@ import { createPingPong, freePingPong, type PingPong } from './feedback-targets'
 import { FramePass, type FrameSource } from './frame-pass'
 import { bindFullScreenTriangle, linkProgram } from './gl-program'
 import { createTexture } from './gl-texture'
-import { GlobalState } from './global-state'
+import { GlobalPass } from './global-pass'
 import { ImageInputs } from './image-inputs'
 import { LedTarget } from './led-target'
 import { PRESENT, UNIFORMS, type UniformLocations } from './renderer-shaders'
@@ -25,10 +25,10 @@ export class ShaderRenderer {
   private presentProgram: WebGLProgram | null = null
   private usesFeedback = false
   private stateLayers = 0
+  // only a program with a Band Split reads the float spectra, so only it pays for their upload
+  private readsSpectra = false
   private readonly feedback: { led: PingPong | null; preview: PingPong | null } = { led: null, preview: null }
-  private framePass: FramePass | null = null
-  // outlives the program so a recompile that keeps the frame pass keeps its values
-  private globalState: GlobalState | null = null
+  private readonly global: GlobalPass
   // half floats keep a long fade smooth; 8 bits stall once a step rounds to nothing
   private readonly floatTargets: boolean
 
@@ -44,6 +44,7 @@ export class ShaderRenderer {
     this.audio = new AudioInputs(gl)
     this.images = new ImageInputs(gl)
     this.led = new LedTarget(gl, this.floatTargets)
+    this.global = new GlobalPass(gl)
     this.layoutTex = createTexture(gl, 6)
     // float textures cannot be filtered without an extension, and positions are fetched per LED anyway
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
@@ -73,15 +74,14 @@ export class ShaderRenderer {
       throw e
     }
     if (this.program) gl.deleteProgram(this.program)
-    if (this.framePass) gl.deleteProgram(this.framePass.program)
     this.program = program
-    this.framePass = framePass
-    if (frame) (this.globalState ??= new GlobalState(gl)).reserve(frame.texels)
+    this.global.replacePass(framePass, frame?.texels ?? 0)
     // only shaders that look back pay for the extra targets
     this.usesFeedback = /\b(iPrevFrame|previousFrame)\b/.test(userCode)
     this.stateLayers = stateLayers
     this.resetFeedback()
     this.uniforms = Object.fromEntries(UNIFORMS.map((n) => [n, gl.getUniformLocation(program, n)]))
+    this.readsSpectra = !!(this.uniforms.iAudioSpectra || framePass?.uniforms.iAudioSpectra)
     return performance.now() - t0
   }
 
@@ -111,7 +111,7 @@ export class ShaderRenderer {
 
   /** `audio` is the default analysis; `extra` are the analyses of a graph's FFT nodes, in slot order from 1; `features` fills iAudioFeatures. */
   setAudio(audio: AudioTextures, extra: AudioTextures[] = [], features: Features | null = null) {
-    this.audio.upload(audio, extra, features)
+    this.audio.upload(audio, extra, features, this.readsSpectra)
   }
 
   /** `maxHeight` caps the rows shaded, the width following the canvas's shape; 0 shades every display pixel. The canvas keeps its size on screen. */
@@ -128,13 +128,14 @@ export class ShaderRenderer {
       this.draw(w, h, params)
       return
     }
-    const target = this.drawWithFeedback('preview', w, h, params)
+    this.drawWithFeedback('preview', w, h, params)
     const { gl } = this
+    const pair = this.feedback.preview!
     this.presentProgram ??= linkProgram(gl, PRESENT)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.useProgram(this.presentProgram)
     gl.activeTexture(gl.TEXTURE7)
-    gl.bindTexture(gl.TEXTURE_2D, target)
+    gl.bindTexture(gl.TEXTURE_2D, pair.textures[pair.latest])
     gl.uniform1i(gl.getUniformLocation(this.presentProgram, 'source'), 7)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
@@ -149,38 +150,38 @@ export class ShaderRenderer {
 
   /** Runs the frame pass once per LED tick, so the LED and preview passes read one history. A program without one draws nothing. */
   renderGlobalState(params: FrameParams) {
-    const { gl, framePass, globalState } = this
-    if (!framePass || !globalState) return
-    globalState.bindTarget()
-    gl.useProgram(framePass.program)
-    this.bindInputs(framePass.uniforms, globalState.width, 1, params)
-    gl.drawArrays(gl.TRIANGLES, 0, 3)
-    globalState.swap()
-    // a preview without feedback draws into whatever is bound, which must be the canvas
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    this.global.drawPass(this.bindInputs, params)
   }
 
-  /** Reads the probe texels back after the LED pass, four floats each, into the array made at compile; null without a frame pass. */
+  /** The probe texels the last `renderLeds` read back with the LEDs, four floats each, in the array made at compile; null without a frame pass. */
   readProbes(): Float32Array | null {
-    const { framePass, globalState } = this
-    if (!framePass || !globalState) return null
-    globalState.read(framePass.probeTexels, framePass.probes)
-    return framePass.probes
+    return this.global.readProbes()
   }
 
-  /** Renders one pixel per LED and returns r, g, b per LED as 0..1 floats, as `LedTarget.read` describes. */
+  /** Reads the latest RGBA of each texel of global state in `texels` into `out`, four floats apiece. */
+  readGlobalState(texels: readonly number[], out: Float32Array) {
+    this.global.readTexels(texels, out)
+  }
+
+  /** Zeroes these floats of global state, or all of it, so the next frame pass starts them from 0. */
+  clearGlobalState(floats?: readonly number[]) {
+    this.global.clearFloats(floats)
+  }
+
+  /** Renders one pixel per LED and returns r, g, b per LED as 0..1 floats, as `LedTarget.read` describes, in an array the next call reuses; the probes ride the same readback. */
   renderLeds(params: FrameParams): Float32Array {
     const n = params.ledCount
-    if (this.usesFeedback || this.stateLayers > 0) this.drawWithFeedback('led', n, 1, params)
+    let drawn: WebGLFramebuffer
+    if (this.usesFeedback || this.stateLayers > 0) drawn = this.drawWithFeedback('led', n, 1, params)
     else {
-      this.led.bind(n)
+      drawn = this.led.bind(n)
       this.draw(n, 1, params)
     }
-    return this.led.read(n)
+    return this.led.read(n, drawn, this.global.readProbeSource())
   }
 
-  /** Draws into the target that does not hold the last frame, which the shader reads as iPrevFrame. Leaves that target bound. */
-  private drawWithFeedback(pass: 'led' | 'preview', width: number, height: number, params: FrameParams): WebGLTexture {
+  /** Draws into the target that does not hold the last frame, which the shader reads as iPrevFrame. Leaves that target bound and returns its framebuffer. */
+  private drawWithFeedback(pass: 'led' | 'preview', width: number, height: number, params: FrameParams): WebGLFramebuffer {
     const { gl } = this
     let pair = this.feedback[pass]
     if (!pair || pair.width !== width || pair.height !== height) {
@@ -191,7 +192,7 @@ export class ShaderRenderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, pair.framebuffers[target])
     this.draw(width, height, params, pair.textures[pair.latest], pair.states?.[pair.latest])
     pair.latest = target
-    return pair.textures[target]
+    return pair.framebuffers[target]
   }
 
   dispose() {
@@ -203,9 +204,11 @@ export class ShaderRenderer {
     if (!program) return
     gl.useProgram(program)
     this.bindInputs(u, width, height, p)
-    gl.activeTexture(gl.TEXTURE7)
-    gl.bindTexture(gl.TEXTURE_2D, previous)
-    gl.uniform1i(u.iPrevFrame ?? null, 7)
+    if (u.iPrevFrame) {
+      gl.activeTexture(gl.TEXTURE7)
+      gl.bindTexture(gl.TEXTURE_2D, previous)
+      gl.uniform1i(u.iPrevFrame, 7)
+    }
     if (previousState) {
       gl.activeTexture(gl.TEXTURE14)
       gl.bindTexture(gl.TEXTURE_2D_ARRAY, previousState)
@@ -214,16 +217,18 @@ export class ShaderRenderer {
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
-  /** What the frame and pixel passes both read: the viewport, the input textures, global state and the per-frame uniforms. */
-  private bindInputs(u: UniformLocations, width: number, height: number, p: FrameParams) {
+  /** What the frame and pixel passes both read: the viewport, the input textures, global state and the per-frame uniforms, each only when the pass declares it. */
+  private readonly bindInputs = (u: UniformLocations, width: number, height: number, p: FrameParams) => {
     const { gl } = this
     gl.viewport(0, 0, width, height)
     this.audio.bind(u)
     this.images.bind(u)
-    gl.activeTexture(gl.TEXTURE6)
-    gl.bindTexture(gl.TEXTURE_2D, this.layoutTex)
-    gl.uniform1i(u.iLayout ?? null, 6)
-    if (this.framePass) this.globalState?.bind(u.iGlobal ?? null)
+    if (u.iLayout) {
+      gl.activeTexture(gl.TEXTURE6)
+      gl.bindTexture(gl.TEXTURE_2D, this.layoutTex)
+      gl.uniform1i(u.iLayout, 6)
+    }
+    if (u.iGlobal) this.global.bindLatest(u.iGlobal)
     gl.uniform1f(u.iTimeDelta ?? null, p.dt ?? 1 / 60)
     gl.uniform1f(u.iLayoutCount ?? null, this.layoutCount)
     gl.uniform3f(u.iResolution ?? null, width, height, 1)

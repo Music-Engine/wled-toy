@@ -13,11 +13,11 @@ interface KeyedEdge {
 }
 
 /**
- * Everything generateGlsl reads from a graph, so equal keys compile to the same output. Positions, selection, sizes,
- * folding, hidden sockets, labels and link styles are left out. Document order stays: the compiler walks sinks in it, and the last link into
- * an input wins.
+ * Everything the compiler reads from a graph, so equal keys compile to the same output. Positions, selection, sizes,
+ * folding, hidden sockets, labels and link styles are left out, and so is a Knob's value, which the running program
+ * takes as a uniform. Document order stays: the compiler walks sinks in it, and the last link into an input wins.
  */
 export const compileKey = (nodes: readonly KeyedNode[], edges: readonly KeyedEdge[]): string => JSON.stringify([
-  nodes.map((n) => [n.id, n.data?.kind, n.data?.values, n.data?.muted ?? false]),
+  nodes.map((n) => [n.id, n.data?.kind, n.data?.kind === 'knob' ? { ...n.data.values, value: undefined } : n.data?.values, n.data?.muted ?? false]),
   edges.map((e) => [e.source, e.sourceHandle ?? null, e.target, e.targetHandle ?? null]),
 ])

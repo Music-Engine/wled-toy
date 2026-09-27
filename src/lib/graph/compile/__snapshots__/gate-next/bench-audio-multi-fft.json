@@ -57,49 +57,189 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "71": "spec0",
+        "72": "ramp0",
+        "73": "ramp0",
+        "74": "ramp0",
+        "75": "ramp0",
+        "76": "chroma0",
+        "77": "chromaMul0",
+        "78": "chromaColor0",
+        "79": "tint0",
+        "80": "spec1",
+        "81": "ramp1",
+        "82": "ramp1",
+        "83": "ramp1",
+        "84": "ramp1",
+        "85": "chroma1",
+        "86": "chromaMul1",
+        "87": "chromaColor1",
+        "88": "tint1",
+        "89": "mix0_0",
+        "90": "spec2",
+        "91": "ramp2",
+        "92": "ramp2",
+        "93": "ramp2",
+        "94": "ramp2",
+        "95": "chroma2",
+        "96": "chromaMul2",
+        "97": "chromaColor2",
+        "98": "tint2",
+        "99": "defaultSpec",
+        "100": "defaultRamp",
+        "101": "defaultRamp",
+        "102": "defaultRamp",
+        "103": "mix0_2",
+        "104": "mix1_0",
+        "105": "pump",
+        "106": "out"
+      },
+      "frame": {
+        "81": "split0",
+        "82": "split0",
+        "83": "split1",
+        "84": "split1",
+        "85": "split2",
+        "86": "split2",
+        "87": "bands0",
+        "88": "bands0",
+        "89": "bands0",
+        "90": "bands0",
+        "91": "bands0",
+        "92": "bands0",
+        "93": "bands0",
+        "94": "bands0",
+        "95": "bands0",
+        "96": "bands0",
+        "97": "bands0",
+        "98": "bands0",
+        "99": "bands0",
+        "100": "bands0",
+        "101": "bands0",
+        "102": "bands0",
+        "103": "bandSum0_1",
+        "104": "bandSum0_2",
+        "105": "bandSum0_3",
+        "106": "bandSum0_4",
+        "107": "bandSum0_5",
+        "108": "bandSum0_6",
+        "109": "bandSum0_7",
+        "110": "bandSum0_8",
+        "111": "bandSum0_9",
+        "112": "bandSum0_10",
+        "113": "bandSum0_11",
+        "114": "bandSum0_12",
+        "115": "bandSum0_13",
+        "116": "bandSum0_14",
+        "117": "bandSum0_15",
+        "118": "bandSum0_16",
+        "119": "gain0",
+        "120": "bands1",
+        "121": "bands1",
+        "122": "bands1",
+        "123": "bands1",
+        "124": "bands1",
+        "125": "bands1",
+        "126": "bands1",
+        "127": "bands1",
+        "128": "bands1",
+        "129": "bands1",
+        "130": "bands1",
+        "131": "bands1",
+        "132": "bands1",
+        "133": "bands1",
+        "134": "bands1",
+        "135": "bands1",
+        "136": "bandSum1_1",
+        "137": "bandSum1_2",
+        "138": "bandSum1_3",
+        "139": "bandSum1_4",
+        "140": "bandSum1_5",
+        "141": "bandSum1_6",
+        "142": "bandSum1_7",
+        "143": "bandSum1_8",
+        "144": "bandSum1_9",
+        "145": "bandSum1_10",
+        "146": "bandSum1_11",
+        "147": "bandSum1_12",
+        "148": "bandSum1_13",
+        "149": "bandSum1_14",
+        "150": "bandSum1_15",
+        "151": "bandSum1_16",
+        "152": "gain1",
+        "153": "bands2",
+        "154": "bands2",
+        "155": "bands2",
+        "156": "bands2",
+        "157": "bands2",
+        "158": "bands2",
+        "159": "bands2",
+        "160": "bands2",
+        "161": "bands2",
+        "162": "bands2",
+        "163": "bands2",
+        "164": "bands2",
+        "165": "bands2",
+        "166": "bands2",
+        "167": "bands2",
+        "168": "bands2",
+        "169": "bandSum2_1",
+        "170": "bandSum2_2",
+        "171": "bandSum2_3",
+        "172": "bandSum2_4",
+        "173": "bandSum2_5",
+        "174": "bandSum2_6",
+        "175": "bandSum2_7",
+        "176": "bandSum2_8",
+        "177": "bandSum2_9",
+        "178": "bandSum2_10",
+        "179": "bandSum2_11",
+        "180": "bandSum2_12",
+        "181": "bandSum2_13",
+        "182": "bandSum2_14",
+        "183": "bandSum2_15",
+        "184": "bandSum2_16",
+        "185": "gain2",
+        "186": "gainColor",
+        "187": "gainColor"
+      }
+    },
     "frame": {
       "texels": 2,
       "probes": []
     },
-    "issues": [
-      {
-        "nodeId": "split0",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      },
-      {
-        "nodeId": "split1",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      },
-      {
-        "nodeId": "split2",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      }
-    ],
+    "issues": [],
     "slots": {
       "pixel": {},
       "global": {
         "split0:level": {
           "level": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "bandSplit"
           }
         },
         "split1:level": {
           "level": {
             "type": "float",
-            "offset": 1
+            "offset": 1,
+            "kind": "bandSplit"
           }
         },
         "split2:level": {
           "level": {
             "type": "float",
-            "offset": 2
+            "offset": 2,
+            "kind": "bandSplit"
           }
         },
         "gainColor:color": {
           "color": {
             "type": "color",
-            "offset": 4
+            "offset": 4,
+            "kind": "combineColor"
           }
         }
       }
@@ -107,18 +247,6 @@
   },
   "usermod": {
     "issues": [
-      {
-        "nodeId": "split0",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      },
-      {
-        "nodeId": "split1",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      },
-      {
-        "nodeId": "split2",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      },
       {
         "nodeId": "spec0",
         "message": "Spectrum samples a texture or takes a derivative, which C++ has no pixels for"

@@ -67,7 +67,7 @@ async function engineRate(fps: number, previewFps: number, code: string) {
   if (!inApp) previewFps >= 0 ? host.append(engine.canvas) : engine.canvas.remove()
   preferences.previewFps = previewFps < 0 ? 60 : previewFps
   config.fps = fps
-  if (!engine.compile(code, 'shader')) throw new Error('compile failed')
+  if (!engine.compile(code)) throw new Error('compile failed')
   let ticks = 0
   const gaps: number[] = []
   let last = performance.now()

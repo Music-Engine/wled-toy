@@ -84,6 +84,83 @@
       "maPerChannel": 20,
       "dithering": "temporal"
     },
+    "lineNodes": {
+      "pixel": {
+        "112": "hatSparkle",
+        "113": "glintDesaturate",
+        "114": "wheel",
+        "115": "wheel",
+        "116": "pumpedRadius",
+        "117": "twistedRadius",
+        "118": "pinwheelAngle",
+        "119": "spunAngle",
+        "120": "fifthsPosition",
+        "121": "slotBlend",
+        "122": "slotBlend",
+        "123": "slotBlend",
+        "124": "noteSlot",
+        "125": "thisNoteStep",
+        "126": "thisNotePosition",
+        "127": "thisNoteLevel",
+        "128": "nextFifthStep",
+        "129": "nextFifthPosition",
+        "130": "nextFifthLevel",
+        "131": "noteGlow",
+        "132": "glowContrast",
+        "133": "scriabinWheel",
+        "134": "scriabinWheel",
+        "135": "scriabinWheel",
+        "136": "scriabinWheel",
+        "137": "scriabinWheel",
+        "138": "scriabinWheel",
+        "139": "scriabinWheel",
+        "140": "scriabinWheel",
+        "141": "scriabinWheel",
+        "142": "scriabinWheel",
+        "143": "scriabinWheel",
+        "144": "scriabinWheel",
+        "145": "scriabinWheel",
+        "146": "scriabinWheel",
+        "147": "harmonyColor",
+        "148": "harmonyColor",
+        "149": "noteAfterglow",
+        "150": "scope",
+        "151": "scopeHeight",
+        "152": "scopeOffset",
+        "153": "scopeDistance",
+        "154": "scopeLine",
+        "155": "scopeLine",
+        "156": "scopeCarve",
+        "157": "out"
+      },
+      "frame": {
+        "87": "sparkleDensity",
+        "88": "sparkleDensity",
+        "89": "kickEnvelope",
+        "90": "kickEnvelope",
+        "91": "kickBulge",
+        "92": "kickBulge",
+        "93": "loudness",
+        "94": "loudness",
+        "95": "loudness",
+        "96": "spinRate",
+        "97": "spinPhase",
+        "98": "spinPhase",
+        "99": "spinPhase",
+        "100": "spinPhase",
+        "101": "spinPhase",
+        "102": "noiseFloor",
+        "103": "noiseFloor",
+        "104": "glowGain",
+        "105": "kickPump",
+        "106": "kickPump",
+        "107": "scopeOpacity",
+        "108": "scopeOpacity",
+        "109": "peakFloor",
+        "110": "scopeAmplitude",
+        "111": "scopeAmplitude"
+      }
+    },
     "frame": {
       "texels": 3,
       "probes": []
@@ -95,65 +172,76 @@
         "sparkleDensity:result": {
           "result": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "remap"
           }
         },
         "kickEnvelope": {
           "value": {
             "type": "float",
-            "offset": 1
+            "offset": 1,
+            "kind": "envelopeFollower"
           }
         },
         "kickBulge:result": {
           "result": {
             "type": "float",
-            "offset": 2
+            "offset": 2,
+            "kind": "math"
           }
         },
         "loudness": {
           "value": {
             "type": "float",
-            "offset": 3
+            "offset": 3,
+            "kind": "audioSignal"
           }
         },
         "spinPhase": {
           "value": {
             "type": "float",
-            "offset": 4
+            "offset": 4,
+            "kind": "integrator"
           },
           "high": {
             "type": "float",
-            "offset": 5
+            "offset": 5,
+            "kind": "integrator"
           }
         },
         "spinPhase:value": {
           "value": {
             "type": "float",
-            "offset": 6
+            "offset": 6,
+            "kind": "integrator"
           }
         },
         "noiseFloor:result": {
           "result": {
             "type": "float",
-            "offset": 7
+            "offset": 7,
+            "kind": "remap"
           }
         },
         "kickPump:result": {
           "result": {
             "type": "float",
-            "offset": 8
+            "offset": 8,
+            "kind": "math"
           }
         },
         "scopeOpacity:result": {
           "result": {
             "type": "float",
-            "offset": 9
+            "offset": 9,
+            "kind": "remap"
           }
         },
         "scopeAmplitude:result": {
           "result": {
             "type": "float",
-            "offset": 10
+            "offset": 10,
+            "kind": "math"
           }
         }
       }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { NodeGraph } from '@/lib/graph/model/doc'
-import { glslCompiler, usermodCompiler } from '@/lib/graph/compile/next/compilers'
+import { createGlslCompiler, createUsermodCompiler } from '@/lib/graph/compile/next/compilers'
 import { corpusGraphs, corpusKinds } from '@/lib/graph/compile/next/corpus'
 
 const graphs = corpusGraphs()
@@ -10,11 +10,13 @@ const LEDS = 30
 const written = new Set<string>()
 
 async function snapshot(name: string, doc: NodeGraph) {
-  const shader = glslCompiler().compile(doc)
-  const unit = usermodCompiler(LEDS).compile(doc)
+  const shader = createGlslCompiler().compile(doc)
+  const unit = createUsermodCompiler(LEDS).compile(doc)
   const base = `../../__snapshots__/gate-next/${name}`
-  const { pixel = '', frame = null, ...rest } = shader.program ?? {}
-  const summary = { glsl: { ...rest, frame: frame && { texels: frame.texels, probes: frame.probes }, issues: shader.issues, slots: shader.slots }, usermod: { issues: unit.issues } }
+  const { pixel = '', frame = null, lineNodes, ...rest } = shader.program ?? {}
+  // the lines a node emitted, as `line: node`, leaving out the target's own
+  const lines = lineNodes && Object.fromEntries(Object.entries(lineNodes).map(([pass, nodes]) => [pass, Object.fromEntries(nodes.flatMap((node, line) => (node ? [[line, node]] : [])))]))
+  const summary = { glsl: { ...rest, lineNodes: lines, frame: frame && { texels: frame.texels, probes: frame.probes }, issues: shader.issues, slots: shader.slots }, usermod: { issues: unit.issues } }
   await expect(pixel).toMatchFileSnapshot(`${base}.pixel.glsl`)
   await expect(frame?.code ?? '').toMatchFileSnapshot(`${base}.frame.glsl`)
   await expect(unit.program?.code ?? '').toMatchFileSnapshot(`${base}.cpp`)
@@ -33,7 +35,7 @@ describe('compile gate, next', () => {
 
   // knob, MIDI and OSC keep only their frame body for the old pipeline and reach the new one as uniforms from resources
   it('has a body or only resources for every kind', () => {
-    const javascriptOnly = kinds.filter(([, doc]) => glslCompiler().compile(doc).issues.some((issue) => issue.message.includes('runs only in JavaScript')))
+    const javascriptOnly = kinds.filter(([, doc]) => createGlslCompiler().compile(doc).issues.some((issue) => issue.message.includes('runs only in JavaScript')))
     expect(javascriptOnly.map(([id]) => id)).toEqual([])
   })
 })

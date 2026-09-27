@@ -13,6 +13,21 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n",
+        "46": "n",
+        "47": "n",
+        "48": "n",
+        "49": "n",
+        "50": "n",
+        "51": "n",
+        "52": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,21 +39,25 @@
         "n": {
           "count": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "counter"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 1
+            "offset": 1,
+            "kind": "counter"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 2
+            "offset": 2,
+            "kind": "counter"
           }
         },
         "n:count": {
           "count": {
             "type": "float",
-            "offset": 3
+            "offset": 3,
+            "kind": "counter"
           }
         }
       }

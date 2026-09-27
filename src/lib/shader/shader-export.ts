@@ -34,7 +34,7 @@ export function standaloneGlsl(): { name: string; text: string } {
   if (workspace.mode !== 'graph') return { name, text: bundleShader(config.code, name) }
   const doc = (open?.snapshot() as NodeGraph | undefined) ?? normalizeDoc(config.graph ?? createDefaultGraph())
   // standalone code reads no iControl slot: what only the CPU knows is baked in as the value it has right now
-  const generated = generateGlsl(doc, { standalone: true, controls: (nodeId, output) => useEngine().controlOutput(nodeId, output) })
+  const generated = generateGlsl(doc, { standalone: true, controls: (nodeId, output) => useEngine().readControlOutput(nodeId, output) })
   if (generated.error) throw new Error(generated.error)
   const notice = frozenNotice(generated.frozen)
   if (notice) log(notice, 'warn')

@@ -13,6 +13,25 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n",
+        "46": "n",
+        "47": "n",
+        "48": "n",
+        "49": "n",
+        "50": "n",
+        "51": "n",
+        "52": "n",
+        "53": "n",
+        "54": "n",
+        "55": "n",
+        "56": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,21 +43,25 @@
         "n": {
           "stage": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "envelope"
           },
           "level": {
             "type": "float",
-            "offset": 1
+            "offset": 1,
+            "kind": "envelope"
           },
           "high": {
             "type": "float",
-            "offset": 2
+            "offset": 2,
+            "kind": "envelope"
           }
         },
         "n:envelope": {
           "envelope": {
             "type": "float",
-            "offset": 3
+            "offset": 3,
+            "kind": "envelope"
           }
         }
       }

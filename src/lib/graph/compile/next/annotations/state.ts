@@ -1,6 +1,6 @@
 // Where each node's slots live: its declared state in pixel state or global state after its pass, and in global state
-// every frame output the pixel pass or the host reads. A node that keeps its id and slot types keeps its offsets from
-// the previous table; everything else is handed out in topo order after the last slot kept.
+// every frame output the pixel pass or the host reads. A node that keeps its id, kind and slot types keeps its offsets from
+// the previous table; everything else is handed out in topo order, first into floats an earlier program freed.
 import type { DataType } from '@/lib/graph/define/types'
 import { GraphError } from '@/lib/graph/compile/front-end/program'
 import type { Annotation, CompileContext, CompiledNode, Pass, Slots } from '@/lib/graph/compile/next/context'
@@ -21,8 +21,8 @@ export const state = (): Annotation => ({
   },
 })
 
-/** A table entry before it has offsets: slot name to type id and component count. */
-type Wanted = { key: string; slots: Record<string, { type: string; dim: number }> }
+/** A table entry before it has offsets: the node's kind, and slot name to type id and component count. */
+type Wanted = { key: string; kind: string; slots: Record<string, { type: string; dim: number }> }
 
 function wantedSlots(ctx: CompileContext): Record<'pixel' | 'global', Wanted[]> {
   const wanted: Record<'pixel' | 'global', Wanted[]> = { pixel: [], global: [] }
@@ -30,8 +30,8 @@ function wantedSlots(ctx: CompileContext): Record<'pixel' | 'global', Wanted[]> 
   for (const id of ctx.order) {
     const node = ctx.nodes[id]
     const declared = Object.entries(node.shape.state ?? {})
-    if (declared.length > 0) wanted[tableName(node.pass!)].push({ key: id, slots: Object.fromEntries(declared.map(([name, type]) => [name, { type: type.id, dim: type.dim! }])) })
-    for (const output of exportedOutputs(node, read)) wanted.global.push({ key: `${id}:${output}`, slots: { [output]: exportedSlot(node, output) } })
+    if (declared.length > 0) wanted[tableName(node.pass!)].push({ key: id, kind: node.kind, slots: Object.fromEntries(declared.map(([name, type]) => [name, { type: type.id, dim: type.dim! }])) })
+    for (const output of exportedOutputs(node, read)) wanted.global.push({ key: `${id}:${output}`, kind: node.kind, slots: { [output]: exportedSlot(node, output) } })
   }
   return wanted
 }
@@ -70,12 +70,15 @@ function exportedSlot(node: CompiledNode, output: string): { type: string; dim: 
 const storable = (type: DataType<any>) => type.kind === 'value' && type.dim !== undefined && type.dim >= 1 && type.dim <= 4
 
 /**
- * Kept entries first fix where the new ones may start; then every entry in `wanted` order takes its kept offsets or
- * the next free floats. A vector that would straddle two layers starts the next one, since a slot is read as one run.
+ * Kept entries keep their offsets; every other entry in `wanted` order takes the first free floats below the previous
+ * table's reach, which the runtime cleared on load, or else the next floats after both. A vector that would straddle two
+ * layers starts the next one, since a slot is read as one run.
  */
 function allocate(wanted: Wanted[], previous: Record<string, Slots>): Record<string, Slots> {
-  const kept = new Set(wanted.filter((w) => sameTypes(previous[w.key], w)).map((w) => w.key))
-  let next = Math.max(0, ...wanted.filter((w) => kept.has(w.key)).flatMap((w) => Object.entries(previous[w.key]).map(([name, slot]) => slot.offset + w.slots[name].dim)))
+  const kept = new Set(wanted.filter((w) => hasSameSlots(previous[w.key], w)).map((w) => w.key))
+  const taken = new Set(wanted.filter((w) => kept.has(w.key)).flatMap((w) => Object.entries(previous[w.key]).flatMap(([name, slot]) => listFloats(slot.offset, w.slots[name].dim))))
+  const reach = 4 * Math.max(0, ...Object.values(previous).flatMap((slots) => Object.values(slots).map((slot) => Math.floor(slot.offset / 4) + 1)))
+  let next = Math.max(reach, ...[...taken].map((float) => float + 1))
   const table: Record<string, Slots> = {}
   for (const w of wanted) {
     if (kept.has(w.key)) {
@@ -84,18 +87,35 @@ function allocate(wanted: Wanted[], previous: Record<string, Slots>): Record<str
     }
     const slots: Slots = {}
     for (const [name, { type, dim }] of Object.entries(w.slots)) {
-      const start = (next % 4) + dim > 4 ? Math.ceil(next / 4) * 4 : next
-      slots[name] = { type, offset: start }
-      next = start + dim
+      let start = findFreeStart(reach, dim, taken)
+      if (start === undefined) {
+        start = (next % 4) + dim > 4 ? Math.ceil(next / 4) * 4 : next
+        next = start + dim
+      }
+      listFloats(start, dim).forEach((float) => taken.add(float))
+      slots[name] = { type, offset: start, kind: w.kind }
     }
     table[w.key] = slots
   }
   return table
 }
 
-function sameTypes(previous: Slots | undefined, wanted: Wanted): boolean {
+/** The offsets of `dim` floats from `offset` on. */
+const listFloats = (offset: number, dim: number) => Array.from({ length: dim }, (_, i) => offset + i)
+
+/** The first run of `dim` floats below `reach`, within one layer, that nothing has taken. */
+function findFreeStart(reach: number, dim: number, taken: Set<number>): number | undefined {
+  for (let start = 0; start + dim <= reach; start++) {
+    if ((start % 4) + dim <= 4 && listFloats(start, dim).every((float) => !taken.has(float))) return start
+  }
+  return undefined
+}
+
+/** A node keeps its entry only as the same kind with the same slot names and types: another kind reads the floats differently. */
+function hasSameSlots(previous: Slots | undefined, wanted: Wanted): boolean {
   const names = Object.keys(wanted.slots)
-  return previous !== undefined && Object.keys(previous).length === names.length && names.every((name) => previous[name]?.type === wanted.slots[name].type)
+  return previous !== undefined && Object.keys(previous).length === names.length
+    && names.every((name) => previous[name]?.type === wanted.slots[name].type && previous[name].kind === wanted.kind)
 }
 
 const offsets = (slots: Slots | undefined): Record<string, number> => Object.fromEntries(Object.entries(slots ?? {}).map(([name, slot]) => [name, slot.offset]))

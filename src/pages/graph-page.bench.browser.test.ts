@@ -1,7 +1,7 @@
 // Editor interaction benchmark behind the numbers in graphs/bench/reports/profile-ui.md.
 // Skipped unless VITE_BENCH_UI=1; writes .work/bench/editor.json and .work/bench/editor.md.
 // It mounts the real GraphPage and counts what one interaction costs: Vue component updates, JSON passes,
-// generateGlsl calls, localStorage writes and wall time.
+// compiles (counted through the compiler's lint hook), localStorage writes and wall time.
 import { describe, expect, it, vi } from 'vitest'
 import { commands } from 'vitest/browser'
 import { KeepAlive, createApp, h, nextTick } from 'vue'
@@ -21,16 +21,10 @@ const EDITS = Number(import.meta.env.VITE_BENCH_UI_EDITS ?? 60)
 // an interaction that never settles has to report a figure instead of hanging the run
 const SETTLE_TIMEOUT_MS = Number(import.meta.env.VITE_BENCH_UI_TIMEOUT ?? 12000)
 
-const glsl = vi.hoisted(() => ({ calls: 0 }))
+const compiles = vi.hoisted(() => ({ count: 0 }))
 vi.mock('@/lib/graph', async (importOriginal) => {
   const original = await importOriginal<typeof import('@/lib/graph')>()
-  return {
-    ...original,
-    generateGlsl: (...args: Parameters<typeof original.generateGlsl>) => {
-      glsl.calls++
-      return original.generateGlsl(...args)
-    },
-  }
+  return { ...original, createGlslCompiler: () => original.createGlslCompiler({ hooks: { lint: () => compiles.count++ } }) }
 })
 
 const FLOW_ID = 'wledtoy-graph'
@@ -61,7 +55,7 @@ const counters = {
 type Counters = typeof counters
 const reset = () => {
   for (const key of Object.keys(counters) as (keyof Counters)[]) counters[key] = 0
-  glsl.calls = 0
+  compiles.count = 0
 }
 
 const nativeStringify = JSON.stringify
@@ -150,7 +144,7 @@ interface Measurement {
   parseKchars: number
   setItem: number
   setItemKchars: number
-  generateGlsl: number
+  compiles: number
   recursive: number
   settled?: boolean
 }
@@ -166,7 +160,7 @@ const per = (n: number, settled?: boolean, ms?: number): Measurement => ({
   parseKchars: Number((counters.parseChars / n / 1000).toFixed(1)),
   setItem: Number((counters.setItem / n).toFixed(2)),
   setItemKchars: Number((counters.setItemChars / n / 1000).toFixed(1)),
-  generateGlsl: Number((glsl.calls / n).toFixed(2)),
+  compiles: Number((compiles.count / n).toFixed(2)),
   recursive: counters.recursive,
   ...(settled === undefined ? {} : { settled: settled && counters.recursive === 0 }),
 })
@@ -261,7 +255,7 @@ async function measure(name: string): Promise<CaseResult> {
   return { nodes: doc.nodes.length, edges: doc.edges.length, ...result }
 }
 
-const COLUMNS: (keyof Measurement)[] = ['ms', 'msNoJson', 'updates', 'stringify', 'parse', 'stringifyKchars', 'setItem', 'generateGlsl', 'recursive', 'settled']
+const COLUMNS: (keyof Measurement)[] = ['ms', 'msNoJson', 'updates', 'stringify', 'parse', 'stringifyKchars', 'setItem', 'compiles', 'recursive', 'settled']
 
 function table(results: Record<string, CaseResult>) {
   const lines = ['# Editor benchmark', '', `Generated ${new Date().toISOString()}. ${DRAG_TICKS} drag ticks, ${EDITS} value edits.`, '']

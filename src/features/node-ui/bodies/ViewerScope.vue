@@ -16,8 +16,7 @@ let timer: ReturnType<typeof setInterval> | undefined
 // sampled on a timer at the LED rate, so a hidden tab keeps the trace honest; drawn only when there is someone to see it
 onMounted(() => {
   timer = setInterval(() => {
-    const value = engine.controlOutput(props.nodeId, 'value')
-    history[head] = typeof value === 'number' ? value : 0
+    history[head] = engine.readProbe(props.nodeId) ?? 0
     head = (head + 1) % history.length
   }, 1000 / 30)
 })

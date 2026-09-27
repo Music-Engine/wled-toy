@@ -10,7 +10,7 @@ import type ShaderEditor from './ShaderEditor.vue'
 /** The shader page's compile schedule, its examples menu and its add-node menu, bound to the page's lifecycle. */
 export function useShaderSession(editor: Ref<InstanceType<typeof ShaderEditor> | undefined>) {
   const engine = useEngine()
-  const session = createShaderSession({ code: () => config.code, target: { compile: (code) => engine.compile(code, 'shader') } })
+  const session = createShaderSession({ code: () => config.code, target: { compile: (code) => engine.compile(code) } })
   const nodeMenu = reactive({ open: false, position: null as { x: number; y: number } | null })
 
   onActivated(session.start)

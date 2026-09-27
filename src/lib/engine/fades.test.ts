@@ -51,3 +51,19 @@ it('advancing with no fade running writes nothing', () => {
   fades.advance(1000)
   expect(writes).toEqual([])
 })
+
+it('recalls the scene a followed Scene Switch probe asks for once per change, and nothing once it stops following', () => {
+  const recalled: number[] = []
+  let index: number | undefined
+  const probes = { readProbe: (nodeId: string) => (nodeId === 'switch' ? index : undefined) }
+  fades.followSwitch({ nodeId: 'switch', recall: (i) => recalled.push(i) })
+  fades.readSwitch(probes)
+  for (const next of [0, 0, 2, 2, 1]) {
+    index = next
+    fades.readSwitch(probes)
+  }
+  fades.followSwitch(null)
+  index = 3
+  fades.readSwitch(probes)
+  expect(recalled).toEqual([0, 2, 1])
+})
