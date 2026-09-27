@@ -13,9 +13,8 @@ import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
 import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/settings'
 import { MidiService } from './midi'
 import { SceneFades } from './fades'
+import { nextDeadline } from './clock'
 import { EngineMedia } from '@/lib/engine/media/engine-media'
-
-type LedListener = (frame: Uint8Array) => void
 
 let engine: Engine | null = null
 
@@ -45,7 +44,8 @@ class Engine {
   readonly trackStatus = this.media.trackStatus
 
   private renderer: ShaderRenderer | null = null
-  private readonly listeners = new Set<LedListener>()
+  private leds: Uint8Array | null = null
+  private revision = 0
   private readonly stopWatchers: Array<() => void> = []
   private readonly controls = new FrameRunner()
   private readonly post = new LedPostProcess()
@@ -55,7 +55,8 @@ class Engine {
   private startTime = performance.now()
   private frame = 0
   private rafId = 0
-  private sendTimer: ReturnType<typeof setInterval> | undefined
+  private sendTimer: ReturnType<typeof setTimeout> | undefined
+  private ledDue = 0
 
   constructor() {
     this.canvas.className = 'block aspect-video w-full'
@@ -135,9 +136,14 @@ class Engine {
     return this.controls.output(nodeId, output)
   }
 
-  onLedFrame(listener: LedListener): () => void {
-    this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
+  /** The last LED frame (4 header bytes, then RGB triplets), or null before the first tick. Views read it on their own clock, never inside the tick. */
+  ledFrame(): Uint8Array | null {
+    return this.leds
+  }
+
+  /** Counts LED ticks, so a view can skip drawing a frame it already drew. */
+  ledRevision(): number {
+    return this.revision
   }
 
   toggleStream() {
@@ -165,7 +171,7 @@ class Engine {
 
   dispose() {
     cancelAnimationFrame(this.rafId)
-    clearInterval(this.sendTimer)
+    clearTimeout(this.sendTimer)
     this.stopWatchers.forEach((stop) => stop())
     this.bridge.dispose()
     this.audio.dispose()
@@ -186,8 +192,21 @@ class Engine {
   }
 
   private restartSendTimer() {
-    clearInterval(this.sendTimer)
-    this.sendTimer = setInterval(this.ledTick, 1000 / (this.output.fps || config.fps))
+    clearTimeout(this.sendTimer)
+    this.ledDue = performance.now()
+    this.scheduleLedTick()
+  }
+
+  private scheduleLedTick() {
+    const now = performance.now()
+    this.ledDue = nextDeadline(this.ledDue, 1000 / (this.output.fps || config.fps), now)
+    this.sendTimer = setTimeout(this.onLedDeadline, Math.max(0, this.ledDue - now))
+  }
+
+  // scheduled before the tick runs so a throwing tick does not stop the clock, matching setInterval
+  private readonly onLedDeadline = () => {
+    this.scheduleLedTick()
+    this.ledTick()
   }
 
   private readonly renderLoop = () => {
@@ -202,7 +221,8 @@ class Engine {
     this.bridge.countRender()
   }
 
-  // LED output runs on a timer, not rAF, so it keeps going when the tab is hidden
+  // LED output runs on a timer, not rAF, so it keeps going when the tab is hidden.
+  // The timer chases deadlines because browsers do not deliver setInterval at the requested rate.
   private readonly ledTick = () => {
     // before the ready check: a scene recalled while the shader does not compile still lands
     this.fades.advance(performance.now())
@@ -225,7 +245,8 @@ class Engine {
     const t0 = performance.now()
     const leds = this.post.process(this.renderer.renderLeds(params), config.brightness, this.output)
     this.bridge.recordLedRender(performance.now() - t0)
-    if (!document.hidden) this.listeners.forEach((listener) => listener(leds))
+    this.leds = leds
+    this.revision++
     if (this.streaming.value) this.bridge.sendFrame(leds)
   }
 }

@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 import { ref } from 'vue'
 import { useGradientEditor } from './use-gradient-editor'
-import type { ColorRamp } from '@/lib/graph/nodes/color/color-ramp'
+import type { ColorRamp } from '@/lib/graph'
 
 const black = [0, 0, 0]
 const red = [1, 0, 0]

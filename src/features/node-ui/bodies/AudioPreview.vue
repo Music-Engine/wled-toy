@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import DropdownField from '@/features/node-ui/fields/DropdownField.vue'
 import { useEngine } from '@/lib/engine/engine'
+import { useVisibleFrames } from '@/features/output/preview/use-visible-frames'
 import { systemAudioBlocked } from '@/lib/audio/settings'
 import { report } from '@/lib/app/logs'
 import '@/features/node-ui/node.css'
@@ -23,17 +24,11 @@ function onSong(event: Event) {
 }
 const canvas = ref<HTMLCanvasElement>()
 const wave = new Float32Array(512)
-let raf = 0
-let visible = true
-let observer: IntersectionObserver | undefined
 
 const devices = computed(() => [{ value: '', label: 'Default input' }, ...audio.state.devices.map((d) => ({ value: d.deviceId, label: d.label }))])
 
-function draw() {
-  raf = requestAnimationFrame(draw)
-  const el = canvas.value
-  // an off-screen node or a hidden tab has nobody to draw for
-  if (!el || !visible || document.hidden) return
+useVisibleFrames(canvas, () => {
+  const el = canvas.value!
   const ctx = el.getContext('2d')!
   const { width, height } = el
   ctx.clearRect(0, 0, width, height)
@@ -62,17 +57,10 @@ function draw() {
     ctx.fillStyle = audio.features.beatPhase < 0.12 ? '#ffd84a' : 'rgb(255 255 255 / 0.35)'
     ctx.fillRect(audio.features.beatPhase * (width - 3), 0, 3, 4)
   }
-}
+})
 
 onMounted(() => {
-  observer = new IntersectionObserver(([entry]) => (visible = entry.isIntersecting))
-  observer.observe(canvas.value!)
   void audio.refreshDevices().catch((e) => report(e, 'Audio inputs could not be listed'))
-  raf = requestAnimationFrame(draw)
-})
-onBeforeUnmount(() => {
-  cancelAnimationFrame(raf)
-  observer?.disconnect()
 })
 </script>
 

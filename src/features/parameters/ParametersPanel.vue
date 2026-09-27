@@ -72,13 +72,18 @@ function recall(scene: Scene, seconds = fadeSeconds.value) {
 
 // a Scene Switch node asks for a scene by index; act when the index it puts out changes
 let lastRequested = -1
-const switchPoll = setInterval(() => {
+const sceneSwitch = computed(() => {
   const node = nodes.value.find((n) => (n.data as GraphNodeData).kind === 'sceneSwitch')
-  const requested = node && engine.controlOutput(node.id, 'scene')
+  return node ? { id: node.id, fade: Number((node.data as GraphNodeData).values.fade ?? 0.5) } : null
+})
+const switchPoll = setInterval(() => {
+  const sw = sceneSwitch.value
+  if (!sw) return
+  const requested = engine.controlOutput(sw.id, 'scene')
   if (typeof requested !== 'number' || requested === lastRequested) return
   lastRequested = requested
   const scene = scenes.value[requested % Math.max(1, scenes.value.length)]
-  if (scene) recall(scene, Number((node!.data as GraphNodeData).values.fade ?? 0.5))
+  if (scene) recall(scene, sw.fade)
 }, 1000 / 30)
 
 onBeforeUnmount(() => {
