@@ -13,6 +13,7 @@ import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
 import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/settings'
 import { MidiService } from './midi'
 import { SceneFades } from './fades'
+import { nextDeadline } from './clock'
 import { EngineMedia } from '@/lib/engine/media/engine-media'
 
 let engine: Engine | null = null
@@ -54,7 +55,8 @@ class Engine {
   private startTime = performance.now()
   private frame = 0
   private rafId = 0
-  private sendTimer: ReturnType<typeof setInterval> | undefined
+  private sendTimer: ReturnType<typeof setTimeout> | undefined
+  private ledDue = 0
 
   constructor() {
     this.canvas.className = 'block aspect-video w-full'
@@ -169,7 +171,7 @@ class Engine {
 
   dispose() {
     cancelAnimationFrame(this.rafId)
-    clearInterval(this.sendTimer)
+    clearTimeout(this.sendTimer)
     this.stopWatchers.forEach((stop) => stop())
     this.bridge.dispose()
     this.audio.dispose()
@@ -190,8 +192,21 @@ class Engine {
   }
 
   private restartSendTimer() {
-    clearInterval(this.sendTimer)
-    this.sendTimer = setInterval(this.ledTick, 1000 / (this.output.fps || config.fps))
+    clearTimeout(this.sendTimer)
+    this.ledDue = performance.now()
+    this.scheduleLedTick()
+  }
+
+  private scheduleLedTick() {
+    const now = performance.now()
+    this.ledDue = nextDeadline(this.ledDue, 1000 / (this.output.fps || config.fps), now)
+    this.sendTimer = setTimeout(this.onLedDeadline, Math.max(0, this.ledDue - now))
+  }
+
+  // scheduled before the tick runs so a throwing tick does not stop the clock, matching setInterval
+  private readonly onLedDeadline = () => {
+    this.scheduleLedTick()
+    this.ledTick()
   }
 
   private readonly renderLoop = () => {
@@ -206,7 +221,8 @@ class Engine {
     this.bridge.countRender()
   }
 
-  // LED output runs on a timer, not rAF, so it keeps going when the tab is hidden
+  // LED output runs on a timer, not rAF, so it keeps going when the tab is hidden.
+  // The timer chases deadlines because browsers do not deliver setInterval at the requested rate.
   private readonly ledTick = () => {
     // before the ready check: a scene recalled while the shader does not compile still lands
     this.fades.advance(performance.now())
