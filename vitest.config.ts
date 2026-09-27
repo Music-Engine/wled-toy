@@ -31,6 +31,7 @@ export default defineConfig({
           environment: 'node',
           include: ['src/**/*.test.ts', '*.test.ts'],
           exclude: ['src/**/*.browser.test.ts', 'project-three/**', 'node_modules/**'],
+          typecheck: { enabled: true },
         },
       },
       {

@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "viewer",
+      "inputs": {
+        "value": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "value": 1
+      },
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "value",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

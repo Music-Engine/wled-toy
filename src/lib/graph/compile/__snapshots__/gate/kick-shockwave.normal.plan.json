@@ -1,0 +1,860 @@
+{
+  "steps": [
+    {
+      "nodeId": "baseDrift",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": false
+        },
+        "rate": {
+          "constant": 0.25
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "audio",
+      "kind": "audio",
+      "inputs": {
+        "audio": {
+          "constant": {
+            "source": true
+          }
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "padEnv",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 1,
+          "output": "vocal"
+        },
+        "attack": {
+          "constant": 0.06
+        },
+        "release": {
+          "constant": 0.7
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "breathWave",
+      "kind": "wave",
+      "inputs": {
+        "shape": {
+          "constant": "sine"
+        },
+        "input": {
+          "frame": true
+        },
+        "frequency": {
+          "constant": 0.25
+        },
+        "phase": {
+          "constant": 0.5
+        }
+      },
+      "dims": {
+        "input": 1,
+        "frequency": 1,
+        "phase": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "baseLevel",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 2,
+          "output": "envelope"
+        },
+        "inLow": {
+          "constant": 0.1
+        },
+        "inHigh": {
+          "constant": 0.3
+        },
+        "outLow": {
+          "constant": 0.2
+        },
+        "outHigh": {
+          "step": 3,
+          "output": "value"
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kickGate",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "step": 1,
+          "output": "kick"
+        },
+        "low": {
+          "constant": 0.5
+        },
+        "high": {
+          "constant": 0.8
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kickPresence",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 5,
+          "output": "gate"
+        },
+        "attack": {
+          "constant": 0.05
+        },
+        "release": {
+          "constant": 0.4
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "quietBoost",
+      "kind": "mix",
+      "inputs": {
+        "mode": {
+          "constant": "mix"
+        },
+        "clampFactor": {
+          "constant": true
+        },
+        "factor": {
+          "step": 6,
+          "output": "envelope"
+        },
+        "a": {
+          "constant": 1
+        },
+        "b": {
+          "constant": 0.2
+        }
+      },
+      "dims": {
+        "factor": 1,
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kickCounter",
+      "kind": "counter",
+      "inputs": {
+        "steps": {
+          "constant": 12
+        },
+        "trigger": {
+          "step": 5,
+          "output": "gate"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "hitRandom",
+      "kind": "random",
+      "inputs": {
+        "seed": {
+          "step": 8,
+          "output": "count"
+        }
+      },
+      "dims": {
+        "seed": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "hueScatter",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Hue Scatter"
+        },
+        "value": {
+          "constant": 0.12
+        },
+        "min": {
+          "constant": 0
+        },
+        "max": {
+          "constant": 1
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "hitHue",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiplyAdd"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 9,
+          "output": "value"
+        },
+        "b": {
+          "step": 10,
+          "output": "value"
+        },
+        "c": {
+          "step": 8,
+          "output": "phase"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1,
+        "c": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kickToggle",
+      "kind": "toggle",
+      "inputs": {
+        "trigger": {
+          "step": 5,
+          "output": "gate"
+        }
+      },
+      "dims": {
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "hueHoldA",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "step": 11,
+          "output": "result"
+        },
+        "trigger": {
+          "step": 12,
+          "output": "state"
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "energySum",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "add"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 1,
+          "output": "air"
+        },
+        "b": {
+          "step": 1,
+          "output": "vocal"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "energyEnv",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 14,
+          "output": "result"
+        },
+        "attack": {
+          "constant": 0.25
+        },
+        "release": {
+          "constant": 0.3
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "ringPower",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 15,
+          "output": "envelope"
+        },
+        "inLow": {
+          "constant": 0.38
+        },
+        "inHigh": {
+          "constant": 0.52
+        },
+        "outLow": {
+          "constant": 0.6
+        },
+        "outHigh": {
+          "constant": 1
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "ringSpeed",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Ring Speed"
+        },
+        "value": {
+          "constant": 1.6
+        },
+        "min": {
+          "constant": 0.5
+        },
+        "max": {
+          "constant": 3.5
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "ringAgeA",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": false
+        },
+        "rate": {
+          "step": 17,
+          "output": "value"
+        },
+        "reset": {
+          "step": 12,
+          "output": "state"
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kickPunch",
+      "kind": "envelope",
+      "inputs": {
+        "mode": {
+          "constant": "ad"
+        },
+        "gate": {
+          "step": 5,
+          "output": "gate"
+        },
+        "attack": {
+          "constant": 0
+        },
+        "decay": {
+          "constant": 0.18
+        },
+        "sustain": {
+          "constant": 0.5
+        },
+        "release": {
+          "constant": 0.4
+        }
+      },
+      "dims": {
+        "gate": 1,
+        "attack": 1,
+        "decay": 1,
+        "sustain": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "ringLead",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 19,
+          "output": "envelope"
+        },
+        "inLow": {
+          "constant": 0
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 0
+        },
+        "outHigh": {
+          "constant": -0.18
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "ringThickness",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 15,
+          "output": "envelope"
+        },
+        "inLow": {
+          "constant": 0.38
+        },
+        "inHigh": {
+          "constant": 0.52
+        },
+        "outLow": {
+          "constant": 0.09
+        },
+        "outHigh": {
+          "constant": 0.22
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "toggleInverse",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "subtract"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "constant": 1
+        },
+        "b": {
+          "step": 12,
+          "output": "state"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "hueHoldB",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "step": 11,
+          "output": "result"
+        },
+        "trigger": {
+          "step": 22,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "ringAgeB",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": false
+        },
+        "rate": {
+          "step": 17,
+          "output": "value"
+        },
+        "reset": {
+          "step": 22,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "spokeSpin",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": true
+        },
+        "rate": {
+          "constant": -0.3
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "snareGate",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "step": 1,
+          "output": "presence"
+        },
+        "low": {
+          "constant": 0.1
+        },
+        "high": {
+          "constant": 0.19
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "snareEnv",
+      "kind": "envelope",
+      "inputs": {
+        "mode": {
+          "constant": "ad"
+        },
+        "gate": {
+          "step": 26,
+          "output": "gate"
+        },
+        "attack": {
+          "constant": 0.01
+        },
+        "decay": {
+          "constant": 0.22
+        },
+        "sustain": {
+          "constant": 0.5
+        },
+        "release": {
+          "constant": 0.4
+        }
+      },
+      "dims": {
+        "gate": 1,
+        "attack": 1,
+        "decay": 1,
+        "sustain": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "snareReach",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 27,
+          "output": "envelope"
+        },
+        "inLow": {
+          "constant": 0
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 1.55
+        },
+        "outHigh": {
+          "constant": 0.85
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "wakeDecay",
+      "kind": "knob",
+      "inputs": {
+        "label": {
+          "constant": "Wake Decay"
+        },
+        "value": {
+          "constant": 0.15
+        },
+        "min": {
+          "constant": 0.05
+        },
+        "max": {
+          "constant": 1.5
+        },
+        "cc": {
+          "constant": -1
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "value",
+      "slot": 0,
+      "dim": 1
+    },
+    {
+      "step": 4,
+      "output": "result",
+      "slot": 1,
+      "dim": 1
+    },
+    {
+      "step": 7,
+      "output": "result",
+      "slot": 2,
+      "dim": 1
+    },
+    {
+      "step": 13,
+      "output": "value",
+      "slot": 3,
+      "dim": 1
+    },
+    {
+      "step": 16,
+      "output": "result",
+      "slot": 4,
+      "dim": 1
+    },
+    {
+      "step": 18,
+      "output": "value",
+      "slot": 5,
+      "dim": 1
+    },
+    {
+      "step": 20,
+      "output": "result",
+      "slot": 6,
+      "dim": 1
+    },
+    {
+      "step": 21,
+      "output": "result",
+      "slot": 7,
+      "dim": 1
+    },
+    {
+      "step": 23,
+      "output": "value",
+      "slot": 8,
+      "dim": 1
+    },
+    {
+      "step": 24,
+      "output": "value",
+      "slot": 9,
+      "dim": 1
+    },
+    {
+      "step": 25,
+      "output": "value",
+      "slot": 10,
+      "dim": 1
+    },
+    {
+      "step": 28,
+      "output": "result",
+      "slot": 11,
+      "dim": 1
+    },
+    {
+      "step": 29,
+      "output": "value",
+      "slot": 12,
+      "dim": 1
+    }
+  ],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

@@ -1,0 +1,1344 @@
+{
+  "steps": [
+    {
+      "nodeId": "audio",
+      "kind": "audio",
+      "inputs": {
+        "audio": {
+          "constant": {
+            "source": true
+          }
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc0s0",
+      "kind": "envelopeFollower",
+      "inputs": {
+        "signal": {
+          "step": 0,
+          "output": "level"
+        },
+        "attack": {
+          "constant": 0.02
+        },
+        "release": {
+          "constant": 0.25
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "attack": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s1",
+      "kind": "slewLimiter",
+      "inputs": {
+        "signal": {
+          "step": 1,
+          "output": "envelope"
+        },
+        "rise": {
+          "constant": 4
+        },
+        "fall": {
+          "constant": 1.5
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "rise": 1,
+        "fall": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s2",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 2,
+          "output": "value"
+        },
+        "b": {
+          "constant": 0.95
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc0s3",
+      "kind": "wave",
+      "inputs": {
+        "shape": {
+          "constant": "sine"
+        },
+        "input": {
+          "step": 3,
+          "output": "result"
+        },
+        "frequency": {
+          "constant": 1.5
+        },
+        "phase": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "input": 1,
+        "frequency": 1,
+        "phase": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc0s4",
+      "kind": "peakHold",
+      "inputs": {
+        "signal": {
+          "step": 4,
+          "output": "value"
+        },
+        "hold": {
+          "constant": 0.15
+        },
+        "decay": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "hold": 1,
+        "decay": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s5",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 5,
+          "output": "peak"
+        },
+        "inLow": {
+          "constant": 0
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 0.1
+        },
+        "outHigh": {
+          "constant": 0.9
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc0s6",
+      "kind": "curve",
+      "inputs": {
+        "curve": {
+          "constant": "smooth"
+        },
+        "value": {
+          "step": 6,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "value": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc0s7",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "step": 7,
+          "output": "result"
+        },
+        "low": {
+          "constant": 0.35
+        },
+        "high": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s8",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "step": 8,
+          "output": "gate"
+        },
+        "trigger": {
+          "step": 8,
+          "output": "gate"
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s9",
+      "kind": "counter",
+      "inputs": {
+        "steps": {
+          "constant": 8
+        },
+        "trigger": {
+          "step": 9,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s10",
+      "kind": "stepSequencer",
+      "inputs": {
+        "steps": {
+          "constant": "1 0.25 0.75 0 0.5"
+        },
+        "trigger": {
+          "step": 10,
+          "output": "phase"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc0s11",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": true
+        },
+        "rate": {
+          "step": 11,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s0",
+      "kind": "slewLimiter",
+      "inputs": {
+        "signal": {
+          "step": 0,
+          "output": "kick"
+        },
+        "rise": {
+          "constant": 4
+        },
+        "fall": {
+          "constant": 1.5
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "rise": 1,
+        "fall": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s1",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 13,
+          "output": "value"
+        },
+        "b": {
+          "constant": 0.95
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc1s2",
+      "kind": "wave",
+      "inputs": {
+        "shape": {
+          "constant": "sine"
+        },
+        "input": {
+          "step": 14,
+          "output": "result"
+        },
+        "frequency": {
+          "constant": 1.5
+        },
+        "phase": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "input": 1,
+        "frequency": 1,
+        "phase": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc1s3",
+      "kind": "peakHold",
+      "inputs": {
+        "signal": {
+          "step": 15,
+          "output": "value"
+        },
+        "hold": {
+          "constant": 0.15
+        },
+        "decay": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "hold": 1,
+        "decay": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s4",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 16,
+          "output": "peak"
+        },
+        "inLow": {
+          "constant": 0
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 0.1
+        },
+        "outHigh": {
+          "constant": 0.9
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc1s5",
+      "kind": "curve",
+      "inputs": {
+        "curve": {
+          "constant": "smooth"
+        },
+        "value": {
+          "step": 17,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "value": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc1s6",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "step": 18,
+          "output": "result"
+        },
+        "low": {
+          "constant": 0.35
+        },
+        "high": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s7",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "step": 19,
+          "output": "gate"
+        },
+        "trigger": {
+          "step": 19,
+          "output": "gate"
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s8",
+      "kind": "counter",
+      "inputs": {
+        "steps": {
+          "constant": 8
+        },
+        "trigger": {
+          "step": 20,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s9",
+      "kind": "stepSequencer",
+      "inputs": {
+        "steps": {
+          "constant": "1 0.25 0.75 0 0.5"
+        },
+        "trigger": {
+          "step": 21,
+          "output": "phase"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s10",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": true
+        },
+        "rate": {
+          "step": 22,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc1s11",
+      "kind": "clockDivider",
+      "inputs": {
+        "divide": {
+          "constant": 3
+        },
+        "trigger": {
+          "step": 23,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "ksum0_0",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "add"
+        },
+        "clamp": {
+          "constant": true
+        },
+        "a": {
+          "step": 12,
+          "output": "value"
+        },
+        "b": {
+          "step": 24,
+          "output": "phase"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc2s0",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "multiply"
+        },
+        "clamp": {
+          "constant": false
+        },
+        "a": {
+          "step": 0,
+          "output": "sub"
+        },
+        "b": {
+          "constant": 0.95
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc2s1",
+      "kind": "wave",
+      "inputs": {
+        "shape": {
+          "constant": "sine"
+        },
+        "input": {
+          "step": 26,
+          "output": "result"
+        },
+        "frequency": {
+          "constant": 1.5
+        },
+        "phase": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "input": 1,
+        "frequency": 1,
+        "phase": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc2s2",
+      "kind": "peakHold",
+      "inputs": {
+        "signal": {
+          "step": 27,
+          "output": "value"
+        },
+        "hold": {
+          "constant": 0.15
+        },
+        "decay": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "hold": 1,
+        "decay": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s3",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 28,
+          "output": "peak"
+        },
+        "inLow": {
+          "constant": 0
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 0.1
+        },
+        "outHigh": {
+          "constant": 0.9
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc2s4",
+      "kind": "curve",
+      "inputs": {
+        "curve": {
+          "constant": "smooth"
+        },
+        "value": {
+          "step": 29,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "value": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc2s5",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "step": 30,
+          "output": "result"
+        },
+        "low": {
+          "constant": 0.35
+        },
+        "high": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s6",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "step": 31,
+          "output": "gate"
+        },
+        "trigger": {
+          "step": 31,
+          "output": "gate"
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s7",
+      "kind": "counter",
+      "inputs": {
+        "steps": {
+          "constant": 8
+        },
+        "trigger": {
+          "step": 32,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s8",
+      "kind": "stepSequencer",
+      "inputs": {
+        "steps": {
+          "constant": "1 0.25 0.75 0 0.5"
+        },
+        "trigger": {
+          "step": 33,
+          "output": "phase"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s9",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": true
+        },
+        "rate": {
+          "step": 34,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s10",
+      "kind": "clockDivider",
+      "inputs": {
+        "divide": {
+          "constant": 3
+        },
+        "trigger": {
+          "step": 35,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc2s11",
+      "kind": "toggle",
+      "inputs": {
+        "trigger": {
+          "step": 36,
+          "output": "phase"
+        }
+      },
+      "dims": {
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s0",
+      "kind": "wave",
+      "inputs": {
+        "shape": {
+          "constant": "sine"
+        },
+        "input": {
+          "step": 0,
+          "output": "lowMid"
+        },
+        "frequency": {
+          "constant": 1.5
+        },
+        "phase": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "input": 1,
+        "frequency": 1,
+        "phase": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc3s1",
+      "kind": "peakHold",
+      "inputs": {
+        "signal": {
+          "step": 38,
+          "output": "value"
+        },
+        "hold": {
+          "constant": 0.15
+        },
+        "decay": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "hold": 1,
+        "decay": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s2",
+      "kind": "remap",
+      "inputs": {
+        "clamp": {
+          "constant": true
+        },
+        "value": {
+          "step": 39,
+          "output": "peak"
+        },
+        "inLow": {
+          "constant": 0
+        },
+        "inHigh": {
+          "constant": 1
+        },
+        "outLow": {
+          "constant": 0.1
+        },
+        "outHigh": {
+          "constant": 0.9
+        }
+      },
+      "dims": {
+        "value": 1,
+        "inLow": 1,
+        "inHigh": 1,
+        "outLow": 1,
+        "outHigh": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc3s3",
+      "kind": "curve",
+      "inputs": {
+        "curve": {
+          "constant": "smooth"
+        },
+        "value": {
+          "step": 40,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "value": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "kc3s4",
+      "kind": "schmittTrigger",
+      "inputs": {
+        "signal": {
+          "step": 41,
+          "output": "result"
+        },
+        "low": {
+          "constant": 0.35
+        },
+        "high": {
+          "constant": 0.6
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s5",
+      "kind": "sampleHold",
+      "inputs": {
+        "signal": {
+          "step": 42,
+          "output": "gate"
+        },
+        "trigger": {
+          "step": 42,
+          "output": "gate"
+        }
+      },
+      "dims": {
+        "signal": 1,
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s6",
+      "kind": "counter",
+      "inputs": {
+        "steps": {
+          "constant": 8
+        },
+        "trigger": {
+          "step": 43,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s7",
+      "kind": "stepSequencer",
+      "inputs": {
+        "steps": {
+          "constant": "1 0.25 0.75 0 0.5"
+        },
+        "trigger": {
+          "step": 44,
+          "output": "phase"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s8",
+      "kind": "integrator",
+      "inputs": {
+        "wrap": {
+          "constant": true
+        },
+        "rate": {
+          "step": 45,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "rate": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s9",
+      "kind": "clockDivider",
+      "inputs": {
+        "divide": {
+          "constant": 3
+        },
+        "trigger": {
+          "step": 46,
+          "output": "value"
+        },
+        "reset": {
+          "constant": 0
+        }
+      },
+      "dims": {
+        "trigger": 1,
+        "reset": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s10",
+      "kind": "toggle",
+      "inputs": {
+        "trigger": {
+          "step": 47,
+          "output": "phase"
+        }
+      },
+      "dims": {
+        "trigger": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "kc3s11",
+      "kind": "envelope",
+      "inputs": {
+        "mode": {
+          "constant": "ad"
+        },
+        "gate": {
+          "step": 48,
+          "output": "state"
+        },
+        "attack": {
+          "constant": 0.02
+        },
+        "decay": {
+          "constant": 0.3
+        },
+        "sustain": {
+          "constant": 0.5
+        },
+        "release": {
+          "constant": 0.3
+        }
+      },
+      "dims": {
+        "gate": 1,
+        "attack": 1,
+        "decay": 1,
+        "sustain": 1,
+        "release": 1
+      },
+      "run": true,
+      "state": true
+    },
+    {
+      "nodeId": "ksum0_2",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "add"
+        },
+        "clamp": {
+          "constant": true
+        },
+        "a": {
+          "step": 37,
+          "output": "state"
+        },
+        "b": {
+          "step": 49,
+          "output": "envelope"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "ksum1_0",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "add"
+        },
+        "clamp": {
+          "constant": true
+        },
+        "a": {
+          "step": 25,
+          "output": "result"
+        },
+        "b": {
+          "step": 50,
+          "output": "result"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "split1",
+      "kind": "bandSplit",
+      "inputs": {
+        "spectrum": {
+          "constant": {
+            "slot": 1
+          }
+        },
+        "low": {
+          "constant": 2000
+        },
+        "high": {
+          "constant": 8000
+        }
+      },
+      "dims": {
+        "low": 1,
+        "high": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "gainMix",
+      "kind": "math",
+      "inputs": {
+        "op": {
+          "constant": "add"
+        },
+        "clamp": {
+          "constant": true
+        },
+        "a": {
+          "step": 51,
+          "output": "result"
+        },
+        "b": {
+          "step": 52,
+          "output": "level"
+        }
+      },
+      "dims": {
+        "a": 1,
+        "b": 1
+      },
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "time",
+      "kind": "time",
+      "inputs": {},
+      "dims": {},
+      "run": true,
+      "state": false
+    },
+    {
+      "nodeId": "drift",
+      "kind": "combineXYZ",
+      "inputs": {
+        "x": {
+          "constant": 0
+        },
+        "y": {
+          "constant": 0
+        },
+        "z": {
+          "step": 54,
+          "output": "time"
+        }
+      },
+      "dims": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 53,
+      "output": "result",
+      "slot": 0,
+      "dim": 1
+    },
+    {
+      "step": 55,
+      "output": "vector",
+      "slot": 1,
+      "dim": 3
+    }
+  ],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ],
+    "analysis": [
+      {
+        "windowSize": 1024,
+        "hop": 256,
+        "window": "blackman",
+        "bands": 64,
+        "scale": "log",
+        "fmin": 200,
+        "fmax": 12000
+      },
+      {
+        "windowSize": 4096,
+        "hop": 256,
+        "window": "hann",
+        "bands": 128,
+        "scale": "mel",
+        "fmin": 40,
+        "fmax": 16000
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

@@ -1,0 +1,32 @@
+{
+  "steps": [
+    {
+      "nodeId": "n",
+      "kind": "oscIn",
+      "inputs": {
+        "port": {
+          "constant": 9000
+        },
+        "address": {
+          "constant": "/1/fader1"
+        }
+      },
+      "dims": {},
+      "run": true,
+      "state": false
+    }
+  ],
+  "exports": [
+    {
+      "step": 0,
+      "output": "value",
+      "slot": 0,
+      "dim": 1
+    }
+  ],
+  "resources": {},
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": []
+}

@@ -1,0 +1,72 @@
+{
+  "steps": [],
+  "exports": [],
+  "resources": {
+    "audioSource": [
+      {
+        "source": "file",
+        "channel": "mono",
+        "agc": {
+          "release": 8,
+          "floorDb": -50
+        },
+        "gate": {
+          "thresholdDb": -55,
+          "hold": 0.3
+        }
+      }
+    ],
+    "analysis": [
+      {
+        "windowSize": 8192,
+        "hop": 512,
+        "window": "hann",
+        "bands": 64,
+        "scale": "mel",
+        "fmin": 400,
+        "fmax": 3000
+      }
+    ]
+  },
+  "issues": [],
+  "error": null,
+  "errorNode": null,
+  "frozen": [
+    {
+      "nodeId": "hueKnob",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "kickEnvelope",
+      "title": "Envelope Follower",
+      "output": "Envelope",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "twistKnob",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "spinPhase",
+      "title": "Integrator",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "scopeKnob",
+      "title": "Knob",
+      "output": "Value",
+      "value": "0.5"
+    },
+    {
+      "nodeId": "audio",
+      "title": "Audio",
+      "output": "Peak",
+      "value": "0.5"
+    }
+  ]
+}

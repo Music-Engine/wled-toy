@@ -1,0 +1,28 @@
+name: snapshot-label
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  snapshot-label:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Require the snapshot-change label on snapshot edits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FILES_URL: repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files
+          LABELED: ${{ contains(github.event.pull_request.labels.*.name, 'snapshot-change') }}
+        run: |
+          # previous_filename catches a snapshot renamed out of the folder
+          snapshots=$(timeout 60 gh api --paginate "$FILES_URL" \
+            --jq '.[] | [.filename, .previous_filename] | map(select(. != null and startswith("src/lib/graph/compile/__snapshots__/"))) | .[]')
+          if [ -n "$snapshots" ] && [ "$LABELED" != true ]; then
+            echo "::error::This PR changes compiler snapshots. Add the snapshot-change label once the snapshot diff is reviewed."
+            echo "$snapshots"
+            exit 1
+          fi
