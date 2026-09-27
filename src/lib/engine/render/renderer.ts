@@ -3,8 +3,10 @@ import { PRELUDE } from '@/lib/shader/prelude'
 import { AudioInputs } from './audio-inputs'
 import { EngineError } from '@/lib/engine/engine-error'
 import { createPingPong, freePingPong, type PingPong } from './feedback-targets'
+import { FramePass, type FrameSource } from './frame-pass'
 import { bindFullScreenTriangle, linkProgram } from './gl-program'
 import { createTexture } from './gl-texture'
+import { GlobalState } from './global-state'
 import { ImageInputs } from './image-inputs'
 import { LedTarget } from './led-target'
 import { PRESENT, UNIFORMS, type UniformLocations } from './renderer-shaders'
@@ -23,6 +25,9 @@ export class ShaderRenderer {
   private usesFeedback = false
   private stateLayers = 0
   private readonly feedback: { led: PingPong | null; preview: PingPong | null } = { led: null, preview: null }
+  private framePass: FramePass | null = null
+  // outlives the program so a recompile that keeps the frame pass keeps its values
+  private globalState: GlobalState | null = null
   // half floats keep a long fade smooth; 8 bits stall once a step rounds to nothing
   private readonly floatTargets: boolean
 
@@ -48,8 +53,8 @@ export class ShaderRenderer {
     return this.program !== null
   }
 
-  /** Compiles user code; on failure throws the GLSL info log and keeps the previous program. */
-  compile(userCode: string): number {
+  /** Compiles user code and its frame pass, if any; on failure throws the GLSL info log and keeps the previous program. */
+  compile(userCode: string, frame?: FrameSource): number {
     const { gl } = this
     const t0 = performance.now()
     const indices = [...new Set(Array.from(userCode.matchAll(/\boutState([1-3])\b/g), (m) => Number(m[1])))].sort()
@@ -57,9 +62,20 @@ export class ShaderRenderer {
     if (indices.some((index, i) => index !== i + 1)) throw new EngineError('state-outputs', `outState indices must be contiguous from 1, found ${indices.join(', ')}`)
     const stateLayers = indices.length
     if (stateLayers > 0 && !this.floatTargets) throw new EngineError('no-float-targets', 'this GPU cannot keep per-pixel state')
-    const program = linkProgram(gl, PRELUDE + userCode)
+    if (frame && !this.floatTargets) throw new EngineError('no-float-targets', 'this GPU cannot keep global state')
+    const framePass = frame ? new FramePass(gl, frame) : null
+    let program: WebGLProgram
+    try {
+      program = linkProgram(gl, PRELUDE + userCode)
+    } catch (e) {
+      if (framePass) gl.deleteProgram(framePass.program)
+      throw e
+    }
     if (this.program) gl.deleteProgram(this.program)
+    if (this.framePass) gl.deleteProgram(this.framePass.program)
     this.program = program
+    this.framePass = framePass
+    if (frame) (this.globalState ??= new GlobalState(gl)).reserve(frame.texels)
     // only shaders that look back pay for the extra targets
     this.usesFeedback = /\b(iPrevFrame|previousFrame)\b/.test(userCode)
     this.stateLayers = stateLayers
@@ -130,6 +146,27 @@ export class ShaderRenderer {
     }
   }
 
+  /** Runs the frame pass once per LED tick, so the LED and preview passes read one history. A program without one draws nothing. */
+  renderGlobalState(params: FrameParams) {
+    const { gl, framePass, globalState } = this
+    if (!framePass || !globalState) return
+    globalState.bindTarget()
+    gl.useProgram(framePass.program)
+    this.bindInputs(framePass.uniforms, globalState.width, 1, params)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+    globalState.swap()
+    // a preview without feedback draws into whatever is bound, which must be the canvas
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+
+  /** Reads the probe texels back after the LED pass, four floats each, into the array made at compile; null without a frame pass. */
+  readProbes(): Float32Array | null {
+    const { framePass, globalState } = this
+    if (!framePass || !globalState) return null
+    globalState.read(framePass.probeTexels, framePass.probes)
+    return framePass.probes
+  }
+
   /** Renders one pixel per LED and returns r, g, b per LED as 0..1 floats, as `LedTarget.read` describes. */
   renderLeds(params: FrameParams): Float32Array {
     const n = params.ledCount
@@ -163,13 +200,8 @@ export class ShaderRenderer {
   private draw(width: number, height: number, p: FrameParams, previous: WebGLTexture | null = null, previousState?: WebGLTexture) {
     const { gl, program, uniforms: u } = this
     if (!program) return
-    gl.viewport(0, 0, width, height)
     gl.useProgram(program)
-    this.audio.bind(u)
-    this.images.bind(u)
-    gl.activeTexture(gl.TEXTURE6)
-    gl.bindTexture(gl.TEXTURE_2D, this.layoutTex)
-    gl.uniform1i(u.iLayout ?? null, 6)
+    this.bindInputs(u, width, height, p)
     gl.activeTexture(gl.TEXTURE7)
     gl.bindTexture(gl.TEXTURE_2D, previous)
     gl.uniform1i(u.iPrevFrame ?? null, 7)
@@ -178,6 +210,19 @@ export class ShaderRenderer {
       gl.bindTexture(gl.TEXTURE_2D_ARRAY, previousState)
       gl.uniform1i(u.iState ?? null, 14)
     }
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+  }
+
+  /** What the frame and pixel passes both read: the viewport, the input textures, global state and the per-frame uniforms. */
+  private bindInputs(u: UniformLocations, width: number, height: number, p: FrameParams) {
+    const { gl } = this
+    gl.viewport(0, 0, width, height)
+    this.audio.bind(u)
+    this.images.bind(u)
+    gl.activeTexture(gl.TEXTURE6)
+    gl.bindTexture(gl.TEXTURE_2D, this.layoutTex)
+    gl.uniform1i(u.iLayout ?? null, 6)
+    if (this.framePass) this.globalState?.bind(u.iGlobal ?? null)
     gl.uniform1f(u.iTimeDelta ?? null, p.dt ?? 1 / 60)
     gl.uniform1f(u.iLayoutCount ?? null, this.layoutCount)
     gl.uniform3f(u.iResolution ?? null, width, height, 1)
@@ -186,7 +231,6 @@ export class ShaderRenderer {
     gl.uniform1f(u.iLedCount ?? null, p.ledCount)
     gl.uniform1f(u.iScanY ?? null, p.scanY)
     if (this.controls && u.iControl) gl.uniform4fv(u.iControl, this.controls)
-    gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 }
 
