@@ -22,19 +22,19 @@ function play(doc: ReturnType<typeof graph>, script: Features[], leds = 1): numb
   const renderer = new ShaderRenderer(document.createElement('canvas'))
   renderer.compile(shader.code)
   const runner = new FrameRunner()
-  runner.load(shader.control)
+  runner.load(shader.frame)
   const textures = new AudioTextures(BANDS)
   return script.map((f, frame) => {
     textures.push(new Float32Array(512), f)
     renderer.setAudio(textures)
-    renderer.setControls(runner.step({ time: frame / 30, dt: 1 / 30, frameIndex: frame, audio: { analyses: [f], sampleRate: 48000 } }))
+    renderer.setControls(runner.step({ time: frame / 30, dt: 1 / 30, frameIndex: frame, midi: undefined, osc: undefined, audio: { analyses: [f], sampleRate: 48000 } }))
     const colors = renderer.renderLeds({ time: frame / 30, frame, ledCount: leds, scanY: 0.5 })
     return Array.from({ length: leds }, (_, i) => toByte(colors[i * 3]))
   })
 }
 
 describe('Audio node', () => {
-  it('its levels drive the shader, through a control chain with state', () => {
+  it('its levels drive the shader, through a per-frame chain with state', () => {
     const doc = graph(
       [node('a', 'audio'), node('env', 'envelopeFollower', { attack: 0, release: 0.1 }), node('o', 'output')],
       [['a.level', 'env.signal'], ['env.envelope', 'o.color']],
@@ -68,9 +68,9 @@ describe('Audio node', () => {
 
 describe('Audio Source and FFT', () => {
   it('an Audio Source sets the input of the graph, linked or not', () => {
-    const { control, error } = generateGlsl(graph([node('s', 'audioSource', { source: 'device', channel: 'left', gateDb: -40 }), node('c', 'color'), node('o', 'output')], [['c.color', 'o.color']]))
+    const { frame: plan, error } = generateGlsl(graph([node('s', 'audioSource', { source: 'device', channel: 'left', gateDb: -40 }), node('c', 'color'), node('o', 'output')], [['c.color', 'o.color']]))
     expect(error).toBeNull()
-    expect(control.resources.audioSource).toEqual([{ source: 'device', channel: 'left', agc: { release: 8, floorDb: -50 }, gate: { thresholdDb: -40, hold: 0.3 } }])
+    expect(plan.resources.audioSource).toEqual([{ source: 'device', channel: 'left', agc: { release: 8, floorDb: -50 }, gate: { thresholdDb: -40, hold: 0.3 } }])
   })
 
   it('a second source with other settings is reported as not live; an identical one is the same source', () => {
@@ -80,14 +80,14 @@ describe('Audio Source and FFT', () => {
   })
 
   it('FFT nodes get a slot per distinct setting; default settings are slot 0', () => {
-    const { control, code, error } = generateGlsl(graph(
+    const { frame: plan, code, error } = generateGlsl(graph(
       [node('s', 'audioSource'), node('d', 'fft'), node('f', 'fft', { windowSize: '8192', bands: 32 }), node('g', 'fft', { bands: 32, windowSize: '8192' }),
         node('x', 'spectrum'), node('y', 'spectrum'), node('z', 'chroma'), node('m', 'math', { op: 'add' }), node('n', 'math', { op: 'add' }), node('o', 'output')],
       [['s.audio', 'd.audio'], ['s.audio', 'f.audio'], ['d.spectrum', 'x.spectrum'], ['f.spectrum', 'y.spectrum'], ['g.spectrum', 'z.spectrum'],
         ['x.level', 'm.a'], ['y.level', 'm.b'], ['m.result', 'n.a'], ['z.level', 'n.b'], ['n.result', 'o.color']],
     ))
     expect(error).toBeNull()
-    expect(control.resources.analysis).toEqual([{ windowSize: 8192, hop: 512, window: 'hann', scale: 'mel', bands: 32, fmin: 40, fmax: 16000 }])
+    expect(plan.resources.analysis).toEqual([{ windowSize: 8192, hop: 512, window: 'hann', scale: 'mel', bands: 32, fmin: 40, fmax: 16000 }])
     expect(code).toContain('historyAt(0, uv.x, 0.0)')
     expect(code).toContain('historyAt(1, uv.x, 0.0)')
     expect(code).toContain('chromaAt(1,')
@@ -120,13 +120,13 @@ describe('Audio Source and FFT', () => {
     expect(toByte(renderer.renderLeds({ time: 0, frame: 0, ledCount: 1, scanY: 0.5 })[0])).toBe(0)
   })
 
-  it('Band Split reads the features of its FFT slot on the CPU', () => {
+  it('Band Split reads the features of its FFT slot per frame', () => {
     const spectrum = new Float32Array(1024)
     spectrum[Math.round(100 / (48000 / 2048))] = 1
-    const { control } = generateGlsl(graph([node('f', 'fft', { bands: 16 }), node('b', 'bandSplit'), node('o', 'output')], [['f.spectrum', 'b.spectrum'], ['b.level', 'o.color']]))
+    const { frame: plan } = generateGlsl(graph([node('f', 'fft', { bands: 16 }), node('b', 'bandSplit'), node('o', 'output')], [['f.spectrum', 'b.spectrum'], ['b.level', 'o.color']]))
     const runner = new FrameRunner()
-    runner.load(control)
-    const step = (analyses: (Features | null)[]) => runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, audio: { analyses, sampleRate: 48000 } })[0]
+    runner.load(plan)
+    const step = (analyses: (Features | null)[]) => runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, midi: undefined, osc: undefined, audio: { analyses, sampleRate: 48000 } })[0]
     expect(step([features(), features({ spectrum })])).toBe(1)
     expect(step([features({ spectrum }), features()])).toBe(0)
     expect(step([features({ spectrum }), null])).toBe(0)

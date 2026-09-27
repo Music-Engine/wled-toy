@@ -14,25 +14,37 @@ export interface GlslChunk {
   source: string
 }
 
-/** What a control-rate node computes with: plain numbers, one evaluation per frame. */
+/** What a frame body computes with: plain numbers, one evaluation per frame. */
 export type FrameValue = number | number[]
 
 export interface FrameInfo {
   /** Seconds since the engine clock was reset. */
   time: number
-  /** Seconds since the previous control step, capped so a hidden tab does not produce one huge step. */
+  /** Seconds since the previous frame step, capped so a hidden tab does not produce one huge step. */
   dt: number
   frameIndex: number
-  /** The latest audio analysis; absent while no audio has run. */
-  /** Audio analyses by slot (0 is the default FFT); an entry is null until its first hop. */
-  audio?: { analyses: (Features | null)[]; sampleRate: number }
-  midi?: MidiReader
+  /** Audio analyses by slot (0 is the default FFT); undefined until audio has been analyzed, an entry null until its first hop. */
+  audio: { analyses: (Features | null)[]; sampleRate: number } | undefined
+  midi: MidiReader | undefined
   /** Numeric arguments of the latest OSC message sent to an address. */
-  osc?: (address: string) => number[] | undefined
+  osc: ((address: string) => number[] | undefined) | undefined
 }
 
-export interface NodeContext {
+/** What a frame body gets beside its inputs: the frame, the node's state, and what its `resolve` returned. */
+export interface FrameContext<S = any> extends FrameInfo {
+  state: S
+  resolved: Record<string, unknown>
+}
+
+export interface NodeContext<S = Record<string, Value>> {
   nodeId: string
+  /**
+   * A pixel-scope node's slots, each a GLSL lvalue holding the value the slot had last frame until the body assigns
+   * it: read it as any value, write it with `emit`.
+   */
+  state: S
+  /** What the node's `resolve` returned. */
+  resolved: Record<string, unknown>
   /** The type this node's generic sockets resolved to. */
   gen: GlslType
   /** A variable name unique to this node, stable across compiles so unchanged graphs produce unchanged code. */
@@ -45,15 +57,41 @@ export interface NodeContext {
   /** Calls a GLSL function that returns through `out` parameters, declared here and listed last in the call. */
   call<O extends Record<string, GlslType>>(fn: string, args: string[], outs: O): { [K in keyof O]: Value }
   issue(message: string): void
-  /** For the Output node: how the finished colors are processed and sent. The first Output in a graph decides. */
-  output(settings: OutputSettings): void
+  /**
+   * Says the body's GLSL uses something outside the C-family subset (a texture sampler, a derivative), so a C++ build
+   * leaves the node out. Emits nothing.
+   */
+  require(target: 'glsl'): void
 }
 
-export interface ResolveEnv {
-  /**
-   * Registers something the engine has to provide for this graph (an audio source, an analysis) and returns its index.
-   * Equal configs share one index.
-   */
-  intern(kind: string, config: unknown): number
-  issue(message: string): void
+/** Something the engine provides for a graph: an audio source, an analysis, an image layer, an OSC port. */
+interface Requirement {
+  kind: string
+  config: unknown
+}
+
+/** What a node's `resolve` settles while the graph compiles. The front end registers `requires` and reports `issues` on the node. */
+export interface ResolveResult {
+  /** What each stream output carries. */
+  streams?: Record<string, unknown>
+  /** Handed to the bodies as `resolved`, never merged into their inputs. */
+  data?: Record<string, unknown>
+  requires?: Requirement[]
+  issues?: string[]
+  /** The Output node's wire settings: how the finished colors are processed and sent. */
+  output?: OutputSettings
+}
+
+/** What the nodes resolved before this one registered, by kind, in the order the front end met them. */
+export type Resources = Readonly<Record<string, readonly unknown[] | undefined>>
+
+/**
+ * The index `config` has among the registered configs of `kind`, or the one registering it gives: equal configs share
+ * one. The front end registers with it, so a node that needs its index before then computes the same one.
+ */
+export function resourceIndex(resources: Resources, kind: string, config: unknown): number {
+  const list = resources[kind] ?? []
+  const key = JSON.stringify(config)
+  const index = list.findIndex((other) => JSON.stringify(other) === key)
+  return index >= 0 ? index : list.length
 }

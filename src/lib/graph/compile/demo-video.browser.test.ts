@@ -4,7 +4,7 @@ import { rangePeak } from '@/lib/audio/dsp'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'
-import { FrameRunner } from './frame'
+import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { SAMPLE_RATE, feedSlots, openSlots } from '@/lib/graph/testing/offline'
 
@@ -55,8 +55,8 @@ describe.runIf(ENABLED)('demo video', () => {
       matrix.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: MATRIX_SIDE, height: MATRIX_SIDE, serpentine: false, origin: 'top-left' }] }))
 
       const runner = new FrameRunner()
-      runner.load(shader.control)
-      const slots = openSlots(shader.control, SAMPLE_RATE)
+      runner.load(shader.frame)
+      const slots = openSlots(shader.frame, SAMPLE_RATE)
 
       const skipped = Math.round(segment.preroll * manifest.fps)
       const kept = Math.round(segment.seconds * manifest.fps)
@@ -69,7 +69,7 @@ describe.runIf(ENABLED)('demo video', () => {
         const tick = { time, dt: 1 / manifest.fps, frame }
         const { analyses } = feedSlots(slots, track, time, SAMPLE_RATE)
         const f = analyses[0]
-        const controls = runner.step({ time, dt: tick.dt, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+        const controls = runner.step({ time, dt: tick.dt, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
         for (const renderer of [strip, matrix]) {
           renderer.setControls(controls)
           if (f) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))

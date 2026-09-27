@@ -9,10 +9,8 @@ import { ImageLibrary } from './images'
 import { layoutPositions } from './layout'
 import { DEFAULT_OUTPUT, LedPostProcess, type OutputSettings } from './output'
 import { preferences } from '@/lib/app/preferences'
-import { FrameRunner, type FramePlan } from '@/lib/graph/compile/frame'
-import type { AudioSourceRequest } from '@/lib/graph/nodes/audio/audio'
-import type { AnalysisSettings } from '@/lib/audio/service'
-import { oscPortFrom } from '@/lib/graph/nodes/control/midi-osc'
+import { FrameRunner, type FramePlan } from '@/lib/graph/compile/js/frame'
+import type { AnalysisSettings, AudioSourceRequest } from '@/lib/audio/service'
 import { loadMedia, saveMedia, clearMedia, type MediaKey } from './media-store'
 import { MidiService } from './midi'
 
@@ -99,8 +97,8 @@ class Engine {
     if (source) void this.audio.configure(source)
     this.audio.setAnalyses((plan.resources.analysis ?? []) as AnalysisSettings[])
     void this.showImages((plan.resources.image ?? []) as string[])
-    const oscStep = plan.steps.find((step) => step.kind === 'oscIn')
-    this.bridge.listenOsc(oscStep ? oscPortFrom(oscStep.inputs) : 0)
+    const [oscPort = 0] = (plan.resources.osc ?? []) as number[]
+    this.bridge.listenOsc(oscPort)
     // asking for MIDI shows a permission prompt, so it waits until a graph actually uses it
     if (plan.steps.some((step) => step.kind === 'midiIn')) void this.midi.enable()
   }

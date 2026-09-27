@@ -1,4 +1,4 @@
-export { defineNode, type InputDef, type LinkedInputDef, type NodeItemOptions, type OutputDef } from './define/define'
+export { defineNode, type InputDef, type NodeItemOptions, type OutputDef } from './define/define'
 export type { NodeItem } from './define/shape'
 export {
   AudioStream,
@@ -17,6 +17,6 @@ export {
   Vec4,
   enumIndex,
 } from './define/socket-types'
-export type { DataType, EnumOption, GlslTypeDef, ImplicitDefault } from './define/types'
-export type { FrameInfo, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './define/context'
+export type { DataType, EnumOption, ImplicitDefault } from './define/types'
+export { resourceIndex, type FrameInfo, type FrameValue, type GlslChunk, type NodeContext, type ResolveResult, type Resources } from './define/context'
 export { floatLiteral, fmt, swizzle, vectorLiteral, type Value } from './define/value'

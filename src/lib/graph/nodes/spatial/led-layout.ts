@@ -12,7 +12,7 @@ export const ledLayoutNode = defineNode('ledLayout', {
     fraction: { type: Float, label: 'Index 0 to 1' },
     segment: Float,
   },
-  exec: (_, ctx) => {
+  pixel: (_, ctx) => {
     const led = ctx.declare('vec4', 'ledLayout(ledIndex)')
     return {
       position: swizzle(led, 'xyz'),

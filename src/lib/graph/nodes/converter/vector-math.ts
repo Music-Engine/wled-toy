@@ -54,8 +54,6 @@ export const VECTOR_OPS = {
 export type VectorOpName = keyof typeof VECTOR_OPS
 const VECTOR_OP_OPTIONS = Object.entries(VECTOR_OPS).map(([value, op]) => ({ value: value as VectorOpName, label: op.label, group: op.group }))
 
-const asVector = (v: number | number[]): V => (Array.isArray(v) ? [v[0] ?? 0, v[1] ?? 0, v[2] ?? 0] : [v, v, v])
-
 /** Blender's Vector Math node, on 3D vectors. A number linked in spreads to all three components. */
 export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: VectorOpName }) => {
   const def: VectorOp = VECTOR_OPS[op] ?? VECTOR_OPS.add
@@ -67,22 +65,24 @@ export const vectorMathNode = defineNode('vectorMath', ({ op = 'add' }: { op?: V
     category: 'converter',
     presets: VECTOR_OP_OPTIONS.map((o) => ({ title: o.label, values: { op: o.value } })),
     input: {
-      op: { type: Enum(VECTOR_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
+      op: { type: Enum(VECTOR_OP_OPTIONS), label: '', default: 'add', linkable: false, props: { label: 'Operation' } },
       a: vec([0.5, 0.5, 0]),
       ...(def.vectors > 1 && { b: vec(op === 'wrap' ? [0, 0, 0] : [0.5, 0.5, 0.5]) }),
       ...(def.vectors > 2 && { c: vec(op === 'wrap' ? [1, 1, 1] : [0, 0, 0]) }),
       ...(def.scalar && { scale: { type: Float, label: def.scalar, default: 1 } }),
     },
     output: def.out === 'vector' ? { vector: Vec3 } : { value: Float },
-    exec: (input: Record<string, any>, ctx): Record<string, Value> => {
+    pixel: (input: Record<string, any>, ctx): Record<string, Value> => {
       if (def.helper) ctx.include(mathHelper(def.helper, def.helperType ?? 'vec3'))
       const expr = def.glsl(input.a.expr, input.b?.expr ?? 'vec3(0.0)', input.c?.expr ?? 'vec3(0.0)', input.scale?.expr ?? '1.0')
       return def.out === 'vector' ? { vector: ctx.declare('vec3', expr) } : { value: ctx.declare('float', expr) }
     },
-    run: (input: Record<string, any>): Record<string, FrameValue> => {
+    frame: (input: Record<string, any>): Record<string, FrameValue> => {
       const result = def.js(asVector(input.a), asVector(input.b ?? 0), asVector(input.c ?? 0), (input.scale as number) ?? 1)
       return def.out === 'vector' ? { vector: result as V } : { value: result as number }
     },
   }
   return options
 })
+
+const asVector = (v: number | number[]): V => (Array.isArray(v) ? [v[0] ?? 0, v[1] ?? 0, v[2] ?? 0] : [v, v, v])

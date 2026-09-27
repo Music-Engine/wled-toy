@@ -16,3 +16,11 @@ it('the Output node carries its wire settings out of the compiler, and its color
 it('a graph without an Output has no settings', () => {
   expect(generateGlsl(graph([node('v', 'value')])).output).toBeNull()
 })
+
+it('a second Output is left out with an issue on it, and the first one decides the settings', () => {
+  const shader = generateGlsl(graph([node('a', 'output', { universe: 3, color: [0, 1, 0] }), node('b', 'output', { universe: 7, color: [1, 0, 0] })]))
+  expect(shader.output?.universe).toBe(3)
+  expect(shader.issues).toEqual([{ nodeId: 'b', message: 'Only the first Output ("a") drives the LEDs; this one is left out' }])
+  expect(shader.code).toContain('c = vec4(vec3(0.0, 1.0, 0.0), 1.0);')
+  expect(shader.code).not.toContain('vec3(1.0, 0.0, 0.0)')
+})

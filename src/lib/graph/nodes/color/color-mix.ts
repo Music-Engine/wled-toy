@@ -11,7 +11,7 @@ export const BLEND_MODES = [
 
 export type BlendMode = (typeof BLEND_MODES)[number]['value']
 
-/** `mode` is `connectable: false`, so it is known at shape-build time and the node includes only that one blend function. */
+/** `mode` is `linkable: false`, so it is known at shape-build time and the node includes only that one blend function. */
 export const colorMixNode = defineNode('colorMix', ({ mode = 'mix' }: { mode?: BlendMode }) => {
   const { fn, chunk } = BLEND_FUNCTIONS[mode] ?? BLEND_FUNCTIONS.mix
   return {
@@ -20,15 +20,15 @@ export const colorMixNode = defineNode('colorMix', ({ mode = 'mix' }: { mode?: B
     category: 'color',
     includes: [chunk],
     input: {
-      mode: { type: Enum(BLEND_MODES), label: '', connectable: false, props: { label: 'Blend Mode' } },
-      clampResult: { type: Bool, default: true, connectable: false },
-      clampFactor: { type: Bool, default: true, connectable: false },
+      mode: { type: Enum(BLEND_MODES), label: '', linkable: false, props: { label: 'Blend Mode' } },
+      clampResult: { type: Bool, default: true, linkable: false },
+      clampFactor: { type: Bool, default: true, linkable: false },
       factor: { type: Float, default: 0.5, props: { min: 0, max: 1, decimals: 2 } },
       color1: { type: Color, label: 'Color 1', default: [1, 1, 1] },
       color2: { type: Color, label: 'Color 2', default: [0, 0, 0] },
     },
     output: { color: Color },
-    exec: ({ clampResult, clampFactor, factor, color1, color2 }, ctx) => {
+    pixel: ({ clampResult, clampFactor, factor, color1, color2 }, ctx) => {
       const f = clampFactor ? `clamp(${factor.expr}, 0.0, 1.0)` : factor.expr
       const blend = `${fn}(${f}, ${color1.expr}, ${color2.expr})`
       return { color: ctx.declare('vec3', clampResult ? `clamp(${blend}, 0.0, 1.0)` : blend) }

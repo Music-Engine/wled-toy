@@ -10,10 +10,10 @@ export const bandsNode = defineNode('bands', ({ count = '8' }: { count?: string 
     title: 'Bands',
     description: 'The spectrum folded into a few bands, each an output you can wire per frame: the per-frame side of the Spectrum node.',
     category: 'audio',
-    input: { spectrum: SpectrumStream, count: { type: Enum(COUNTS), label: '', default: '8', connectable: false, props: { label: 'Bands' } } },
+    input: { spectrum: SpectrumStream, count: { type: Enum(COUNTS), label: '', default: '8', linkable: false, props: { label: 'Bands' } } },
     output: Object.fromEntries(Array.from({ length: n }, (_, i) => [`band${i + 1}`, { type: Float, label: `Band ${i + 1}` }])),
-    run: ({ spectrum }, _, frame: FrameInfo) => {
-      const f: Features | null | undefined = frame.audio?.analyses[spectrum?.slot ?? 0]
+    frame: ({ spectrum }, info: FrameInfo) => {
+      const f: Features | null | undefined = info.audio?.analyses[spectrum?.slot ?? 0]
       const bands = f?.bands
       return Object.fromEntries(Array.from({ length: n }, (_, i) => {
         if (!bands) return [`band${i + 1}`, 0]

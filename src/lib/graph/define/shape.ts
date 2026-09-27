@@ -1,49 +1,7 @@
 import type { CategoryId } from '@/lib/shader/glsl'
-import type { FrameInfo, FrameValue, GlslChunk, NodeContext, ResolveEnv } from './context'
-import { isGlslType, isStreamType, type DataType, type GlslTypeDef, type ImplicitDefault, type LinkType, type StreamType } from './types'
+import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
+import type { DataType, ImplicitDefault } from './types'
 import type { Value } from './value'
-
-export type WidgetProps = Record<string, unknown> | ((values: Record<string, unknown>) => Record<string, unknown>)
-
-export interface InputSocket {
-  name: string
-  label: string
-  type: DataType<any>
-  connectable: boolean
-  default: unknown | ImplicitDefault
-  props: WidgetProps
-}
-
-export interface LinkedInputSocket extends InputSocket {
-  type: GlslTypeDef<any>
-  connectable: true
-}
-
-export interface StreamInputSocket extends InputSocket {
-  type: StreamType<any>
-  connectable: true
-}
-
-export interface OutputSocket {
-  name: string
-  label: string
-  type: LinkType
-}
-
-/** One node at one set of values: its sockets and its code. */
-export interface NodeShape {
-  title: string
-  signature: string
-  isOutput: boolean
-  includes: GlslChunk[]
-  inputs: InputSocket[]
-  outputs: OutputSocket[]
-  exec?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
-  run?(input: Record<string, any>, state: any, frame: FrameInfo): Record<string, FrameValue>
-  resolve?(input: Record<string, any>, env: ResolveEnv): Record<string, unknown>
-  state?(): unknown
-  standalone: Partial<Record<string, string>>
-}
 
 /**
  * A node kind. Its shape is a function of the node's stored values, so a parameter can change what sockets it has
@@ -60,6 +18,40 @@ export interface NodeItem {
   presets?: NodePreset[]
 }
 
+/** One node at one set of values: its sockets and its code. */
+export interface NodeShape {
+  title: string
+  signature: string
+  isOutput: boolean
+  includes: GlslChunk[]
+  inputs: Socket[]
+  outputs: OutputSocket[]
+  pixel?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
+  frame?(input: Record<string, any>, info: FrameContext): Record<string, FrameValue>
+  resolve?(input: Record<string, any>, resources: Resources): ResolveResult
+  /** Slot name to type; absent on a stateless node. */
+  state?: Record<string, DataType<any>>
+  stateScope?: Rate
+}
+
+/** An input. Unlinked, it reads `default`: a stored literal, or an expression the shader evaluates (see ImplicitDefault). */
+export interface Socket {
+  name: string
+  label: string
+  type: DataType<any>
+  linkable: boolean
+  default: unknown | ImplicitDefault
+  props: WidgetProps
+}
+
+export interface OutputSocket {
+  name: string
+  label: string
+  type: DataType<any>
+}
+
+export type WidgetProps = Record<string, unknown> | ((values: Record<string, unknown>) => Record<string, unknown>)
+
 /** The node started with `values`, listed in the menu as an entry of its own; `group` files it under a sub-directory. */
 export interface NodePreset {
   title: string
@@ -67,29 +59,12 @@ export interface NodePreset {
   values: Record<string, unknown>
 }
 
+/** How often a value is computed: once per frame on the CPU, or once per pixel in the shader. */
+export type Rate = 'frame' | 'pixel'
+
 /** Where a node's values live: `frame` sockets are drawn as diamonds and refuse per-pixel links. */
-export function placement(shape: NodeShape): 'frame' | 'pixel' | 'either' {
-  if (shape.run && !shape.exec) return 'frame'
-  if (shape.exec && !shape.run) return 'pixel'
+export function placement(shape: NodeShape): Rate | 'either' {
+  if (shape.frame && !shape.pixel) return 'frame'
+  if (shape.pixel && !shape.frame) return 'pixel'
   return 'either'
 }
-
-export const isImplicit = (value: unknown): value is ImplicitDefault =>
-  typeof value === 'object' && value !== null && ['expr', 'label'].every((key) => key in value)
-
-/** What an unlinked socket of this type reads when its definition gives no default. */
-export const implicitDefault = (type: DataType<any>): ImplicitDefault | undefined => (isGlslType(type) ? type.implicit : undefined)
-
-/** Nothing is stored for the socket, so unlinked it reads its implicit expression. */
-export const fallsBackToImplicit = (values: Record<string, unknown>, socket: InputSocket): socket is InputSocket & { default: ImplicitDefault } =>
-  values[socket.name] === undefined && isImplicit(socket.default)
-
-/** The socket's implicit expression also exists once per frame, so a node on the CPU can read it unlinked. */
-export const hasFrameValue = (socket: InputSocket): boolean => isImplicit(socket.default) && socket.default.frame !== undefined
-
-/** Linked to a number or vector, in the shader or per frame. */
-export const isLinkable = (socket: InputSocket): socket is LinkedInputSocket => socket.connectable && isGlslType(socket.type)
-/** Linked to a stream that is resolved while the graph compiles. */
-export const isStreamSocket = (socket: InputSocket): socket is StreamInputSocket => socket.connectable && isStreamType(socket.type)
-/** What a connectable socket accepts, for validating links and coloring them. */
-export const linkType = (socket: InputSocket): LinkType | undefined => (socket.connectable ? (socket.type as LinkType) : undefined)

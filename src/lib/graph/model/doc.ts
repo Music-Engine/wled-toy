@@ -1,6 +1,20 @@
 import type { ColorRamp } from '@/lib/graph/nodes/color/color-ramp'
 import { parseScenes, type Scene } from './scenes'
 
+export interface NodeGraph {
+  version: number
+  nodes: StoredNode[]
+  edges: StoredEdge[]
+  /** Saved knob settings the Parameters panel can recall. */
+  scenes?: Scene[]
+}
+
+/**
+ * Bumped whenever nodes or sockets change in a way older saved graphs cannot follow. There are no migrations: a graph
+ * saved by an older version is discarded on load, and Settings can wipe everything the app stored.
+ */
+export const GRAPH_VERSION = 3
+
 export type SocketValue = number | number[] | string | boolean | ColorRamp
 
 export interface GraphNodeData {
@@ -27,29 +41,21 @@ export interface StoredEdge {
   style?: Record<string, string | number>
 }
 
-/**
- * Bumped whenever nodes or sockets change in a way older saved graphs cannot follow. There are no migrations: a graph
- * saved by an older version is discarded on load, and Settings can wipe everything the app stored.
- */
-export const GRAPH_VERSION = 3
-
-export interface NodeGraph {
-  version: number
-  nodes: StoredNode[]
-  edges: StoredEdge[]
-  /** Saved knob settings the Parameters panel can recall. */
-  scenes?: Scene[]
-}
-
 export const GRAPH_NODE_TYPE = 'shader'
 
 export const newNodeData = (kind: string, values: GraphNodeData['values'] = {}): GraphNodeData => ({ kind, values })
 
 /** A current-version graph, tidied: an input holds one link (the newest wins) and scenes are what parseScenes accepts. */
 export function normalizeDoc(doc: NodeGraph): NodeGraph {
-  const byInput = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
-  return { version: GRAPH_VERSION, nodes: doc.nodes, edges: [...byInput.values()], scenes: parseScenes(doc.scenes) }
+  return { version: GRAPH_VERSION, nodes: doc.nodes, edges: [...edgesByInput(doc.edges).values()], scenes: parseScenes(doc.scenes) }
 }
+
+/** The link into each input, keyed by `inputKey`; when an input has several, the last one wins. */
+export function edgesByInput(edges: NodeGraph['edges']): Map<string, NodeGraph['edges'][number]> {
+  return new Map(edges.map((e) => [inputKey(e.target, e.targetHandle), e]))
+}
+
+export const inputKey = (nodeId: string, handle: string | null | undefined) => `${nodeId}:${handle}`
 
 interface NodeLike {
   id: string

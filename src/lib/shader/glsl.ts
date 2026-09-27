@@ -1,6 +1,9 @@
 /** Size of the uniform block graph mode fills from the CPU each frame: this many vec4, four floats each. */
 export const CONTROL_VECTORS = 64
 
+/** Layers of per-pixel state a shader can write, as `outState1` on: WebGL2 guarantees 4 draw buffers and the color takes one. */
+export const STATE_TARGETS = 3
+
 /** Analyses a graph can run besides the default one; each has its own band and history texture. */
 export const AUDIO_EXTRA_SLOTS = 3
 
@@ -47,7 +50,7 @@ uniform float iTimeDelta;
 // per-frame values computed on the CPU by graph mode; slot k is iControl[k / 4][k % 4]
 uniform vec4 iControl[${CONTROL_VECTORS}];
 
-out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 bool isLedPass() { return iResolution.y < 1.5; }
 // position (xyz) and segment (w) of an LED; in the 2D preview there are no LEDs, so this is the pixel itself

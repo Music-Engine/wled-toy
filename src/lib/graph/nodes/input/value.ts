@@ -1,4 +1,4 @@
-import { defineNode, Float } from '@/lib/graph/authoring'
+import { defineNode, Float, floatLiteral } from '@/lib/graph/authoring'
 
 export const valueNode = defineNode('value', {
   title: 'Value',
@@ -6,8 +6,8 @@ export const valueNode = defineNode('value', {
   category: 'input',
   signature: 'float value',
   input: {
-    value: { type: Float, label: 'Value', default: 0.5, connectable: false },
+    value: { type: Float, label: 'Value', default: 0.5, linkable: false },
   },
   output: { value: Float },
-  exec: ({ value }) => ({ value: Float.literal(value) }),
+  pixel: ({ value }) => ({ value: floatLiteral(value) }),
 })

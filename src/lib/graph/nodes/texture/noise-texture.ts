@@ -1,6 +1,6 @@
 import { Color, defineNode, Float } from '@/lib/graph/authoring'
 import { noiseChunk } from '@/lib/graph/nodes/glsl/noise'
-import { textureVector } from './vector'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 export const noiseTextureNode = defineNode('noiseTexture', {
   title: 'Noise Texture',
@@ -15,7 +15,7 @@ export const noiseTextureNode = defineNode('noiseTexture', {
     distortion: { type: Float, default: 0, props: { step: 0.1, decimals: 2 } },
   },
   output: { fac: Float, color: Color },
-  exec: ({ vector, scale, detail, roughness, distortion }, ctx) => {
+  pixel: ({ vector, scale, detail, roughness, distortion }, ctx) => {
     const p = ctx.declare('vec3', `${vector.expr} * ${scale.expr}`, 'p')
     // Blender warps the point by noise sampled at an offset, then decorrelates the color channels the same way
     const warped = ctx.declare('vec3', `${p.expr} + ${distortion.expr} * (vec3(noise3(${p.expr} + 13.5), noise3(${p.expr}), noise3(${p.expr} - 13.5)) * 2.0 - 1.0)`, 'warped')

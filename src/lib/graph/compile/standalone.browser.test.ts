@@ -14,13 +14,13 @@ function shaderMode(code: string, time = 0) {
 }
 
 describe('standalone code', () => {
-  it('the default graph sent to shader mode is not black and reads no control slot', () => {
+  it('the default graph sent to shader mode is not black and reads no uniform slot', () => {
     const live = generateGlsl(createDefaultGraph())
     const sent = generateGlsl(createDefaultGraph(), { standalone: true, controls: () => 0.6 })
     expect(live.code).toContain('iControl')
     expect(sent.code).not.toContain('iControl')
     expect(sent.error).toBeNull()
-    expect(sent.control.exports).toEqual([])
+    expect(sent.frame.exports).toEqual([])
     expect(Math.max(...shaderMode(sent.code, 1.5))).toBeGreaterThan(40)
   })
 

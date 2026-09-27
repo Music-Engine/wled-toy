@@ -5,7 +5,7 @@ import { DEFAULT_ANALYSIS } from '@/lib/audio/service'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'
-import { FrameRunner } from './frame'
+import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { storedShape } from '@/lib/graph/registry'
@@ -36,7 +36,7 @@ function warnings(doc: NodeGraph): string[] {
 interface FrameAudio {
   level: number
   kick: number
-  /** The analyzer raised `beat` on some hop since the previous frame, which is what the control nodes see. */
+  /** The analyzer raised `beat` on some hop since the previous frame, which is what the frame bodies see. */
   beat: boolean
   bands: Float32Array
   chroma: Float32Array
@@ -66,8 +66,8 @@ function play(doc: NodeGraph, track: Float32Array): Run {
   matrix.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: MATRIX_SIDE, height: MATRIX_SIDE, serpentine: false, origin: 'top-left' }] }))
 
   const runner = new FrameRunner()
-  runner.load(shader.control)
-  const slots = openSlots(shader.control, SAMPLE_RATE)
+  runner.load(shader.frame)
+  const slots = openSlots(shader.frame, SAMPLE_RATE)
 
   const run: Run = { strip: [], matrix: [], audio: [] }
   for (let frame = 0; frame < SECONDS * FPS; frame++) {
@@ -82,7 +82,7 @@ function play(doc: NodeGraph, track: Float32Array): Run {
       chroma: Float32Array.from(f?.chroma ?? new Float32Array(12)),
     })
 
-    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
     for (const renderer of [strip, matrix]) {
       renderer.setControls(controls)
       if (f) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))

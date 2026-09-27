@@ -9,7 +9,7 @@ const hsv = [rgbToHsvChunk, hsvToRgbChunk]
 
 /**
  * One GLSL chunk per Blender node_mix_* blend function (node_color_blend.h), keyed by the Color Mix / Layer Mix
- * `mode` value. `mode` is `connectable: false`, so a node's shape knows its mode at compile time and can include
+ * `mode` value. `mode` is `linkable: false`, so a node's shape knows its mode at compile time and can include
  * only the one function it calls, instead of a switch over all of them.
  */
 export const BLEND_FUNCTIONS: Record<string, { fn: string; chunk: GlslChunk }> = {

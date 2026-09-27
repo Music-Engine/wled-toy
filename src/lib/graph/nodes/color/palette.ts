@@ -21,12 +21,12 @@ export const paletteNode = defineNode('gradientPalette', {
   description: 'A named gradient. Position picks a color along it; with Repeat on, positions past 1 wrap around, so adding Time scrolls it forever.',
   category: 'color',
   input: {
-    palette: { type: Enum(PALETTES), label: '', connectable: false, props: { label: 'Palette' } },
-    repeat: { type: Bool, default: true, connectable: false },
+    palette: { type: Enum(PALETTES), label: '', linkable: false, props: { label: 'Palette' } },
+    repeat: { type: Bool, default: true, linkable: false },
     position: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { color: Color },
-  exec: ({ palette, repeat, position }, ctx) => ({
+  pixel: ({ palette, repeat, position }, ctx) => ({
     color: emitRamp(ctx, { interpolation: 'linear', stops: [...PALETTES.find((p) => p.value === palette)!.stops] }, repeat ? `fract(${position.expr})` : position.expr),
   }),
 })

@@ -6,7 +6,7 @@ import { commands } from 'vitest/browser'
 import { layoutPositions } from '@/lib/engine/layout'
 import { ShaderRenderer } from '@/lib/engine/renderer'
 import { generateGlsl } from './compile'
-import { FrameRunner } from './frame'
+import { FrameRunner } from '@/lib/graph/compile/js/frame'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { FPS, SAMPLE_RATE, feedSlots, openSlots, synthTrack } from '@/lib/graph/testing/offline'
 
@@ -65,7 +65,7 @@ function timing(values: number[]): Timing {
   return { median: round(at(0.5)), p95: round(at(0.95)), max: round(sorted[sorted.length - 1] ?? 0), samples: sorted.length }
 }
 
-/** The GPU the numbers came from, so SwiftShader results are never read as hardware results. */
+/** The graphics adapter the numbers came from, so SwiftShader results are never read as hardware results. */
 function rendererString(): string {
   const gl = document.createElement('canvas').getContext('webgl2')
   if (!gl) return 'no webgl2'
@@ -139,9 +139,9 @@ function benchmark(name: string, text: string) {
   }
 
   const runner = new FrameRunner()
-  runner.load(shader.control)
+  runner.load(shader.frame)
   const track = synthTrack(Math.ceil(FRAMES / FPS) + 1)
-  const slots = openSlots(shader.control, SAMPLE_RATE)
+  const slots = openSlots(shader.frame, SAMPLE_RATE)
 
   const analysis: number[] = []
   const perHop: number[] = []
@@ -164,7 +164,7 @@ function benchmark(name: string, text: string) {
     const f = analyses[0]
 
     const t1 = performance.now()
-    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
+    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
     const stepMs = performance.now() - t1
 
     const t2 = performance.now()
@@ -208,8 +208,8 @@ function benchmark(name: string, text: string) {
   const heapEnd = heapUsed()
 
   // the stages whose per-frame numbers sit under the 0.1 ms clock quantum, measured again over a batch
-  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, audio: undefined })
-  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, audio: undefined }) })
+  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, midi: undefined, osc: undefined, audio: undefined })
+  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, midi: undefined, osc: undefined, audio: undefined }) })
   const batchedSetControls = batched(BATCH, () => primary.setControls(lastControls))
   const extraTextures = slots.slice(1).map((slot) => slot.textures)
   const batchedSetAudio = batched(BATCH, () => primary.setAudio(slots[0].textures, extraTextures))
@@ -229,9 +229,9 @@ function benchmark(name: string, text: string) {
     edges: doc.edges.length,
     glslChars: shader.code.length,
     glslLines: lines,
-    controlSteps: shader.control.steps.length,
-    controlExports: shader.control.exports.length,
-    controlUniformFloats: shader.control.exports.reduce((sum, e) => sum + e.dim, 0),
+    controlSteps: shader.frame.steps.length,
+    controlExports: shader.frame.exports.length,
+    controlUniformFloats: shader.frame.exports.reduce((sum, e) => sum + e.dim, 0),
     analysisSlots: slots.length,
     previewPixels: [canvas.width, canvas.height],
     usesFeedback: /\b(iPrevFrame|previousFrame)\b/.test(shader.code),

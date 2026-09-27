@@ -24,7 +24,11 @@
       "dim": 1
     }
   ],
-  "resources": {},
+  "resources": {
+    "osc": [
+      9000
+    ]
+  },
   "issues": [],
   "error": null,
   "errorNode": null,

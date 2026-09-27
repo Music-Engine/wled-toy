@@ -30,3 +30,6 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 .claude
+
+# C++ unit written by scripts/gen-cpp-unit.ts
+cpp/generated

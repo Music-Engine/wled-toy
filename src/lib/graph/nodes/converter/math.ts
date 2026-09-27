@@ -75,9 +75,6 @@ export const MATH_OPS = {
 export type MathOpName = keyof typeof MATH_OPS
 const MATH_OP_OPTIONS = Object.entries(MATH_OPS).map(([value, op]) => ({ value: value as MathOpName, label: op.label, group: op.group }))
 
-const componentWise = (fn: (a: number, b: number, c: number) => number, a: number | number[], b: number | number[], c: number | number[]) =>
-  (Array.isArray(a) ? a.map((x, i) => fn(x, (b as number[])[i], (c as number[])[i])) : fn(a, b as number, c as number))
-
 /** Blender's Math node. The operation decides how many values it takes and what they are called; vectors go through per component. */
 export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName }) => {
   const def: MathOp = MATH_OPS[op] ?? MATH_OPS.add
@@ -89,22 +86,25 @@ export const mathNode = defineNode('math', ({ op = 'add' }: { op?: MathOpName })
     // every operation is its own menu entry, so "sine" or "ping-pong" finds Math set to it
     presets: MATH_OP_OPTIONS.map((o) => ({ title: o.label, group: o.group, values: { op: o.value } })),
     input: {
-      op: { type: Enum(MATH_OP_OPTIONS), label: '', default: 'add', connectable: false, props: { label: 'Operation' } },
-      clamp: { type: Bool, default: false, connectable: false },
+      op: { type: Enum(MATH_OP_OPTIONS), label: '', default: 'add', linkable: false, props: { label: 'Operation' } },
+      clamp: { type: Bool, default: false, linkable: false },
       a: { type: GenType, label: a, default: 0.5 },
       ...(b && { b: { type: GenType, label: b, default: def.defaults?.[0] ?? 0.5 } }),
       ...(c && { c: { type: GenType, label: c, default: def.defaults?.[1] ?? 0.5 } }),
     },
     output: { result: GenType },
-    exec: (input, ctx) => {
+    pixel: (input, ctx) => {
       if (def.helper) ctx.include(mathHelper(def.helper, ctx.gen as MathType))
       const [x, y, z] = [input.a, input.b, input.c].map((v) => v?.expr ?? '0.0')
       const result = def.glsl(x, y, z)
       return { result: ctx.declare(ctx.gen, input.clamp ? `clamp(${result}, 0.0, 1.0)` : result) }
     },
-    run: (input) => {
+    frame: (input) => {
       const result = componentWise(def.js, input.a, input.b ?? 0, input.c ?? 0)
       return { result: input.clamp ? (Array.isArray(result) ? result.map((v) => Math.min(1, Math.max(0, v))) : Math.min(1, Math.max(0, result))) : result }
     },
   }
 })
+
+const componentWise = (fn: (a: number, b: number, c: number) => number, a: number | number[], b: number | number[], c: number | number[]) =>
+  (Array.isArray(a) ? a.map((x, i) => fn(x, (b as number[])[i], (c as number[])[i])) : fn(a, b as number, c as number))

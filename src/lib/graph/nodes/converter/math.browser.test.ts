@@ -14,14 +14,14 @@ const byte = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 255)
 
 describe('Math', () => {
   it('takes the sockets its operation needs, with their names', () => {
-    const labels = (op: MathOpName) => mathNode.shape({ op }).inputs.filter((s) => s.connectable).map((s) => s.label)
+    const labels = (op: MathOpName) => mathNode.shape({ op }).inputs.filter((s) => s.linkable).map((s) => s.label)
     expect(labels('sine')).toEqual(['Value'])
     expect(labels('power')).toEqual(['Base', 'Exponent'])
     expect(labels('wrap')).toEqual(['Value', 'Min', 'Max'])
     expect(mathNode.base.inputs.map((s) => s.name)).toEqual(['op', 'clamp', 'a', 'b'])
   })
 
-  it.each(Object.keys(MATH_OPS) as MathOpName[])('%s agrees between the shader and the CPU', (op) => {
+  it.each(Object.keys(MATH_OPS) as MathOpName[])('%s agrees between the pixel and frame bodies', (op) => {
     const def = MATH_OPS[op]
     for (const [a, b, c] of [[0.3, 0.7, 0.2], [0.9, 0.25, 0.5], [0.5, 0, 0.1]]) {
       const expected = def.js(a, b, c)

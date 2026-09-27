@@ -19,6 +19,7 @@ import { log } from '@/lib/app/logs'
 import { useEngine } from '@/lib/engine/engine'
 import { categoryById } from '@/lib/shader/glsl'
 import { connectedHandlesKey, graphIssuesKey } from '@/components/graph/graph-context'
+import { socketColor } from '@/components/graph/sockets'
 import { createGraphDocument, graphFileBackendKey, type GraphSession } from '@/lib/graph/model/document'
 import { createHistory } from '@/lib/documents/history'
 import { frozenNotice, graphCodeNotice } from '@/lib/shader/shader-export'
@@ -27,16 +28,16 @@ import { dockHost } from '@/lib/app/workspace'
 import { graphImageDrop } from '@/lib/app/file-drop'
 import { classifyWheel, type WheelGesture } from './wheel-source'
 import {
-  GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, itemFor,
+  GRAPH_FS, GRAPH_NODE_TYPE, canCast, createDefaultGraph, describeNodeItem, firstCompatibleSocket, generateGlsl, inputSocket, nodeItem,
   newNodeData, normalizeDoc, outputSocket, pruneScenes, placement, storedDoc, storedShape,
-  type NodeGraph, type GraphIssue, type GraphNodeData, type LinkType, type NodeItem, type StoredEdge,
+  type DataType, type NodeGraph, type GraphIssue, type GraphNodeData, type NodeItem, type StoredEdge,
 } from '@/lib/graph'
 
 interface PendingLink {
   nodeId: string
   handleId: string
   handleType: 'source' | 'target'
-  type: LinkType
+  type: DataType<any>
 }
 
 const FLOW_ID = 'wledtoy-graph'
@@ -94,14 +95,14 @@ function regenerate(compileNow = true) {
   const pruned = pruneScenes(scenes.value, doc.nodes)
   if (JSON.stringify(pruned) !== JSON.stringify(scenes.value)) scenes.value = pruned
   generated.value = generateGlsl(doc)
-  const { code, control, output, error, lineNodes } = generated.value
+  const { code, frame, output, error, lineNodes } = generated.value
   if (!active.value || error) return
   if (code !== lastCompiled && !compileNow) {
     clearTimeout(regenTimer)
     regenTimer = setTimeout(regenerate, 250)
     return
   }
-  engine.setControlPlan(control)
+  engine.setControlPlan(frame)
   engine.setOutput(output)
   if (code === lastCompiled) return
   const ok = engine.compile(code, 'graph')
@@ -186,7 +187,7 @@ function styledEdges(doc: NodeGraph): Edge[] {
   const byId = new Map(doc.nodes.map((n) => [n.id, n.data]))
   return doc.edges.map((e) => {
     const from = e.style?.stroke ? undefined : outputSocket(byId.get(e.source), e.sourceHandle)
-    return from ? { ...e, style: { stroke: from.type.color, strokeWidth: 2 } } : e
+    return from ? { ...e, style: { stroke: socketColor(from.type), strokeWidth: 2 } } : e
   }) as Edge[]
 }
 
@@ -279,7 +280,7 @@ function isValidConnection(c: Connection) {
   if (c.source === c.target) return false
   const from = outputSocket(dataOf(c.source), c.sourceHandle)
   const to = inputSocket(dataOf(c.target), c.targetHandle)
-  // a control-rate node computes once per frame, so nothing that exists only per pixel can feed it
+  // a per-frame node computes once per frame, so nothing that exists only per pixel can feed it
   const perPixelIntoControl = placement(storedShape(dataOf(c.source))!) === 'pixel' && placement(storedShape(dataOf(c.target))!) === 'frame'
   return !!from && !!to && canCast(from.type, to.type) && !perPixelIntoControl
 }
@@ -293,7 +294,7 @@ function connectLink(c: Connection): boolean {
   addEdges([{
     ...c,
     id: `e-${c.source}-${c.sourceHandle}-${c.target}-${c.targetHandle}-${Date.now().toString(36)}`,
-    style: { stroke: from.type.color, strokeWidth: 2 },
+    style: { stroke: socketColor(from.type), strokeWidth: 2 },
   }])
   return true
 }
@@ -414,7 +415,7 @@ function addImageTexture(imageId: string, title: string, at: { x: number; y: num
   if (recordTimer) recordNow()
   const rect = flowEl.value!.getBoundingClientRect()
   const onCanvas = at.x >= rect.left && at.x <= rect.right && at.y >= rect.top && at.y <= rect.bottom
-  const id = addNode(itemFor('imageTexture')!, { title, values: { filename: imageId } }, onCanvas ? at : null)
+  const id = addNode(nodeItem('imageTexture')!, { title, values: { filename: imageId } }, onCanvas ? at : null)
   nextTick(() => {
     removeSelectedElements()
     const node = findNode(id)
@@ -637,7 +638,7 @@ function copyGlsl() {
 
 const minimapColor = (node: FlowNode) => {
   const kind = (node.data as GraphNodeData | undefined)?.kind ?? ''
-  const category = itemFor(kind)?.category
+  const category = nodeItem(kind)?.category
   return (category && categoryById.get(category)?.color) || '#555'
 }
 
@@ -737,7 +738,7 @@ onBeforeUnmount(() => {
       <button type="button" class="app-button ms-1" @click="sendToShader">Send to Shader Mode</button>
     </Teleport>
 
-    <NodeMenu v-model:open="nodeMenu.open" :position="nodeMenu.position" :fs="menuFs" :describe="describeNodeItem" @select="addNode" />
+    <NodeMenu v-model:open="nodeMenu.open" :position="nodeMenu.position" :fs="menuFs" :describe="(item: NodeItem, preset?: MenuPreset) => describeNodeItem(item, preset, socketColor)" @select="addNode" />
     <GraphDocumentDialogs v-if="graphDocument" :document="graphDocument" />
     <CommandScope
       :handlers="{

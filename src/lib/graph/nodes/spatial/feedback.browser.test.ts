@@ -15,8 +15,8 @@ function run(doc: ReturnType<typeof graph>, frames: number, fps: number, knob: (
     const shader = generateGlsl(doc)
     expect(shader.error).toBeNull()
     if (frame === 0) renderer.compile(shader.code)
-    runner.load(shader.control)
-    renderer.setControls(runner.step({ time: frame / fps, dt: 1 / fps, frameIndex: frame }))
+    runner.load(shader.frame)
+    renderer.setControls(runner.step({ time: frame / fps, dt: 1 / fps, frameIndex: frame, audio: undefined, midi: undefined, osc: undefined }))
     const colors = renderer.renderLeds({ time: frame / fps, dt: 1 / fps, frame, ledCount: leds, scanY: 0.5 })
     out.push(Array.from({ length: leds }, (_, i) => toByte(colors[i * 3])))
   }
@@ -43,8 +43,8 @@ describe('Trails', () => {
     const lit = generateGlsl(graph([node('k', 'knob', { value: 1 }), node('t', 'trails', { decay: 5 }), node('o', 'output')], [['k.value', 't.color'], ['t.color', 'o.color']]))
     const runner = new FrameRunner()
     const frame = (s: typeof shader) => {
-      runner.load(s.control)
-      renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0 }))
+      runner.load(s.frame)
+      renderer.setControls(runner.step({ time: 0, dt: 1 / 30, frameIndex: 0, audio: undefined, midi: undefined, osc: undefined }))
       return toByte(renderer.renderLeds({ time: 0, dt: 1 / 30, frame: 0, ledCount: 1, scanY: 0.5 })[0])
     }
     renderer.compile(shader.code)

@@ -1,4 +1,4 @@
-import { defineNode, Vec2 } from '@/lib/graph/authoring'
+import { defineNode, Vec2, vectorLiteral } from '@/lib/graph/authoring'
 
 export const vector2Node = defineNode('vector2', {
   title: 'Vector 2',
@@ -6,8 +6,8 @@ export const vector2Node = defineNode('vector2', {
   category: 'input',
   signature: 'vec2 vector',
   input: {
-    vector: { type: Vec2, label: '', default: [0.5, 0.5], connectable: false },
+    vector: { type: Vec2, label: '', default: [0.5, 0.5], linkable: false },
   },
   output: { vector: Vec2 },
-  exec: ({ vector }) => ({ vector: Vec2.literal(vector) }),
+  pixel: ({ vector }) => ({ vector: vectorLiteral(vector) }),
 })

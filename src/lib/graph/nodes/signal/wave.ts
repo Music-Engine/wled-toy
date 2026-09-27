@@ -13,14 +13,14 @@ const hash = (n: number) => {
 
 /**
  * One node for every periodic 0..1 signal: a per-pixel wave along the strip or over time, and the LFO of a per-frame chain.
- * Per pixel it defaults to the shader's time; on the CPU to the engine clock; link a position for a wave along the strip.
+ * Per pixel it defaults to the shader's time; per frame to the engine clock; link a position for a wave along the strip.
  */
 export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape }) => ({
   title: 'Wave',
   description: 'A 0 to 1 wave of the given shape: Frequency cycles per unit of Input, shifted by Phase. Random Steps holds a new random value each cycle; Smooth Random glides between them.',
   category: 'signal',
   input: {
-    shape: { type: Enum(SHAPES), label: '', default: 'sine', connectable: false, props: { label: 'Shape' } },
+    shape: { type: Enum(SHAPES), label: '', default: 'sine', linkable: false, props: { label: 'Shape' } },
     input: { type: Float, default: { expr: 'iTime', label: 'time', frame: 'time' } },
     frequency: { type: Float, default: 1, props: { step: 0.1, decimals: 3 } },
     phase: { type: Float, default: 0, props: { decimals: 3 } },
@@ -28,7 +28,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
     ...(shape === 'pulse' && { width: { type: Float, default: 0.1, props: { min: 0.001, max: 1, decimals: 3 } } }),
   },
   output: { value: Float },
-  exec: (input, ctx) => {
+  pixel: (input, ctx) => {
     const cycle = ctx.declare('float', `${input.input.expr} * ${input.frequency.expr} + ${input.phase.expr}`, 'cycle').expr
     const p = ctx.declare('float', `fract(${cycle})`, 'p').expr
     const cell = `floor(${cycle})`
@@ -43,7 +43,7 @@ export const waveNode = defineNode('wave', ({ shape = 'sine' }: { shape?: Shape 
                   : `mix(${random(cell)}, ${random(`(${cell} + 1.0)`)}, ${p} * ${p} * (3.0 - 2.0 * ${p}))`
     return { value: ctx.declare('float', value) }
   },
-  run: (input) => {
+  frame: (input) => {
     const cycle = input.input * input.frequency + input.phase
     const p = cycle - Math.floor(cycle)
     const cell = Math.floor(cycle)

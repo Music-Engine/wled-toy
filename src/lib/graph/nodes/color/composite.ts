@@ -2,7 +2,7 @@ import { Bool, Color, defineNode, Enum, Float } from '@/lib/graph/authoring'
 import { BLEND_FUNCTIONS } from '@/lib/graph/nodes/glsl/blend'
 import { BLEND_MODES, type BlendMode } from './color-mix'
 
-/** `mode` is `connectable: false`, so it is known at shape-build time and the node includes only that one blend function. */
+/** `mode` is `linkable: false`, so it is known at shape-build time and the node includes only that one blend function. */
 export const layerMixNode = defineNode('layerMix', ({ mode = 'mix' }: { mode?: BlendMode }) => {
   const { fn, chunk } = BLEND_FUNCTIONS[mode] ?? BLEND_FUNCTIONS.mix
   return {
@@ -11,14 +11,14 @@ export const layerMixNode = defineNode('layerMix', ({ mode = 'mix' }: { mode?: B
     category: 'color',
     includes: [chunk],
     input: {
-      mode: { type: Enum(BLEND_MODES), label: '', connectable: false, props: { label: 'Blend Mode' } },
+      mode: { type: Enum(BLEND_MODES), label: '', linkable: false, props: { label: 'Blend Mode' } },
       base: { type: Color, default: [0, 0, 0] },
       layer: { type: Color, default: [1, 1, 1] },
       opacity: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
       mask: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
     },
     output: { color: Color },
-    exec: ({ base, layer, opacity, mask }, ctx) =>
+    pixel: ({ base, layer, opacity, mask }, ctx) =>
       ({ color: ctx.declare('vec3', `clamp(${fn}(clamp(${opacity.expr} * ${mask.expr}, 0.0, 1.0), ${base.expr}, ${layer.expr}), 0.0, 1.0)`) }),
   }
 })
@@ -28,13 +28,13 @@ export const maskNode = defineNode('mask', {
   description: 'Turns a value into a 0 to 1 mask: 1 where it is above Threshold, with Softness as the width of the edge.',
   category: 'color',
   input: {
-    invert: { type: Bool, default: false, connectable: false },
+    invert: { type: Bool, default: false, linkable: false },
     value: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
     threshold: { type: Float, default: 0.5, props: { decimals: 3 } },
     softness: { type: Float, default: 0.05, props: { min: 0, decimals: 3 } },
   },
   output: { mask: Float },
-  exec: ({ invert, value, threshold, softness }, ctx) => {
+  pixel: ({ invert, value, threshold, softness }, ctx) => {
     // a zero-width smoothstep is undefined, so the edge never gets narrower than this
     const edge = ctx.declare('float', `max(${softness.expr}, 0.0001) * 0.5`, 'edge').expr
     const mask = `smoothstep(${threshold.expr} - ${edge}, ${threshold.expr} + ${edge}, ${value.expr})`
@@ -51,7 +51,7 @@ export const brightnessCeilingNode = defineNode('brightnessCeiling', {
     ceiling: { type: Float, default: 0.8, props: { min: 0, max: 1, decimals: 2 } },
   },
   output: { color: Color },
-  exec: ({ color, ceiling }, ctx) => {
+  pixel: ({ color, ceiling }, ctx) => {
     const c = ctx.declare('vec3', color.expr, 'in').expr
     return { color: ctx.declare('vec3', `${c} * min(1.0, ${ceiling.expr} / max(max(${c}.r, max(${c}.g, ${c}.b)), 0.0001))`) }
   },

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { GRAPH_VERSION, canCast, generateGlsl, inputSocket, normalizeDoc, type NodeGraph } from '@/lib/graph'
+import { GRAPH_VERSION, canCast, createDefaultGraph, generateGlsl, inputSocket, nodeItem, normalizeDoc, type NodeGraph } from '@/lib/graph'
 import { Color, Float, GenType, Int, Sampler2D, Vec2, Vec4 } from '@/lib/graph/define/socket-types'
 import { flattenFs } from '@/lib/shader/menu-fs'
 import { GLSL_TYPES } from '@/lib/shader/glsl'
 import { GRAPH_FS } from '@/lib/graph/menu/fs'
 import { graph, node } from '@/lib/graph/testing'
+import { buildProgram } from './compile'
 
 describe('canCast', () => {
   it('links any numeric type to any other, in both directions through genType', () => {
@@ -35,7 +36,7 @@ describe('normalizeDoc', () => {
 describe('socket names', () => {
   it('every socket says what it carries, never a GLSL type or a bare lowercase letter', () => {
     const vague = flattenFs(GRAPH_FS.items).flatMap(({ node: item }) =>
-      [...item.base.inputs.filter((s) => s.connectable), ...item.base.outputs]
+      [...item.base.inputs.filter((s) => s.linkable), ...item.base.outputs]
         .filter((s) => [...GLSL_TYPES, 'genType', 'out', 'result'].includes(s.label) || /^[a-z]?$/.test(s.label))
         .map((s) => `${item.id}.${s.name}`))
     expect(vague).toEqual([])
@@ -55,11 +56,10 @@ describe('generateGlsl', () => {
     expect(code).toContain('float n_m = clamp(0.5 + 0.5, 0.0, 1.0);')
   })
 
-  it('falls back to defaults on invalid stored values and says so', () => {
-    const result = toOutput(graph([node('m', 'math', { op: 'nope', a: 'x' }), node('o', 'output')], [['m.result', 'o.color']]))
-    expect(result.error).toBeNull()
-    expect(result.issues.map((i) => i.nodeId)).toEqual(['m', 'm'])
-    expect(result.code).toContain('float n_m = 0.5 + 0.5;')
+  it('an invalid stored value is an error on its node that names the socket and the value', () => {
+    const drawn = (values: object) => toOutput(graph([node('m', 'math', values as never), node('o', 'output')], [['m.result', 'o.color']]))
+    expect(drawn({ a: 'x' })).toMatchObject({ errorNode: 'm', error: 'Value is "x", not a valid Number or vector' })
+    expect(drawn({ op: 'nope' })).toMatchObject({ errorNode: 'm', error: 'op is "nope", not a valid Option' })
   })
 
   it('reports an uncastable link on the node that receives it', () => {
@@ -86,5 +86,58 @@ describe('streams', () => {
   it('a stream linked into a number socket is a graph error on the receiving node', () => {
     const result = generateGlsl(graph([node('f', 'fft'), node('o', 'output')], [['f.spectrum', 'o.color']]))
     expect(result).toMatchObject({ errorNode: 'o', error: 'Color needs a number or a color, not Spectrum' })
+  })
+
+  it('a stream or a bodiless source linked into a per-frame socket is refused for what it is, not as changing per pixel', () => {
+    const into = (output: string) => generateGlsl(graph([node('f', 'fft'), node('i', 'integrator'), node('o', 'output')], [[`f.${output}`, 'i.rate'], ['i.value', 'o.color']]))
+    expect(into('spectrum')).toMatchObject({ errorNode: 'i', error: 'Rate needs one value per frame, not Spectrum' })
+    expect(into('level')).toMatchObject({ errorNode: 'i', error: 'Rate needs one value per frame, but FFT has no per-frame output level' })
+  })
+
+  it('a link to an output a resolve-only node lacks is an error on that node, and plans no frame step for it', () => {
+    const program = buildProgram(graph([node('f', 'fft'), node('o', 'output')], [['f.level', 'o.color']]), {})
+    expect(program).toMatchObject({ errorNode: 'f', error: 'FFT has no per-frame output level' })
+    expect(program.frame.map((step) => step.nodeId)).not.toContain('f')
+  })
+})
+
+describe('resolve', () => {
+  it('hands its data to the bodies as resolved, never over an input of the same name', () => {
+    const spectrum = nodeItem('spectrum')!.base
+    spectrum.resolve = () => ({ data: { spectrum: { slot: 3 } } })
+    try {
+      const doc = graph([node('f', 'fft', { fmin: 100 }), node('s', 'spectrum'), node('o', 'output')], [['f.spectrum', 's.spectrum'], ['s.level', 'o.color']])
+      expect(generateGlsl(doc).code).toContain('historyAt(1, ')
+    } finally {
+      delete spectrum.resolve
+    }
+  })
+})
+
+describe('buildProgram', () => {
+  const docs = {
+    default: () => createDefaultGraph(),
+    // Time is planned per frame for the Integrator and emitted per pixel for Combine Color
+    dual: () => graph(
+      [node('t', 'time'), node('i', 'integrator'), node('cc', 'combineColor'), node('o', 'output')],
+      [['t.delta', 'i.rate'], ['i.value', 'cc.a'], ['t.time', 'cc.b'], ['cc.color', 'o.color']],
+    ),
+  }
+  const modes = { normal: {}, standalone: { standalone: true, controls: () => [0.1, 0.2] } }
+  const cases = Object.entries(docs).flatMap(([doc, make]) => Object.entries(modes).map(([mode, options]) => [`${doc} ${mode}`, make, options] as const))
+
+  it.each(cases)('%s: the same graph compiles to deep-equal Programs', (_, make, options) => {
+    expect(buildProgram(make(), options)).toEqual(buildProgram(make(), options))
+  })
+
+  it.each(cases)('%s: the Program survives JSON', (_, make, options) => {
+    const program = buildProgram(make(), options)
+    expect(JSON.parse(JSON.stringify(program))).toStrictEqual(program)
+  })
+
+  it('lists a node planned per frame and emitted per pixel in both', () => {
+    const program = buildProgram(docs.dual(), {})
+    expect(program.frame.map((step) => step.nodeId)).toEqual(['t', 'i'])
+    expect(program.pixel.flatMap((entry) => ('node' in entry ? [entry.node] : []))).toEqual(['t', 'cc', 'o'])
   })
 })

@@ -1,73 +1,15 @@
 import { titleCase, type CategoryId } from '@/lib/shader/glsl'
-import type { FrameInfo, GlslChunk, NodeContext, ResolveEnv } from './context'
-import { implicitDefault, isImplicit, type InputSocket, type NodeItem, type NodePreset, type NodeShape, type OutputSocket, type WidgetProps } from './shape'
-import { isGlslType, isStreamType, type DataType, type GlslTypeDef, type ImplicitDefault, type LinkType, type StreamType } from './types'
-
-interface SocketOptions {
-  /** Shown next to the socket; an empty string hides the label. Defaults to the socket name in Title Case. */
-  label?: string
-  /** Extra props for the widget that edits this socket while it is unlinked; a function when they depend on the node's other values. */
-  props?: WidgetProps
-}
-
-/** An input that can be linked. Unlinked, it uses `default`: a literal the user can edit or an implicit expression. */
-export type LinkedInputDef = SocketOptions & { type: GlslTypeDef<any>; connectable?: true; default?: unknown | ImplicitDefault }
-/** An input that only lives on the node: `exec` receives the stored value instead of a GLSL expression. */
-export type StoredInputDef = SocketOptions & { type: DataType<any>; connectable: false; default?: unknown }
-/** An input linked to a stream; the node receives what `resolve` of the linked node produced, or null when unlinked. */
-export type StreamInputDef = SocketOptions & { type: StreamType<any> }
-export type InputDef = LinkType | LinkedInputDef | StoredInputDef | StreamInputDef
-export type OutputDef = LinkType | { type: LinkType; label?: string }
-
-type SocketType<D> = Required<D extends { type: infer T extends DataType<any, any, any> } ? T : Extract<D, DataType<any, any, any>>>
-/** A stored-only socket has no GLSL form, so both bodies receive its stored value. */
-export type Inputs<I, V extends 'js' | 'glsl'> = { [K in keyof I]: SocketType<I[K]>[I[K] extends { connectable: false } ? '_js' : `_${V}`] }
-/**
- * A per-frame array literal is inferred as a readonly tuple under `const O`; the engine only reads outputs, so `run` may
- * return either. A union rather than `Readonly` alone, which turns `any` into an object type.
- */
-export type Outputs<O, V extends 'js' | 'glsl'> = { [K in keyof O]: { js: SocketType<O[K]>['_js'] | Readonly<SocketType<O[K]>['_js']>; glsl: SocketType<O[K]>['_glsl'] }[V] }
-
-export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S = undefined> {
-  title: string
-  description: string
-  category: CategoryId
-  /** GLSL shown in the menu preview. */
-  signature?: string
-  /** Codegen starts from output nodes. */
-  isOutput?: boolean
-  /** GLSL this node's code calls into. */
-  includes?: GlslChunk[]
-  /**
-   * For a per-frame node: GLSL for an output when the graph is compiled standalone (sent to shader mode or exported),
-   * where nothing feeds the uniform block. Outputs without one are baked from their last value.
-   */
-  standalone?: Partial<Record<keyof O, string>>
-  input: I
-  output: O
-  /** Per pixel: emits GLSL. A node with only `exec` runs in the shader. */
-  exec?(input: Inputs<I, 'glsl'>, ctx: NodeContext): Outputs<O, 'glsl'>
-  /**
-   * Once per frame, on the CPU. A node with only `run` is control-rate: it can hold `state`, and its inputs must not vary
-   * per pixel. A node with both runs on the CPU whenever everything linked into it does, and in the shader otherwise.
-   */
-  run?(input: Inputs<I, 'js'>, state: S, frame: FrameInfo): Outputs<O, 'js'>
-  /**
-   * While the graph compiles: what this node puts on its stream outputs (Audio, Spectrum), from its stored values and
-   * the streams linked into it. Anything else it returns is handed to `exec` and `run` alongside their inputs.
-   */
-  resolve?(input: Inputs<I, 'glsl'>, env: ResolveEnv): Record<string, unknown>
-  /** Fresh state for a control-rate node. It survives recompiles for as long as the node exists. */
-  state?(): S
-  presets?: NodePreset[]
-}
+import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
+import type { Inputs, Outputs, PixelState, State, StateDef } from './infer'
+import type { NodeItem, NodePreset, NodeShape, OutputSocket, Rate, Socket, WidgetProps } from './shape'
+import { isImplicit, type DataType } from './types'
 
 /**
  * Defines a graph node: its sockets, how they are edited, and the GLSL it emits. Input order is the order rows appear
  * on the node. Given a function, the definition is rebuilt from the node's stored values whenever they change, so a
  * parameter can turn the node into a different shape.
  */
-export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S = undefined>(
+export function defineNode<const I extends Record<string, InputDef>, const O extends Record<string, OutputDef>, S extends StateDef = {}>(
   id: string,
   definition: NodeItemOptions<I, O, S> | ((values: Record<string, any>) => NodeItemOptions<I, O, S>),
 ): NodeItem {
@@ -81,12 +23,65 @@ export function defineNode<const I extends Record<string, InputDef>, const O ext
   }
 }
 
-function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S>(
+export interface NodeItemOptions<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef = {}> {
+  title: string
+  description: string
+  category: CategoryId
+  /** GLSL shown in the menu preview. */
+  signature?: string
+  /** Codegen starts from output nodes. */
+  isOutput?: boolean
+  /** GLSL this node's code calls into. */
+  includes?: GlslChunk[]
+  input: I
+  output: O
+  /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader, and can hold pixel-scope `state`. */
+  pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext<PixelState<S>>): Outputs<O, 'pixel'>
+  /**
+   * Once per frame, in JS. A node with only `frame` can hold frame-scope `state`, and its inputs must not vary per pixel. A node with
+   * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise.
+   */
+  frame?(input: Inputs<I, 'frame'>, info: FrameContext<State<S>>): Outputs<O, 'frame'>
+  /**
+   * While the graph compiles, from its stored values and the streams linked into it: what this node puts on its stream
+   * outputs (Audio, Spectrum), what its bodies get as `resolved`, what the engine has to provide, and what is wrong.
+   * `resources` is what earlier nodes registered, for a node whose result depends on the index its config gets.
+   */
+  resolve?(input: Inputs<I, 'pixel'>, resources: Resources): ResolveResult
+  /**
+   * Slots that start at their type's zero. Frame-scope state survives recompiles for as long as the node exists;
+   * pixel-scope state starts over on every recompile, resize and clock reset.
+   */
+  state?: S
+  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). */
+  stateScope?: Rate
+  presets?: NodePreset[]
+}
+
+/**
+ * A type alone, or a type with options. Unlinked, a socket uses `default`: a literal the user can edit or an implicit
+ * expression. `linkable: false` keeps the socket on the node, and both bodies receive the stored value.
+ */
+export type InputDef = DataType<any, any, any> | SocketDef
+
+interface SocketDef {
+  type: DataType<any, any, any>
+  /** Shown next to the socket; an empty string hides the label. Defaults to the socket name in Title Case. */
+  label?: string
+  /** Extra props for the widget that edits this socket while it is unlinked; a function when they depend on the node's other values. */
+  props?: WidgetProps
+  linkable?: boolean
+  default?: unknown
+}
+
+export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any>; label?: string }
+
+function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef>(
   id: string,
-  { title, signature, isOutput, includes, input, output, exec, run, state, resolve, standalone }: NodeItemOptions<I, O, S>,
+  { title, signature, isOutput, includes, input, output, pixel, frame, state, stateScope = 'frame', resolve }: NodeItemOptions<I, O, S>,
 ): NodeShape {
-  if (!exec && !run && !resolve) throw new Error(`${id}: a node needs exec, run or resolve`)
-  if (state && exec) throw new Error(`${id}: only a control-rate node can hold state; the shader has nowhere to keep it`)
+  if (!pixel && !frame && !resolve) throw new Error(`${id}: a node needs pixel, frame or resolve`)
+  if (state) checkState(id, state, stateScope, { pixel, frame })
   return {
     title,
     signature: signature ?? '',
@@ -94,27 +89,41 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     includes: includes ?? [],
     inputs: Object.entries(input).map(([name, def]) => buildInputSocket(id, name, def)),
     outputs: Object.entries(output).map(([name, def]) => buildOutputSocket(id, name, def)),
-    exec: exec as NodeShape['exec'],
-    run: run as NodeShape['run'],
+    pixel: pixel as NodeShape['pixel'],
+    frame: frame as NodeShape['frame'],
     resolve: resolve as NodeShape['resolve'],
     state,
-    standalone: (standalone ?? {}) as NodeShape['standalone'],
+    stateScope: state && stateScope,
   }
 }
 
-function buildInputSocket(item: string, name: string, def: InputDef): InputSocket {
-  const options: SocketOptions & { type: DataType<any>; connectable?: boolean; default?: unknown } = 'type' in def ? def : { type: def }
+function checkState(id: string, state: StateDef, scope: Rate, bodies: { pixel?: unknown; frame?: unknown }): void {
+  if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; a pixel body needs stateScope pixel`)
+  if (scope === 'frame') return
+  if (bodies.frame || !bodies.pixel) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
+  for (const [name, type] of Object.entries(state)) {
+    if (!keepsPerPixel(type)) throw new Error(`${id}.${name}: pixel-scope state holds a number or a vector of 1 to 4 components, not ${type.label}`)
+  }
+}
+
+// the state targets hold floats only, four to a layer
+const keepsPerPixel = (type: DataType<any>) => type.kind === 'value' && type.dim !== undefined && type.dim >= 1 && type.dim <= 4
+
+function buildInputSocket(item: string, name: string, def: InputDef): Socket {
+  const options: SocketDef = 'type' in def ? def : { type: def }
   const { type } = options
-  const connectable = options.connectable !== false
-  if (connectable && !isGlslType(type) && !isStreamType(type)) throw new Error(`${item}.${name}: ${type.label} has no GLSL form, so the socket must set connectable: false`)
-  const fallback = options.default ?? implicitDefault(type) ?? type.initial()
-  if (isImplicit(fallback) && !connectable) throw new Error(`${item}.${name}: default does not fit ${type.label}`)
+  const linkable = options.linkable !== false
+  if (linkable && type.kind === 'param') throw new Error(`${item}.${name}: ${type.label} cannot be linked, so the socket must set linkable: false`)
+  if (!linkable && type.kind === 'stream') throw new Error(`${item}.${name}: a stream only arrives over a link, so the socket must be linkable`)
+  const fallback = options.default ?? type.initial()
+  if (isImplicit(fallback) && !linkable) throw new Error(`${item}.${name}: default does not fit ${type.label}`)
   if (!isImplicit(fallback) && !type.check(fallback)) throw new Error(`${item}.${name}: default does not fit ${type.label}`)
-  return { name, label: options.label ?? titleCase(name), type, connectable, default: fallback, props: options.props ?? {} }
+  return { name, label: options.label ?? titleCase(name), type, linkable, default: fallback, props: options.props ?? {} }
 }
 
 function buildOutputSocket(item: string, name: string, def: OutputDef): OutputSocket {
   const { type, label } = 'type' in def ? def : { type: def, label: undefined }
   if (!label && name === 'out') throw new Error(`${item}: output "out" needs a label that says what it carries`)
+  if (type.kind === 'param') throw new Error(`${item}.${name}: ${type.label} cannot be linked, so it cannot be an output`)
   return { name, label: label ?? titleCase(name), type }
 }

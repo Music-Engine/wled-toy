@@ -13,7 +13,10 @@ export const spectrumNode = defineNode('spectrum', {
     age: { type: Float, default: 0, props: { min: 0, max: 1 } },
   },
   output: { level: Float },
-  exec: ({ spectrum, position, age }, ctx) => ({ level: ctx.declare('float', `historyAt(${spectrum?.slot ?? 0}, ${position.expr}, ${age.expr})`) }),
+  pixel: ({ spectrum, position, age }, ctx) => {
+    ctx.require('glsl')
+    return { level: ctx.declare('float', `historyAt(${spectrum?.slot ?? 0}, ${position.expr}, ${age.expr})`) }
+  },
 })
 
 export const chromaNode = defineNode('chroma', {
@@ -22,7 +25,10 @@ export const chromaNode = defineNode('chroma', {
   category: 'audio',
   input: { spectrum: SpectrumStream, position: alongStrip },
   output: { level: Float },
-  exec: ({ spectrum, position }, ctx) => ({ level: ctx.declare('float', `chromaAt(${spectrum?.slot ?? 0}, floor(clamp(${position.expr}, 0.0, 0.9999) * 12.0))`) }),
+  pixel: ({ spectrum, position }, ctx) => {
+    ctx.require('glsl')
+    return { level: ctx.declare('float', `chromaAt(${spectrum?.slot ?? 0}, floor(clamp(${position.expr}, 0.0, 0.9999) * 12.0))`) }
+  },
 })
 
 export const waveformNode = defineNode('waveform', {
@@ -36,7 +42,8 @@ export const waveformNode = defineNode('waveform', {
     delay: { type: Float, label: 'Delay (s)', default: 0, props: { min: 0, max: 0.3, decimals: 3 } },
   },
   output: { sample: Float },
-  exec: ({ position, span, delay }, ctx) => ({
-    sample: ctx.declare('float', `waveformAt(((1.0 - ${position.expr}) * ${span.expr} + ${delay.expr}) * iAudioHeads.z)`),
-  }),
+  pixel: ({ position, span, delay }, ctx) => {
+    ctx.require('glsl')
+    return { sample: ctx.declare('float', `waveformAt(((1.0 - ${position.expr}) * ${span.expr} + ${delay.expr}) * iAudioHeads.z)`) }
+  },
 })

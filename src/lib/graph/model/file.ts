@@ -1,26 +1,6 @@
 import { GRAPH_VERSION, normalizeDoc, type NodeGraph } from './doc'
 import { lintDoc } from './lint'
 
-/** Extension a `.wledgraph` file is saved and opened with. */
-export const GRAPH_FILE_EXTENSION = '.wledgraph'
-
-const APP_ID = 'wledtoy'
-const FORMAT_VERSION = 1
-
-interface GraphFileEnvelope {
-  app: string
-  formatVersion: number
-  graph: NodeGraph
-}
-
-/** A `.wledgraph` file that failed to parse; the message is specific enough to show the user as-is. */
-export class GraphFileError extends Error {}
-
-export function serializeGraphFile(doc: NodeGraph): string {
-  const envelope: GraphFileEnvelope = { app: APP_ID, formatVersion: FORMAT_VERSION, graph: doc }
-  return JSON.stringify(envelope, null, 2)
-}
-
 /** The graph in a `.wledgraph` file, plus what lintDoc found in it before the parser tidied it. */
 export function readGraphFile(text: string): { doc: NodeGraph; problems: string[] } {
   let parsed: unknown
@@ -47,3 +27,23 @@ export function readGraphFile(text: string): { doc: NodeGraph; problems: string[
 
   return { doc: normalizeDoc(graph as NodeGraph), problems: lintDoc(graph as NodeGraph) }
 }
+
+export function serializeGraphFile(doc: NodeGraph): string {
+  const envelope: GraphFileEnvelope = { app: APP_ID, formatVersion: FORMAT_VERSION, graph: doc }
+  return JSON.stringify(envelope, null, 2)
+}
+
+/** Extension a `.wledgraph` file is saved and opened with. */
+export const GRAPH_FILE_EXTENSION = '.wledgraph'
+
+/** A `.wledgraph` file that failed to parse; the message is specific enough to show the user as-is. */
+export class GraphFileError extends Error {}
+
+interface GraphFileEnvelope {
+  app: string
+  formatVersion: number
+  graph: NodeGraph
+}
+
+const APP_ID = 'wledtoy'
+const FORMAT_VERSION = 1

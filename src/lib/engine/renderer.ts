@@ -20,11 +20,13 @@ interface PingPong {
   height: number
   /** Which of the two holds the last finished frame. */
   latest: 0 | 1
+  /** Per-pixel state beside each color target, a layer per `outStateN`; null when the shader keeps none. */
+  states: [WebGLTexture, WebGLTexture] | null
 }
 
 const UNIFORMS = [
   'iResolution', 'iTime', 'iFrame', 'iLedCount', 'iScanY', 'iAudio', 'iImage', 'iControl',
-  'iAudioBands', 'iAudioHistory', 'iAudioWave', 'iAudioHeads', 'iAudioBandsExtra', 'iAudioHistoryExtra', 'iAudioHistoryHeadExtra', 'iLayout', 'iLayoutCount', 'iPrevFrame', 'iTimeDelta', 'iImages',
+  'iAudioBands', 'iAudioHistory', 'iAudioWave', 'iAudioHeads', 'iAudioBandsExtra', 'iAudioHistoryExtra', 'iAudioHistoryHeadExtra', 'iLayout', 'iLayoutCount', 'iPrevFrame', 'iTimeDelta', 'iImages', 'iState',
 ] as const
 
 export interface FrameParams {
@@ -58,6 +60,7 @@ export class ShaderRenderer {
   private controls: Float32Array | null = null
   private presentProgram: WebGLProgram | null = null
   private usesFeedback = false
+  private stateLayers = 0
   private readonly feedback: { led: PingPong | null; preview: PingPong | null } = { led: null, preview: null }
   // half floats keep a long fade smooth; 8 bits stall once a step rounds to nothing
   private readonly floatTargets: boolean
@@ -117,11 +120,17 @@ export class ShaderRenderer {
   compile(userCode: string): number {
     const { gl } = this
     const t0 = performance.now()
+    const indices = [...new Set(Array.from(userCode.matchAll(/\boutState([1-3])\b/g), (m) => Number(m[1])))].sort()
+    // layer k is attachment k + 1, so a gap would leave an output with nowhere to land
+    if (indices.some((index, i) => index !== i + 1)) throw new Error(`outState indices must be contiguous from 1, found ${indices.join(', ')}`)
+    const stateLayers = indices.length
+    if (stateLayers > 0 && !this.floatTargets) throw new Error('this GPU cannot keep per-pixel state')
     const program = this.link(PRELUDE + userCode)
     if (this.program) gl.deleteProgram(this.program)
     this.program = program
     // only shaders that look back pay for the extra targets
     this.usesFeedback = /\b(iPrevFrame|previousFrame)\b/.test(userCode)
+    this.stateLayers = stateLayers
     this.resetFeedback()
     this.uniforms = Object.fromEntries(UNIFORMS.map((n) => [n, gl.getUniformLocation(program, n)]))
     return performance.now() - t0
@@ -216,7 +225,7 @@ export class ShaderRenderer {
       canvas.width = w
       canvas.height = h
     }
-    if (!this.usesFeedback) {
+    if (!this.usesFeedback && this.stateLayers === 0) {
       this.draw(w, h, params)
       return
     }
@@ -231,12 +240,10 @@ export class ShaderRenderer {
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
-  /** Forgets the previous frames, so trails start from black. */
+  /** Forgets the previous frames and per-pixel state, so trails start from black and state from 0. */
   resetFeedback() {
     for (const key of ['led', 'preview'] as const) {
-      const pair = this.feedback[key]
-      pair?.textures.forEach((t) => this.gl.deleteTexture(t))
-      pair?.framebuffers.forEach((f) => this.gl.deleteFramebuffer(f))
+      this.freePingPong(this.feedback[key])
       this.feedback[key] = null
     }
   }
@@ -248,7 +255,7 @@ export class ShaderRenderer {
   renderLeds(params: FrameParams): Float32Array {
     const { gl } = this
     const n = params.ledCount
-    if (this.usesFeedback) this.drawWithFeedback('led', n, 1, params)
+    if (this.usesFeedback || this.stateLayers > 0) this.drawWithFeedback('led', n, 1, params)
     else {
       this.resizeLedTarget(n)
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.ledFb)
@@ -273,34 +280,66 @@ export class ShaderRenderer {
     const { gl } = this
     let pair = this.feedback[pass]
     if (!pair || pair.width !== width || pair.height !== height) {
-      pair?.textures.forEach((t) => gl.deleteTexture(t))
-      pair?.framebuffers.forEach((f) => gl.deleteFramebuffer(f))
-      const make = (): [WebGLTexture, WebGLFramebuffer] => {
-        const texture = this.createTexture(7)
-        if (this.floatTargets) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.HALF_FLOAT, null)
-        else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
-        const framebuffer = gl.createFramebuffer()
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
-        gl.clearColor(0, 0, 0, 1)
-        gl.clear(gl.COLOR_BUFFER_BIT)
-        return [texture, framebuffer]
-      }
-      const [a, b] = [make(), make()]
-      pair = this.feedback[pass] = { textures: [a[0], b[0]], framebuffers: [a[1], b[1]], width, height, latest: 0 }
+      this.freePingPong(pair)
+      pair = this.feedback[pass] = this.createPingPong(width, height)
     }
     const target = pair.latest === 0 ? 1 : 0
     gl.bindFramebuffer(gl.FRAMEBUFFER, pair.framebuffers[target])
-    this.draw(width, height, params, pair.textures[pair.latest])
+    this.draw(width, height, params, pair.textures[pair.latest], pair.states?.[pair.latest])
     pair.latest = target
     return pair.textures[target]
+  }
+
+  private createPingPong(width: number, height: number): PingPong {
+    const { gl } = this
+    const side = () => {
+      const texture = this.createTexture(7)
+      if (this.floatTargets) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, width, height, 0, gl.RGBA, gl.HALF_FLOAT, null)
+      else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+      const framebuffer = gl.createFramebuffer()
+      gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
+      gl.clearColor(0, 0, 0, 1)
+      gl.clear(gl.COLOR_BUFFER_BIT)
+      return { texture, framebuffer, state: this.stateLayers > 0 ? this.attachState(width, height) : null }
+    }
+    const [a, b] = [side(), side()]
+    const states: PingPong['states'] = a.state && b.state ? [a.state, b.state] : null
+    return { textures: [a.texture, b.texture], framebuffers: [a.framebuffer, b.framebuffer], width, height, latest: 0, states }
+  }
+
+  /** Attaches a state array to the bound framebuffer, layer k as color attachment k + 1, where `outState<k + 1>` lands. */
+  private attachState(width: number, height: number): WebGLTexture {
+    const { gl } = this
+    const texture = gl.createTexture()
+    gl.activeTexture(gl.TEXTURE14)
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture)
+    // WebGL zero-fills new storage, which is the 0 every state starts from
+    gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA32F, width, height, this.stateLayers)
+    // 32-bit floats are not filterable without an extension, and a LINEAR filter would leave the array incomplete
+    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    const buffers: number[] = [gl.COLOR_ATTACHMENT0]
+    for (let layer = 0; layer < this.stateLayers; layer++) {
+      gl.framebufferTextureLayer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1 + layer, texture, 0, layer)
+      buffers.push(gl.COLOR_ATTACHMENT1 + layer)
+    }
+    // draw buffers belong to the framebuffer, so this is set once here and not per frame
+    gl.drawBuffers(buffers)
+    return texture
+  }
+
+  private freePingPong(pair: PingPong | null) {
+    pair?.textures.forEach((t) => this.gl.deleteTexture(t))
+    pair?.framebuffers.forEach((f) => this.gl.deleteFramebuffer(f))
+    pair?.states?.forEach((t) => this.gl.deleteTexture(t))
   }
 
   dispose() {
     this.gl.getExtension('WEBGL_lose_context')?.loseContext()
   }
 
-  private draw(width: number, height: number, p: FrameParams, previous: WebGLTexture | null = null) {
+  private draw(width: number, height: number, p: FrameParams, previous: WebGLTexture | null = null, previousState?: WebGLTexture) {
     const { gl, program, uniforms: u } = this
     if (!program) return
     gl.viewport(0, 0, width, height)
@@ -324,6 +363,11 @@ export class ShaderRenderer {
     gl.activeTexture(gl.TEXTURE7)
     gl.bindTexture(gl.TEXTURE_2D, previous)
     gl.uniform1i(u.iPrevFrame ?? null, 7)
+    if (previousState) {
+      gl.activeTexture(gl.TEXTURE14)
+      gl.bindTexture(gl.TEXTURE_2D_ARRAY, previousState)
+      gl.uniform1i(u.iState ?? null, 14)
+    }
     gl.uniform1f(u.iTimeDelta ?? null, p.dt ?? 1 / 60)
     gl.uniform1f(u.iLayoutCount ?? null, this.layoutCount)
     this.extraAudio.forEach((slot, i) => {

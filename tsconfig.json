@@ -17,5 +17,5 @@
       "wled-client": ["./node_modules/wled-client/dist/node/wled-client.d.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "*.ts", "auto-imports.d.ts", "components.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "*.ts", "scripts/**/*.ts", "auto-imports.d.ts", "components.d.ts"]
 }

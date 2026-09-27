@@ -1,1 +1,1 @@
-export { assemble } from '@/lib/graph/compile/emit'
+export { glsl } from '@/lib/graph/compile/glsl/glsl'

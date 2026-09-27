@@ -20,9 +20,9 @@ jobs:
         run: |
           # previous_filename catches a snapshot renamed out of the folder
           snapshots=$(timeout 60 gh api --paginate "$FILES_URL" \
-            --jq '.[] | [.filename, .previous_filename] | map(select(. != null and startswith("src/lib/graph/compile/__snapshots__/"))) | .[]')
+            --jq '.[] | [.filename, .previous_filename] | map(select(. != null and test("^src/lib/graph/(.+/)?__snapshots__/"))) | .[]')
           if [ -n "$snapshots" ] && [ "$LABELED" != true ]; then
-            echo "::error::This PR changes compiler snapshots. Add the snapshot-change label once the snapshot diff is reviewed."
+            echo "::error::This PR changes graph snapshots. Add the snapshot-change label once the snapshot diff is reviewed."
             echo "$snapshots"
             exit 1
           fi
