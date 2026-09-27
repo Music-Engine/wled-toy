@@ -1,7 +1,7 @@
 import type { Text } from '@codemirror/state'
 import type { Diagnostic } from '@codemirror/lint'
 
-/** The `ERROR: <source>:<line>: <message>` entries of a WebGL info log, with 1-based lines; `source` is the `#line` source string, 0 unless set. */
+/** `ERROR: <source>:<line>: <message>` entries, 1-based lines; `source` = `#line` source string, 0 unless set */
 export const parseGlslErrors = (infoLog: string): { source: number; line: number; message: string }[] =>
   [...infoLog.matchAll(/ERROR:\s*(\d+):(\d+):\s*(.*)/g)].map((m) => ({ source: Number(m[1]), line: Number(m[2]), message: m[3].trim() }))
 

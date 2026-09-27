@@ -1,108 +1,70 @@
 import type { GlslType } from '@/lib/shader/catalog'
-import type { Features } from '@/lib/audio/dsp'
-import type { MidiReader } from '@/lib/engine/midi'
 import type { OutputSettings } from '@/lib/engine/output/output'
 import type { Value } from './value'
 import { sameJson } from '@/lib/util/json'
 
-/**
- * A block of GLSL functions a node needs. The compiler emits each chunk a graph uses once, after the
- * chunks it requires, so nodes never paste helpers inline and two nodes can share one.
- */
+/** GLSL functions a node needs, emitted once per graph after the chunks it requires, so nodes share helpers */
 export interface GlslChunk {
   id: string
   requires: GlslChunk[]
   source: string
-  /** Defined by the pixel prelude and the C++ header already, so only a frame pass, which has neither, pastes it. */
+  /** Already in pixel prelude and C++ header; only a frame pass pastes it */
   inPrelude?: true
-}
-
-/** What a frame body computes with: plain numbers, one evaluation per frame. */
-export type FrameValue = number | number[]
-
-export interface FrameInfo {
-  /** Seconds since the engine clock was reset. */
-  time: number
-  /** Seconds since the previous frame step, capped so a hidden tab does not produce one huge step. */
-  dt: number
-  frameIndex: number
-  /** Audio analyses by slot (0 is the default FFT); undefined until audio has been analyzed, an entry null until its first hop. */
-  audio: { analyses: (Features | null)[]; sampleRate: number } | undefined
-  midi: MidiReader | undefined
-  /** Numeric arguments of the latest OSC message sent to an address. */
-  osc: ((address: string) => number[] | undefined) | undefined
-}
-
-/** What a frame body gets beside its inputs: the frame, the node's state, and what its `resolve` returned. */
-export interface FrameContext<S = any> extends FrameInfo {
-  state: S
-  resolved: Record<string, unknown>
 }
 
 export interface NodeContext<S = Record<string, Value>> {
   nodeId: string
-  /**
-   * A pixel-scope node's slots, each a GLSL lvalue holding the value the slot had last frame until the body assigns
-   * it: read it as any value, write it with `emit`.
-   */
+  /** Lvalues holding last frame's value until assigned: read as any value, write via `emit` */
   state: S
-  /** What the node's `resolve` returned. */
+  /** `data` from `resolve` */
   resolved: Record<string, unknown>
-  /** The type this node's generic sockets resolved to. */
+  /** Type generic sockets resolved to */
   gen: GlslType
-  /** A variable name unique to this node, stable across compiles so unchanged graphs produce unchanged code. */
+  /** Unique to the node, stable across compiles so unchanged graphs emit unchanged code */
   variable(suffix?: string): string
   emit(line: string): void
-  /** Emits `type name = expr;` and returns the variable as a value. */
+  /** Emits `type name = expr;`, returns the variable */
   declare(type: GlslType, expr: string, suffix?: string): Value
-  /** Pulls a GLSL chunk into the shader; for helpers that depend on the node's resolved types, unlike `includes`. */
+  /** For chunks depending on resolved types, unlike `includes` */
   include(chunk: GlslChunk): void
-  /** Calls a GLSL function that returns through `out` parameters, declared here and listed last in the call. */
-  call<O extends Record<string, GlslType>>(fn: string, args: string[], outs: O): { [K in keyof O]: Value }
+  /** GLSL function returning via `out` params, declared here and passed last */
+  call<O extends Record<string, GlslType>>(name: string, args: string[], outs: O): { [K in keyof O]: Value }
   issue(message: string): void
-  /**
-   * Says the body's GLSL uses something outside the C-family subset (a texture sampler, a derivative), so a C++ build
-   * leaves the node out. Emits nothing.
-   */
-  require(target: 'glsl'): void
 }
 
-/** Something the engine provides for a graph: an audio source, an analysis, an image layer, an OSC port. */
+/** What the engine provides: audio source, analysis, image layer, OSC port, ... */
 interface Requirement {
   kind: string
   config: unknown
 }
 
-/** What a node's `resolve` settles while the graph compiles. The front end registers `requires` and reports `issues` on the node. */
+/** Compiler registers `requires` and reports `issues` on the node */
 export interface ResolveResult {
-  /** What each stream output carries. */
+  /** Per stream output */
   streams?: Record<string, unknown>
-  /** Handed to the bodies as `resolved`, never merged into their inputs. */
+  /** Body's `ctx.resolved`, never merged into inputs */
   data?: Record<string, unknown>
   requires?: Requirement[]
   issues?: string[]
-  /** The Output node's wire settings: how the finished colors are processed and sent. */
+  /** Output node's wire settings */
   output?: OutputSettings
-  /** By output name: a value the host writes before each frame, which that output reads instead of a body's. */
+  /** By output name: host-written value the output reads instead of a body's */
   uniforms?: Record<string, Uniform>
 }
 
-/** One float the host writes before each frame, and where it takes it from; `default` holds until it writes one. */
+/** Float the host writes before each frame; `default` holds until then */
 export type Uniform = { default: number } & (
   | { kind: 'knob'; label: string; min: number; max: number; cc: number }
-  // a gate is 1 while the controller or key is above 0
+  // Gate: 1 while controller or key above 0
   | { kind: 'midi'; message: 'cc' | 'note'; channel: number; number: number; gate: boolean }
   | { kind: 'osc'; address: string; argument: number }
 )
 
-/** What the nodes resolved before this one registered, by kind, in the order the front end met them. */
+/** Registered by earlier nodes, by kind, in topo order */
 export type Resources = Readonly<Record<string, readonly unknown[] | undefined>>
 
-/**
- * The index `config` has among the registered configs of `kind`, or the one registering it gives: equal configs share
- * one. The front end registers with it, so a node that needs its index before then computes the same one.
- */
-export function resourceIndex(resources: Resources, kind: string, config: unknown): number {
+/** Index of `config` among `kind`'s configs, or the one registering it gives; equal configs share one, as the compiler registers */
+export function findResourceIndex(resources: Resources, kind: string, config: unknown): number {
   const list = resources[kind] ?? []
   const index = list.findIndex((other) => sameJson(other, config))
   return index >= 0 ? index : list.length

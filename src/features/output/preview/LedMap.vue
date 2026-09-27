@@ -68,8 +68,8 @@ function layOut() {
 
 /** Draws the engine's latest LED frame (4 header bytes, then RGB triplets) with every LED where the layout puts it, unless it is the one already drawn. */
 function draw() {
-  const frame = engine.ledFrame()
-  const revision = engine.ledRevision()
+  const frame = engine.readLedFrame()
+  const revision = engine.readLedRevision()
   if (devicePixelRatio !== dpr) fit()
   if (!frame || !contexts || revision === drawnRevision || !w || !h) return
   drawnRevision = revision

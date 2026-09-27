@@ -1,4 +1,4 @@
-import { Color, defineNode, Enum, enumIndex, Float } from '@/lib/graph/authoring'
+import { Color, defineNode, Enum, toEnumIndex, Float } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 import { waveTextureChunk } from './chunks/wave-texture-chunk'
 
@@ -16,7 +16,7 @@ export const waveTextureNode = defineNode('waveTexture', {
   includes: [waveTextureChunk],
   input: {
     type: { type: Enum(TYPES), label: '', linkable: false, props: { label: 'Type' } },
-    // the shader reads one direction per type, so each type keeps its own choice
+    // Shader reads one direction per type, so each keeps its own choice
     bandsDirection: { type: Enum(BANDS_DIRECTIONS), label: 'Bands Direction', linkable: false },
     ringsDirection: { type: Enum(RINGS_DIRECTIONS), label: 'Rings Direction', linkable: false },
     profile: { type: Enum(PROFILES), label: '', linkable: false, props: { label: 'Profile' } },
@@ -30,7 +30,7 @@ export const waveTextureNode = defineNode('waveTexture', {
   },
   output: { fac: Float, color: Color },
   body: (input, ctx) => ctx.call('wave_texture', [
-    enumIndex(TYPES, input.type), enumIndex(BANDS_DIRECTIONS, input.bandsDirection), enumIndex(RINGS_DIRECTIONS, input.ringsDirection), enumIndex(PROFILES, input.profile),
+    toEnumIndex(TYPES, input.type), toEnumIndex(BANDS_DIRECTIONS, input.bandsDirection), toEnumIndex(RINGS_DIRECTIONS, input.ringsDirection), toEnumIndex(PROFILES, input.profile),
     input.scale.expr, input.distortion.expr, input.detail.expr, input.detailScale.expr, input.detailRoughness.expr, input.phase.expr, input.vector.expr,
   ], { fac: 'float', color: 'vec3' }),
 })

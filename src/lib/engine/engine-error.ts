@@ -1,6 +1,6 @@
-export type EngineErrorCode = 'webgl-unavailable' | 'state-outputs' | 'no-float-targets' | 'shader-create' | 'shader-compile' | 'shader-link' | 'texture-size' | 'image-fetch' | 'not-an-image' | 'media-store' | 'layout-json'
+export type EngineErrorCode = 'webgl-unavailable' | 'state-outputs' | 'no-float-targets' | 'shader-create' | 'shader-compile' | 'shader-link' | 'image-fetch' | 'not-an-image' | 'media-store' | 'layout-json'
 
-/** A renderer, image or media failure. `code` is what callers switch on; the message is what the user reads. */
+/** Renderer, image or media failure; callers switch on `code`, the user reads the message */
 export class EngineError extends Error {
   override readonly name = 'EngineError'
 

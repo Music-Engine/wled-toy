@@ -17,7 +17,7 @@ function startRuntime(canvas = document.createElement('canvas')) {
   let frame = 0
   return {
     runtime,
-    /** Compiles against the running program's slot table, as the graph session does, and loads the result. */
+    /** Against the running slot table, as the graph session compiles */
     load(doc: NodeGraph) {
       const { program, slots, issues } = createGlslCompiler().compile(doc, { slots: runtime.slots })
       expect(issues).toEqual([])
@@ -32,7 +32,7 @@ function startRuntime(canvas = document.createElement('canvas')) {
   }
 }
 
-/** A frame node of `kind` with `values`, read back by a Viewer. */
+/** Frame node of `kind` read back by a Viewer */
 const buildProbedGraph = (kind: string, values: Record<string, SocketValue>) =>
   graph([node('n', kind, values), node('v', 'viewer'), node('o', 'output')], [[`n.${OUTPUTS[kind]}`, 'v.value']])
 
@@ -50,6 +50,21 @@ describe.skipIf(!floatTargets)('Runtime (needs EXT_color_buffer_float)', () => {
     expect(after.global.n).toBe(before.global.n)
     tick()
     expect(runtime.readProbe('v')).toBeCloseTo(reached + (1 - reached) * (1 - Math.exp(-DT / 0.5)), 4)
+  })
+
+  it('integrates a knob turned mid-run: the knob a uniform, the integrator frame state the LEDs read', () => {
+    const { runtime, load, tick } = startRuntime()
+    load(graph(
+      [node('k', 'knob', { value: 0.5 }), node('i', 'integrator', { wrap: false }), node('v', 'viewer'), node('o', 'output')],
+      [['k.value', 'i.rate'], ['i.value', 'v.value'], ['i.value', 'o.color']],
+    ))
+    for (let i = 0; i < 10; i++) tick()
+    expect(runtime.readProbe('v')).toBeCloseTo(10 * DT * 0.5, 4)
+    runtime.set(runtime.uniforms[0], 1)
+    for (let i = 0; i < 9; i++) tick()
+    // Half-float LED target: about 3 decimals
+    expect(tick()[0]).toBeCloseTo(10 * DT * 0.5 + 10 * DT, 2)
+    expect(runtime.readProbe('v')).toBeCloseTo(10 * DT * 0.5 + 10 * DT, 4)
   })
 
   it('starts a node from 0 in global state floats another node left behind', () => {
@@ -126,11 +141,11 @@ describe.skipIf(!floatTargets)('Runtime (needs EXT_color_buffer_float)', () => {
     textures.push(new Float32Array(512), { spectrum: new Float32Array(512).fill(0.5), gain: 1, gate: true, waveform: new Float32Array(2048), bands: new Float32Array(16), chroma: new Float32Array(12) } as never)
 
     load(graph([node('a', 'audio'), node('o', 'output')], [['a.level', 'o.color']]))
-    runtime.feed(textures, [], null)
+    renderer!.setAudio(textures, [], null)
     expect(floatUploads).toBe(0)
 
     load(graph([node('b', 'bandSplit'), node('o', 'output')], [['b.level', 'o.color']]))
-    runtime.feed(textures, [], null)
+    renderer!.setAudio(textures, [], null)
     expect(floatUploads).toBe(1)
   })
 })

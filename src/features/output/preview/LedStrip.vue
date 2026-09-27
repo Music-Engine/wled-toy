@@ -57,8 +57,8 @@ function fit() {
 
 /** Draws the engine's latest LED frame (4 header bytes, then RGB triplets) unless it is the one already drawn. */
 function draw() {
-  const frame = engine.ledFrame()
-  const revision = engine.ledRevision()
+  const frame = engine.readLedFrame()
+  const revision = engine.readLedRevision()
   if (devicePixelRatio !== dpr) fit()
   if (!frame || !contexts || revision === drawnRevision || !w || !h) return
   const n = Math.min(config.ledCount, (frame.length - 4) / 3)

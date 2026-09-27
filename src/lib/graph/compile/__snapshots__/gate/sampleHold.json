@@ -1,0 +1,71 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n",
+        "46": "n",
+        "47": "n",
+        "48": "n"
+      }
+    },
+    "frame": {
+      "texels": 1,
+      "probes": []
+    },
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {
+        "n": {
+          "held": {
+            "type": "float",
+            "dim": 1,
+            "offset": 0,
+            "kind": "sampleHold"
+          },
+          "high": {
+            "type": "float",
+            "dim": 1,
+            "offset": 1,
+            "kind": "sampleHold"
+          }
+        },
+        "n:value": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 2,
+            "kind": "sampleHold"
+          }
+        }
+      }
+    }
+  },
+  "usermod": {
+    "issues": []
+  },
+  "standalone": {
+    "issues": [
+      {
+        "nodeId": "n",
+        "message": "Sample and Hold keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      }
+    ]
+  }
+}

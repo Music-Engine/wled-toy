@@ -1,24 +1,21 @@
 import type { CategoryId } from '@/lib/shader/catalog'
-import type { FrameContext, FrameValue, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
+import type { GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { DataType, ImplicitDefault } from './types'
 import type { Value } from './value'
 
-/**
- * A node kind. Its shape is a function of the node's stored values, so a parameter can change what sockets it has
- * and what it computes: a Math node set to Sine has one Value input, set to Wrap it has Value, Min and Max.
- */
+/** Shape depends on stored values: Math set to Sine has one input, set to Wrap three */
 export interface NodeItem {
   id: string
   title: string
   description: string
   category: CategoryId
   shape(values: Record<string, unknown>): NodeShape
-  /** The shape with nothing set: what the menu lists and previews. */
+  /** Nothing set: what the menu lists and previews */
   base: NodeShape
   presets?: NodePreset[]
 }
 
-/** One node at one set of values: its sockets and its code. */
+/** Node at one set of values */
 export interface NodeShape {
   title: string
   signature: string
@@ -28,17 +25,14 @@ export interface NodeShape {
   outputs: OutputSocket[]
   body?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
   varies?: 'pixel'
+  prefers?: 'frame'
   probe?: string
-  /** The node's pixel body, or its `body` for the old pipeline. */
-  pixel?(input: Record<string, any>, ctx: NodeContext): Record<string, Value>
-  frame?(input: Record<string, any>, info: FrameContext): Record<string, FrameValue>
   resolve?(input: Record<string, any>, resources: Resources): ResolveResult
-  /** Slot name to type; absent on a stateless node. */
+  /** Slot name to type */
   state?: Record<string, DataType<any>>
-  stateScope?: Rate
 }
 
-/** An input. Unlinked, it reads `default`: a stored literal, or an expression the shader evaluates (see ImplicitDefault). */
+/** Unlinked reads `default`: stored literal or implicit expression */
 export interface Socket {
   name: string
   label: string
@@ -56,19 +50,9 @@ export interface OutputSocket {
 
 export type WidgetProps = Record<string, unknown> | ((values: Record<string, unknown>) => Record<string, unknown>)
 
-/** The node started with `values`, listed in the menu as an entry of its own; `group` files it under a sub-directory. */
+/** Menu entry starting the node w/ `values`; `group` = sub-directory */
 export interface NodePreset {
   title: string
   group?: string
   values: Record<string, unknown>
-}
-
-/** How often a value is computed: once per frame on the CPU, or once per pixel in the shader. */
-export type Rate = 'frame' | 'pixel'
-
-/** Where a node's values live: `frame` sockets are drawn as diamonds and refuse per-pixel links. */
-export function placement(shape: NodeShape): Rate | 'either' {
-  if (shape.frame && !shape.pixel) return 'frame'
-  if (shape.pixel && !shape.frame) return 'pixel'
-  return 'either'
 }

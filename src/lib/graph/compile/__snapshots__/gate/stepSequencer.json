@@ -1,0 +1,81 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n",
+        "46": "n",
+        "47": "n",
+        "48": "n",
+        "49": "n",
+        "50": "n",
+        "51": "n",
+        "52": "n"
+      }
+    },
+    "frame": {
+      "texels": 1,
+      "probes": []
+    },
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {
+        "n": {
+          "index": {
+            "type": "float",
+            "dim": 1,
+            "offset": 0,
+            "kind": "stepSequencer"
+          },
+          "triggerHigh": {
+            "type": "float",
+            "dim": 1,
+            "offset": 1,
+            "kind": "stepSequencer"
+          },
+          "resetHigh": {
+            "type": "float",
+            "dim": 1,
+            "offset": 2,
+            "kind": "stepSequencer"
+          }
+        },
+        "n:value": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 3,
+            "kind": "stepSequencer"
+          }
+        }
+      }
+    }
+  },
+  "usermod": {
+    "issues": []
+  },
+  "standalone": {
+    "issues": [
+      {
+        "nodeId": "n",
+        "message": "Step Sequencer keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      }
+    ]
+  }
+}

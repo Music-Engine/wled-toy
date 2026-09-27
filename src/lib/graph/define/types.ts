@@ -1,21 +1,20 @@
 /**
- * A type a node stores in its values. `T` is the stored (JSON) shape; `Frame` and `Pixel` are what a node body receives
- * and returns for it once per frame and per pixel. `kind` says what a link of it carries: a number or vector (`value`),
- * nothing because the socket only stores (`param`), or a stream settled while the graph compiles (`stream`).
+ * `T` = stored JSON shape, what a store-only socket's body gets; `Linked` = what a linked socket passes; `kind`: number
+ * or vector (`value`), store-only (`param`), compile-time stream (`stream`)
  */
-export interface DataType<T = unknown, Frame = T, Pixel = T> {
-  /** Type-only views read by the node API; never set at runtime, optional so a node can declare its own stored type. */
-  readonly _frame?: Frame
-  readonly _pixel?: Pixel
+export interface DataType<T = unknown, Linked = T> {
+  /** Type-only views for the node API, never set at runtime */
+  readonly _stored?: T
+  readonly _linked?: Linked
   id: string
   label: string
   kind: 'value' | 'param' | 'stream'
   check(raw: unknown): raw is T
   initial(): T
-  /** Passed to every widget that edits this type. */
+  /** Passed to every widget editing this type */
   props?: Record<string, unknown>
   castableFrom: readonly string[]
-  /** Components of a number or vector; absent where the width is not fixed (generic) or not a number. */
+  /** Components; absent when generic or not a number */
   dim?: number
 }
 
@@ -26,15 +25,15 @@ export function canCast(from: DataType<any>, to: DataType<any>): boolean {
 export interface EnumOption<V extends string = string> {
   value: V
   label: string
-  /** Column heading in a grouped popup, e.g. Blender's Functions / Comparison / Rounding for Math. */
+  /** Column heading in a grouped popup, e.g. Math's Functions / Comparison / Rounding */
   group?: string
 }
 
 export interface ImplicitDefault {
   expr: string
   label: string
-  /** The same value once per frame, for a node evaluated per frame; without it the socket needs a link there. */
-  frame?: 'time'
+  /** Reads only uniforms, so the frame pass has it too; else an unlinked socket runs the node per pixel */
+  inFramePass?: true
 }
 
 export const isImplicit = (value: unknown): value is ImplicitDefault =>

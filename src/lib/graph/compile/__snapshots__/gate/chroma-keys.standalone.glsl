@@ -108,20 +108,28 @@ vec3 node_mix_blend(float t, vec3 col1, vec3 col2)
 
 void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   c = vec4(0.0, 0.0, 0.0, 1.0);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_sparkleDensity = mix(0.0, 0.6, clamp((treble() - 0.1) / (0.6 - 0.1), 0.0, 1.0));
+  vec4 state[1];
+  for (int i = 0; i < 1; i++) state[i] = vec4(0.0);
+  float n_sparkleDensity = mix(0.0, 0.6, clamp((iAudioFeatures[3].w - 0.1) / (0.6 - 0.1), 0.0, 1.0));
   float n_hatSparkle = sparkle(ledIndex, n_sparkleDensity, 12.0);
   float n_glintDesaturate = n_hatSparkle * -0.85 + 1.0;
   vec2 n_wheel_p = uv - vec2(0.5, 0.5);
   vec2 n_wheel = vec2(atan(n_wheel_p.y, n_wheel_p.x) / 6.2831853 + 0.5, length(n_wheel_p) * 2.0);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_kickBulge = 0.5 * -0.1 + 1.0;
+  float n_kickEnvelope_time = iAudioFeatures[2].w > state[0].x ? 0.0 : 0.18;
+  state[0].x += (iAudioFeatures[2].w - state[0].x) * (n_kickEnvelope_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_kickEnvelope_time));
+  float n_kickBulge = state[0].x * -0.1 + 1.0;
   float n_pumpedRadius = n_wheel.y * n_kickBulge;
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_twistedRadius = n_pumpedRadius * 0.5;
+  float n_twistedRadius = n_pumpedRadius * 0.7;
   float n_pinwheelAngle = n_wheel.x * 1.0 + n_twistedRadius;
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_spunAngle = n_pinwheelAngle + 0.5;
+  float n_loudness_target = iAudioFeatures[0].x;
+  float n_loudness_seconds = n_loudness_target > state[0].y ? 0.05 : 0.8;
+  state[0].y += (n_loudness_target - state[0].y) * (n_loudness_seconds <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_loudness_seconds));
+  float n_spinRate = state[0].y * 0.3 + 0.02;
+  float n_spinPhase_restart = float(0.0 >= 0.5 && state[0].w < 0.5);
+  state[0].w = float(0.0 >= 0.5);
+  state[0].z = (n_spinPhase_restart > 0.5 ? 0.0 : state[0].z) + n_spinRate * iTimeDelta;
+  state[0].z = fract(state[0].z);
+  float n_spunAngle = n_pinwheelAngle + state[0].z;
   float n_fifthsPosition = fract(n_spunAngle);
   float n_slotBlend_cycle = n_fifthsPosition * 12.0 + 0.0;
   float n_slotBlend_p = fract(n_slotBlend_cycle);
@@ -134,9 +142,9 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   float n_nextFifthPosition = fract(n_nextFifthStep);
   float n_nextFifthLevel = chromaAt(1, floor(clamp(n_nextFifthPosition, 0.0, 0.9999) * 12.0));
   float n_noteGlow = mix(n_thisNoteLevel, n_nextFifthLevel, clamp(n_slotBlend, 0.0, 1.0));
-  float n_noiseFloor = mix(0.27, 0.5, clamp((treble() - 0.15) / (0.27 - 0.15), 0.0, 1.0));
-  float n_glowGain = mix(0.8, 0.88, clamp((energy() - 0.25) / (0.7 - 0.25), 0.0, 1.0));
-  float n_kickPump = 0.5 * 0.12 + n_glowGain;
+  float n_noiseFloor = mix(0.27, 0.5, clamp((iAudioFeatures[3].z - 0.15) / (0.27 - 0.15), 0.0, 1.0));
+  float n_glowGain = mix(0.8, 0.88, clamp((state[0].y - 0.25) / (0.7 - 0.25), 0.0, 1.0));
+  float n_kickPump = state[0].x * 0.12 + n_glowGain;
   float n_glowContrast = mix(0.0, n_kickPump, clamp((n_noteGlow - n_noiseFloor) / (0.52 - n_noiseFloor), 0.0, 1.0));
   float n_scriabinWheel_fac = n_fifthsPosition;
   vec3 n_scriabinWheel = vec3(1.0, 0.04, 0.0);
@@ -153,13 +161,11 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_scriabinWheel = mix(n_scriabinWheel, vec3(1.0, 0.0, 0.18), clamp((n_scriabinWheel_fac - 0.8333) / 0.0834, 0.0, 1.0));
   n_scriabinWheel = mix(n_scriabinWheel, vec3(1.0, 0.04, 0.0), clamp((n_scriabinWheel_fac - 0.9167) / 0.0833, 0.0, 1.0));
   vec3 n_harmonyColor_hsv = rgb_to_hsv(n_scriabinWheel);
-  vec3 n_harmonyColor = mix(n_scriabinWheel, max(hsv_to_rgb(vec3(fract(n_harmonyColor_hsv.x + 0.5), clamp(n_harmonyColor_hsv.y * n_glintDesaturate, 0.0, 1.0), n_harmonyColor_hsv.z * n_glowContrast)), vec3(0.0)), 1.0);
+  vec3 n_harmonyColor = mix(n_scriabinWheel, max(hsv_to_rgb(vec3(fract(n_harmonyColor_hsv.x + 0.0), clamp(n_harmonyColor_hsv.y * n_glintDesaturate, 0.0, 1.0), n_harmonyColor_hsv.z * n_glowContrast)), vec3(0.0)), 1.0);
   vec3 n_noteAfterglow = max(n_harmonyColor, previousFrame(0.0) * exp(-iTimeDelta / max(0.5, 0.0001)));
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_scopeOpacity = mix(0.0, 0.5, clamp((energy() - 0.02) / (0.2 - 0.02), 0.0, 1.0));
+  float n_scopeOpacity = mix(0.0, 0.85, clamp((state[0].y - 0.02) / (0.2 - 0.02), 0.0, 1.0));
   float n_scope = waveformAt(((1.0 - uv.x) * 0.004 + 0.0) * iAudioHeads.z);
-  // Audio "Peak" runs per frame; frozen at 0.5 when this code was taken
-  float n_peakFloor = max(0.5, 0.03);
+  float n_peakFloor = max(iAudioFeatures[0].z, 0.03);
   float n_scopeAmplitude = node_divide(0.35, n_peakFloor);
   float n_scopeHeight = n_scope * n_scopeAmplitude + 0.5;
   float n_scopeOffset = uv.y - n_scopeHeight;

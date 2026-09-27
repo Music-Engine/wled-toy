@@ -7,7 +7,7 @@ import { MiniMap } from '@vue-flow/minimap'
 import GraphNode from '@/features/node-ui/GraphNode.vue'
 import { connectedHandlesKey, outputHandle } from '@/features/node-ui/graph-context'
 import type { GraphEditSession } from '@/lib/documents/sessions/graph-session'
-import { GRAPH_NODE_TYPE, nodeItem, type GraphNodeData } from '@/lib/graph'
+import { GRAPH_NODE_TYPE, findNodeItem, type GraphNodeData } from '@/lib/graph'
 import { categoryById } from '@/lib/shader/catalog'
 import { useCanvasPointer } from './use-canvas-pointer'
 import type { PendingLink } from './use-link-drag'
@@ -18,7 +18,7 @@ const emit = defineEmits<{ offerNodes: [at: { x: number; y: number }, pending: P
 
 const flow = useVueFlow(props.flowId)
 const nodeTypes = { [GRAPH_NODE_TYPE]: markRaw(GraphNode) }
-// Vue Flow's element types are too deep for UnwrapRef, so the refs are typed directly
+// Vue Flow element types too deep for UnwrapRef, so refs typed directly
 const nodes = props.session.nodes as unknown as Ref<Node<GraphNodeData>[]>
 const edges = props.session.edges as unknown as Ref<Edge[]>
 const el = ref<HTMLElement>()
@@ -39,7 +39,7 @@ const connectedHandles = computed(() => {
   const kept = new Map<string, ReadonlySet<string>>()
   for (const [id, set] of next) {
     const before = handlesByNode.get(id)
-    // handing back the same set keeps a node whose links did not change from re-rendering
+    // Same set back keeps a node w/ unchanged links from re-rendering
     kept.set(id, before && before.size === set.size && [...set].every((handle) => before.has(handle)) ? before : set)
   }
   handlesByNode = kept
@@ -47,9 +47,9 @@ const connectedHandles = computed(() => {
 })
 provide(connectedHandlesKey, connectedHandles)
 
-const minimapColor = (node: FlowNode) => {
+const toMinimapColor = (node: FlowNode) => {
   const kind = (node.data as GraphNodeData | undefined)?.kind ?? ''
-  const category = nodeItem(kind)?.category
+  const category = findNodeItem(kind)?.category
   return (category && categoryById.get(category)?.color) || '#555'
 }
 
@@ -95,7 +95,7 @@ defineExpose({ pointerAt: pointer.pointerAt, rect: () => el.value?.getBoundingCl
     >
       <Background :gap="20" :size="1.3" pattern-color="#6b6b6b" />
       <Controls position="bottom-left" />
-      <MiniMap position="bottom-right" pannable zoomable :node-color="minimapColor" mask-color="rgb(0 0 0 / 0.45)" />
+      <MiniMap position="bottom-right" pannable zoomable :node-color="toMinimapColor" mask-color="rgb(0 0 0 / 0.45)" />
     </VueFlow>
   </div>
 </template>

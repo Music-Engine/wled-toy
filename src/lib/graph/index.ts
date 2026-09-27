@@ -1,8 +1,6 @@
-export { FrameRunner, type FramePlan, type FrameStep } from './compile/js/frame'
-export { generateGlsl, type FrozenValue, type GeneratedShader, type GraphIssue } from './compile/compile'
-export { emptySlots, createGlslCompiler, type CompileResult, type GlslProgram, type ProgramUniform, type Slots, type SlotTable } from './compile/next/compilers'
+export { createSlotTable, createGlslCompiler, FRAME_SOURCE_STRING, type CompileResult, type GlslProgram, type GraphIssue, type ProgramUniform, type Slots, type SlotTable } from './compile/compilers'
 export { canCast, isImplicit, type DataType, type EnumOption } from './define/types'
-export { placement, type NodeItem, type NodeShape, type OutputSocket, type Socket } from './define/shape'
+export { type NodeItem, type Socket } from './define/shape'
 export { GRAPH_FS, describeNodeItem } from './menu/fs'
 export {
   GRAPH_NODE_TYPE,
@@ -20,4 +18,4 @@ export {
 export { readGraphFile, serializeGraphFile } from './model/file'
 export { captureScene, fadeScene, pruneScenes, type Scene } from './model/scenes'
 export { RAMP_INTERPOLATIONS, defaultRamp, sampleRamp, type ColorRamp, type RampInterpolation, type RampStop } from './nodes/color/color-ramp'
-export { allItems, firstCompatibleSocket, inputSocket, nodeItem, outputSocket, storedShape } from './registry'
+export { listItems, findCompatibleSocket, findInputSocket, findNodeItem, findOutputSocket, readStoredShape } from './registry'

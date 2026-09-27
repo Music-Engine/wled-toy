@@ -1,4 +1,5 @@
 import { Color, defineNode, Float } from '@/lib/graph/authoring'
+import { toDecayFactor } from '@/lib/graph/nodes/shared/signal'
 
 export const previousFrameNode = defineNode('previousFrame', {
   title: 'Previous Frame',
@@ -7,10 +8,7 @@ export const previousFrameNode = defineNode('previousFrame', {
   varies: 'pixel',
   input: { offset: { type: Float, label: 'Offset (LEDs)', default: 0, props: { step: 1, decimals: 0 } } },
   output: { color: Color },
-  body: ({ offset }, ctx) => {
-    ctx.require('glsl')
-    return { color: ctx.declare('vec3', `previousFrame(${offset.expr})`) }
-  },
+  body: ({ offset }, ctx) => ({ color: ctx.declare('vec3', `previousFrame(${offset.expr})`) }),
 })
 
 export const trailsNode = defineNode('trails', {
@@ -24,11 +22,7 @@ export const trailsNode = defineNode('trails', {
     offset: { type: Float, label: 'Drift (LEDs)', default: 0, props: { step: 1, decimals: 0 } },
   },
   output: { color: Color },
-  // exp(-dt / decay) per frame is the same fade per second at any frame rate
-  body: ({ color, decay, offset }, ctx) => {
-    ctx.require('glsl')
-    return { color: ctx.declare('vec3', `max(${color.expr}, previousFrame(${offset.expr}) * exp(-iTimeDelta / max(${decay.expr}, 0.0001)))`) }
-  },
+  body: ({ color, decay, offset }, ctx) => ({ color: ctx.declare('vec3', `max(${color.expr}, previousFrame(${offset.expr}) * ${toDecayFactor(decay.expr)})`) }),
 })
 
 export const stripBlurNode = defineNode('stripBlur', {
@@ -43,10 +37,9 @@ export const stripBlurNode = defineNode('stripBlur', {
   },
   output: { color: Color },
   body: ({ color, spread, decay }, ctx) => {
-    ctx.require('glsl')
-    const s = ctx.declare('float', spread.expr, 'spread').expr
-    // a 1-2-1 kernel: an average, so the blurred frame never holds more light than the frame it came from
-    const blurred = ctx.declare('vec3', `0.25 * previousFrame(-${s}) + 0.5 * previousFrame(0.0) + 0.25 * previousFrame(${s})`, 'blurred').expr
-    return { color: ctx.declare('vec3', `max(${color.expr}, ${blurred} * exp(-iTimeDelta / max(${decay.expr}, 0.0001)))`) }
+    const reach = ctx.declare('float', spread.expr, 'spread').expr
+    // 1-2-1 kernel averages, so the blur never adds light
+    const blurred = ctx.declare('vec3', `0.25 * previousFrame(-${reach}) + 0.5 * previousFrame(0.0) + 0.25 * previousFrame(${reach})`, 'blurred').expr
+    return { color: ctx.declare('vec3', `max(${color.expr}, ${blurred} * ${toDecayFactor(decay.expr)})`) }
   },
 })

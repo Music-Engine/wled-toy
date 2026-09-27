@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { graph, node } from '@/lib/graph/testing'
 import { cppCompiler, runOffline, runUsermod } from './cpp'
-import { usermodBands } from './offline'
+import { readUsermodBands } from './offline'
 
-describe.skipIf(!cppCompiler)('runOffline (needs g++ or c++ on PATH)', () => {
+describe.skipIf(!cppCompiler)('runOffline and runUsermod (needs g++ or c++ on PATH)', () => {
   it('feeds the synthetic track to iAudioBands, which Audio Band averages at its eight sample points', () => {
     const frames = 60
-    const feed = usermodBands(frames)
-    const rendered = runOffline(graph([node('b', 'bandLevel', { low: 0, high: 1 }), node('o', 'output')], [['b.out', 'o.color']]), { leds: 1, frames, feed })
-    // bandLevel(0, 1) samples fft at (i + 0.5) / 8, the centers of the odd bands
+    const feed = readUsermodBands(frames)
+    const rendered = runOffline(graph([node('b', 'bandLevel', { low: 0, high: 1 }), node('o', 'output')], [['b.out', 'o.color']]), { leds: 1, frames, feed: feed.map((bands) => ({ bands: [bands] })) })
+    // bandLevel(0, 1) samples fft at (i + 0.5) / 8: odd band centers
     const expected = feed.map((bands) => Math.round((bands.filter((_, band) => band % 2 === 1).reduce((a, b) => a + b) / 8) * 255))
     expect(expected.some((level) => level > 0), 'the track reaches the bands').toBe(true)
     rendered.forEach(([[r, g, b]], frame) => {
@@ -38,6 +38,10 @@ describe.skipIf(!cppCompiler)('runOffline (needs g++ or c++ on PATH)', () => {
     const rendered = runOffline(graph([node('uv', 'uv'), node('o', 'output')], [['uv.x', 'o.color']]), { leds: 4, frames: 3 })
     expect(rendered).toEqual(Array(3).fill([0, 1, 2, 3].map((i) => Array(3).fill(Math.round(((i + 0.5) / 4) * 255)))))
   }, 60_000)
+
+  it('throws what the compile reported when it withholds the unit', () => {
+    expect(() => runOffline(graph([node('m', 'midiIn'), node('o', 'output')], [['m.value', 'o.color']]), { leds: 1, frames: 1 })).toThrow('MIDI In reads MIDI, which a usermod has no input for')
+  })
 
   it('returns no frames for frames: 0 and empty frames for leds: 0', () => {
     const doc = graph([node('uv', 'uv'), node('o', 'output')], [['uv.x', 'o.color']])

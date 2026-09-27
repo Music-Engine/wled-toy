@@ -3,31 +3,28 @@ import type { VueFlowStore } from '@vue-flow/core'
 import { log } from '@/lib/app/logs'
 import { graphImageDrop } from '@/lib/app/files/file-drop'
 import type { GraphEditSession } from '@/lib/documents/sessions/graph-session'
-import { GRAPH_FS, GRAPH_NODE_TYPE, firstCompatibleSocket, newNodeData, nodeItem, type GraphNodeData, type NodeItem } from '@/lib/graph'
+import { GRAPH_FS, GRAPH_NODE_TYPE, findCompatibleSocket, newNodeData, findNodeItem, type GraphNodeData, type NodeItem } from '@/lib/graph'
 import { filterFs, type MenuPreset } from '@/lib/shader/menu-fs'
 import { newId } from '@/lib/util/ids'
 import { connectLink, type PendingLink } from '@/features/graph-editor/canvas/use-link-drag'
 
-/**
- * The graph's add-node menu: where it opened, the link it was dragged out of, and the node it adds. A node added from a
- * dragged link is linked to it; a dropped image becomes an Image Texture node while the editor is mounted.
- */
+/** Add-node menu: where it opened, the link dragged out of it, the node added (linked to that link); dropped image = Image Texture node */
 export function useAddNode(flow: VueFlowStore, session: GraphEditSession, canvasRect: () => DOMRect | undefined) {
   const menu = reactive({ open: false, position: null as { x: number; y: number } | null, pending: null as PendingLink | null })
 
-  // dragging a link into empty space offers only the nodes that link can attach to
+  // Link dragged into empty space offers only nodes it can attach to
   const menuFs = computed(() => {
     const pending = menu.pending
     if (!pending) return GRAPH_FS
     const need = pending.handleType === 'source' ? 'in' : 'out'
-    return filterFs(GRAPH_FS, (item) => !!firstCompatibleSocket(item.base, pending.type, need))
+    return filterFs(GRAPH_FS, (item) => !!findCompatibleSocket(item.base, pending.type, need))
   })
 
   watch(() => menu.open, (open) => {
     if (!open) menu.pending = null
   })
 
-  /** Opens the menu at a screen point, or centered as a search palette when there is none. */
+  /** At a screen point, or centered as a search palette w/o one */
   function openMenu(at: { x: number; y: number } | null, pending: PendingLink | null = null) {
     menu.pending = pending
     menu.position = at
@@ -39,13 +36,13 @@ export function useAddNode(flow: VueFlowStore, session: GraphEditSession, canvas
     const at = screenPoint ?? (rect ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } : { x: 0, y: 0 })
     const pending = menu.pending
     const position = flow.screenToFlowCoordinate(at)
-    // a node feeding the dragged input goes to its left so the link reads left to right
+    // Node feeding the dragged input goes left, so the link reads left to right
     if (pending?.handleType === 'target') position.x -= NODE_WIDTH
     const id = `${item.id}-${newId()}`
     flow.addNodes([{ id, type: GRAPH_NODE_TYPE, position, data: newNodeData(item.id, preset?.values as GraphNodeData['values']) }])
     log(`Added graph node: ${preset ? `${item.title} (${preset.title})` : item.title}`)
 
-    const socket = pending && firstCompatibleSocket(item.base, pending.type, pending.handleType === 'source' ? 'in' : 'out')
+    const socket = pending && findCompatibleSocket(item.base, pending.type, pending.handleType === 'source' ? 'in' : 'out')
     if (pending && socket) {
       nextTick(() => connectLink(flow, pending.handleType === 'source'
         ? { source: pending.nodeId, sourceHandle: pending.handleId, target: id, targetHandle: socket.name }
@@ -54,13 +51,13 @@ export function useAddNode(flow: VueFlowStore, session: GraphEditSession, canvas
     return id
   }
 
-  /** A dropped image becomes a selected Image Texture node under the drop, and one undo step of its own. */
+  /** Selected Image Texture node under the drop, its own undo step */
   function addImageTexture(imageId: string, title: string, at: { x: number; y: number }) {
-    // an edit still waiting out its pause would otherwise be undone together with the new node
+    // Else a pending edit would undo together w/ the new node
     session.commitEdit()
     const rect = canvasRect()!
     const onCanvas = at.x >= rect.left && at.x <= rect.right && at.y >= rect.top && at.y <= rect.bottom
-    const id = addNode(nodeItem('imageTexture')!, { title, values: { filename: imageId } }, onCanvas ? at : null)
+    const id = addNode(findNodeItem('imageTexture')!, { title, values: { filename: imageId } }, onCanvas ? at : null)
     nextTick(() => {
       flow.removeSelectedElements()
       const node = flow.findNode(id)
@@ -77,5 +74,5 @@ export function useAddNode(flow: VueFlowStore, session: GraphEditSession, canvas
   return { menu, menuFs, openMenu, addNode }
 }
 
-/** Roughly a graph node's width: how far a node is set off from the point it is placed at. */
+/** About a node's width: offset from the point it's placed at */
 export const NODE_WIDTH = 240

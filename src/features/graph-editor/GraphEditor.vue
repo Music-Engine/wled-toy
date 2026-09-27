@@ -9,14 +9,13 @@ import CommandScope from '@/features/commands/CommandScope.vue'
 import DockContribution from '@/features/shell/dock/DockContribution.vue'
 import { copyText } from '@/lib/app/files/clipboard'
 import { config } from '@/lib/app/settings/config'
-import { log } from '@/lib/app/logs'
 import { dockHost } from '@/lib/app/workspace'
 import { createBrowserBackend } from '@/lib/documents/files/file-backends'
 import { createGraphSession } from '@/lib/documents/sessions/graph-session'
 import { useEngine } from '@/lib/engine/engine'
-import { describeNodeItem, generateGlsl, createGlslCompiler, storedShape, type NodeItem } from '@/lib/graph'
+import { describeNodeItem, createGlslCompiler, readStoredShape, type NodeItem } from '@/lib/graph'
 import { createGraphDocument, graphFileBackendKey, type GraphSession } from '@/lib/graph/model/document'
-import { frozenNotice } from '@/lib/shader/shader-export'
+import { compileStandaloneGlsl } from '@/lib/shader/shader-export'
 import type { MenuPreset } from '@/lib/shader/menu-fs'
 import GraphCanvas from './canvas/GraphCanvas.vue'
 import { selectNodes } from './canvas/use-box-select'
@@ -50,8 +49,8 @@ const session = createGraphSession({
   compiler: createGlslCompiler(),
 })
 
-// The file is what Save wrote last; config.graph stays the working copy that every edit lands in. A loaded file replaces
-// the graph like another tab's save does, and the session then writes it into the working copy.
+// File = what Save wrote last; config.graph = working copy every edit lands in. A loaded file replaces the graph as
+// another tab's save does
 const graphDocument = shallowRef<GraphSession>()
 const fileBackend = inject(graphFileBackendKey, createBrowserBackend, true)
 
@@ -62,10 +61,10 @@ const grab = useGrab(flow, session, () => canvas.value?.pointerAt() ?? null)
 const renaming = ref<string | null>(null)
 provide(renamingNodeKey, renaming)
 const findOpen = ref(false)
-const findRows = computed(() => (findOpen.value ? flow.getNodes.value.map((n) => ({ id: n.id, title: n.data.label || storedShape(n.data)?.title || n.data.kind })) : []))
+const findRows = computed(() => (findOpen.value ? flow.getNodes.value.map((n) => ({ id: n.id, title: n.data.label || readStoredShape(n.data)?.title || n.data.kind })) : []))
 const blenderKeys = nodeCommands({ flow, session, grab, renaming, findOpen })
 
-// after mount, because the first snapshot is what "unedited" means and Vue Flow's store has no edges before that
+// After mount: first snapshot = "unedited", and Vue Flow's store has no edges before
 onMounted(() => {
   graphDocument.value = createGraphDocument({
     backend: fileBackend,
@@ -94,20 +93,13 @@ function showFound(id: string) {
   selectNodes(flow, new Set([id]))
 }
 
-// shader mode and a pasted shader have no control plan feeding iControl, so the knob values are written into the code
-function standaloneGlsl() {
-  const shader = generateGlsl(session.snapshot(), { standalone: true, controls: (nodeId, output) => engine.readControlOutput(nodeId, output) })
-  const notice = frozenNotice(shader.frozen)
-  if (notice) log(notice, 'warn')
-  return { code: shader.code, notice }
-}
-
+// Shader mode and a pasted shader have no host writing iControl or keeping state, so the code stands alone
 function sendToShader() {
-  const { code, notice } = standaloneGlsl()
+  const { code, notice } = compileStandaloneGlsl(session.snapshot())
   emit('sendToShader', code, notice)
 }
 
-const copyGlsl = () => copyText(standaloneGlsl().code)
+const copyGlsl = () => copyText(compileStandaloneGlsl(session.snapshot()).code)
 </script>
 
 <template>

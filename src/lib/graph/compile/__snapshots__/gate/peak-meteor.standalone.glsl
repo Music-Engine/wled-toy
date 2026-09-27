@@ -13,6 +13,9 @@ vec3 node_mix_blend(float t, vec3 col1, vec3 col2)
   return mix(col1, col2, t);
 }
 
+// math:compare:float
+float node_compare(float a, float b, float epsilon) { return step(abs(a - b), epsilon); }
+
 // color-rgb-to-hsv
 vec3 rgb_to_hsv(vec3 rgb)
 {
@@ -107,30 +110,78 @@ vec3 hsv_to_rgb(vec3 hsv)
 
 void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   c = vec4(0.0, 0.0, 0.0, 1.0);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
+  vec4 state[7];
+  for (int i = 0; i < 7; i++) state[i] = vec4(0.0);
+  float n_leadSlow_time = iAudioFeatures[3].y > state[0].x ? 0.3 : 0.3;
+  state[0].x += (iAudioFeatures[3].y - state[0].x) * (n_leadSlow_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_leadSlow_time));
+  float n_leadTransient = iAudioFeatures[3].y - state[0].x;
+  float n_kickPresence_time = iAudioFeatures[2].w > state[0].y ? 0.0 : 0.6;
+  state[0].y += (iAudioFeatures[2].w - state[0].y) * (n_kickPresence_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_kickPresence_time));
+  float n_drumsGone = (1.0 - step(0.15, state[0].y));
+  float n_dropTension_time = n_drumsGone > state[0].z ? 0.7 : 4.0;
+  state[0].z += (n_drumsGone - state[0].z) * (n_dropTension_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_dropTension_time));
+  float n_leadSpark = mix(0.0, state[0].z, clamp((n_leadTransient - 0.02) / (0.1 - 0.02), 0.0, 1.0));
+  float n_sparkDrive = max(iAudioFeatures[3].w, n_leadSpark);
+  state[0].w = state[0].w > 0.5 ? float(n_sparkDrive > 0.09) : float(n_sparkDrive >= 0.15);
+  if (state[0].w >= 0.5 && state[1].z < 0.5) state[1].x = 1.0;
+  state[1].z = float(state[0].w >= 0.5);
+  float n_sparkFlash_stage = state[1].x;
+  if (n_sparkFlash_stage == 1.0) state[1].y = min(1.0, state[1].y + (0.01 <= 0.0 ? 1.0 : iTimeDelta / 0.01));
+  if (n_sparkFlash_stage == 1.0 && state[1].y >= 1.0) state[1].x = 2.0;
+  if (n_sparkFlash_stage == 2.0) state[1].y = max(0.0, state[1].y - (0.22 <= 0.0 ? 1.0 : iTimeDelta / 0.22));
+  if (n_sparkFlash_stage == 2.0 && state[1].y <= 0.0) state[1].x = 0.0;
+  if (n_sparkFlash_stage == 3.0) state[1].y = 0.0;
+  if (n_sparkFlash_stage == 4.0) state[1].y = max(0.0, state[1].y - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_sparkFlash_stage == 4.0 && state[1].y <= 0.0) state[1].x = 0.0;
   vec4 n_ledLayout = ledLayout(ledIndex);
-  // Sample and Hold "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_sparkCoords = vec3(ledIndex, 0.5, 0.0);
+  float n_sparkSeed_rose = float(state[0].w >= 0.5 && state[2].x < 0.5);
+  state[2].x = float(state[0].w >= 0.5);
+  if (n_sparkSeed_rose > 0.5) state[1].w = iTime;
+  vec3 n_sparkCoords = vec3(ledIndex, state[1].w, 0.0);
   float n_sparkNoise_fac = node_hash(n_sparkCoords.xy + n_sparkCoords.z);
   vec3 n_sparkNoise = vec3(n_sparkNoise_fac, node_hash(n_sparkCoords.yz + 17.3 + n_sparkCoords.x), node_hash(n_sparkCoords.zx + 41.7 + n_sparkCoords.y));
   float n_sparkPick_edge = max(0.01, 0.0001) * 0.5;
   float n_sparkPick = smoothstep(0.93 - n_sparkPick_edge, 0.93 + n_sparkPick_edge, n_sparkNoise_fac);
-  vec3 n_sparkLayer = clamp(node_mix_blend(clamp(0.5 * n_sparkPick, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(0.6, 0.9, 1.0)), 0.0, 1.0);
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
+  vec3 n_sparkLayer = clamp(node_mix_blend(clamp(state[1].y * n_sparkPick, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(0.6, 0.9, 1.0)), 0.0, 1.0);
+  state[2].y = state[2].y > 0.5 ? float(iAudioFeatures[2].w > 0.5) : float(iAudioFeatures[2].w >= 0.85);
+  float n_alternateKick_flip = float(state[2].y >= 0.5 && state[2].w < 0.5);
+  state[2].w = float(state[2].y >= 0.5);
+  if (n_alternateKick_flip > 0.5) state[2].z = 1.0 - state[2].z;
+  float n_meteorArmed = max(state[2].z, state[0].z);
+  float n_meteorTrigger = state[2].y * n_meteorArmed;
+  if (n_meteorTrigger >= 0.5 && state[3].z < 0.5) state[3].x = 1.0;
+  state[3].z = float(n_meteorTrigger >= 0.5);
+  float n_meteorGlow_stage = state[3].x;
+  if (n_meteorGlow_stage == 1.0) state[3].y = min(1.0, state[3].y + (0.0 <= 0.0 ? 1.0 : iTimeDelta / 0.0));
+  if (n_meteorGlow_stage == 1.0 && state[3].y >= 1.0) state[3].x = 2.0;
+  if (n_meteorGlow_stage == 2.0) state[3].y = max(0.0, state[3].y - (1.4 <= 0.0 ? 1.0 : iTimeDelta / 1.4));
+  if (n_meteorGlow_stage == 2.0 && state[3].y <= 0.0) state[3].x = 0.0;
+  if (n_meteorGlow_stage == 3.0) state[3].y = 0.0;
+  if (n_meteorGlow_stage == 4.0) state[3].y = max(0.0, state[3].y - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_meteorGlow_stage == 4.0 && state[3].y <= 0.0) state[3].x = 0.0;
   vec2 n_mirror_folded = abs(uv - vec2(0.5, 0.5)) / max(vec2(0.5, 0.5), 1.0 - vec2(0.5, 0.5));
   vec2 n_mirror = n_mirror_folded;
   float n_radius = length(vec3(n_mirror, 0.0));
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_meteorHead = mix(0.45, 1.5, clamp((0.5 - 1.0) / (0.0 - 1.0), 0.0, 1.0));
+  if (n_meteorTrigger >= 0.5 && state[4].y < 0.5) state[3].w = 1.0;
+  state[4].y = float(n_meteorTrigger >= 0.5);
+  float n_meteorFlight_stage = state[3].w;
+  if (n_meteorFlight_stage == 1.0) state[4].x = min(1.0, state[4].x + (0.0 <= 0.0 ? 1.0 : iTimeDelta / 0.0));
+  if (n_meteorFlight_stage == 1.0 && state[4].x >= 1.0) state[3].w = 2.0;
+  if (n_meteorFlight_stage == 2.0) state[4].x = max(0.0, state[4].x - (0.68 <= 0.0 ? 1.0 : iTimeDelta / 0.68));
+  if (n_meteorFlight_stage == 2.0 && state[4].x <= 0.0) state[3].w = 0.0;
+  if (n_meteorFlight_stage == 3.0) state[4].x = 0.0;
+  if (n_meteorFlight_stage == 4.0) state[4].x = max(0.0, state[4].x - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_meteorFlight_stage == 4.0 && state[4].x <= 0.0) state[3].w = 0.0;
+  float n_meteorHead = mix(0.45, 1.5, clamp((state[4].x - 1.0) / (0.0 - 1.0), 0.0, 1.0));
   float n_meteorTailEnd = n_meteorHead - 0.07;
   float n_meteorMask_edge = max(0.02, 0.0001) * 0.5;
   float n_meteorMask_lo = min(n_meteorTailEnd, n_meteorHead);
   float n_meteorMask_hi = max(n_meteorTailEnd, n_meteorHead);
   float n_meteorMask = smoothstep(n_meteorMask_lo - n_meteorMask_edge, n_meteorMask_lo + n_meteorMask_edge, n_radius) * (1.0 - smoothstep(n_meteorMask_hi - n_meteorMask_edge, n_meteorMask_hi + n_meteorMask_edge, n_radius));
-  vec3 n_meteorLayer = clamp(node_mix_blend(clamp(0.5 * n_meteorMask, 0.0, 1.0), n_sparkLayer, vec3(0.9, 0.25, 1.0)), 0.0, 1.0);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_heat = 0.5 * 0.5 + n_radius;
+  vec3 n_meteorLayer = clamp(node_mix_blend(clamp(state[3].y * n_meteorMask, 0.0, 1.0), n_sparkLayer, vec3(0.9, 0.25, 1.0)), 0.0, 1.0);
+  float n_highEnv_time = iAudioFeatures[3].w > state[4].z ? 0.02 : 0.4;
+  state[4].z += (iAudioFeatures[3].w - state[4].z) * (n_highEnv_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_highEnv_time));
+  float n_heat = state[4].z * 0.5 + n_radius;
   float n_barRamp_fac = n_heat;
   vec3 n_barRamp = vec3(0.0, 0.35, 0.8);
   n_barRamp = mix(n_barRamp, vec3(0.0, 0.65, 0.6), clamp((n_barRamp_fac - 0.0) / 0.2, 0.0, 1.0));
@@ -138,8 +189,9 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_barRamp = mix(n_barRamp, vec3(0.95, 0.65, 0.0), clamp((n_barRamp_fac - 0.42) / 0.18, 0.0, 1.0));
   n_barRamp = mix(n_barRamp, vec3(1.0, 0.16, 0.0), clamp((n_barRamp_fac - 0.6) / 0.2, 0.0, 1.0));
   n_barRamp = mix(n_barRamp, vec3(1.0, 0.0, 0.3), clamp((n_barRamp_fac - 0.8) / 0.2, 0.0, 1.0));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_barGlow = mix(0.35, 1.0, clamp((0.5 - 0.22) / (0.5 - 0.22), 0.0, 1.0));
+  float n_barBallistics_time = iAudioFeatures[0].x > state[4].w ? 0.015 : 0.28;
+  state[4].w += (iAudioFeatures[0].x - state[4].w) * (n_barBallistics_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_barBallistics_time));
+  float n_barGlow = mix(0.35, 1.0, clamp((state[4].w - 0.22) / (0.5 - 0.22), 0.0, 1.0));
   vec3 n_barShade = n_barRamp * vec3(n_barGlow);
   float n_segments_n = max(1.0, floor(6.0));
   float n_segments_scaled = clamp(n_radius, 0.0, 0.999999) * n_segments_n;
@@ -150,23 +202,28 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   float n_segmentGaps_lo = min(0.0, 0.8);
   float n_segmentGaps_hi = max(0.0, 0.8);
   float n_segmentGaps = smoothstep(n_segmentGaps_lo - n_segmentGaps_edge, n_segmentGaps_lo + n_segmentGaps_edge, n_segments) * (1.0 - smoothstep(n_segmentGaps_hi - n_segmentGaps_edge, n_segmentGaps_hi + n_segmentGaps_edge, n_segments));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_reach = mix(0.5, 0.94, clamp((0.5 - 0.0) / (0.8 - 0.0), 0.0, 1.0));
-  float n_barLength = 0.5 * n_reach;
+  float n_reach = mix(0.72, 0.94, clamp((state[0].z - 0.0) / (0.8 - 0.0), 0.0, 1.0));
+  float n_barLength = state[4].w * n_reach;
   float n_barMask_edge = max(0.03, 0.0001) * 0.5;
   float n_barMask = 1.0 - smoothstep(n_barLength - n_barMask_edge, n_barLength + n_barMask_edge, n_radius);
   vec3 n_barLayer = clamp(node_mix_blend(clamp(n_segmentGaps * n_barMask, 0.0, 1.0), n_meteorLayer, n_barShade), 0.0, 1.0);
-  // Slew Limiter "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_peakEdge = 0.5 + 0.025;
+  float n_peakHang_above = float(n_barLength >= state[5].x);
+  state[5].y = n_peakHang_above > 0.5 ? 0.0 : state[5].y + iTimeDelta;
+  if (n_peakHang_above < 0.5 && state[5].y > 0.35) state[5].x = max(n_barLength, state[5].x * exp(-iTimeDelta / max(0.5, 0.0001)));
+  if (n_peakHang_above > 0.5) state[5].x = n_barLength;
+  float n_barAtPeak = node_compare(n_barLength, state[5].x, 0.005);
+  float n_fallSpeed_restart = float(n_barAtPeak >= 0.5 && state[5].w < 0.5);
+  state[5].w = float(n_barAtPeak >= 0.5);
+  state[5].z = (n_fallSpeed_restart > 0.5 ? 0.0 : state[5].z) + 6.0 * iTimeDelta;
+  state[6].x += min(1000.0 * iTimeDelta, max(-(state[5].z) * iTimeDelta, n_barLength - state[6].x));
+  float n_peakEdge = state[6].x + 0.025;
   float n_peakDot_edge = max(0.015, 0.0001) * 0.5;
-  float n_peakDot_lo = min(0.5, n_peakEdge);
-  float n_peakDot_hi = max(0.5, n_peakEdge);
+  float n_peakDot_lo = min(state[6].x, n_peakEdge);
+  float n_peakDot_hi = max(state[6].x, n_peakEdge);
   float n_peakDot = smoothstep(n_peakDot_lo - n_peakDot_edge, n_peakDot_lo + n_peakDot_edge, n_radius) * (1.0 - smoothstep(n_peakDot_hi - n_peakDot_edge, n_peakDot_hi + n_peakDot_edge, n_radius));
   vec3 n_peakLayer = clamp(node_mix_blend(clamp(1.0 * n_peakDot, 0.0, 1.0), n_barLayer, vec3(1.0, 0.9, 0.75)), 0.0, 1.0);
   vec3 n_hueRotate_hsv = rgb_to_hsv(n_peakLayer);
-  vec3 n_hueRotate = mix(n_peakLayer, max(hsv_to_rgb(vec3(fract(n_hueRotate_hsv.x + 0.5), clamp(n_hueRotate_hsv.y * 1.0, 0.0, 1.0), n_hueRotate_hsv.z * 1.0)), vec3(0.0)), 1.0);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_trails = max(n_hueRotate, previousFrame(0.0) * exp(-iTimeDelta / max(0.5, 0.0001)));
+  vec3 n_hueRotate = mix(n_peakLayer, max(hsv_to_rgb(vec3(fract(n_hueRotate_hsv.x + 0.0), clamp(n_hueRotate_hsv.y * 1.0, 0.0, 1.0), n_hueRotate_hsv.z * 1.0)), vec3(0.0)), 1.0);
+  vec3 n_trails = max(n_hueRotate, previousFrame(0.0) * exp(-iTimeDelta / max(0.15, 0.0001)));
   c = vec4(n_trails, 1.0);
 }

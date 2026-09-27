@@ -13,12 +13,8 @@ export const midiInNode = defineNode('midiIn', {
   },
   output: { value: Float, gate: Float },
   resolve: ({ kind, channel, number }) => {
-    const read = (gate: boolean) => ({ kind: 'midi', default: 0, message: kind, channel, number, gate }) as const
-    return { uniforms: { value: read(false), gate: read(true) } }
-  },
-  frame: ({ kind, channel, number }, { midi }) => {
-    const value = midi?.value(kind, channel, number) ?? 0
-    return { value, gate: Number(value > 0) }
+    const toUniform = (gate: boolean) => ({ kind: 'midi', default: 0, message: kind, channel, number, gate }) as const
+    return { uniforms: { value: toUniform(false), gate: toUniform(true) } }
   },
 })
 
@@ -31,16 +27,12 @@ export const oscInNode = defineNode('oscIn', {
     address: { type: Text, label: 'Address', default: '/1/fader1', linkable: false, props: { placeholder: '/1/fader1' } },
   },
   output: { value: Float, second: { type: Float, label: 'Argument 2' }, third: { type: Float, label: 'Argument 3' } },
-  // one listener serves every OSC In, so the first port asked for is the one opened
+  // One listener for every OSC In: first port asked for wins
   resolve: ({ port, address }, resources) => {
     const [value, second, third] = [0, 1, 2].map((argument) => ({ kind: 'osc', default: 0, address, argument }) as const)
     const uniforms = { value, second, third }
     const open = resources.osc?.[0]
     if (open !== undefined && open !== port) return { uniforms, issues: [`Another OSC In listens on port ${open}; one port is open at a time, so this one reads that port`] }
     return { uniforms, requires: [{ kind: 'osc', config: port }] }
-  },
-  frame: ({ address }, { osc }) => {
-    const [value = 0, second = 0, third = 0] = osc?.(address) ?? []
-    return { value, second, third }
   },
 })

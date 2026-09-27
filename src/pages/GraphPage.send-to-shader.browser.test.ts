@@ -49,7 +49,7 @@ it('Send to Shader Mode writes code that stands alone: nothing in it reads the c
   expect(config.code).not.toContain('iControl')
 })
 
-it('Send to Shader Mode says which values it had to freeze, and says nothing when every node has GLSL of its own', async () => {
+it('Send to Shader Mode says which values it had to fix, and says nothing when the graph needs no host', async () => {
   const knob: NodeGraph = {
     ...createDefaultGraph(),
     nodes: [node('knob', 'knob', 0, 0), node('out', 'output', 400, 0)],
@@ -61,8 +61,8 @@ it('Send to Shader Mode says which values it had to freeze, and says nothing whe
   await expect.poll(mounted).toBe(2)
   logs.value = []
   expect(runCommand('graph.sendToShader')).toBe(true)
-  expect(graphCodeNotice.value).toMatch(/^1 value is frozen in this code: Knob "Value" at [\d.]+\. It only updates inside a running graph/)
-  expect(config.code).toMatch(/\/\/ Knob "Value" runs per frame; frozen at/)
+  expect(graphCodeNotice.value).toMatch(/^This code differs from the running graph: Knob "Value" is fixed at [\d.]+ in the exported shader\.$/)
+  expect(config.code).not.toContain('iControl')
   expect(logs.value.some((entry) => entry.level === 'warn' && entry.message === graphCodeNotice.value)).toBe(true)
   unmount!()
 

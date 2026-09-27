@@ -6,7 +6,7 @@ import NodeGallery from './NodeGallery.vue'
 import TextField from '@/features/node-ui/fields/TextField.vue'
 import { galleryChecks } from './invariants'
 import { galleryNodes } from './nodes'
-import { allItems, nodeItem, type EnumOption } from '@/lib/graph'
+import { listItems, findNodeItem, type EnumOption } from '@/lib/graph'
 import { click } from '@/test/pointer'
 
 let root: HTMLElement
@@ -34,7 +34,7 @@ const nodeEl = (id: string) => root.querySelector<HTMLElement>(`.vue-flow__node[
 
 describe('every registered node, expanded and collapsed', () => {
   it('mounts every kind twice without a console error or warning', () => {
-    for (const item of allItems()) {
+    for (const item of listItems()) {
       expect(nodeEl(item.id)?.querySelector('.nui-content'), `${item.id} expanded`).not.toBeNull()
       expect(nodeEl(`${item.id}~collapsed`)?.querySelector('.nui-node.is-collapsed'), `${item.id} collapsed`).not.toBeNull()
     }
@@ -97,7 +97,7 @@ describe('each check fails on a broken kit', () => {
 })
 
 describe('the enum popup inside a node', () => {
-  const optionsOf = (kind: string, socket: string) => nodeItem(kind)!.base.inputs.find((s) => s.name === socket)!.type.props!.options as readonly EnumOption[]
+  const optionsOf = (kind: string, socket: string) => findNodeItem(kind)!.base.inputs.find((s) => s.name === socket)!.type.props!.options as readonly EnumOption[]
   const popup = () => document.querySelector<HTMLElement>('.nui-dropdown-menu')
   // a popup left open by a failed case would be the one the next case finds
   afterEach(() => void document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))

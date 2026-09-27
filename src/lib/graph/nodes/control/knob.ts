@@ -1,4 +1,5 @@
 import { defineNode, Float, Int, Text } from '@/lib/graph/authoring'
+import { clampBetween } from '@/lib/util/math'
 
 export const knobNode = defineNode('knob', {
   title: 'Knob',
@@ -9,12 +10,9 @@ export const knobNode = defineNode('knob', {
     value: { type: Float, label: 'Value', default: 0.5, linkable: false, props: (values) => ({ min: values.min ?? 0, max: values.max ?? 1 }) },
     min: { type: Float, default: 0, linkable: false },
     max: { type: Float, default: 1, linkable: false },
-    // -1 is unbound; the Parameters panel moves the value when this controller moves
+    // -1 = unbound; Parameters panel follows this controller
     cc: { type: Int, label: 'MIDI CC (-1 = none)', default: -1, linkable: false, props: { min: -1, max: 127, step: 1, decimals: 0 } },
   },
   output: { value: Float },
-  resolve: ({ label, value, min, max, cc }) => ({ uniforms: { value: { kind: 'knob', default: inRange(value, min, max), label, min, max, cc } } }),
-  frame: ({ value, min, max }) => ({ value: inRange(value, min, max) }),
+  resolve: ({ label, value, min, max, cc }) => ({ uniforms: { value: { kind: 'knob', default: clampBetween(value, min, max), label, min, max, cc } } }),
 })
-
-const inRange = (value: number, min: number, max: number) => Math.min(Math.max(min, max), Math.max(Math.min(min, max), value))

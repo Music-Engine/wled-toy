@@ -1,6 +1,6 @@
 import { createTexture } from './gl-texture'
 
-/** The LED pass's own target, one pixel per LED, for shaders without feedback; and the readback of whichever target the pass drew into. */
+/** LED pass target (pixel per LED) for shaders w/o feedback, and readback of whichever target the pass drew */
 export class LedTarget {
   private readonly texture: WebGLTexture
   private readonly framebuffer: WebGLFramebuffer
@@ -8,7 +8,7 @@ export class LedTarget {
   private floats = new Float32Array(0)
   private rgba = new Uint8Array(0)
   private colors = new Float32Array(0)
-  // the LED row and the probes in 32-bit floats, made once a program has probes
+  // LED row and probes in 32-bit floats, made once a program has probes
   private floatRow: { texture: WebGLTexture; framebuffer: WebGLFramebuffer; width: number } | null = null
 
   constructor(private readonly gl: WebGL2RenderingContext, private readonly floatTargets: boolean) {
@@ -16,15 +16,15 @@ export class LedTarget {
     this.framebuffer = gl.createFramebuffer()
   }
 
-  /** Sizes the target to `n` LEDs and binds it for drawing; returns its framebuffer. */
-  bind(n: number): WebGLFramebuffer {
+  /** Sized to `leds` and bound for drawing */
+  bind(leds: number): WebGLFramebuffer {
     const { gl } = this
-    if (this.width !== n) {
-      this.width = n
+    if (this.width !== leds) {
+      this.width = leds
       gl.activeTexture(gl.TEXTURE2)
       gl.bindTexture(gl.TEXTURE_2D, this.texture)
-      if (this.floatTargets) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, n, 1, 0, gl.RGBA, gl.HALF_FLOAT, null)
-      else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, n, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+      if (this.floatTargets) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, leds, 1, 0, gl.RGBA, gl.HALF_FLOAT, null)
+      else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, leds, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
     }
@@ -33,60 +33,63 @@ export class LedTarget {
   }
 
   /**
-   * r, g, b per LED as 0..1 floats from `drawn`, the bound framebuffer the LED pass drew into, which it then unbinds. With float targets these keep the
-   * precision the shader computed, which dithering downstream needs; otherwise they are the 8-bit values over 255. With
-   * `probes`, their texels come back in the same readPixels, from columns past the LEDs of a float copy of the row.
-   * The array is reused by the next read, so a caller that keeps the colors copies them.
+   * r, g, b per LED as 0..1 from bound `drawn`, then unbound. Float targets keep shader precision for dithering, else
+   * 8-bit over 255. Probes ride the same readPixels past the LEDs. Array reused by the next read: keepers copy
    */
-  read(n: number, drawn: WebGLFramebuffer, probes: ProbeSource | null = null): Float32Array {
+  read(leds: number, drawn: WebGLFramebuffer, probes: ProbeSource | null = null): Float32Array {
     const { gl } = this
-    if (this.colors.length !== n * 3) this.colors = new Float32Array(n * 3)
+    if (this.colors.length !== leds * 3) this.colors = new Float32Array(leds * 3)
     const out = this.colors
     if (this.floatTargets) {
-      const width = probes ? this.copyLedsAndProbesToFloatRow(n, drawn, probes) : n
+      const width = probes ? this.copyLedsAndProbesToFloatRow(leds, drawn, probes) : leds
       if (this.floats.length !== width * 4) this.floats = new Float32Array(width * 4)
       gl.readPixels(0, 0, width, 1, gl.RGBA, gl.FLOAT, this.floats)
-      for (let i = 0; i < n; i++) for (let c = 0; c < 3; c++) out[i * 3 + c] = this.floats[i * 4 + c]
-      if (probes) probes.out.set(this.floats.subarray(n * 4))
+      for (let i = 0; i < leds; i++) for (let c = 0; c < 3; c++) out[i * 3 + c] = this.floats[i * 4 + c]
+      if (probes) probes.out.set(this.floats.subarray(leds * 4))
     } else {
-      if (this.rgba.length !== n * 4) this.rgba = new Uint8Array(n * 4)
-      gl.readPixels(0, 0, n, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.rgba)
-      for (let i = 0; i < n; i++) for (let c = 0; c < 3; c++) out[i * 3 + c] = this.rgba[i * 4 + c] / 255
+      if (this.rgba.length !== leds * 4) this.rgba = new Uint8Array(leds * 4)
+      gl.readPixels(0, 0, leds, 1, gl.RGBA, gl.UNSIGNED_BYTE, this.rgba)
+      for (let i = 0; i < leds; i++) for (let c = 0; c < 3; c++) out[i * 3 + c] = this.rgba[i * 4 + c] / 255
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     return out
   }
 
-  /**
-   * Copies the LED row from `drawn` and each probe texel after it into a 32-bit float row, which a half float target
-   * could not hold the probes in, and leaves that row bound for reading. Returns the row's width.
-   */
-  private copyLedsAndProbesToFloatRow(n: number, drawn: WebGLFramebuffer, { framebuffer, texels }: ProbeSource): number {
+  /** LED row then probe texels into a 32-bit float row (half floats can't hold probes), left bound; returns its width */
+  private copyLedsAndProbesToFloatRow(leds: number, drawn: WebGLFramebuffer, { framebuffer, texels }: ProbeSource): number {
     const { gl } = this
-    const width = n + texels.length
-    if (this.floatRow?.width !== width) {
-      if (this.floatRow) gl.deleteTexture(this.floatRow.texture)
-      const texture = gl.createTexture()
-      gl.activeTexture(gl.TEXTURE2)
-      gl.bindTexture(gl.TEXTURE_2D, texture)
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, width, 1)
-      const rowFramebuffer = this.floatRow?.framebuffer ?? gl.createFramebuffer()
-      gl.bindFramebuffer(gl.FRAMEBUFFER, rowFramebuffer)
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
-      this.floatRow = { texture, framebuffer: rowFramebuffer, width }
-    }
+    const width = leds + texels.length
+    const row = this.resizeFloatRow(width)
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, drawn)
-    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.floatRow.framebuffer)
-    gl.blitFramebuffer(0, 0, n, 1, 0, 0, n, 1, gl.COLOR_BUFFER_BIT, gl.NEAREST)
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, row)
+    gl.blitFramebuffer(0, 0, leds, 1, 0, 0, leds, 1, gl.COLOR_BUFFER_BIT, gl.NEAREST)
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffer)
-    for (let i = 0; i < texels.length; i++) gl.blitFramebuffer(texels[i], 0, texels[i] + 1, 1, n + i, 0, n + i + 1, 1, gl.COLOR_BUFFER_BIT, gl.NEAREST)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.floatRow.framebuffer)
+    // One blit per run of adjacent probe texels
+    for (let start = 0, end = 1; start < texels.length; start = end++) {
+      while (end < texels.length && texels[end] === texels[end - 1] + 1) end++
+      gl.blitFramebuffer(texels[start], 0, texels[end - 1] + 1, 1, leds + start, 0, leds + end, 1, gl.COLOR_BUFFER_BIT, gl.NEAREST)
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, row)
     return width
+  }
+
+  private resizeFloatRow(width: number): WebGLFramebuffer {
+    const { gl } = this
+    if (this.floatRow?.width === width) return this.floatRow.framebuffer
+    if (this.floatRow) gl.deleteTexture(this.floatRow.texture)
+    const texture = createTexture(gl, 2)
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, width, 1)
+    const framebuffer = this.floatRow?.framebuffer ?? gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
+    this.floatRow = { texture, framebuffer, width }
+    return framebuffer
   }
 }
 
-/** Probe texels to read back with the LEDs: where they are, which texels, and the array they land in, four floats each. */
+/** Probe texels read back w/ the LEDs, landing in `out`, four floats each */
 export interface ProbeSource {
+  /** Moves to the latest copy on every frame pass */
   framebuffer: WebGLFramebuffer
   texels: readonly number[]
   out: Float32Array

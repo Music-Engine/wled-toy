@@ -12,7 +12,6 @@ export const combineXyzNode = defineNode('combineXYZ', {
   },
   output: { vector: Vec3 },
   body: ({ x, y, z }, ctx) => ({ vector: ctx.declare('vec3', `vec3(${x.expr}, ${y.expr}, ${z.expr})`) }),
-  frame: ({ x, y, z }) => ({ vector: [x, y, z] }),
 });
 
 export const separateXyzNode = defineNode('separateXYZ', {
@@ -22,8 +21,7 @@ export const separateXyzNode = defineNode('separateXYZ', {
   input: { vector: textureVector },
   output: { x: { type: Float, label: 'X' }, y: { type: Float, label: 'Y' }, z: { type: Float, label: 'Z' } },
   body: ({ vector }, ctx) => {
-    const v = ctx.declare('vec3', vector.expr);
-    return { x: swizzle(v, 'x'), y: swizzle(v, 'y'), z: swizzle(v, 'z') };
+    const components = ctx.declare('vec3', vector.expr);
+    return { x: swizzle(components, 'x'), y: swizzle(components, 'y'), z: swizzle(components, 'z') };
   },
-  frame: ({ vector }) => ({ x: vector[0], y: vector[1], z: vector[2] }),
 });

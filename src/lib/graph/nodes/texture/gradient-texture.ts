@@ -1,4 +1,4 @@
-import { Color, defineNode, Enum, enumIndex, Float } from '@/lib/graph/authoring'
+import { Color, defineNode, Enum, toEnumIndex, Float } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 import { gradientTextureChunk } from './chunks/gradient-texture-chunk'
 
@@ -17,5 +17,5 @@ export const gradientTextureNode = defineNode('gradientTexture', {
     vector: textureVector,
   },
   output: { fac: Float, color: Color },
-  body: ({ type, vector }, ctx) => ctx.call('gradient_texture', [vector.expr, enumIndex(TYPES, type)], { fac: 'float', color: 'vec3' }),
+  body: ({ type, vector }, ctx) => ctx.call('gradient_texture', [vector.expr, toEnumIndex(TYPES, type)], { fac: 'float', color: 'vec3' }),
 })

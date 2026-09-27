@@ -16,10 +16,11 @@ const GPU_ARGS = ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist']
 type CppHarness = typeof import('@/lib/graph/testing/cpp')
 const cppHarness = (project: TestProject) => project.import<CppHarness>('/src/lib/graph/testing/cpp.ts')
 const cppCompiler: BrowserCommand<[]> = async ({ project }) => (await cppHarness(project)).cppCompiler ?? null
-const runOffline: BrowserCommand<Parameters<CppHarness['runOffline']>> = async ({ project }, doc, options) =>
-  (await cppHarness(project)).runOffline(doc, options)
+const runUsermod: BrowserCommand<Parameters<CppHarness['runUsermod']>> = async ({ project }, code, options) =>
+  (await cppHarness(project)).runUsermod(code, options)
 
 const TIMING_TESTS = ['src/lib/engine/led-clock.browser.test.ts']
+const GPU_TESTS = ['src/lib/graph/compile/tests/**/*.browser.test.ts', 'src/lib/graph/testing/**/*.browser.test.ts', 'src/lib/engine/render/**/*.browser.test.ts', 'src/lib/engine/runtime.browser.test.ts', 'src/lib/graph/nodes/**/*.browser.test.ts']
 const BROWSER = {
   enabled: true,
   headless: process.env.BENCH_GPU !== 'headed',
@@ -28,7 +29,7 @@ const BROWSER = {
     launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
   }),
   instances: [{ browser: 'chromium' as const }],
-  commands: { cppCompiler, runOffline },
+  commands: { cppCompiler, runUsermod },
 }
 
 export default defineConfig({
@@ -59,13 +60,23 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.ts'],
-          exclude: TIMING_TESTS,
+          exclude: [...TIMING_TESTS, ...GPU_TESTS],
           // Vue Flow's fit-on-init alone takes over the default second in software-rendered Chromium on a loaded machine
           expect: { poll: { timeout: 5000 } },
           browser: BROWSER,
         },
       },
-      // files that measure rates on the main thread run alone: parallel iframes of the browser project starve them
+      // Heavy WebGL files (corpus compiles, switch parity, runtime, benches) run one at a time: in software Chromium they starve the UI files
+      {
+        extends: true,
+        test: {
+          name: 'browser-gpu',
+          include: GPU_TESTS,
+          fileParallelism: false,
+          browser: BROWSER,
+        },
+      },
+      // Files that measure rates on the main thread run alone, after the other browser projects: parallel iframes starve them
       {
         extends: true,
         test: {

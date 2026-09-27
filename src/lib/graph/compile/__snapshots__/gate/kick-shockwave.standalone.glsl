@@ -145,10 +145,14 @@ vec3 node_mix_screen(float t, vec3 col1, vec3 col2)
 
 void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   c = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 state[7];
+  for (int i = 0; i < 7; i++) state[i] = vec4(0.0);
   vec2 n_polar_p = uv - vec2(0.5, 0.5);
   vec2 n_polar = vec2(atan(n_polar_p.y, n_polar_p.x) / 6.2831853 + 0.5, length(n_polar_p) * 2.0);
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_baseRadial = n_polar.y + 0.5;
+  float n_baseDrift_restart = float(0.0 >= 0.5 && state[0].y < 0.5);
+  state[0].y = float(0.0 >= 0.5);
+  state[0].x = (n_baseDrift_restart > 0.5 ? 0.0 : state[0].x) + 0.25 * iTimeDelta;
+  float n_baseRadial = n_polar.y + state[0].x;
   vec3 n_baseNoise_p = vec3(n_baseRadial) * 5.5;
   vec3 n_baseNoise_warped = n_baseNoise_p + 0.0 * (vec3(noise3(n_baseNoise_p + 13.5), noise3(n_baseNoise_p), noise3(n_baseNoise_p - 13.5)) * 2.0 - 1.0);
   float n_baseNoise_fac = noise_fbm(n_baseNoise_warped, 0.0, 0.5, 2.0, true);
@@ -159,52 +163,99 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_baseRamp = mix(n_baseRamp, vec3(0.0, 0.03, 0.55), smoothstep(0.16, 0.32, n_baseRamp_fac));
   n_baseRamp = mix(n_baseRamp, vec3(0.35, 0.0, 0.9), smoothstep(0.32, 0.52, n_baseRamp_fac));
   n_baseRamp = mix(n_baseRamp, vec3(0.95, 0.05, 0.5), smoothstep(0.52, 0.84, n_baseRamp_fac));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
+  float n_padEnv_time = iAudioFeatures[3].y > state[0].z ? 0.06 : 0.7;
+  state[0].z += (iAudioFeatures[3].y - state[0].z) * (n_padEnv_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_padEnv_time));
   float n_breathWave_cycle = iTime * 0.25 + 0.5;
   float n_breathWave_p = fract(n_breathWave_cycle);
   float n_breathWave = 0.5 - 0.5 * cos(6.2831853 * n_breathWave_p);
-  float n_baseLevel = mix(0.2, n_breathWave, clamp((0.5 - 0.1) / (0.3 - 0.1), 0.0, 1.0));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_quietBoost = mix(1.0, 0.2, clamp(0.5, 0.0, 1.0));
+  float n_baseLevel = mix(0.2, n_breathWave, clamp((state[0].z - 0.1) / (0.3 - 0.1), 0.0, 1.0));
+  state[0].w = state[0].w > 0.5 ? float(iAudioFeatures[2].w > 0.5) : float(iAudioFeatures[2].w >= 0.8);
+  float n_kickPresence_time = state[0].w > state[1].x ? 0.05 : 0.4;
+  state[1].x += (state[0].w - state[1].x) * (n_kickPresence_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_kickPresence_time));
+  float n_quietBoost = mix(1.0, 0.2, clamp(state[1].x, 0.0, 1.0));
   vec3 n_baseLayer = clamp(node_mix_blend(clamp(n_baseLevel * n_quietBoost, 0.0, 1.0), vec3(0.0, 0.0, 0.0), n_baseRamp), 0.0, 1.0);
-  // Sample and Hold "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_ringColorA = hsv_to_rgb(vec3(0.5, 1.0, 1.0));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_ringPower = mix(0.6, 1.0, clamp((0.5 - 0.38) / (0.52 - 0.38), 0.0, 1.0));
+  float n_kickCounter_up = float(state[0].w >= 0.5 && state[1].z < 0.5);
+  state[1].z = float(state[0].w >= 0.5);
+  float n_kickCounter_restart = float(0.0 >= 0.5 && state[1].w < 0.5);
+  state[1].w = float(0.0 >= 0.5);
+  if (n_kickCounter_up > 0.5) state[1].y = (state[1].y + 1.0 - 12.0 * floor((state[1].y + 1.0 + 0.5) / 12.0));
+  if (n_kickCounter_restart > 0.5) state[1].y = 0.0;
+  float n_kickCounter_phase = state[1].y / 12.0;
+  float n_hitRandom = fract(sin(state[1].y * 127.1 + 311.7) * 43758.5453);
+  float n_hitHue = n_hitRandom * 0.12 + n_kickCounter_phase;
+  float n_kickToggle_flip = float(state[0].w >= 0.5 && state[2].y < 0.5);
+  state[2].y = float(state[0].w >= 0.5);
+  if (n_kickToggle_flip > 0.5) state[2].x = 1.0 - state[2].x;
+  float n_hueHoldA_rose = float(state[2].x >= 0.5 && state[2].w < 0.5);
+  state[2].w = float(state[2].x >= 0.5);
+  if (n_hueHoldA_rose > 0.5) state[2].z = n_hitHue;
+  vec3 n_ringColorA = hsv_to_rgb(vec3(state[2].z, 1.0, 1.0));
+  float n_energySum = iAudioFeatures[3].w + iAudioFeatures[3].y;
+  float n_energyEnv_time = n_energySum > state[3].x ? 0.25 : 0.3;
+  state[3].x += (n_energySum - state[3].x) * (n_energyEnv_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_energyEnv_time));
+  float n_ringPower = mix(0.6, 1.0, clamp((state[3].x - 0.38) / (0.52 - 0.38), 0.0, 1.0));
   float n_ringFalloff = mix(n_ringPower, 0.0, clamp((n_polar.y - 0.0) / (1.8 - 0.0), 0.0, 1.0));
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_ringDistA = 0.5 - n_polar.y;
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_ringLead = mix(0.0, -0.18, clamp((0.5 - 0.0) / (1.0 - 0.0), 0.0, 1.0));
-  float n_ringThickness = mix(0.09, 0.22, clamp((0.5 - 0.38) / (0.52 - 0.38), 0.0, 1.0));
+  float n_ringAgeA_restart = float(state[2].x >= 0.5 && state[3].z < 0.5);
+  state[3].z = float(state[2].x >= 0.5);
+  state[3].y = (n_ringAgeA_restart > 0.5 ? 0.0 : state[3].y) + 1.6 * iTimeDelta;
+  float n_ringDistA = state[3].y - n_polar.y;
+  if (state[0].w >= 0.5 && state[4].y < 0.5) state[3].w = 1.0;
+  state[4].y = float(state[0].w >= 0.5);
+  float n_kickPunch_stage = state[3].w;
+  if (n_kickPunch_stage == 1.0) state[4].x = min(1.0, state[4].x + (0.0 <= 0.0 ? 1.0 : iTimeDelta / 0.0));
+  if (n_kickPunch_stage == 1.0 && state[4].x >= 1.0) state[3].w = 2.0;
+  if (n_kickPunch_stage == 2.0) state[4].x = max(0.0, state[4].x - (0.18 <= 0.0 ? 1.0 : iTimeDelta / 0.18));
+  if (n_kickPunch_stage == 2.0 && state[4].x <= 0.0) state[3].w = 0.0;
+  if (n_kickPunch_stage == 3.0) state[4].x = 0.0;
+  if (n_kickPunch_stage == 4.0) state[4].x = max(0.0, state[4].x - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_kickPunch_stage == 4.0 && state[4].x <= 0.0) state[3].w = 0.0;
+  float n_ringLead = mix(0.0, -0.18, clamp((state[4].x - 0.0) / (1.0 - 0.0), 0.0, 1.0));
+  float n_ringThickness = mix(0.09, 0.22, clamp((state[3].x - 0.38) / (0.52 - 0.38), 0.0, 1.0));
   float n_ringMaskA_edge = max(0.05, 0.0001) * 0.5;
   float n_ringMaskA_lo = min(n_ringLead, n_ringThickness);
   float n_ringMaskA_hi = max(n_ringLead, n_ringThickness);
   float n_ringMaskA = smoothstep(n_ringMaskA_lo - n_ringMaskA_edge, n_ringMaskA_lo + n_ringMaskA_edge, n_ringDistA) * (1.0 - smoothstep(n_ringMaskA_hi - n_ringMaskA_edge, n_ringMaskA_hi + n_ringMaskA_edge, n_ringDistA));
   vec3 n_addRingA = clamp(node_mix_add(clamp(n_ringFalloff * n_ringMaskA, 0.0, 1.0), n_baseLayer, n_ringColorA), 0.0, 1.0);
-  // Sample and Hold "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_ringColorB = hsv_to_rgb(vec3(0.5, 1.0, 1.0));
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_ringDistB = 0.5 - n_polar.y;
+  float n_toggleInverse = 1.0 - state[2].x;
+  float n_hueHoldB_rose = float(n_toggleInverse >= 0.5 && state[4].w < 0.5);
+  state[4].w = float(n_toggleInverse >= 0.5);
+  if (n_hueHoldB_rose > 0.5) state[4].z = n_hitHue;
+  vec3 n_ringColorB = hsv_to_rgb(vec3(state[4].z, 1.0, 1.0));
+  float n_ringAgeB_restart = float(n_toggleInverse >= 0.5 && state[5].y < 0.5);
+  state[5].y = float(n_toggleInverse >= 0.5);
+  state[5].x = (n_ringAgeB_restart > 0.5 ? 0.0 : state[5].x) + 1.6 * iTimeDelta;
+  float n_ringDistB = state[5].x - n_polar.y;
   float n_ringMaskB_edge = max(0.05, 0.0001) * 0.5;
   float n_ringMaskB_lo = min(n_ringLead, n_ringThickness);
   float n_ringMaskB_hi = max(n_ringLead, n_ringThickness);
   float n_ringMaskB = smoothstep(n_ringMaskB_lo - n_ringMaskB_edge, n_ringMaskB_lo + n_ringMaskB_edge, n_ringDistB) * (1.0 - smoothstep(n_ringMaskB_hi - n_ringMaskB_edge, n_ringMaskB_hi + n_ringMaskB_edge, n_ringDistB));
   vec3 n_addRingB = clamp(node_mix_add(clamp(n_ringFalloff * n_ringMaskB, 0.0, 1.0), n_addRingA, n_ringColorB), 0.0, 1.0);
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_spokes_cycle = n_polar.x * 6.0 + 0.5;
+  float n_spokeSpin_restart = float(0.0 >= 0.5 && state[5].w < 0.5);
+  state[5].w = float(0.0 >= 0.5);
+  state[5].z = (n_spokeSpin_restart > 0.5 ? 0.0 : state[5].z) + -0.3 * iTimeDelta;
+  state[5].z = fract(state[5].z);
+  float n_spokes_cycle = n_polar.x * 6.0 + state[5].z;
   float n_spokes_p = fract(n_spokes_cycle);
   float n_spokes = 0.5 - 0.5 * cos(6.2831853 * n_spokes_p);
   float n_snareRamp_fac = n_spokes;
   vec3 n_snareRamp = vec3(0.0, 0.25, 1.0);
   n_snareRamp = mix(n_snareRamp, vec3(0.05, 0.85, 1.0), smoothstep(0.0, 0.55, n_snareRamp_fac));
   n_snareRamp = mix(n_snareRamp, vec3(0.6, 0.95, 1.0), smoothstep(0.55, 1.0, n_snareRamp_fac));
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_snareReach = mix(1.55, 0.85, clamp((0.5 - 0.0) / (1.0 - 0.0), 0.0, 1.0));
+  state[6].x = state[6].x > 0.5 ? float(iAudioFeatures[3].z > 0.1) : float(iAudioFeatures[3].z >= 0.19);
+  if (state[6].x >= 0.5 && state[6].w < 0.5) state[6].y = 1.0;
+  state[6].w = float(state[6].x >= 0.5);
+  float n_snareEnv_stage = state[6].y;
+  if (n_snareEnv_stage == 1.0) state[6].z = min(1.0, state[6].z + (0.01 <= 0.0 ? 1.0 : iTimeDelta / 0.01));
+  if (n_snareEnv_stage == 1.0 && state[6].z >= 1.0) state[6].y = 2.0;
+  if (n_snareEnv_stage == 2.0) state[6].z = max(0.0, state[6].z - (0.22 <= 0.0 ? 1.0 : iTimeDelta / 0.22));
+  if (n_snareEnv_stage == 2.0 && state[6].z <= 0.0) state[6].y = 0.0;
+  if (n_snareEnv_stage == 3.0) state[6].z = 0.0;
+  if (n_snareEnv_stage == 4.0) state[6].z = max(0.0, state[6].z - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_snareEnv_stage == 4.0 && state[6].z <= 0.0) state[6].y = 0.0;
+  float n_snareReach = mix(1.55, 0.85, clamp((state[6].z - 0.0) / (1.0 - 0.0), 0.0, 1.0));
   float n_snareRim_edge = max(0.12, 0.0001) * 0.5;
   float n_snareRim = smoothstep(n_snareReach - n_snareRim_edge, n_snareReach + n_snareRim_edge, n_polar.y);
   vec3 n_addSnare = clamp(node_mix_screen(clamp(0.9 * n_snareRim, 0.0, 1.0), n_addRingB, n_snareRamp), 0.0, 1.0);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_wake = max(n_addSnare, previousFrame(0.0) * exp(-iTimeDelta / max(0.5, 0.0001)));
+  vec3 n_wake = max(n_addSnare, previousFrame(0.0) * exp(-iTimeDelta / max(0.15, 0.0001)));
   c = vec4(n_wake, 1.0);
 }

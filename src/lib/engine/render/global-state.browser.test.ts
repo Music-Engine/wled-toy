@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { FrameSource } from './frame-pass'
 import { ShaderRenderer, type FrameParams } from './renderer'
 
-// adds `step` to r of every texel below `texels`, and keeps the width the frame pass draws in g
+// Adds `step` to r of each texel below `texels`; g keeps the width the frame pass draws
 const counter = (texels: number, step: string): FrameSource => ({
   code: `#version 300 es
 precision highp float;
@@ -17,7 +17,7 @@ void main() {
   probes: [0, 15, 16, 31].filter((texel) => texel < texels),
 })
 
-// shows slot 0 of global state in red, over 255 so the 8-bit canvas holds it exactly
+// Slot 0 in red, over 255 so the 8-bit canvas holds it exactly
 const READER = `uniform highp sampler2D iGlobal;
 void mainImage(out vec4 c, vec2 uv, float ledIndex) { c = vec4(texelFetch(iGlobal, ivec2(0, 0), 0).r / 255.0, 0.0, 0.0, 1.0); }`
 const PLAIN = 'void mainImage(out vec4 c, vec2 uv, float ledIndex) { c = vec4(uv, 0.0, 1.0); }'
@@ -29,7 +29,7 @@ function setup() {
   const canvas = document.createElement('canvas')
   const renderer = new ShaderRenderer(canvas)
   const gl = canvas.getContext('webgl2')!
-  // the order ledTick runs them in
+  // ledTick's order
   const tick = () => {
     renderer.renderGlobalState(params)
     const leds = renderer.renderLeds(params)
@@ -50,7 +50,7 @@ describe.skipIf(!floatTargets)('global state (needs EXT_color_buffer_float)', ()
     const pixel = new Uint8Array(4)
     gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
     expect(pixel[0]).toBe(30)
-    // the preview reads global state and never advances it
+    // Preview reads global state, never advances it
     renderer.renderPreview(params)
     gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
     expect(pixel[0]).toBe(30)
@@ -147,7 +147,7 @@ it('a program without a frame pass creates no texture, no framebuffer and no ext
   frames()
   frames()
   expect(renderer.readProbes()).toBeNull()
-  // one LED and one preview draw per tick, and the LED readback
+  // One LED and one preview draw per tick, plus the LED readback
   expect(calls).toEqual({ createTexture: 0, createFramebuffer: 0, drawArrays: 4, readPixels: 2 })
 
   if (floatTargets) {
@@ -155,7 +155,7 @@ it('a program without a frame pass creates no texture, no framebuffer and no ext
     renderer.compile(READER, counter(16, '1.0'))
     frames()
     frames()
-    // the two copies and the float row the probes come back in, a frame pass draw per tick, and the probes riding the LED readback
+    // Two copies and the probes' float row, a frame pass draw per tick, probes riding the LED readback
     expect(calls).toEqual({ createTexture: 3, createFramebuffer: 3, drawArrays: 6, readPixels: 2 })
   }
   expect(gl.getError()).toBe(gl.NO_ERROR)
