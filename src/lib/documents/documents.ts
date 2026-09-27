@@ -89,7 +89,7 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
     const delay = typeof autosaveDebounceMs === 'function' ? autosaveDebounceMs() : autosaveDebounceMs
     if (delay === null) return clearRecovery()
     autosaveTimer = setTimeout(() => {
-      if (dirty.value) localStorage.setItem(recoveryKey, serialize(getSnapshot()))
+      if (dirty.value) localStorage.setItem(recoveryKey, snapshotText())
       else clearRecovery()
     }, delay)
   })

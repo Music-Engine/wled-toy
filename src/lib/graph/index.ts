@@ -18,4 +18,5 @@ export {
 } from './model/doc'
 export { readGraphFile, serializeGraphFile } from './model/file'
 export { captureScene, fadeScene, pruneScenes, type Scene } from './model/scenes'
+export { RAMP_INTERPOLATIONS, defaultRamp, sampleRamp, type ColorRamp, type RampInterpolation, type RampStop } from './nodes/color/color-ramp'
 export { allItems, firstCompatibleSocket, inputSocket, nodeItem, outputSocket, storedShape } from './registry'

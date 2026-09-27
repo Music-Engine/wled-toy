@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import { sampleRamp, type ColorRamp, type RampStop } from '@/lib/graph/nodes/color/color-ramp'
+import { sampleRamp, type ColorRamp, type RampStop } from '@/lib/graph'
 
 /**
  * The selected stop of a color ramp and the edits on it. Stops are kept ordered by position, so a stop's index is its

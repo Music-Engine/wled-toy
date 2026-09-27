@@ -97,10 +97,15 @@ export function sanitize(raw: unknown): Layout {
 /** `mode` and `problemCount` are runtime only: the shell sets the mode, the active page's ProblemsList the count. */
 export const workspace = reactive({ ...loadStored(STORAGE_KEY, 'your panel layout', sanitize, defaults()), mode: 'shader' as Mode, problemCount: 0 })
 
+let saveTimer: ReturnType<typeof setTimeout> | undefined
 watch(() => {
   const { mode, problemCount, ...layout } = workspace
   return JSON.stringify(layout)
-}, (serialized) => localStorage.setItem(STORAGE_KEY, serialized))
+}, (serialized) => {
+  // dragging a split handle changes the layout per pointer move; one write per pause is enough
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => localStorage.setItem(STORAGE_KEY, serialized), 300)
+})
 
 export function resetLayout() {
   Object.assign(workspace, defaults())

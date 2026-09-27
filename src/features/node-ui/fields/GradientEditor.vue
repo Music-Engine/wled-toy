@@ -4,7 +4,7 @@ import ColorSwatch from './ColorSwatch.vue'
 import DropdownField from './DropdownField.vue'
 import RangeField from './RangeField.vue'
 import { useGradientEditor } from './use-gradient-editor'
-import { RAMP_INTERPOLATIONS, sampleRamp, type ColorRamp, type RampInterpolation } from '@/lib/graph/nodes/color/color-ramp'
+import { RAMP_INTERPOLATIONS, sampleRamp, type ColorRamp, type RampInterpolation } from '@/lib/graph'
 import './fields.css'
 
 const props = defineProps<{ modelValue: ColorRamp }>()
