@@ -7,9 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --project unit && pnpm test:browser",
     "test:unit": "vitest run --project unit",
-    "test:browser": "vitest run --project browser",
+    "test:browser": "vitest run --project browser && vitest run --project browser-timing",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"

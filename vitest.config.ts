@@ -11,6 +11,17 @@ const SWIFTSHADER_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshade
 const GPU = process.env.BENCH_GPU === '1' || process.env.BENCH_GPU === 'headed'
 const GPU_ARGS = ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist']
 
+const TIMING_TESTS = ['src/lib/engine/led-clock.browser.test.ts']
+const BROWSER = {
+  enabled: true,
+  headless: process.env.BENCH_GPU !== 'headed',
+  screenshotFailures: false,
+  provider: playwright({
+    launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
+  }),
+  instances: [{ browser: 'chromium' as const }],
+}
+
 export default defineConfig({
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
@@ -39,17 +50,20 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.ts'],
+          exclude: TIMING_TESTS,
           // Vue Flow's fit-on-init alone takes over the default second in software-rendered Chromium on a loaded machine
           expect: { poll: { timeout: 5000 } },
-          browser: {
-            enabled: true,
-            headless: process.env.BENCH_GPU !== 'headed',
-            screenshotFailures: false,
-            provider: playwright({
-              launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
-            }),
-            instances: [{ browser: 'chromium' }],
-          },
+          browser: BROWSER,
+        },
+      },
+      // files that measure rates on the main thread run alone: parallel iframes of the browser project starve them
+      {
+        extends: true,
+        test: {
+          name: 'browser-timing',
+          include: TIMING_TESTS,
+          fileParallelism: false,
+          browser: BROWSER,
         },
       },
     ],
