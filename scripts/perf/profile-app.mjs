@@ -18,10 +18,10 @@ await page.goto(url)
 await page.waitForTimeout(5000)
 const setup = await page.evaluate(async () => {
   const { useEngine } = await import('/src/lib/engine/engine.ts')
-  const { config } = await import('/src/lib/app/config.ts')
+  const { config } = await import('/src/lib/app/settings/config.ts')
   const engine = useEngine()
   const { workspace } = await import('/src/lib/app/workspace.ts')
-  const { preferences } = await import('/src/lib/app/preferences.ts')
+  const { preferences } = await import('/src/lib/app/settings/preferences.ts')
   const flags = new Set((window.__flags ?? ''))
   if (flags.has('nostrip')) workspace.stripVisible = false
   if (flags.has('plain')) engine.compile('void mainImage(out vec4 c, vec2 uv, float ledIndex) { c = vec4(uv, 0.5 + 0.5 * sin(iTime), 1.0); }', 'shader')
@@ -50,12 +50,12 @@ const rates = await page.evaluate(async (seconds) => {
   const timer = setInterval(() => ticks++, 1000 / 60)
   const { useEngine } = await import('/src/lib/engine/engine.ts')
   const engine = useEngine()
-  let led = 0
-  const stop = engine.onLedFrame(() => led++)
+  const firstRevision = engine.ledRevision()
   const start = performance.now()
   await pause(seconds * 1000)
   const dt = (performance.now() - start) / 1000
-  clearInterval(timer); cancelAnimationFrame(raf); po.disconnect(); stop()
+  clearInterval(timer); cancelAnimationFrame(raf); po.disconnect()
+  const led = engine.ledRevision() - firstRevision
   return { interval60: +(ticks / dt).toFixed(1), raf: +(frames / dt).toFixed(1), ledTicks: +(led / dt).toFixed(1), longTasks: long.length, longTaskMs: long.reduce((a, b) => a + b, 0), longest: Math.max(0, ...long), stats: { ...engine.bridge.stats, device: undefined } }
 }, seconds)
 const { profile } = await cdp.send('Profiler.stop')

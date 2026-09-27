@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useResizeObserver } from '@vueuse/core'
 import { useEngine } from '@/lib/engine/engine'
 import { layoutPositions, type Layout, type Segment } from '@/lib/engine/output/layout'
 import { SEEN } from './led-colors'
+import { useVisibleFrames } from './use-visible-frames'
 
 const props = defineProps<{ layout: Layout }>()
+const engine = useEngine()
+const root = ref<HTMLElement>()
 const lights = ref<HTMLCanvasElement>()
 const glow = ref<HTMLCanvasElement>()
 const blur = ref(0)
-let unsubscribe: (() => void) | undefined
+let [w, h, dpr] = [0, 0, 1]
+const box = { left: 0, top: 0, width: 0, height: 0, radius: 0 }
+let drawnRevision = -1
+let contexts: Record<'lights' | 'glow', CanvasRenderingContext2D> | undefined
 
 const positions = computed(() => layoutPositions(props.layout))
 
@@ -18,6 +25,65 @@ const shape = computed(() => {
   return rest.length === 0 && only.kind === 'matrix' ? only.width / only.height : 1
 })
 
+onMounted(() => {
+  contexts = { lights: lights.value!.getContext('2d')!, glow: glow.value!.getContext('2d')! }
+})
+
+useResizeObserver(root, ([entry]) => {
+  dpr = devicePixelRatio
+  w = Math.round(entry.contentRect.width * dpr)
+  h = Math.round(entry.contentRect.height * dpr)
+  for (const canvas of [lights.value!, glow.value!]) {
+    canvas.width = w
+    canvas.height = h
+  }
+  layOut()
+})
+
+watch(() => props.layout, layOut, { deep: true })
+
+useVisibleFrames(root, draw)
+
+/** Fits the layout into the current box: where the LEDs go, how big they are and how far their glow reaches. */
+function layOut() {
+  drawnRevision = -1
+  if (!w || !h) return
+  // the pane clamps very wide and very tall shapes, so the LEDs get the largest box of their own shape that fits
+  const margin = Math.min(w, h) * 0.05
+  box.width = Math.min(w - 2 * margin, (h - 2 * margin) * shape.value)
+  box.height = box.width / shape.value
+  box.left = (w - box.width) / 2
+  box.top = (h - box.height) / 2
+  const spacing = Math.min(...props.layout.segments.map((segment) => pitch(segment, box.width, box.height)))
+  box.radius = Math.max(dpr, Math.min(spacing * 0.36, 12 * dpr))
+  blur.value = Math.round(Math.max(2, Math.min(spacing, box.radius * 4) * 0.55 / dpr))
+}
+
+/** Draws the engine's latest LED frame (4 header bytes, then RGB triplets) with every LED where the layout puts it, unless it is the one already drawn. */
+function draw() {
+  const frame = engine.ledFrame()
+  const revision = engine.ledRevision()
+  if (!frame || !contexts || revision === drawnRevision || !w || !h) return
+  drawnRevision = revision
+  const ctx = contexts.lights
+  ctx.clearRect(0, 0, w, h)
+  const p = positions.value
+  const n = Math.min(p.length / 4, (frame.length - 4) / 3)
+  for (let i = 0; i < n; i++) {
+    // an unlit LED stays faintly visible, so the shape of the device reads in the dark
+    const r = Math.max(22, SEEN[frame[4 + i * 3]])
+    const g = Math.max(22, SEEN[frame[5 + i * 3]])
+    const b = Math.max(22, SEEN[frame[6 + i * 3]])
+    ctx.fillStyle = `rgb(${r},${g},${b})`
+    ctx.beginPath()
+    ctx.arc(box.left + p[i * 4] * box.width, box.top + (1 - p[i * 4 + 1]) * box.height, box.radius, 0, 2 * Math.PI)
+    ctx.fill()
+  }
+
+  contexts.glow.clearRect(0, 0, w, h)
+  contexts.glow.drawImage(lights.value!, 0, 0)
+}
+
 /** Distance between neighboring LEDs of a segment, in pixels of a box the layout space is stretched over. */
 function pitch(segment: Segment, width: number, height: number): number {
   if (segment.kind === 'matrix') return Math.min(width / segment.width, height / segment.height)
@@ -25,57 +91,10 @@ function pitch(segment: Segment, width: number, height: number): number {
   if (segment.kind === 'ring') return 2 * Math.PI * segment.radius * Math.min(width, height) / segment.count
   return Math.sqrt(width * height / segment.points.length)
 }
-
-/** Draws a frame from ShaderRenderer.renderLeds (4 header bytes, then RGB triplets) with every LED where the layout puts it. */
-function draw(frame: Uint8Array) {
-  const el = lights.value
-  const ctx = el?.getContext('2d')
-  if (!el || !ctx || !glow.value) return
-  const w = Math.round(el.clientWidth * devicePixelRatio)
-  const h = Math.round(el.clientHeight * devicePixelRatio)
-  if (!w || !h) return
-  for (const canvas of [el, glow.value]) {
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w
-      canvas.height = h
-    }
-  }
-
-  // the pane clamps very wide and very tall shapes, so the LEDs get the largest box of their own shape that fits
-  const margin = Math.min(w, h) * 0.05
-  const boxW = Math.min(w - 2 * margin, (h - 2 * margin) * shape.value)
-  const boxH = boxW / shape.value
-  const [left, top] = [(w - boxW) / 2, (h - boxH) / 2]
-  const spacing = Math.min(...props.layout.segments.map((segment) => pitch(segment, boxW, boxH)))
-  const radius = Math.max(devicePixelRatio, Math.min(spacing * 0.36, 12 * devicePixelRatio))
-  blur.value = Math.round(Math.max(2, Math.min(spacing, radius * 4) * 0.55 / devicePixelRatio))
-
-  ctx.clearRect(0, 0, w, h)
-  const p = positions.value
-  const n = Math.min(p.length / 4, (frame.length - 4) / 3)
-  for (let i = 0; i < n; i++) {
-    // an unlit LED stays faintly visible, so the shape of the device reads in the dark
-    const [r, g, b] = [0, 1, 2].map((c) => Math.max(22, SEEN[frame[4 + i * 3 + c]]))
-    ctx.fillStyle = `rgb(${r},${g},${b})`
-    ctx.beginPath()
-    ctx.arc(left + p[i * 4] * boxW, top + (1 - p[i * 4 + 1]) * boxH, radius, 0, 2 * Math.PI)
-    ctx.fill()
-  }
-
-  const halo = glow.value.getContext('2d')!
-  halo.clearRect(0, 0, w, h)
-  halo.drawImage(el, 0, 0)
-}
-
-onMounted(() => {
-  unsubscribe = useEngine().onLedFrame(draw)
-})
-
-onBeforeUnmount(() => unsubscribe?.())
 </script>
 
 <template>
-  <div class="led-map relative overflow-hidden bg-black" :style="{ aspectRatio: Math.min(3, Math.max(0.75, shape)) }">
+  <div ref="root" class="led-map relative overflow-hidden bg-black" :style="{ aspectRatio: Math.min(3, Math.max(0.75, shape)) }">
     <!-- the glow is the same picture blurred by the compositor, which costs nothing per LED -->
     <canvas ref="glow" class="absolute inset-0 size-full" :style="{ filter: `blur(${blur}px) brightness(1.6)` }" />
     <canvas ref="lights" class="absolute inset-0 size-full" />

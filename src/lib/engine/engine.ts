@@ -15,8 +15,6 @@ import { MidiService } from './midi'
 import { SceneFades } from './fades'
 import { EngineMedia } from '@/lib/engine/media/engine-media'
 
-type LedListener = (frame: Uint8Array) => void
-
 let engine: Engine | null = null
 
 export function useEngine(): Engine {
@@ -45,7 +43,8 @@ class Engine {
   readonly trackStatus = this.media.trackStatus
 
   private renderer: ShaderRenderer | null = null
-  private readonly listeners = new Set<LedListener>()
+  private leds: Uint8Array | null = null
+  private revision = 0
   private readonly stopWatchers: Array<() => void> = []
   private readonly controls = new FrameRunner()
   private readonly post = new LedPostProcess()
@@ -135,9 +134,14 @@ class Engine {
     return this.controls.output(nodeId, output)
   }
 
-  onLedFrame(listener: LedListener): () => void {
-    this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
+  /** The last LED frame (4 header bytes, then RGB triplets), or null before the first tick. Views read it on their own clock, never inside the tick. */
+  ledFrame(): Uint8Array | null {
+    return this.leds
+  }
+
+  /** Counts LED ticks, so a view can skip drawing a frame it already drew. */
+  ledRevision(): number {
+    return this.revision
   }
 
   toggleStream() {
@@ -225,7 +229,8 @@ class Engine {
     const t0 = performance.now()
     const leds = this.post.process(this.renderer.renderLeds(params), config.brightness, this.output)
     this.bridge.recordLedRender(performance.now() - t0)
-    if (!document.hidden) this.listeners.forEach((listener) => listener(leds))
+    this.leds = leds
+    this.revision++
     if (this.streaming.value) this.bridge.sendFrame(leds)
   }
 }

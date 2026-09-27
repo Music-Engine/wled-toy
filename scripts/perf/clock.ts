@@ -1,5 +1,5 @@
-import { config } from '@/lib/app/config'
-import { preferences } from '@/lib/app/preferences'
+import { config } from '@/lib/app/settings/config'
+import { preferences } from '@/lib/app/settings/preferences'
 import { useEngine } from '@/lib/engine/engine'
 
 const PLAIN = 'void mainImage(out vec4 c, vec2 uv, float ledIndex) { c = vec4(uv, 0.5 + 0.5 * sin(iTime), 1.0); }'
@@ -71,12 +71,16 @@ async function engineRate(fps: number, previewFps: number, code: string) {
   let ticks = 0
   const gaps: number[] = []
   let last = performance.now()
-  const stop = engine.onLedFrame(() => {
+  // the bridge hears about every rendered LED frame, which makes it the place to time the ticks
+  const record = engine.bridge.recordLedRender
+  engine.bridge.recordLedRender = (ms) => {
     const now = performance.now()
     gaps.push(now - last)
     last = now
     ticks++
-  })
+    return record(ms)
+  }
+  const stop = () => (engine.bridge.recordLedRender = record)
   await pause(500)
   ticks = 0
   gaps.length = 0

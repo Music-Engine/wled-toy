@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { createApp } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
 import { commands } from 'vitest/browser'
-import { config } from '@/lib/app/config'
-import { preferences } from '@/lib/app/preferences'
+import { config } from '@/lib/app/settings/config'
+import { preferences } from '@/lib/app/settings/preferences'
+import LedStrip from '@/features/output/preview/LedStrip.vue'
 import { useEngine } from './engine'
 
 /*
@@ -54,12 +56,16 @@ async function engineRate(fps: number, previewFps: number, code: string, seconds
   let ticks = 0
   const durations: number[] = []
   let last = performance.now()
-  const stop = engine.onLedFrame(() => {
+  // the bridge hears about every rendered LED frame, which makes it the place to time the ticks
+  const record = engine.bridge.recordLedRender
+  engine.bridge.recordLedRender = (ms) => {
     const now = performance.now()
     durations.push(now - last)
     last = now
     ticks++
-  })
+    return record(ms)
+  }
+  const stop = () => (engine.bridge.recordLedRender = record)
   await pause(500)
   ticks = 0
   durations.length = 0
@@ -80,6 +86,42 @@ it('the LED clock holds the configured fps within two percent', async () => {
   for (const fps of [30, 60, 90, 120]) rows.push({ fps, ...(await engineRate(fps, -1, PLAIN, 2)) })
   expect(rows.map((row) => `${row.fps}: ${row.rate}`).filter((_, i) => Math.abs(rows[i].rate - rows[i].fps) > rows[i].fps * 0.02)).toEqual([])
 }, 60_000)
+
+// a view drawing inside the tick used to hold the next tick's readback on its GPU work: 18 ms per tick and 53 ticks at fps 60
+it('the LED strip draws off the tick', async () => {
+  const ledCount = config.ledCount
+  config.ledCount = 300
+  const bare = await engineRate(60, -1, PLAIN, 3)
+
+  // browser tests run without Tailwind; this is the box the strip's classes give it in the app
+  const style = document.createElement('style')
+  style.textContent = '.led-monitor { position: relative; height: 64px; overflow: hidden } .led-monitor canvas { position: absolute; inset: 0; width: 100%; height: 100% }'
+  const host = document.createElement('div')
+  host.style.width = '1200px'
+  document.head.append(style)
+  document.body.append(host)
+  const app = createApp(LedStrip)
+  app.mount(host)
+  const draws = vi.spyOn(CanvasRenderingContext2D.prototype, 'putImageData')
+  let frames = 0
+  let raf = requestAnimationFrame(function count() {
+    frames++
+    raf = requestAnimationFrame(count)
+  })
+  const withStrip = await engineRate(60, -1, PLAIN, 3)
+  cancelAnimationFrame(raf)
+  const drawn = draws.mock.calls.length
+  draws.mockRestore()
+  app.unmount()
+  host.remove()
+  style.remove()
+  config.ledCount = ledCount
+
+  expect(Math.abs(withStrip.rate - bare.rate)).toBeLessThanOrEqual(bare.rate * 0.05)
+  expect(withStrip.ledRenderMs).toBeLessThan(4)
+  expect(drawn).toBeGreaterThan(0)
+  expect(drawn).toBeLessThanOrEqual(frames + 1)
+}, 30_000)
 
 describe.skipIf(!enabled)('LED clock probe', () => {
   it('bare setInterval reaches the configured rate', async () => {
