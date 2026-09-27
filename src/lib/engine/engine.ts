@@ -243,7 +243,9 @@ class Engine {
     const [first, ...extra] = this.audio.slots
     if (first?.features) this.renderer.setAudio(first.textures, extra.map((slot) => slot.textures))
     const t0 = performance.now()
+    this.renderer.renderGlobalState(params)
     const leds = this.post.process(this.renderer.renderLeds(params), config.brightness, this.output)
+    this.renderer.readProbes()
     this.bridge.recordLedRender(performance.now() - t0)
     this.leds = leds
     this.revision++

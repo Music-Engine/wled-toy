@@ -11,7 +11,7 @@ void main() { color = vec4(texelFetch(source, ivec2(gl_FragCoord.xy), 0).rgb, 1.
 
 export const UNIFORMS = [
   'iResolution', 'iTime', 'iFrame', 'iLedCount', 'iScanY', 'iAudio', 'iImage', 'iControl',
-  'iAudioBands', 'iAudioHistory', 'iAudioWave', 'iAudioHeads', 'iAudioBandsExtra', 'iAudioHistoryExtra', 'iAudioHistoryHeadExtra', 'iLayout', 'iLayoutCount', 'iPrevFrame', 'iTimeDelta', 'iImages', 'iState',
+  'iAudioBands', 'iAudioHistory', 'iAudioWave', 'iAudioHeads', 'iAudioBandsExtra', 'iAudioHistoryExtra', 'iAudioHistoryHeadExtra', 'iLayout', 'iLayoutCount', 'iPrevFrame', 'iTimeDelta', 'iImages', 'iState', 'iGlobal',
 ] as const
 
 export type UniformLocations = Partial<Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>>
