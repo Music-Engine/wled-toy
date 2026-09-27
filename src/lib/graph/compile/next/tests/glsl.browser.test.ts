@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { Features } from '@/lib/audio/dsp'
+import { AudioTextures } from '@/lib/audio/textures'
 import { ShaderRenderer, type FrameParams } from '@/lib/engine/render/renderer'
 import { graph, node } from '@/lib/graph/testing'
 import { glslCompiler } from '@/lib/graph/compile/next/compilers'
@@ -28,6 +30,23 @@ describe.skipIf(!floatTargets)('GLSL target programs (needs EXT_color_buffer_flo
     renderer.renderGlobalState(params)
     const leds = renderer.renderLeds(params)
     expect(Array.from(leds).map((channel) => Math.round(channel * 255))).toEqual(new Array(12).fill(128))
+    renderer.dispose()
+  })
+
+  it('reads the features and the bands setAudio uploaded in the frame pass', () => {
+    const doc = graph(
+      [node('a', 'audio'), node('b', 'bands', { count: '16' }), node('c', 'combineXYZ'), node('o', 'output')],
+      [['a.level', 'c.x'], ['a.beat', 'c.y'], ['b.band2', 'c.z'], ['c.vector', 'o.color']],
+    )
+    const program = glslCompiler().compile(doc).program!
+    const textures = new AudioTextures(64)
+    textures.bands[6] = 200
+    const renderer = new ShaderRenderer(document.createElement('canvas'))
+    renderer.compile(program.pixel, program.frame!)
+    renderer.setAudio(textures, [], { level: 0.5, beat: true, gate: false } as Features)
+    const params: FrameParams = { time: 0, frame: 0, ledCount: 1, scanY: 0.5 }
+    renderer.renderGlobalState(params)
+    expect(Array.from(renderer.renderLeds(params)).map((channel) => Math.round(channel * 255))).toEqual([128, 255, 200])
     renderer.dispose()
   })
 })

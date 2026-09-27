@@ -1,22 +1,127 @@
 {
   "glsl": {
-    "frame": null,
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "analysis": [
+        {
+          "windowSize": 8192,
+          "hop": 128,
+          "window": "hann",
+          "bands": 256,
+          "scale": "mel",
+          "fmin": 40,
+          "fmax": 16000
+        },
+        {
+          "windowSize": 8192,
+          "hop": 128,
+          "window": "hamming",
+          "bands": 256,
+          "scale": "mel",
+          "fmin": 40,
+          "fmax": 16000
+        },
+        {
+          "windowSize": 8192,
+          "hop": 128,
+          "window": "blackman",
+          "bands": 256,
+          "scale": "log",
+          "fmin": 40,
+          "fmax": 16000
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "frame": {
+      "texels": 2,
+      "probes": []
+    },
     "issues": [
       {
         "nodeId": "split0",
-        "message": "Band Split runs only in JavaScript and has no body to emit yet"
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "split1",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "split2",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
       }
     ],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "split0:level": {
+          "level": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "split1:level": {
+          "level": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "split2:level": {
+          "level": {
+            "type": "float",
+            "offset": 2
+          }
+        },
+        "gainColor:color": {
+          "color": {
+            "type": "color",
+            "offset": 4
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
         "nodeId": "split0",
-        "message": "Band Split runs only in JavaScript and has no body to emit yet"
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "split1",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "split2",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "spec0",
+        "message": "Spectrum samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

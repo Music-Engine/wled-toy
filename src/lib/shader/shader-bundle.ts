@@ -18,6 +18,7 @@ export const UNIFORM_CONTRACT: Record<string, string> = {
   iAudioHistoryHeadExtra: 'the newest row of each iAudioHistoryExtra texture.',
   iAudioWave: `R8 texture, ${WAVE_WIDTH} x ${WAVE_ROWS}, repeating in y: the most recent samples as a ring in row-major order, 128 is silence.`,
   iAudioHeads: '(newest row of iAudioHistory, index of the next sample to be written to iAudioWave, sample rate in Hz).',
+  iAudioFeatures: "4 vec4 of the default analysis's features for this frame, four to a vector: level, rms, peak, gate, onset, beat, beat phase, BPM, brightness, noisiness, then the sub, kick, low mid, vocal, presence and air levels. Onset and beat are 1 when the analysis raised them since the previous frame.",
   iLayout: 'RGBA32F texture, iLayoutCount x 1, nearest filtering: x, y, z (0 to 1) and segment index of every LED in wire order.',
   iLayoutCount: 'number of LEDs in iLayout, or 0 for a plain strip that samples the row at iScanY.',
   iPrevFrame: 'what this shader drew into the same target on the previous frame (render to two targets in turn), linear filtering, clamped.',

@@ -1,6 +1,8 @@
-import { rangePeak, type Features } from '@/lib/audio/dsp'
+import type { Features } from '@/lib/audio/dsp'
+import { AUDIO_FEATURES, RANGES, rangeLevel } from '@/lib/audio/features'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/settings'
 import { AudioStream, defineNode, Enum, Float, Int, resourceIndex, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
+import { audioReadsChunk } from '@/lib/graph/nodes/glsl/audio'
 import { sameJson } from '@/lib/util/json'
 
 const SOURCES = [{ value: 'file', label: 'Song' }, { value: 'device', label: 'Capture Device' }, { value: 'loopback', label: 'System audio' }] as const
@@ -73,6 +75,11 @@ export const audioNode = defineNode('audio', {
     centroid: { type: Float, label: 'Brightness' }, flatness: { type: Float, label: 'Noisiness' },
     sub: Float, kick: Float, lowMid: Float, vocal: Float, presence: Float, air: Float,
   },
+  frameOnlyInOldPipeline: true,
+  body: (_, ctx) => {
+    ctx.include(audioReadsChunk)
+    return Object.fromEntries(AUDIO_FEATURES.map((name, i) => [name, { expr: `iAudioFeatures[${Math.floor(i / 4)}].${'xyzw'[i % 4]}`, type: 'float' }])) as never
+  },
   frame: (_, info) => {
     const f = analysis(info)
     if (!f) return { level: 0, rms: 0, peak: 0, gate: 0, onset: 0, beat: 0, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0, sub: 0, kick: 0, lowMid: 0, vocal: 0, presence: 0, air: 0 }
@@ -95,6 +102,12 @@ export const bandSplitNode = defineNode('bandSplit', {
     high: { type: Float, label: 'High (Hz)', default: 150, props: { min: 20, max: 20000, decimals: 0 } },
   },
   output: { level: Float },
+  frameOnlyInOldPipeline: true,
+  body: ({ spectrum, low, high }, ctx) => {
+    ctx.include(audioReadsChunk)
+    if ((spectrum?.slot ?? 0) > 0) ctx.issue('Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings')
+    return { level: ctx.declare('float', `spectrumPeak(${low.expr}, ${high.expr})`) }
+  },
   frame: ({ spectrum, low, high }, info) => {
     const f = analysis(info, spectrum?.slot)
     return { level: f ? rangeLevel(f, info.audio!.sampleRate, low, high) : 0 }
@@ -102,9 +115,3 @@ export const bandSplitNode = defineNode('bandSplit', {
 })
 
 const analysis = (frame: FrameInfo, slot = 0): Features | undefined => frame.audio?.analyses[slot] ?? undefined
-
-// named ranges of a mix, in Hz; the outputs follow the loudest partial inside each
-const RANGES = { sub: [20, 60], kick: [60, 150], lowMid: [150, 500], vocal: [500, 2000], presence: [2000, 6000], air: [6000, 16000] } as const
-
-const rangeLevel = (f: Features, sampleRate: number, low: number, high: number) =>
-  (f.gate ? Math.sqrt(Math.min(1, rangePeak(f.spectrum, sampleRate, f.spectrum.length * 2, low, high) * f.gain)) : 0)

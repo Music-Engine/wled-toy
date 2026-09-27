@@ -1,5 +1,6 @@
 import type { Features } from '@/lib/audio/dsp'
 import { defineNode, Enum, Float, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
+import { audioReadsChunk } from '@/lib/graph/nodes/glsl/audio'
 
 const COUNTS = [{ value: '4', label: '4 bands' }, { value: '8', label: '8 bands' }, { value: '16', label: '16 bands' }] as const
 
@@ -12,6 +13,11 @@ export const bandsNode = defineNode('bands', ({ count = '8' }: { count?: string 
     category: 'audio',
     input: { spectrum: SpectrumStream, count: { type: Enum(COUNTS), label: '', default: '8', linkable: false, props: { label: 'Bands' } } },
     output: Object.fromEntries(Array.from({ length: n }, (_, i) => [`band${i + 1}`, { type: Float, label: `Band ${i + 1}` }])),
+    frameOnlyInOldPipeline: true,
+    body: ({ spectrum }, ctx) => {
+      ctx.include(audioReadsChunk)
+      return Object.fromEntries(Array.from({ length: n }, (_, i) => [`band${i + 1}`, ctx.declare('float', `bandsPeak(${spectrum?.slot ?? 0}, ${i}, ${n})`, `band${i + 1}`)]))
+    },
     frame: ({ spectrum }, info: FrameInfo) => {
       const f: Features | null | undefined = info.audio?.analyses[spectrum?.slot ?? 0]
       const bands = f?.bands

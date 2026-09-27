@@ -20,6 +20,44 @@ inline float bandLevel(float lo, float hi) {
   for (int i = 0; i < 8; i++) s += fft(mix(lo, hi, (float(i) + 0.5f) / 8.0f));
   return s / 8.0f;
 }
+// bandsAt, historyAt and waveformAt read the arrays as GLSL samples the textures: linear between bands, and between
+// history rows, which wrap
+inline const float* bandRow(int slot) { return slot >= 1 && slot <= audioExtraSlots ? iAudioBandsExtra[slot - 1] : iAudioBands; }
+inline float bandsAcross(const float* row, float x) {
+  float t = clamp(x * float(audioBands) - 0.5f, 0.0f, float(audioBands - 1));
+  int band = int(t);
+  return mix(row[band], row[band < audioBands - 1 ? band + 1 : band], t - float(band));
+}
+inline float bandsAt(int slot, float x) { return bandsAcross(bandRow(slot), x); }
+inline int bandCountAt(int) { return audioBands; }
+inline float bandsPeak(int slot, int band, int count) {
+  int from = band * audioBands / count;
+  int to = (band + 1) * audioBands / count;
+  float peak = 0.0f;
+  for (int k = from; k < (to > from ? to : from + 1); k++) peak = max(peak, bandsAt(slot, (float(k) + 0.5f) / float(audioBands)));
+  return peak;
+}
+inline float spectrumPeak(float lo, float hi) {
+  float hz = iAudioHeads.z * 0.5f / float(audioSpectrumBins);
+  int last = int(max(lo, hi) / hz);
+  float peak = 0.0f;
+  for (int i = int(min(lo, hi) / hz); i <= (last < audioSpectrumBins - 1 ? last : audioSpectrumBins - 1); i++) peak = max(peak, iAudioSpectrum[i]);
+  return peak;
+}
+inline float historyAt(int slot, float x, float age) {
+  bool extra = slot >= 1 && slot <= audioExtraSlots;
+  const float(*rows)[audioBands] = extra ? iAudioHistoryExtra[slot - 1] : iAudioHistory;
+  float y = (extra ? iAudioHistoryHeadExtra[slot - 1] : iAudioHeads.x) - clamp(age, 0.0f, 1.0f) * float(audioHistoryRows - 1);
+  int row = int(floor(y));
+  float older = bandsAcross(rows[(row % audioHistoryRows + audioHistoryRows) % audioHistoryRows], x);
+  float newer = bandsAcross(rows[((row + 1) % audioHistoryRows + audioHistoryRows) % audioHistoryRows], x);
+  return mix(older, newer, y - floor(y));
+}
+inline float waveformAt(float samplesAgo) {
+  int back = int(clamp(samplesAgo, 0.0f, float(audioWaveSamples - 1)));
+  return iAudioWave[(int(iAudioHeads.y) - 1 - back + audioWaveSamples) % audioWaveSamples];
+}
+
 inline float bass() { return bandLevel(0.00f, 0.06f); }
 inline float mid() { return bandLevel(0.06f, 0.30f); }
 inline float treble() { return bandLevel(0.30f, 0.80f); }

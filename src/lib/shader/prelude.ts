@@ -13,6 +13,40 @@ const perSlot = (call: (sampler: (name: string) => string, head: string) => stri
   `  return ${call((name) => name, 'iAudioHeads.x')};`,
 ].join('\n')
 
+/**
+ * The Audio node's features, the band levels of each slot and the default spectrum's peak in a range: part of the prelude, and pasted on their own into a
+ * graph's frame pass that reads them, since that pass has the uniforms but not the rest of the prelude.
+ */
+export const AUDIO_READS = `// the Audio node's outputs for the default analysis, in the order of AUDIO_FEATURES, four to a vector
+uniform vec4 iAudioFeatures[4];
+// slot 0 is the default analysis; graph FFT nodes with other settings use slots 1 and up
+float bandsAt(int slot, float x) {
+${perSlot((sampler) => `texture(${sampler('iAudioBands')}, vec2(x, 0.25)).r`)}
+}
+int bandCountAt(int slot) {
+${perSlot((sampler) => `textureSize(${sampler('iAudioBands')}, 0).x`)}
+}
+// the loudest of the bands that output number band of count covers, as the Bands node folds them
+float bandsPeak(int slot, int band, int count) {
+  int total = bandCountAt(slot);
+  int from = band * total / count;
+  int to = max(from + 1, (band + 1) * total / count);
+  float peak = 0.0;
+  for (int k = from; k < to; k++) peak = max(peak, bandsAt(slot, (float(k) + 0.5) / float(total)));
+  return peak;
+}
+// the loudest bin of the default analysis's spectrum between lo and hi Hz, as the Band Split node reads it; the texture's
+// bins are coarser than the analysis's, so an edge of the range can take in the rest of its bin
+float spectrumPeak(float lo, float hi) {
+  int bins = textureSize(iAudio, 0).x;
+  float hz = iAudioHeads.z * 0.5 / float(bins);
+  int last = min(bins - 1, int(max(lo, hi) / hz));
+  float peak = 0.0;
+  for (int i = int(min(lo, hi) / hz); i <= last; i++) peak = max(peak, texelFetch(iAudio, ivec2(i, 0), 0).r);
+  return peak;
+}
+`
+
 /** Layers of `iImages`: how many different images one graph can show, and the size each is resampled to. */
 export const IMAGE_LAYERS = 8
 export const IMAGE_LAYER_SIZE = 512
@@ -79,11 +113,7 @@ float historyRow(sampler2D history, float head, float x, float age) {
   float rows = float(textureSize(history, 0).y);
   return texture(history, vec2(x, (head + 0.5 - clamp(age, 0.0, 1.0) * (rows - 1.0)) / rows)).r;
 }
-// slot 0 is the default analysis; graph FFT nodes with other settings use slots 1 and up
-float bandsAt(int slot, float x) {
-${perSlot((sampler) => `texture(${sampler('iAudioBands')}, vec2(x, 0.25)).r`)}
-}
-float chromaAt(int slot, float pitchClass) {
+${AUDIO_READS}float chromaAt(int slot, float pitchClass) {
 ${perSlot((sampler) => `texelFetch(${sampler('iAudioBands')}, ivec2(int(mod(pitchClass, 12.0)), 1), 0).r`)}
 }
 // age 0 is now, 1 the oldest row kept

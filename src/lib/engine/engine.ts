@@ -231,17 +231,18 @@ class Engine {
     const now = performance.now()
     const dt = Math.min(0.1, (now - this.lastControlStep) / 1000)
     const params = this.frameParams(dt)
+    const analyses = this.audio.features ? this.audio.takeFeatures() : null
     this.renderer.setControls(this.controls.step({
       time: params.time,
       dt,
       frameIndex: params.frame,
-      audio: this.audio.features ? { analyses: this.audio.takeFeatures(), sampleRate: this.audio.state.sampleRate } : undefined,
+      audio: analyses ? { analyses, sampleRate: this.audio.state.sampleRate } : undefined,
       midi: this.midi,
       osc: this.bridge.oscArgs,
     }))
     this.lastControlStep = now
     const [first, ...extra] = this.audio.slots
-    if (first?.features) this.renderer.setAudio(first.textures, extra.map((slot) => slot.textures))
+    if (first?.features) this.renderer.setAudio(first.textures, extra.map((slot) => slot.textures), analyses?.[0] ?? null)
     const t0 = performance.now()
     this.renderer.renderGlobalState(params)
     const leds = this.post.process(this.renderer.renderLeds(params), config.brightness, this.output)

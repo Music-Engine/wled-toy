@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { nodeItem } from '@/lib/graph/registry'
+import { generateGlsl } from '@/lib/graph/compile/compile'
 import { buildCpp, cppCompiler, runOffline } from '@/lib/graph/testing/cpp'
 import { glslCompiler, usermodCompiler } from '@/lib/graph/compile/next/compilers'
 import { corpusGraphs, corpusKinds } from '@/lib/graph/compile/next/corpus'
@@ -28,15 +29,15 @@ describe.skipIf(!cppCompiler)('the usermod target (needs g++ or c++ on PATH)', (
     })
     const failed = units.filter(([, code]) => buildCpp(code, { run: false }).status !== 0).map(([name]) => name)
     const without = kinds.filter(([name]) => !units.some(([unit]) => unit === name)).map(([name]) => name)
-    expect(units.map(([name]) => name).filter((name) => graphs.some(([graph]) => graph === name))).toEqual(['bench-baseline', 'bench-gpu-heavy', 'bench-gpu-shared-subgraph', 'bench-wide'])
-    // the audio kinds have no body yet; the rest sample a texture, read MIDI or OSC, or are read back by the host
-    expect(without).toEqual(['texture', 'audio', 'audioSignal', 'bands', 'bandSplit', 'spectrum', 'waveform', 'chroma', 'midiIn', 'oscIn', 'sceneSwitch', 'viewer', 'trails', 'stripBlur', 'previousFrame', 'imageTexture'])
+    expect(units.map(([name]) => name).filter((name) => graphs.some(([graph]) => graph === name))).toEqual(['bench-baseline', 'bench-control-chain', 'bench-gpu-heavy', 'bench-gpu-shared-subgraph', 'bench-wide'])
+    // these sample a texture, read MIDI or OSC, or are read back by the host
+    expect(without).toEqual(['texture', 'spectrum', 'waveform', 'chroma', 'midiIn', 'oscIn', 'sceneSwitch', 'viewer', 'trails', 'stripBlur', 'previousFrame', 'imageTexture'])
     expect(failed).toEqual(['bench-gpu-heavy'])
   }, 120_000)
 
   // the old pipeline has no C++ for a stateful kind; signal-nodes.test.ts checks those against their frame bodies
   it('shades a stateless kind whose frame pass feeds the pixel pass as the old pipeline did per pixel', () => {
-    const framed = kinds.filter(([name, doc]) => !nodeItem(name)!.base.state && glslCompiler().compile(doc).program?.frame && usermodCompiler(LEDS).compile(doc).program)
+    const framed = kinds.filter(([name, doc]) => !nodeItem(name)!.base.state && glslCompiler().compile(doc).program?.frame && usermodCompiler(LEDS).compile(doc).program && generateGlsl(doc).frame.steps.length === 0)
     expect(framed.map(([name]) => name)).toEqual([
       'iResolution', 'iLedCount', 'iScanY', 'color', 'colorMix', 'layerMix', 'hueSaturation', 'brightnessCeiling', 'brightnessContrast',
       'gamma', 'invert', 'rgb2hsv', 'separateColor', 'combineColor', 'time', 'math', 'vectorMath', 'combineXYZ', 'value', 'vector2', 'wave',

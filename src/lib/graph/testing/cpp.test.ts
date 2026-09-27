@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { graph, node } from '@/lib/graph/testing'
-import { cppCompiler, runOffline } from './cpp'
+import { cppCompiler, runOffline, runUsermod } from './cpp'
 import { usermodBands } from './offline'
 
 describe.skipIf(!cppCompiler)('runOffline (needs g++ or c++ on PATH)', () => {
@@ -15,6 +15,23 @@ describe.skipIf(!cppCompiler)('runOffline (needs g++ or c++ on PATH)', () => {
       expect(Math.abs(r - expected[frame]), `frame ${frame}`).toBeLessThanOrEqual(1)
       expect([g, b]).toEqual([r, r])
     })
+  }, 60_000)
+
+  it('pushes one history row per slot and the new samples each frame, which historyAt and waveformAt read back', () => {
+    const unit = [
+      '#include "wledtoy.h"',
+      'namespace wledtoy {',
+      'constexpr int ledCount = 3;',
+      'void renderFrame(float, int, vec3* colors) {',
+      '  colors[0] = vec3(historyAt(0, 0.5f / 16.0f, 0.0f));',
+      '  colors[1] = vec3(historyAt(0, 0.5f / 16.0f, 1.0f / float(audioHistoryRows - 1)));',
+      '  colors[2] = vec3(waveformAt(0.0f) * 0.5f + 0.5f);',
+      '}',
+      '}',
+    ].join('\n')
+    const feed = [0.2, 0.4, 0.6].map((level, frame) => ({ bands: [[level, ...new Array(15).fill(0)]], samples: [0, frame / 2] }))
+    const rendered = runUsermod(unit, { leds: 3, frames: 3, feed })
+    expect(rendered.map((leds) => leds.map(([r]) => r))).toEqual([[51, 0, 128], [102, 51, 191], [153, 102, 255]])
   }, 60_000)
 
   it('renders one row of LED bytes per frame', () => {

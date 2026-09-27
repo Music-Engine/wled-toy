@@ -1,3 +1,4 @@
+import type { Features } from '@/lib/audio/dsp'
 import type { AudioTextures } from '@/lib/audio/textures'
 import { PRELUDE } from '@/lib/shader/prelude'
 import { AudioInputs } from './audio-inputs'
@@ -108,9 +109,9 @@ export class ShaderRenderer {
     this.controls = block
   }
 
-  /** `audio` is the default analysis; `extra` are the analyses of a graph's FFT nodes, in slot order from 1. */
-  setAudio(audio: AudioTextures, extra: AudioTextures[] = []) {
-    this.audio.upload(audio, extra)
+  /** `audio` is the default analysis; `extra` are the analyses of a graph's FFT nodes, in slot order from 1; `features` fills iAudioFeatures. */
+  setAudio(audio: AudioTextures, extra: AudioTextures[] = [], features: Features | null = null) {
+    this.audio.upload(audio, extra, features)
   }
 
   /** `maxHeight` caps the rows shaded, the width following the canvas's shape; 0 shades every display pixel. The canvas keeps its size on screen. */

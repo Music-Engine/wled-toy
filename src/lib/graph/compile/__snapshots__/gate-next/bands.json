@@ -1,23 +1,36 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
-      {
-        "nodeId": "n",
-        "message": "Bands runs only in JavaScript and has no body to emit yet"
-      }
-    ],
+    "probes": {},
+    "uniforms": [],
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "frame": {
+      "texels": 1,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "n:band1": {
+          "band1": {
+            "type": "float",
+            "offset": 0
+          }
+        }
+      }
     }
   },
   "usermod": {
-    "issues": [
-      {
-        "nodeId": "n",
-        "message": "Bands runs only in JavaScript and has no body to emit yet"
-      }
-    ]
+    "issues": []
   }
 }

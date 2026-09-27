@@ -88,7 +88,7 @@ it('a shader that reaches every helper and every uniform of the prelude still co
     'void mainImage(out vec4 c, vec2 uv, float ledIndex) {',
     ...documented.map((node, i) => `  ${node.returns} v${i} = ${node.name}(${node.params.map((param) => literal(param.default)).join(', ')});`),
     '  c = vec4(previousFrame(1.0) + historyAt(2, uv.x, 0.5) + history(uv.x, 0.1) + bands(uv.x) + chroma(3.0) + waveformAt(4.0), 1.0);',
-    '  c.r += texture(iImages, vec3(uv, 0.0)).r + iControl[3].y + iTimeDelta + float(iFrame);',
+    '  c.r += texture(iImages, vec3(uv, 0.0)).r + iControl[3].y + iTimeDelta + float(iFrame) + bandsPeak(1, 2, 8) + spectrumPeak(60.0, 150.0) + iAudioFeatures[1].y;',
     '}',
   ].join('\n')
   const bundle = bundleShader(source)

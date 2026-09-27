@@ -1,3 +1,5 @@
+import type { Features } from '@/lib/audio/dsp'
+import { audioFeatures } from '@/lib/audio/features'
 import { AUDIO_BINS, HISTORY_ROWS, WAVE_ROWS, WAVE_WIDTH, type AudioTextures } from '@/lib/audio/textures'
 import { AUDIO_EXTRA_SLOTS } from '@/lib/shader/prelude'
 import { createTexture } from './gl-texture'
@@ -13,6 +15,7 @@ export class AudioInputs {
   // band and history textures of the extra analyses, on texture units 8 and up
   private readonly extra: { bands: WebGLTexture; history: WebGLTexture; bandCount: number; head: number }[] = []
   private heads = [0, 0, 48000]
+  private readonly features = audioFeatures(null, 48000)
 
   constructor(private readonly gl: WebGL2RenderingContext) {
     this.spectrumTex = createTexture(gl, 0)
@@ -30,8 +33,11 @@ export class AudioInputs {
     }
   }
 
-  /** `audio` is the default analysis; `extra` are the analyses of a graph's FFT nodes, in slot order from 1. */
-  upload(audio: AudioTextures, extra: AudioTextures[] = []) {
+  /**
+   * `audio` is the default analysis; `extra` are the analyses of a graph's FFT nodes, in slot order from 1; `features`
+   * is the default analysis with the pulses raised since the previous upload, for `iAudioFeatures`.
+   */
+  upload(audio: AudioTextures, extra: AudioTextures[] = [], features: Features | null = null) {
     const { gl } = this
     const upload = (unit: number, tex: WebGLTexture, width: number, height: number, data: Uint8Array) => {
       gl.activeTexture(gl.TEXTURE0 + unit)
@@ -44,6 +50,7 @@ export class AudioInputs {
     upload(4, this.historyTex, audio.bandCount, HISTORY_ROWS, audio.history)
     upload(5, this.waveTex, WAVE_WIDTH, WAVE_ROWS, audio.wave)
     this.heads = [audio.historyHead, audio.waveHead, audio.sampleRate]
+    audioFeatures(features, audio.sampleRate, this.features)
     extra.slice(0, AUDIO_EXTRA_SLOTS).forEach((textures, i) => {
       const slot = this.extra[i]
       if (slot.bandCount !== textures.bandCount) this.resizeExtra(i, textures.bandCount)
@@ -78,6 +85,7 @@ export class AudioInputs {
     gl.uniform1i(u.iAudioHistory ?? null, 4)
     gl.uniform1i(u.iAudioWave ?? null, 5)
     gl.uniform3f(u.iAudioHeads ?? null, this.heads[0], this.heads[1], this.heads[2])
+    gl.uniform4fv(u.iAudioFeatures ?? null, this.features)
     gl.uniform1i(u.iAudio ?? null, 0)
   }
 

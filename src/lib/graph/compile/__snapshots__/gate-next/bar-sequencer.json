@@ -1,22 +1,345 @@
 {
   "glsl": {
-    "frame": null,
+    "probes": {},
+    "uniforms": [
+      {
+        "kind": "knob",
+        "default": 0,
+        "label": "Palette Shift",
+        "min": 0,
+        "max": 1,
+        "cc": -1,
+        "node": "paletteShift",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 0.5,
+        "label": "Drop Rig Floor",
+        "min": 0,
+        "max": 0.8,
+        "cc": -1,
+        "node": "rigFloor",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 0.15,
+        "label": "Afterglow (s)",
+        "min": 0.02,
+        "max": 0.8,
+        "cc": -1,
+        "node": "afterglow",
+        "output": "value",
+        "offset": 2
+      }
+    ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "analysis": [
+        {
+          "windowSize": 512,
+          "hop": 256,
+          "window": "hann",
+          "bands": 64,
+          "scale": "mel",
+          "fmin": 40,
+          "fmax": 16000
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 0.9,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 12,
+      "probes": []
+    },
     "issues": [
       {
         "nodeId": "snareBand",
-        "message": "Band Split runs only in JavaScript and has no body to emit yet"
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "hatBand",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
       }
     ],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "snareTrigger": {
+          "on": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "snareFlash": {
+          "stage": {
+            "type": "float",
+            "offset": 1
+          },
+          "level": {
+            "type": "float",
+            "offset": 2
+          },
+          "high": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "snareFlash:envelope": {
+          "envelope": {
+            "type": "float",
+            "offset": 4
+          }
+        },
+        "snareSide": {
+          "on": {
+            "type": "float",
+            "offset": 5
+          },
+          "high": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "snareSide:state": {
+          "state": {
+            "type": "float",
+            "offset": 7
+          }
+        },
+        "drumsOn": {
+          "value": {
+            "type": "float",
+            "offset": 8
+          },
+          "held": {
+            "type": "float",
+            "offset": 9
+          }
+        },
+        "hatDensity": {
+          "value": {
+            "type": "float",
+            "offset": 10
+          }
+        },
+        "dropGate": {
+          "on": {
+            "type": "float",
+            "offset": 11
+          }
+        },
+        "dropAmount": {
+          "value": {
+            "type": "float",
+            "offset": 12
+          }
+        },
+        "heatShift:result": {
+          "result": {
+            "type": "float",
+            "offset": 13
+          }
+        },
+        "barClock": {
+          "count": {
+            "type": "float",
+            "offset": 14
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 15
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 16
+          }
+        },
+        "angleSeq": {
+          "index": {
+            "type": "float",
+            "offset": 17
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 18
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 19
+          }
+        },
+        "angleSeq:value": {
+          "value": {
+            "type": "float",
+            "offset": 20
+          }
+        },
+        "mirrorSeq": {
+          "index": {
+            "type": "float",
+            "offset": 21
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 22
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 23
+          }
+        },
+        "mirrorGlide": {
+          "value": {
+            "type": "float",
+            "offset": 24
+          }
+        },
+        "mirrorGlide:value": {
+          "value": {
+            "type": "float",
+            "offset": 25
+          }
+        },
+        "blockCountSeq": {
+          "index": {
+            "type": "float",
+            "offset": 26
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 27
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 28
+          }
+        },
+        "blockCountSeq:value": {
+          "value": {
+            "type": "float",
+            "offset": 29
+          }
+        },
+        "stepCounter": {
+          "count": {
+            "type": "float",
+            "offset": 30
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 31
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 32
+          }
+        },
+        "stepInBar:result": {
+          "result": {
+            "type": "float",
+            "offset": 33
+          }
+        },
+        "litWidth:result": {
+          "result": {
+            "type": "float",
+            "offset": 34
+          }
+        },
+        "kickTrigger": {
+          "on": {
+            "type": "float",
+            "offset": 35
+          }
+        },
+        "kickPunch": {
+          "stage": {
+            "type": "float",
+            "offset": 36
+          },
+          "level": {
+            "type": "float",
+            "offset": 37
+          },
+          "high": {
+            "type": "float",
+            "offset": 38
+          }
+        },
+        "floorDrive:result": {
+          "result": {
+            "type": "float",
+            "offset": 39
+          }
+        },
+        "stepPunch": {
+          "stage": {
+            "type": "float",
+            "offset": 40
+          },
+          "level": {
+            "type": "float",
+            "offset": 41
+          },
+          "high": {
+            "type": "float",
+            "offset": 42
+          }
+        },
+        "blockDrive:result": {
+          "result": {
+            "type": "float",
+            "offset": 43
+          }
+        },
+        "hatGain:result": {
+          "result": {
+            "type": "float",
+            "offset": 44
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
         "nodeId": "snareBand",
-        "message": "Band Split runs only in JavaScript and has no body to emit yet"
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "hatBand",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "trails",
+        "message": "Trails samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

@@ -1,22 +1,297 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
+    "probes": {},
+    "uniforms": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "kind": "knob",
+        "default": 0.12,
+        "label": "Hue Scatter",
+        "min": 0,
+        "max": 1,
+        "cc": -1,
+        "node": "hueScatter",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 1.6,
+        "label": "Ring Speed",
+        "min": 0.5,
+        "max": 3.5,
+        "cc": -1,
+        "node": "ringSpeed",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 0.15,
+        "label": "Wake Decay",
+        "min": 0.05,
+        "max": 1.5,
+        "cc": -1,
+        "node": "wakeDecay",
+        "output": "value",
+        "offset": 2
       }
     ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 12,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "baseDrift": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          },
+          "high": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "baseDrift:value": {
+          "value": {
+            "type": "float",
+            "offset": 2
+          }
+        },
+        "padEnv": {
+          "value": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "baseLevel:result": {
+          "result": {
+            "type": "float",
+            "offset": 4
+          }
+        },
+        "kickGate": {
+          "on": {
+            "type": "float",
+            "offset": 5
+          }
+        },
+        "kickPresence": {
+          "value": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "quietBoost:result": {
+          "result": {
+            "type": "float",
+            "offset": 7
+          }
+        },
+        "kickCounter": {
+          "count": {
+            "type": "float",
+            "offset": 8
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 9
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 10
+          }
+        },
+        "kickToggle": {
+          "on": {
+            "type": "float",
+            "offset": 11
+          },
+          "high": {
+            "type": "float",
+            "offset": 12
+          }
+        },
+        "hueHoldA": {
+          "held": {
+            "type": "float",
+            "offset": 13
+          },
+          "high": {
+            "type": "float",
+            "offset": 14
+          }
+        },
+        "ringColorA:color": {
+          "color": {
+            "type": "color",
+            "offset": 16
+          }
+        },
+        "energyEnv": {
+          "value": {
+            "type": "float",
+            "offset": 19
+          }
+        },
+        "ringPower:result": {
+          "result": {
+            "type": "float",
+            "offset": 20
+          }
+        },
+        "ringAgeA": {
+          "value": {
+            "type": "float",
+            "offset": 21
+          },
+          "high": {
+            "type": "float",
+            "offset": 22
+          }
+        },
+        "ringAgeA:value": {
+          "value": {
+            "type": "float",
+            "offset": 23
+          }
+        },
+        "kickPunch": {
+          "stage": {
+            "type": "float",
+            "offset": 24
+          },
+          "level": {
+            "type": "float",
+            "offset": 25
+          },
+          "high": {
+            "type": "float",
+            "offset": 26
+          }
+        },
+        "ringLead:result": {
+          "result": {
+            "type": "float",
+            "offset": 27
+          }
+        },
+        "ringThickness:result": {
+          "result": {
+            "type": "float",
+            "offset": 28
+          }
+        },
+        "hueHoldB": {
+          "held": {
+            "type": "float",
+            "offset": 29
+          },
+          "high": {
+            "type": "float",
+            "offset": 30
+          }
+        },
+        "ringColorB:color": {
+          "color": {
+            "type": "color",
+            "offset": 32
+          }
+        },
+        "ringAgeB": {
+          "value": {
+            "type": "float",
+            "offset": 35
+          },
+          "high": {
+            "type": "float",
+            "offset": 36
+          }
+        },
+        "ringAgeB:value": {
+          "value": {
+            "type": "float",
+            "offset": 37
+          }
+        },
+        "spokeSpin": {
+          "value": {
+            "type": "float",
+            "offset": 38
+          },
+          "high": {
+            "type": "float",
+            "offset": 39
+          }
+        },
+        "spokeSpin:value": {
+          "value": {
+            "type": "float",
+            "offset": 40
+          }
+        },
+        "snareGate": {
+          "on": {
+            "type": "float",
+            "offset": 41
+          }
+        },
+        "snareEnv": {
+          "stage": {
+            "type": "float",
+            "offset": 42
+          },
+          "level": {
+            "type": "float",
+            "offset": 43
+          },
+          "high": {
+            "type": "float",
+            "offset": 44
+          }
+        },
+        "snareReach:result": {
+          "result": {
+            "type": "float",
+            "offset": 45
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "wake",
+        "message": "Trails samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }
