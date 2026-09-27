@@ -84,7 +84,8 @@ jobs:
             exit 1
           fi
           cat "$RUNNER_TEMP/leak.log"
-          grep -q "'texture'" "$RUNNER_TEMP/leak.log"
+          # gcc quotes the name with locale quotation marks, so match the word alone
+          grep -q "texture" "$RUNNER_TEMP/leak.log"
           echo "cpp/fixtures/leak.cpp failed on texture, as expected"
 
   rust:
