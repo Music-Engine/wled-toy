@@ -20,7 +20,7 @@ export function createCompiler<P>(config: CompilerConfig<P>): Compiler<P> {
 }
 
 interface CompilerConfig<P> {
-  /** Any other graph version is refused, never migrated */
+  /** Only graph version compiled; any other gets one issue and no program */
   version: number
   target: Target<P>
   annotations: Annotation[]

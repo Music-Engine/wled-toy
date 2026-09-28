@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "song",
@@ -56,7 +55,7 @@
           "kind": "remap",
           "values": {
             "inLow": 0.55,
-            "inHigh": 1.0,
+            "inHigh": 1,
             "outLow": 0,
             "outHigh": 1
           }
@@ -730,8 +729,8 @@
       {
         "id": "e-song-audio-audio-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -741,8 +740,8 @@
       {
         "id": "e-audio-kick-bassFollower-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "bassFollower",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -752,8 +751,8 @@
       {
         "id": "e-audio-kick-kickShape-value",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kickShape",
+        "sourceHandle": "kick",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -763,8 +762,8 @@
       {
         "id": "e-audio-vocal-vocalFollower-signal",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "vocalFollower",
+        "sourceHandle": "vocal",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -774,8 +773,8 @@
       {
         "id": "e-audio-air-airFollower-signal",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "airFollower",
+        "sourceHandle": "air",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -785,8 +784,8 @@
       {
         "id": "e-kickShape-result-kickPulse-signal",
         "source": "kickShape",
-        "sourceHandle": "result",
         "target": "kickPulse",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -796,8 +795,8 @@
       {
         "id": "e-airFollower-envelope-heat-value",
         "source": "airFollower",
-        "sourceHandle": "envelope",
         "target": "heat",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -807,8 +806,8 @@
       {
         "id": "e-bassFollower-envelope-bassFlow-a",
         "source": "bassFollower",
-        "sourceHandle": "envelope",
         "target": "bassFlow",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -818,8 +817,8 @@
       {
         "id": "e-heat-result-heatFlow-a",
         "source": "heat",
-        "sourceHandle": "result",
         "target": "heatFlow",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -829,8 +828,8 @@
       {
         "id": "e-bassFlow-result-heatFlow-c",
         "source": "bassFlow",
-        "sourceHandle": "result",
         "target": "heatFlow",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -840,8 +839,8 @@
       {
         "id": "e-heat-result-warpEnergy-a",
         "source": "heat",
-        "sourceHandle": "result",
         "target": "warpEnergy",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -851,8 +850,8 @@
       {
         "id": "e-kickPulse-envelope-kickZoom-a",
         "source": "kickPulse",
-        "sourceHandle": "envelope",
         "target": "kickZoom",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -862,8 +861,8 @@
       {
         "id": "e-heat-result-heatOffset-a",
         "source": "heat",
-        "sourceHandle": "result",
         "target": "heatOffset",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -873,8 +872,8 @@
       {
         "id": "e-heatBias-value-heatOffset-c",
         "source": "heatBias",
-        "sourceHandle": "value",
         "target": "heatOffset",
+        "sourceHandle": "value",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -884,8 +883,8 @@
       {
         "id": "e-heatFlow-result-flowRate-a",
         "source": "heatFlow",
-        "sourceHandle": "result",
         "target": "flowRate",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -895,8 +894,8 @@
       {
         "id": "e-flowSpeed-value-flowRate-b",
         "source": "flowSpeed",
-        "sourceHandle": "value",
         "target": "flowRate",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -906,8 +905,8 @@
       {
         "id": "e-kickPulse-envelope-warpKick-a",
         "source": "kickPulse",
-        "sourceHandle": "envelope",
         "target": "warpKick",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -917,8 +916,8 @@
       {
         "id": "e-warpEnergy-result-warpKick-c",
         "source": "warpEnergy",
-        "sourceHandle": "result",
         "target": "warpKick",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -928,8 +927,8 @@
       {
         "id": "e-flowRate-result-flowPhase-rate",
         "source": "flowRate",
-        "sourceHandle": "result",
         "target": "flowPhase",
+        "sourceHandle": "result",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -939,8 +938,8 @@
       {
         "id": "e-warpKick-result-warpStrength-a",
         "source": "warpKick",
-        "sourceHandle": "result",
         "target": "warpStrength",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -950,8 +949,8 @@
       {
         "id": "e-warpAmount-value-warpStrength-b",
         "source": "warpAmount",
-        "sourceHandle": "value",
         "target": "warpStrength",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -961,8 +960,8 @@
       {
         "id": "e-kickZoom-result-zoomMapping-scale",
         "source": "kickZoom",
-        "sourceHandle": "result",
         "target": "zoomMapping",
+        "sourceHandle": "result",
         "targetHandle": "scale",
         "style": {
           "stroke": "#a1a1a1",
@@ -972,8 +971,8 @@
       {
         "id": "e-flowPhase-value-swirlTurn-a",
         "source": "flowPhase",
-        "sourceHandle": "value",
         "target": "swirlTurn",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -983,8 +982,8 @@
       {
         "id": "e-swirlTurn-result-zoomMapping-rotation",
         "source": "swirlTurn",
-        "sourceHandle": "result",
         "target": "zoomMapping",
+        "sourceHandle": "result",
         "targetHandle": "rotation",
         "style": {
           "stroke": "#a1a1a1",
@@ -994,8 +993,8 @@
       {
         "id": "e-flowPhase-value-flowVector-a",
         "source": "flowPhase",
-        "sourceHandle": "value",
         "target": "flowVector",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1005,8 +1004,8 @@
       {
         "id": "e-zoomMapping-vector-warpCoords-a",
         "source": "zoomMapping",
-        "sourceHandle": "vector",
         "target": "warpCoords",
+        "sourceHandle": "vector",
         "targetHandle": "a",
         "style": {
           "stroke": "#6363c7",
@@ -1016,8 +1015,8 @@
       {
         "id": "e-flowVector-vector-warpCoords-b",
         "source": "flowVector",
-        "sourceHandle": "vector",
         "target": "warpCoords",
+        "sourceHandle": "vector",
         "targetHandle": "b",
         "style": {
           "stroke": "#6363c7",
@@ -1027,8 +1026,8 @@
       {
         "id": "e-warpCoords-vector-warpNoise-vector",
         "source": "warpCoords",
-        "sourceHandle": "vector",
         "target": "warpNoise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1038,8 +1037,8 @@
       {
         "id": "e-warpNoise-color-warpCentered-a",
         "source": "warpNoise",
-        "sourceHandle": "color",
         "target": "warpCentered",
+        "sourceHandle": "color",
         "targetHandle": "a",
         "style": {
           "stroke": "#c7c729",
@@ -1049,8 +1048,8 @@
       {
         "id": "e-warpCentered-vector-warpOffset-a",
         "source": "warpCentered",
-        "sourceHandle": "vector",
         "target": "warpOffset",
+        "sourceHandle": "vector",
         "targetHandle": "a",
         "style": {
           "stroke": "#6363c7",
@@ -1060,8 +1059,8 @@
       {
         "id": "e-warpStrength-result-warpOffset-scale",
         "source": "warpStrength",
-        "sourceHandle": "result",
         "target": "warpOffset",
+        "sourceHandle": "result",
         "targetHandle": "scale",
         "style": {
           "stroke": "#a1a1a1",
@@ -1071,8 +1070,8 @@
       {
         "id": "e-zoomMapping-vector-warpedCoords-a",
         "source": "zoomMapping",
-        "sourceHandle": "vector",
         "target": "warpedCoords",
+        "sourceHandle": "vector",
         "targetHandle": "a",
         "style": {
           "stroke": "#6363c7",
@@ -1082,8 +1081,8 @@
       {
         "id": "e-warpOffset-vector-warpedCoords-b",
         "source": "warpOffset",
-        "sourceHandle": "vector",
         "target": "warpedCoords",
+        "sourceHandle": "vector",
         "targetHandle": "b",
         "style": {
           "stroke": "#6363c7",
@@ -1093,8 +1092,8 @@
       {
         "id": "e-warpedCoords-vector-cellCoords-a",
         "source": "warpedCoords",
-        "sourceHandle": "vector",
         "target": "cellCoords",
+        "sourceHandle": "vector",
         "targetHandle": "a",
         "style": {
           "stroke": "#6363c7",
@@ -1104,8 +1103,8 @@
       {
         "id": "e-flowVector-vector-cellCoords-b",
         "source": "flowVector",
-        "sourceHandle": "vector",
         "target": "cellCoords",
+        "sourceHandle": "vector",
         "targetHandle": "b",
         "style": {
           "stroke": "#6363c7",
@@ -1115,8 +1114,8 @@
       {
         "id": "e-flowPhase-value-bandPhase-a",
         "source": "flowPhase",
-        "sourceHandle": "value",
         "target": "bandPhase",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1126,8 +1125,8 @@
       {
         "id": "e-warpedCoords-vector-bandField-vector",
         "source": "warpedCoords",
-        "sourceHandle": "vector",
         "target": "bandField",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1137,8 +1136,8 @@
       {
         "id": "e-bandPhase-result-bandField-phase",
         "source": "bandPhase",
-        "sourceHandle": "result",
         "target": "bandField",
+        "sourceHandle": "result",
         "targetHandle": "phase",
         "style": {
           "stroke": "#a1a1a1",
@@ -1148,8 +1147,8 @@
       {
         "id": "e-cellCoords-vector-cellField-vector",
         "source": "cellCoords",
-        "sourceHandle": "vector",
         "target": "cellField",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1159,8 +1158,8 @@
       {
         "id": "e-cellField-distance-hueSpread-a",
         "source": "cellField",
-        "sourceHandle": "distance",
         "target": "hueSpread",
+        "sourceHandle": "distance",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1170,8 +1169,8 @@
       {
         "id": "e-hueSpread-result-huePosition-a",
         "source": "hueSpread",
-        "sourceHandle": "result",
         "target": "huePosition",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1181,8 +1180,8 @@
       {
         "id": "e-heatOffset-result-huePosition-b",
         "source": "heatOffset",
-        "sourceHandle": "result",
         "target": "huePosition",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1192,8 +1191,8 @@
       {
         "id": "e-bassFollower-envelope-bandGap-a",
         "source": "bassFollower",
-        "sourceHandle": "envelope",
         "target": "bandGap",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1203,8 +1202,8 @@
       {
         "id": "e-bandGap-result-bandMask-low",
         "source": "bandGap",
-        "sourceHandle": "result",
         "target": "bandMask",
+        "sourceHandle": "result",
         "targetHandle": "low",
         "style": {
           "stroke": "#a1a1a1",
@@ -1214,8 +1213,8 @@
       {
         "id": "e-bandField-fac-bandMask-value",
         "source": "bandField",
-        "sourceHandle": "fac",
         "target": "bandMask",
+        "sourceHandle": "fac",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1225,8 +1224,8 @@
       {
         "id": "e-vocalFollower-envelope-cellReach-a",
         "source": "vocalFollower",
-        "sourceHandle": "envelope",
         "target": "cellReach",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1236,8 +1235,8 @@
       {
         "id": "e-cellReach-result-cellGlow-inHigh",
         "source": "cellReach",
-        "sourceHandle": "result",
         "target": "cellGlow",
+        "sourceHandle": "result",
         "targetHandle": "inHigh",
         "style": {
           "stroke": "#a1a1a1",
@@ -1247,8 +1246,8 @@
       {
         "id": "e-cellField-distance-cellGlow-value",
         "source": "cellField",
-        "sourceHandle": "distance",
         "target": "cellGlow",
+        "sourceHandle": "distance",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1258,8 +1257,8 @@
       {
         "id": "e-kickPulse-envelope-kickLift-a",
         "source": "kickPulse",
-        "sourceHandle": "envelope",
         "target": "kickLift",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1269,8 +1268,8 @@
       {
         "id": "e-huePosition-result-nebulaPalette-position",
         "source": "huePosition",
-        "sourceHandle": "result",
         "target": "nebulaPalette",
+        "sourceHandle": "result",
         "targetHandle": "position",
         "style": {
           "stroke": "#a1a1a1",
@@ -1280,8 +1279,8 @@
       {
         "id": "e-bandMask-out-density-a",
         "source": "bandMask",
-        "sourceHandle": "out",
         "target": "density",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1291,8 +1290,8 @@
       {
         "id": "e-cellGlow-result-density-b",
         "source": "cellGlow",
-        "sourceHandle": "result",
         "target": "density",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1302,8 +1301,8 @@
       {
         "id": "e-density-result-brightness-a",
         "source": "density",
-        "sourceHandle": "result",
         "target": "brightness",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1313,8 +1312,8 @@
       {
         "id": "e-kickLift-result-brightness-b",
         "source": "kickLift",
-        "sourceHandle": "result",
         "target": "brightness",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1324,8 +1323,8 @@
       {
         "id": "e-nebulaPalette-out-nebulaColor-a",
         "source": "nebulaPalette",
-        "sourceHandle": "out",
         "target": "nebulaColor",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#c7c729",
@@ -1335,8 +1334,8 @@
       {
         "id": "e-brightness-result-nebulaColor-b",
         "source": "brightness",
-        "sourceHandle": "result",
         "target": "nebulaColor",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1346,8 +1345,8 @@
       {
         "id": "e-nebulaColor-result-swirlTrails-color",
         "source": "nebulaColor",
-        "sourceHandle": "result",
         "target": "swirlTrails",
+        "sourceHandle": "result",
         "targetHandle": "color",
         "style": {
           "stroke": "#a1a1a1",
@@ -1357,8 +1356,8 @@
       {
         "id": "e-trailLength-value-swirlTrails-decay",
         "source": "trailLength",
-        "sourceHandle": "value",
         "target": "swirlTrails",
+        "sourceHandle": "value",
         "targetHandle": "decay",
         "style": {
           "stroke": "#a1a1a1",
@@ -1368,14 +1367,16 @@
       {
         "id": "e-swirlTrails-color-out-color",
         "source": "swirlTrails",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

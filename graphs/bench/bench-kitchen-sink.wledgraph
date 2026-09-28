@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "source",
@@ -2070,8 +2069,8 @@
       {
         "id": "e-source-audio-audio-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -2081,8 +2080,8 @@
       {
         "id": "e-source-audio-fft0-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "fft0",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -2092,8 +2091,8 @@
       {
         "id": "e-fft0-spectrum-spec0-spectrum",
         "source": "fft0",
-        "sourceHandle": "spectrum",
         "target": "spec0",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -2103,8 +2102,8 @@
       {
         "id": "e-source-audio-fft1-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "fft1",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -2114,8 +2113,8 @@
       {
         "id": "e-fft1-spectrum-split1-spectrum",
         "source": "fft1",
-        "sourceHandle": "spectrum",
         "target": "split1",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -2125,8 +2124,8 @@
       {
         "id": "e-audio-level-kc0s0-signal",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "kc0s0",
+        "sourceHandle": "level",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2136,8 +2135,8 @@
       {
         "id": "e-kc0s0-envelope-kc0s1-signal",
         "source": "kc0s0",
-        "sourceHandle": "envelope",
         "target": "kc0s1",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2147,8 +2146,8 @@
       {
         "id": "e-kc0s1-value-kc0s2-a",
         "source": "kc0s1",
-        "sourceHandle": "value",
         "target": "kc0s2",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2158,8 +2157,8 @@
       {
         "id": "e-kc0s2-result-kc0s3-input",
         "source": "kc0s2",
-        "sourceHandle": "result",
         "target": "kc0s3",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -2169,8 +2168,8 @@
       {
         "id": "e-kc0s3-value-kc0s4-signal",
         "source": "kc0s3",
-        "sourceHandle": "value",
         "target": "kc0s4",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2180,8 +2179,8 @@
       {
         "id": "e-kc0s4-peak-kc0s5-value",
         "source": "kc0s4",
-        "sourceHandle": "peak",
         "target": "kc0s5",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2191,8 +2190,8 @@
       {
         "id": "e-kc0s5-result-kc0s6-value",
         "source": "kc0s5",
-        "sourceHandle": "result",
         "target": "kc0s6",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2202,8 +2201,8 @@
       {
         "id": "e-kc0s6-result-kc0s7-signal",
         "source": "kc0s6",
-        "sourceHandle": "result",
         "target": "kc0s7",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2213,8 +2212,8 @@
       {
         "id": "e-kc0s7-gate-kc0s8-trigger",
         "source": "kc0s7",
-        "sourceHandle": "gate",
         "target": "kc0s8",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2224,8 +2223,8 @@
       {
         "id": "e-kc0s7-gate-kc0s8-signal",
         "source": "kc0s7",
-        "sourceHandle": "gate",
         "target": "kc0s8",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2235,8 +2234,8 @@
       {
         "id": "e-kc0s8-value-kc0s9-trigger",
         "source": "kc0s8",
-        "sourceHandle": "value",
         "target": "kc0s9",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2246,8 +2245,8 @@
       {
         "id": "e-kc0s9-phase-kc0s10-trigger",
         "source": "kc0s9",
-        "sourceHandle": "phase",
         "target": "kc0s10",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2257,8 +2256,8 @@
       {
         "id": "e-kc0s10-value-kc0s11-rate",
         "source": "kc0s10",
-        "sourceHandle": "value",
         "target": "kc0s11",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -2268,8 +2267,8 @@
       {
         "id": "e-audio-kick-kc1s0-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kc1s0",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2279,8 +2278,8 @@
       {
         "id": "e-kc1s0-value-kc1s1-a",
         "source": "kc1s0",
-        "sourceHandle": "value",
         "target": "kc1s1",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2290,8 +2289,8 @@
       {
         "id": "e-kc1s1-result-kc1s2-input",
         "source": "kc1s1",
-        "sourceHandle": "result",
         "target": "kc1s2",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -2301,8 +2300,8 @@
       {
         "id": "e-kc1s2-value-kc1s3-signal",
         "source": "kc1s2",
-        "sourceHandle": "value",
         "target": "kc1s3",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2312,8 +2311,8 @@
       {
         "id": "e-kc1s3-peak-kc1s4-value",
         "source": "kc1s3",
-        "sourceHandle": "peak",
         "target": "kc1s4",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2323,8 +2322,8 @@
       {
         "id": "e-kc1s4-result-kc1s5-value",
         "source": "kc1s4",
-        "sourceHandle": "result",
         "target": "kc1s5",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2334,8 +2333,8 @@
       {
         "id": "e-kc1s5-result-kc1s6-signal",
         "source": "kc1s5",
-        "sourceHandle": "result",
         "target": "kc1s6",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2345,8 +2344,8 @@
       {
         "id": "e-kc1s6-gate-kc1s7-trigger",
         "source": "kc1s6",
-        "sourceHandle": "gate",
         "target": "kc1s7",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2356,8 +2355,8 @@
       {
         "id": "e-kc1s6-gate-kc1s7-signal",
         "source": "kc1s6",
-        "sourceHandle": "gate",
         "target": "kc1s7",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2367,8 +2366,8 @@
       {
         "id": "e-kc1s7-value-kc1s8-trigger",
         "source": "kc1s7",
-        "sourceHandle": "value",
         "target": "kc1s8",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2378,8 +2377,8 @@
       {
         "id": "e-kc1s8-phase-kc1s9-trigger",
         "source": "kc1s8",
-        "sourceHandle": "phase",
         "target": "kc1s9",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2389,8 +2388,8 @@
       {
         "id": "e-kc1s9-value-kc1s10-rate",
         "source": "kc1s9",
-        "sourceHandle": "value",
         "target": "kc1s10",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -2400,8 +2399,8 @@
       {
         "id": "e-kc1s10-value-kc1s11-trigger",
         "source": "kc1s10",
-        "sourceHandle": "value",
         "target": "kc1s11",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2411,8 +2410,8 @@
       {
         "id": "e-audio-sub-kc2s0-a",
         "source": "audio",
-        "sourceHandle": "sub",
         "target": "kc2s0",
+        "sourceHandle": "sub",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2422,8 +2421,8 @@
       {
         "id": "e-kc2s0-result-kc2s1-input",
         "source": "kc2s0",
-        "sourceHandle": "result",
         "target": "kc2s1",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -2433,8 +2432,8 @@
       {
         "id": "e-kc2s1-value-kc2s2-signal",
         "source": "kc2s1",
-        "sourceHandle": "value",
         "target": "kc2s2",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2444,8 +2443,8 @@
       {
         "id": "e-kc2s2-peak-kc2s3-value",
         "source": "kc2s2",
-        "sourceHandle": "peak",
         "target": "kc2s3",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2455,8 +2454,8 @@
       {
         "id": "e-kc2s3-result-kc2s4-value",
         "source": "kc2s3",
-        "sourceHandle": "result",
         "target": "kc2s4",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2466,8 +2465,8 @@
       {
         "id": "e-kc2s4-result-kc2s5-signal",
         "source": "kc2s4",
-        "sourceHandle": "result",
         "target": "kc2s5",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2477,8 +2476,8 @@
       {
         "id": "e-kc2s5-gate-kc2s6-trigger",
         "source": "kc2s5",
-        "sourceHandle": "gate",
         "target": "kc2s6",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2488,8 +2487,8 @@
       {
         "id": "e-kc2s5-gate-kc2s6-signal",
         "source": "kc2s5",
-        "sourceHandle": "gate",
         "target": "kc2s6",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2499,8 +2498,8 @@
       {
         "id": "e-kc2s6-value-kc2s7-trigger",
         "source": "kc2s6",
-        "sourceHandle": "value",
         "target": "kc2s7",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2510,8 +2509,8 @@
       {
         "id": "e-kc2s7-phase-kc2s8-trigger",
         "source": "kc2s7",
-        "sourceHandle": "phase",
         "target": "kc2s8",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2521,8 +2520,8 @@
       {
         "id": "e-kc2s8-value-kc2s9-rate",
         "source": "kc2s8",
-        "sourceHandle": "value",
         "target": "kc2s9",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -2532,8 +2531,8 @@
       {
         "id": "e-kc2s9-value-kc2s10-trigger",
         "source": "kc2s9",
-        "sourceHandle": "value",
         "target": "kc2s10",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2543,8 +2542,8 @@
       {
         "id": "e-kc2s10-phase-kc2s11-trigger",
         "source": "kc2s10",
-        "sourceHandle": "phase",
         "target": "kc2s11",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2554,8 +2553,8 @@
       {
         "id": "e-audio-lowMid-kc3s0-input",
         "source": "audio",
-        "sourceHandle": "lowMid",
         "target": "kc3s0",
+        "sourceHandle": "lowMid",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -2565,8 +2564,8 @@
       {
         "id": "e-kc3s0-value-kc3s1-signal",
         "source": "kc3s0",
-        "sourceHandle": "value",
         "target": "kc3s1",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2576,8 +2575,8 @@
       {
         "id": "e-kc3s1-peak-kc3s2-value",
         "source": "kc3s1",
-        "sourceHandle": "peak",
         "target": "kc3s2",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2587,8 +2586,8 @@
       {
         "id": "e-kc3s2-result-kc3s3-value",
         "source": "kc3s2",
-        "sourceHandle": "result",
         "target": "kc3s3",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2598,8 +2597,8 @@
       {
         "id": "e-kc3s3-result-kc3s4-signal",
         "source": "kc3s3",
-        "sourceHandle": "result",
         "target": "kc3s4",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2609,8 +2608,8 @@
       {
         "id": "e-kc3s4-gate-kc3s5-trigger",
         "source": "kc3s4",
-        "sourceHandle": "gate",
         "target": "kc3s5",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2620,8 +2619,8 @@
       {
         "id": "e-kc3s4-gate-kc3s5-signal",
         "source": "kc3s4",
-        "sourceHandle": "gate",
         "target": "kc3s5",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -2631,8 +2630,8 @@
       {
         "id": "e-kc3s5-value-kc3s6-trigger",
         "source": "kc3s5",
-        "sourceHandle": "value",
         "target": "kc3s6",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2642,8 +2641,8 @@
       {
         "id": "e-kc3s6-phase-kc3s7-trigger",
         "source": "kc3s6",
-        "sourceHandle": "phase",
         "target": "kc3s7",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2653,8 +2652,8 @@
       {
         "id": "e-kc3s7-value-kc3s8-rate",
         "source": "kc3s7",
-        "sourceHandle": "value",
         "target": "kc3s8",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -2664,8 +2663,8 @@
       {
         "id": "e-kc3s8-value-kc3s9-trigger",
         "source": "kc3s8",
-        "sourceHandle": "value",
         "target": "kc3s9",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2675,8 +2674,8 @@
       {
         "id": "e-kc3s9-phase-kc3s10-trigger",
         "source": "kc3s9",
-        "sourceHandle": "phase",
         "target": "kc3s10",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -2686,8 +2685,8 @@
       {
         "id": "e-kc3s10-state-kc3s11-gate",
         "source": "kc3s10",
-        "sourceHandle": "state",
         "target": "kc3s11",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -2697,8 +2696,8 @@
       {
         "id": "e-kc0s11-value-ksum0_0-a",
         "source": "kc0s11",
-        "sourceHandle": "value",
         "target": "ksum0_0",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2708,8 +2707,8 @@
       {
         "id": "e-kc1s11-phase-ksum0_0-b",
         "source": "kc1s11",
-        "sourceHandle": "phase",
         "target": "ksum0_0",
+        "sourceHandle": "phase",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2719,8 +2718,8 @@
       {
         "id": "e-kc2s11-state-ksum0_2-a",
         "source": "kc2s11",
-        "sourceHandle": "state",
         "target": "ksum0_2",
+        "sourceHandle": "state",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2730,8 +2729,8 @@
       {
         "id": "e-kc3s11-envelope-ksum0_2-b",
         "source": "kc3s11",
-        "sourceHandle": "envelope",
         "target": "ksum0_2",
+        "sourceHandle": "envelope",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2741,8 +2740,8 @@
       {
         "id": "e-ksum0_0-result-ksum1_0-a",
         "source": "ksum0_0",
-        "sourceHandle": "result",
         "target": "ksum1_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2752,8 +2751,8 @@
       {
         "id": "e-ksum0_2-result-ksum1_0-b",
         "source": "ksum0_2",
-        "sourceHandle": "result",
         "target": "ksum1_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2763,8 +2762,8 @@
       {
         "id": "e-uv-x-kw0_0-a",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "kw0_0",
+        "sourceHandle": "x",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2774,8 +2773,8 @@
       {
         "id": "e-kw0_0-result-kw0_1-a",
         "source": "kw0_0",
-        "sourceHandle": "result",
         "target": "kw0_1",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2785,8 +2784,8 @@
       {
         "id": "e-kw0_1-result-kw0_2-value",
         "source": "kw0_1",
-        "sourceHandle": "result",
         "target": "kw0_2",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2796,8 +2795,8 @@
       {
         "id": "e-kw0_2-result-kw0_3-a",
         "source": "kw0_2",
-        "sourceHandle": "result",
         "target": "kw0_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2807,8 +2806,8 @@
       {
         "id": "e-kw0_3-result-kw0_4-a",
         "source": "kw0_3",
-        "sourceHandle": "result",
         "target": "kw0_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2818,8 +2817,8 @@
       {
         "id": "e-kw0_4-result-kw0_5-a",
         "source": "kw0_4",
-        "sourceHandle": "result",
         "target": "kw0_5",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2829,8 +2828,8 @@
       {
         "id": "e-kw0_5-result-kw0_6-a",
         "source": "kw0_5",
-        "sourceHandle": "result",
         "target": "kw0_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2840,8 +2839,8 @@
       {
         "id": "e-kw0_6-result-kw0_7-a",
         "source": "kw0_6",
-        "sourceHandle": "result",
         "target": "kw0_7",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2851,8 +2850,8 @@
       {
         "id": "e-kw0_7-result-kw0_8-value",
         "source": "kw0_7",
-        "sourceHandle": "result",
         "target": "kw0_8",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2862,8 +2861,8 @@
       {
         "id": "e-kw0_8-out-kw0_9-a",
         "source": "kw0_8",
-        "sourceHandle": "out",
         "target": "kw0_9",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2873,8 +2872,8 @@
       {
         "id": "e-kw0_9-result-kw0_10-a",
         "source": "kw0_9",
-        "sourceHandle": "result",
         "target": "kw0_10",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2884,8 +2883,8 @@
       {
         "id": "e-kw0_10-result-kw0_11-a",
         "source": "kw0_10",
-        "sourceHandle": "result",
         "target": "kw0_11",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2895,8 +2894,8 @@
       {
         "id": "e-kw0_11-result-kw0_12-value",
         "source": "kw0_11",
-        "sourceHandle": "result",
         "target": "kw0_12",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2906,8 +2905,8 @@
       {
         "id": "e-kw0_12-result-kw0_13-a",
         "source": "kw0_12",
-        "sourceHandle": "result",
         "target": "kw0_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2917,8 +2916,8 @@
       {
         "id": "e-kw0_13-result-kw0_14-a",
         "source": "kw0_13",
-        "sourceHandle": "result",
         "target": "kw0_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2928,8 +2927,8 @@
       {
         "id": "e-uv-y-kw1_0-a",
         "source": "uv",
-        "sourceHandle": "y",
         "target": "kw1_0",
+        "sourceHandle": "y",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2939,8 +2938,8 @@
       {
         "id": "e-kw1_0-result-kw1_1-value",
         "source": "kw1_0",
-        "sourceHandle": "result",
         "target": "kw1_1",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -2950,8 +2949,8 @@
       {
         "id": "e-kw1_1-result-kw1_2-a",
         "source": "kw1_1",
-        "sourceHandle": "result",
         "target": "kw1_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2961,8 +2960,8 @@
       {
         "id": "e-kw1_2-result-kw1_3-a",
         "source": "kw1_2",
-        "sourceHandle": "result",
         "target": "kw1_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2972,8 +2971,8 @@
       {
         "id": "e-kw1_3-result-kw1_4-a",
         "source": "kw1_3",
-        "sourceHandle": "result",
         "target": "kw1_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2983,8 +2982,8 @@
       {
         "id": "e-kw1_4-result-kw1_5-a",
         "source": "kw1_4",
-        "sourceHandle": "result",
         "target": "kw1_5",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2994,8 +2993,8 @@
       {
         "id": "e-kw1_5-result-kw1_6-a",
         "source": "kw1_5",
-        "sourceHandle": "result",
         "target": "kw1_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3005,8 +3004,8 @@
       {
         "id": "e-kw1_6-result-kw1_7-value",
         "source": "kw1_6",
-        "sourceHandle": "result",
         "target": "kw1_7",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3016,8 +3015,8 @@
       {
         "id": "e-kw1_7-out-kw1_8-a",
         "source": "kw1_7",
-        "sourceHandle": "out",
         "target": "kw1_8",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3027,8 +3026,8 @@
       {
         "id": "e-kw1_8-result-kw1_9-a",
         "source": "kw1_8",
-        "sourceHandle": "result",
         "target": "kw1_9",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3038,8 +3037,8 @@
       {
         "id": "e-kw1_9-result-kw1_10-a",
         "source": "kw1_9",
-        "sourceHandle": "result",
         "target": "kw1_10",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3049,8 +3048,8 @@
       {
         "id": "e-kw1_10-result-kw1_11-value",
         "source": "kw1_10",
-        "sourceHandle": "result",
         "target": "kw1_11",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3060,8 +3059,8 @@
       {
         "id": "e-kw1_11-result-kw1_12-a",
         "source": "kw1_11",
-        "sourceHandle": "result",
         "target": "kw1_12",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3071,8 +3070,8 @@
       {
         "id": "e-kw1_12-result-kw1_13-a",
         "source": "kw1_12",
-        "sourceHandle": "result",
         "target": "kw1_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3082,8 +3081,8 @@
       {
         "id": "e-kw1_13-result-kw1_14-a",
         "source": "kw1_13",
-        "sourceHandle": "result",
         "target": "kw1_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3093,8 +3092,8 @@
       {
         "id": "e-uv-x-kw2_0-value",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "kw2_0",
+        "sourceHandle": "x",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3104,8 +3103,8 @@
       {
         "id": "e-kw2_0-result-kw2_1-a",
         "source": "kw2_0",
-        "sourceHandle": "result",
         "target": "kw2_1",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3115,8 +3114,8 @@
       {
         "id": "e-kw2_1-result-kw2_2-a",
         "source": "kw2_1",
-        "sourceHandle": "result",
         "target": "kw2_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3126,8 +3125,8 @@
       {
         "id": "e-kw2_2-result-kw2_3-a",
         "source": "kw2_2",
-        "sourceHandle": "result",
         "target": "kw2_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3137,8 +3136,8 @@
       {
         "id": "e-kw2_3-result-kw2_4-a",
         "source": "kw2_3",
-        "sourceHandle": "result",
         "target": "kw2_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3148,8 +3147,8 @@
       {
         "id": "e-kw2_4-result-kw2_5-a",
         "source": "kw2_4",
-        "sourceHandle": "result",
         "target": "kw2_5",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3159,8 +3158,8 @@
       {
         "id": "e-kw2_5-result-kw2_6-value",
         "source": "kw2_5",
-        "sourceHandle": "result",
         "target": "kw2_6",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3170,8 +3169,8 @@
       {
         "id": "e-kw2_6-out-kw2_7-a",
         "source": "kw2_6",
-        "sourceHandle": "out",
         "target": "kw2_7",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3181,8 +3180,8 @@
       {
         "id": "e-kw2_7-result-kw2_8-a",
         "source": "kw2_7",
-        "sourceHandle": "result",
         "target": "kw2_8",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3192,8 +3191,8 @@
       {
         "id": "e-kw2_8-result-kw2_9-a",
         "source": "kw2_8",
-        "sourceHandle": "result",
         "target": "kw2_9",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3203,8 +3202,8 @@
       {
         "id": "e-kw2_9-result-kw2_10-value",
         "source": "kw2_9",
-        "sourceHandle": "result",
         "target": "kw2_10",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3214,8 +3213,8 @@
       {
         "id": "e-kw2_10-result-kw2_11-a",
         "source": "kw2_10",
-        "sourceHandle": "result",
         "target": "kw2_11",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3225,8 +3224,8 @@
       {
         "id": "e-kw2_11-result-kw2_12-a",
         "source": "kw2_11",
-        "sourceHandle": "result",
         "target": "kw2_12",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3236,8 +3235,8 @@
       {
         "id": "e-kw2_12-result-kw2_13-a",
         "source": "kw2_12",
-        "sourceHandle": "result",
         "target": "kw2_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3247,8 +3246,8 @@
       {
         "id": "e-kw2_13-result-kw2_14-a",
         "source": "kw2_13",
-        "sourceHandle": "result",
         "target": "kw2_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3258,8 +3257,8 @@
       {
         "id": "e-uv-y-kw3_0-a",
         "source": "uv",
-        "sourceHandle": "y",
         "target": "kw3_0",
+        "sourceHandle": "y",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3269,8 +3268,8 @@
       {
         "id": "e-kw3_0-result-kw3_1-a",
         "source": "kw3_0",
-        "sourceHandle": "result",
         "target": "kw3_1",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3280,8 +3279,8 @@
       {
         "id": "e-kw3_1-result-kw3_2-a",
         "source": "kw3_1",
-        "sourceHandle": "result",
         "target": "kw3_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3291,8 +3290,8 @@
       {
         "id": "e-kw3_2-result-kw3_3-a",
         "source": "kw3_2",
-        "sourceHandle": "result",
         "target": "kw3_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3302,8 +3301,8 @@
       {
         "id": "e-kw3_3-result-kw3_4-a",
         "source": "kw3_3",
-        "sourceHandle": "result",
         "target": "kw3_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3313,8 +3312,8 @@
       {
         "id": "e-kw3_4-result-kw3_5-value",
         "source": "kw3_4",
-        "sourceHandle": "result",
         "target": "kw3_5",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3324,8 +3323,8 @@
       {
         "id": "e-kw3_5-out-kw3_6-a",
         "source": "kw3_5",
-        "sourceHandle": "out",
         "target": "kw3_6",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3335,8 +3334,8 @@
       {
         "id": "e-kw3_6-result-kw3_7-a",
         "source": "kw3_6",
-        "sourceHandle": "result",
         "target": "kw3_7",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3346,8 +3345,8 @@
       {
         "id": "e-kw3_7-result-kw3_8-a",
         "source": "kw3_7",
-        "sourceHandle": "result",
         "target": "kw3_8",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3357,8 +3356,8 @@
       {
         "id": "e-kw3_8-result-kw3_9-value",
         "source": "kw3_8",
-        "sourceHandle": "result",
         "target": "kw3_9",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -3368,8 +3367,8 @@
       {
         "id": "e-kw3_9-result-kw3_10-a",
         "source": "kw3_9",
-        "sourceHandle": "result",
         "target": "kw3_10",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3379,8 +3378,8 @@
       {
         "id": "e-kw3_10-result-kw3_11-a",
         "source": "kw3_10",
-        "sourceHandle": "result",
         "target": "kw3_11",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3390,8 +3389,8 @@
       {
         "id": "e-kw3_11-result-kw3_12-a",
         "source": "kw3_11",
-        "sourceHandle": "result",
         "target": "kw3_12",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3401,8 +3400,8 @@
       {
         "id": "e-kw3_12-result-kw3_13-a",
         "source": "kw3_12",
-        "sourceHandle": "result",
         "target": "kw3_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3412,8 +3411,8 @@
       {
         "id": "e-kw3_13-result-kw3_14-a",
         "source": "kw3_13",
-        "sourceHandle": "result",
         "target": "kw3_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3423,8 +3422,8 @@
       {
         "id": "e-kw0_14-result-kwsum0_0-a",
         "source": "kw0_14",
-        "sourceHandle": "result",
         "target": "kwsum0_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3434,8 +3433,8 @@
       {
         "id": "e-kw1_14-result-kwsum0_0-b",
         "source": "kw1_14",
-        "sourceHandle": "result",
         "target": "kwsum0_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -3445,8 +3444,8 @@
       {
         "id": "e-kw2_14-result-kwsum0_2-a",
         "source": "kw2_14",
-        "sourceHandle": "result",
         "target": "kwsum0_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3456,8 +3455,8 @@
       {
         "id": "e-kw3_14-result-kwsum0_2-b",
         "source": "kw3_14",
-        "sourceHandle": "result",
         "target": "kwsum0_2",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -3467,8 +3466,8 @@
       {
         "id": "e-kwsum0_0-result-kwsum1_0-a",
         "source": "kwsum0_0",
-        "sourceHandle": "result",
         "target": "kwsum1_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3478,8 +3477,8 @@
       {
         "id": "e-kwsum0_2-result-kwsum1_0-b",
         "source": "kwsum0_2",
-        "sourceHandle": "result",
         "target": "kwsum1_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -3489,8 +3488,8 @@
       {
         "id": "e-time-time-drift-z",
         "source": "time",
-        "sourceHandle": "time",
         "target": "drift",
+        "sourceHandle": "time",
         "targetHandle": "z",
         "style": {
           "stroke": "#a1a1a1",
@@ -3500,8 +3499,8 @@
       {
         "id": "e-drift-vector-map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -3511,8 +3510,8 @@
       {
         "id": "e-map-vector-noise-vector",
         "source": "map",
-        "sourceHandle": "vector",
         "target": "noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -3522,8 +3521,8 @@
       {
         "id": "e-map-vector-voronoi-vector",
         "source": "map",
-        "sourceHandle": "vector",
         "target": "voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -3533,8 +3532,8 @@
       {
         "id": "e-noise-fac-ramp-fac",
         "source": "noise",
-        "sourceHandle": "fac",
         "target": "ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -3544,8 +3543,8 @@
       {
         "id": "e-ramp-color-tex-color1",
         "source": "ramp",
-        "sourceHandle": "color",
         "target": "tex",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -3555,8 +3554,8 @@
       {
         "id": "e-voronoi-color-tex-color2",
         "source": "voronoi",
-        "sourceHandle": "color",
         "target": "tex",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -3566,8 +3565,8 @@
       {
         "id": "e-spec0-level-specColor-c",
         "source": "spec0",
-        "sourceHandle": "level",
         "target": "specColor",
+        "sourceHandle": "level",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -3577,8 +3576,8 @@
       {
         "id": "e-tex-color-layer-base",
         "source": "tex",
-        "sourceHandle": "color",
         "target": "layer",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -3588,8 +3587,8 @@
       {
         "id": "e-specColor-color-layer-layer",
         "source": "specColor",
-        "sourceHandle": "color",
         "target": "layer",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -3599,8 +3598,8 @@
       {
         "id": "e-kwsum1_0-result-layer-mask",
         "source": "kwsum1_0",
-        "sourceHandle": "result",
         "target": "layer",
+        "sourceHandle": "result",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -3610,8 +3609,8 @@
       {
         "id": "e-ksum1_0-result-gainMix-a",
         "source": "ksum1_0",
-        "sourceHandle": "result",
         "target": "gainMix",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3621,8 +3620,8 @@
       {
         "id": "e-split1-level-gainMix-b",
         "source": "split1",
-        "sourceHandle": "level",
         "target": "gainMix",
+        "sourceHandle": "level",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -3632,8 +3631,8 @@
       {
         "id": "e-gainMix-result-lift-hue",
         "source": "gainMix",
-        "sourceHandle": "result",
         "target": "lift",
+        "sourceHandle": "result",
         "targetHandle": "hue",
         "style": {
           "stroke": "#a1a1a1",
@@ -3643,8 +3642,8 @@
       {
         "id": "e-layer-color-lift-color",
         "source": "layer",
-        "sourceHandle": "color",
         "target": "lift",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -3654,8 +3653,8 @@
       {
         "id": "e-lift-color-trails-color",
         "source": "lift",
-        "sourceHandle": "color",
         "target": "trails",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -3665,8 +3664,8 @@
       {
         "id": "e-trails-color-blur-color",
         "source": "trails",
-        "sourceHandle": "color",
         "target": "blur",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -3676,8 +3675,8 @@
       {
         "id": "e-blur-color-ceiling-color",
         "source": "blur",
-        "sourceHandle": "color",
         "target": "ceiling",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -3687,14 +3686,16 @@
       {
         "id": "e-ceiling-color-out-color",
         "source": "ceiling",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

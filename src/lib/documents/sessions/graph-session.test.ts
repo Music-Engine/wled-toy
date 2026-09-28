@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
-import { createDefaultGraph } from '@/lib/graph'
+import { createDefaultGraph, normalizeDoc } from '@/lib/graph'
+import { logs } from '@/lib/app/logs'
 import { setValue, setupSession } from './session-harness'
 
 let open: ReturnType<typeof setupSession>
@@ -15,6 +16,23 @@ afterEach(() => {
 })
 
 describe('the working copy', () => {
+  it('restores a version 3 working copy after the upgrade as version 4, logged', () => {
+    const saved = { ...createDefaultGraph(), version: 3 }
+    open = setupSession(saved)
+    expect(open.session.snapshot().version).toBe(4)
+    expect(open.session.snapshot().nodes).toEqual(saved.nodes)
+    expect(logs.value.map((entry) => entry.message)).toContain('Working copy: migrated from version 3 to 4')
+  })
+
+  it('refuses an unreadable working copy with the file message and starts from the default graph', () => {
+    open = setupSession({ ...createDefaultGraph(), nodes: [], version: 2 })
+    expect(open.session.snapshot().nodes).toEqual(normalizeDoc(createDefaultGraph()).nodes)
+    expect(logs.value.at(-1)).toMatchObject({
+      level: 'error',
+      message: 'Working copy: This graph was saved by an older version (2); this app reads version 4.',
+    })
+  })
+
   it('is written 350 ms after the last change', async () => {
     open = setupSession()
     const before = open.workingCopy.graph
@@ -32,6 +50,18 @@ describe('the working copy', () => {
     await nextTick()
     open.session.stop()
     expect(open.workingCopy.graph!.nodes.find((n) => n.id === 'speed')!.data.values.b).toBe(0.5)
+  })
+
+  it('refuses a version 2 graph another tab writes and keeps the open graph', async () => {
+    open = setupSession()
+    const before = open.session.snapshot()
+    const logged = logs.value.length
+    open.workingCopy.graph = { ...createDefaultGraph(), nodes: [], version: 2 }
+    await nextTick()
+    expect(open.session.snapshot()).toEqual(before)
+    expect(logs.value.slice(logged)).toMatchObject([
+      { level: 'error', message: 'Working copy: This graph was saved by an older version (2); this app reads version 4.' },
+    ])
   })
 
   it('replaces the graph when another tab writes it, and ignores its own writes', async () => {

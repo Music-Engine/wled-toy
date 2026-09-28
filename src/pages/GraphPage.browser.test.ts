@@ -163,7 +163,7 @@ it('rejects a file of another version: logged, and the editor keeps its graph an
     .poll(() => logs.value.find((entry) => entry.message.startsWith('Open failed')))
     .toMatchObject({
       level: 'error',
-      message: 'Open failed: This graph was saved by an older version (2); this app reads version 3.',
+      message: 'Open failed: This graph was saved by an older version (2); this app reads version 4.',
     })
   expect(nodeCount()).toBe(defaultNodes)
   expect(titleBarText()).toBe('Untitled')
