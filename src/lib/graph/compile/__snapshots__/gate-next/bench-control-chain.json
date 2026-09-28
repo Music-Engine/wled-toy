@@ -1,23 +1,2331 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
-      {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
-      }
-    ],
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "frame": {
+      "texels": 116,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "c0s0": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "c0s1": {
+          "value": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "c0s4": {
+          "value": {
+            "type": "float",
+            "offset": 2
+          },
+          "held": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "c0s7": {
+          "on": {
+            "type": "float",
+            "offset": 4
+          }
+        },
+        "c0s8": {
+          "held": {
+            "type": "float",
+            "offset": 5
+          },
+          "high": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "c0s9": {
+          "count": {
+            "type": "float",
+            "offset": 7
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 8
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 9
+          }
+        },
+        "c0s10": {
+          "index": {
+            "type": "float",
+            "offset": 10
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 11
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 12
+          }
+        },
+        "c0s11": {
+          "value": {
+            "type": "float",
+            "offset": 13
+          },
+          "high": {
+            "type": "float",
+            "offset": 14
+          }
+        },
+        "c0s12": {
+          "count": {
+            "type": "float",
+            "offset": 15
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 16
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 17
+          }
+        },
+        "c0s13": {
+          "on": {
+            "type": "float",
+            "offset": 18
+          },
+          "high": {
+            "type": "float",
+            "offset": 19
+          }
+        },
+        "c0s14": {
+          "stage": {
+            "type": "float",
+            "offset": 20
+          },
+          "level": {
+            "type": "float",
+            "offset": 21
+          },
+          "high": {
+            "type": "float",
+            "offset": 22
+          }
+        },
+        "c1s0": {
+          "value": {
+            "type": "float",
+            "offset": 23
+          }
+        },
+        "c1s3": {
+          "value": {
+            "type": "float",
+            "offset": 24
+          },
+          "held": {
+            "type": "float",
+            "offset": 25
+          }
+        },
+        "c1s6": {
+          "on": {
+            "type": "float",
+            "offset": 26
+          }
+        },
+        "c1s7": {
+          "held": {
+            "type": "float",
+            "offset": 27
+          },
+          "high": {
+            "type": "float",
+            "offset": 28
+          }
+        },
+        "c1s8": {
+          "count": {
+            "type": "float",
+            "offset": 29
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 30
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 31
+          }
+        },
+        "c1s9": {
+          "index": {
+            "type": "float",
+            "offset": 32
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 33
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 34
+          }
+        },
+        "c1s10": {
+          "value": {
+            "type": "float",
+            "offset": 35
+          },
+          "high": {
+            "type": "float",
+            "offset": 36
+          }
+        },
+        "c1s11": {
+          "count": {
+            "type": "float",
+            "offset": 37
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 38
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 39
+          }
+        },
+        "c1s12": {
+          "on": {
+            "type": "float",
+            "offset": 40
+          },
+          "high": {
+            "type": "float",
+            "offset": 41
+          }
+        },
+        "c1s13": {
+          "stage": {
+            "type": "float",
+            "offset": 42
+          },
+          "level": {
+            "type": "float",
+            "offset": 43
+          },
+          "high": {
+            "type": "float",
+            "offset": 44
+          }
+        },
+        "c1s15": {
+          "value": {
+            "type": "float",
+            "offset": 45
+          }
+        },
+        "c2s2": {
+          "value": {
+            "type": "float",
+            "offset": 46
+          },
+          "held": {
+            "type": "float",
+            "offset": 47
+          }
+        },
+        "c2s5": {
+          "on": {
+            "type": "float",
+            "offset": 48
+          }
+        },
+        "c2s6": {
+          "held": {
+            "type": "float",
+            "offset": 49
+          },
+          "high": {
+            "type": "float",
+            "offset": 50
+          }
+        },
+        "c2s7": {
+          "count": {
+            "type": "float",
+            "offset": 51
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 52
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 53
+          }
+        },
+        "c2s8": {
+          "index": {
+            "type": "float",
+            "offset": 54
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 55
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 56
+          }
+        },
+        "c2s9": {
+          "value": {
+            "type": "float",
+            "offset": 57
+          },
+          "high": {
+            "type": "float",
+            "offset": 58
+          }
+        },
+        "c2s10": {
+          "count": {
+            "type": "float",
+            "offset": 59
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 60
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 61
+          }
+        },
+        "c2s11": {
+          "on": {
+            "type": "float",
+            "offset": 62
+          },
+          "high": {
+            "type": "float",
+            "offset": 63
+          }
+        },
+        "c2s12": {
+          "stage": {
+            "type": "float",
+            "offset": 64
+          },
+          "level": {
+            "type": "float",
+            "offset": 65
+          },
+          "high": {
+            "type": "float",
+            "offset": 66
+          }
+        },
+        "c2s14": {
+          "value": {
+            "type": "float",
+            "offset": 67
+          }
+        },
+        "c2s15": {
+          "value": {
+            "type": "float",
+            "offset": 68
+          }
+        },
+        "c3s1": {
+          "value": {
+            "type": "float",
+            "offset": 69
+          },
+          "held": {
+            "type": "float",
+            "offset": 70
+          }
+        },
+        "c3s4": {
+          "on": {
+            "type": "float",
+            "offset": 71
+          }
+        },
+        "c3s5": {
+          "held": {
+            "type": "float",
+            "offset": 72
+          },
+          "high": {
+            "type": "float",
+            "offset": 73
+          }
+        },
+        "c3s6": {
+          "count": {
+            "type": "float",
+            "offset": 74
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 75
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 76
+          }
+        },
+        "c3s7": {
+          "index": {
+            "type": "float",
+            "offset": 77
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 78
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 79
+          }
+        },
+        "c3s8": {
+          "value": {
+            "type": "float",
+            "offset": 80
+          },
+          "high": {
+            "type": "float",
+            "offset": 81
+          }
+        },
+        "c3s9": {
+          "count": {
+            "type": "float",
+            "offset": 82
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 83
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 84
+          }
+        },
+        "c3s10": {
+          "on": {
+            "type": "float",
+            "offset": 85
+          },
+          "high": {
+            "type": "float",
+            "offset": 86
+          }
+        },
+        "c3s11": {
+          "stage": {
+            "type": "float",
+            "offset": 87
+          },
+          "level": {
+            "type": "float",
+            "offset": 88
+          },
+          "high": {
+            "type": "float",
+            "offset": 89
+          }
+        },
+        "c3s13": {
+          "value": {
+            "type": "float",
+            "offset": 90
+          }
+        },
+        "c3s14": {
+          "value": {
+            "type": "float",
+            "offset": 91
+          }
+        },
+        "c4s0": {
+          "value": {
+            "type": "float",
+            "offset": 92
+          },
+          "held": {
+            "type": "float",
+            "offset": 93
+          }
+        },
+        "c4s3": {
+          "on": {
+            "type": "float",
+            "offset": 94
+          }
+        },
+        "c4s4": {
+          "held": {
+            "type": "float",
+            "offset": 95
+          },
+          "high": {
+            "type": "float",
+            "offset": 96
+          }
+        },
+        "c4s5": {
+          "count": {
+            "type": "float",
+            "offset": 97
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 98
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 99
+          }
+        },
+        "c4s6": {
+          "index": {
+            "type": "float",
+            "offset": 100
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 101
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 102
+          }
+        },
+        "c4s7": {
+          "value": {
+            "type": "float",
+            "offset": 103
+          },
+          "high": {
+            "type": "float",
+            "offset": 104
+          }
+        },
+        "c4s8": {
+          "count": {
+            "type": "float",
+            "offset": 105
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 106
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 107
+          }
+        },
+        "c4s9": {
+          "on": {
+            "type": "float",
+            "offset": 108
+          },
+          "high": {
+            "type": "float",
+            "offset": 109
+          }
+        },
+        "c4s10": {
+          "stage": {
+            "type": "float",
+            "offset": 110
+          },
+          "level": {
+            "type": "float",
+            "offset": 111
+          },
+          "high": {
+            "type": "float",
+            "offset": 112
+          }
+        },
+        "c4s12": {
+          "value": {
+            "type": "float",
+            "offset": 113
+          }
+        },
+        "c4s13": {
+          "value": {
+            "type": "float",
+            "offset": 114
+          }
+        },
+        "c5s2": {
+          "on": {
+            "type": "float",
+            "offset": 115
+          }
+        },
+        "c5s3": {
+          "held": {
+            "type": "float",
+            "offset": 116
+          },
+          "high": {
+            "type": "float",
+            "offset": 117
+          }
+        },
+        "c5s4": {
+          "count": {
+            "type": "float",
+            "offset": 118
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 119
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 120
+          }
+        },
+        "c5s5": {
+          "index": {
+            "type": "float",
+            "offset": 121
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 122
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 123
+          }
+        },
+        "c5s6": {
+          "value": {
+            "type": "float",
+            "offset": 124
+          },
+          "high": {
+            "type": "float",
+            "offset": 125
+          }
+        },
+        "c5s7": {
+          "count": {
+            "type": "float",
+            "offset": 126
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 127
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 128
+          }
+        },
+        "c5s8": {
+          "on": {
+            "type": "float",
+            "offset": 129
+          },
+          "high": {
+            "type": "float",
+            "offset": 130
+          }
+        },
+        "c5s9": {
+          "stage": {
+            "type": "float",
+            "offset": 131
+          },
+          "level": {
+            "type": "float",
+            "offset": 132
+          },
+          "high": {
+            "type": "float",
+            "offset": 133
+          }
+        },
+        "c5s11": {
+          "value": {
+            "type": "float",
+            "offset": 134
+          }
+        },
+        "c5s12": {
+          "value": {
+            "type": "float",
+            "offset": 135
+          }
+        },
+        "c5s15": {
+          "value": {
+            "type": "float",
+            "offset": 136
+          },
+          "held": {
+            "type": "float",
+            "offset": 137
+          }
+        },
+        "c6s1": {
+          "on": {
+            "type": "float",
+            "offset": 138
+          }
+        },
+        "c6s2": {
+          "held": {
+            "type": "float",
+            "offset": 139
+          },
+          "high": {
+            "type": "float",
+            "offset": 140
+          }
+        },
+        "c6s3": {
+          "count": {
+            "type": "float",
+            "offset": 141
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 142
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 143
+          }
+        },
+        "c6s4": {
+          "index": {
+            "type": "float",
+            "offset": 144
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 145
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 146
+          }
+        },
+        "c6s5": {
+          "value": {
+            "type": "float",
+            "offset": 147
+          },
+          "high": {
+            "type": "float",
+            "offset": 148
+          }
+        },
+        "c6s6": {
+          "count": {
+            "type": "float",
+            "offset": 149
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 150
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 151
+          }
+        },
+        "c6s7": {
+          "on": {
+            "type": "float",
+            "offset": 152
+          },
+          "high": {
+            "type": "float",
+            "offset": 153
+          }
+        },
+        "c6s8": {
+          "stage": {
+            "type": "float",
+            "offset": 154
+          },
+          "level": {
+            "type": "float",
+            "offset": 155
+          },
+          "high": {
+            "type": "float",
+            "offset": 156
+          }
+        },
+        "c6s10": {
+          "value": {
+            "type": "float",
+            "offset": 157
+          }
+        },
+        "c6s11": {
+          "value": {
+            "type": "float",
+            "offset": 158
+          }
+        },
+        "c6s14": {
+          "value": {
+            "type": "float",
+            "offset": 159
+          },
+          "held": {
+            "type": "float",
+            "offset": 160
+          }
+        },
+        "c7s0": {
+          "on": {
+            "type": "float",
+            "offset": 161
+          }
+        },
+        "c7s1": {
+          "held": {
+            "type": "float",
+            "offset": 162
+          },
+          "high": {
+            "type": "float",
+            "offset": 163
+          }
+        },
+        "c7s2": {
+          "count": {
+            "type": "float",
+            "offset": 164
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 165
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 166
+          }
+        },
+        "c7s3": {
+          "index": {
+            "type": "float",
+            "offset": 167
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 168
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 169
+          }
+        },
+        "c7s4": {
+          "value": {
+            "type": "float",
+            "offset": 170
+          },
+          "high": {
+            "type": "float",
+            "offset": 171
+          }
+        },
+        "c7s5": {
+          "count": {
+            "type": "float",
+            "offset": 172
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 173
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 174
+          }
+        },
+        "c7s6": {
+          "on": {
+            "type": "float",
+            "offset": 175
+          },
+          "high": {
+            "type": "float",
+            "offset": 176
+          }
+        },
+        "c7s7": {
+          "stage": {
+            "type": "float",
+            "offset": 177
+          },
+          "level": {
+            "type": "float",
+            "offset": 178
+          },
+          "high": {
+            "type": "float",
+            "offset": 179
+          }
+        },
+        "c7s9": {
+          "value": {
+            "type": "float",
+            "offset": 180
+          }
+        },
+        "c7s10": {
+          "value": {
+            "type": "float",
+            "offset": 181
+          }
+        },
+        "c7s13": {
+          "value": {
+            "type": "float",
+            "offset": 182
+          },
+          "held": {
+            "type": "float",
+            "offset": 183
+          }
+        },
+        "c8s0": {
+          "held": {
+            "type": "float",
+            "offset": 184
+          },
+          "high": {
+            "type": "float",
+            "offset": 185
+          }
+        },
+        "c8s1": {
+          "count": {
+            "type": "float",
+            "offset": 186
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 187
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 188
+          }
+        },
+        "c8s2": {
+          "index": {
+            "type": "float",
+            "offset": 189
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 190
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 191
+          }
+        },
+        "c8s3": {
+          "value": {
+            "type": "float",
+            "offset": 192
+          },
+          "high": {
+            "type": "float",
+            "offset": 193
+          }
+        },
+        "c8s4": {
+          "count": {
+            "type": "float",
+            "offset": 194
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 195
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 196
+          }
+        },
+        "c8s5": {
+          "on": {
+            "type": "float",
+            "offset": 197
+          },
+          "high": {
+            "type": "float",
+            "offset": 198
+          }
+        },
+        "c8s6": {
+          "stage": {
+            "type": "float",
+            "offset": 199
+          },
+          "level": {
+            "type": "float",
+            "offset": 200
+          },
+          "high": {
+            "type": "float",
+            "offset": 201
+          }
+        },
+        "c8s8": {
+          "value": {
+            "type": "float",
+            "offset": 202
+          }
+        },
+        "c8s9": {
+          "value": {
+            "type": "float",
+            "offset": 203
+          }
+        },
+        "c8s12": {
+          "value": {
+            "type": "float",
+            "offset": 204
+          },
+          "held": {
+            "type": "float",
+            "offset": 205
+          }
+        },
+        "c8s15": {
+          "on": {
+            "type": "float",
+            "offset": 206
+          }
+        },
+        "c9s0": {
+          "count": {
+            "type": "float",
+            "offset": 207
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 208
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 209
+          }
+        },
+        "c9s1": {
+          "index": {
+            "type": "float",
+            "offset": 210
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 211
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 212
+          }
+        },
+        "c9s2": {
+          "value": {
+            "type": "float",
+            "offset": 213
+          },
+          "high": {
+            "type": "float",
+            "offset": 214
+          }
+        },
+        "c9s3": {
+          "count": {
+            "type": "float",
+            "offset": 215
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 216
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 217
+          }
+        },
+        "c9s4": {
+          "on": {
+            "type": "float",
+            "offset": 218
+          },
+          "high": {
+            "type": "float",
+            "offset": 219
+          }
+        },
+        "c9s5": {
+          "stage": {
+            "type": "float",
+            "offset": 220
+          },
+          "level": {
+            "type": "float",
+            "offset": 221
+          },
+          "high": {
+            "type": "float",
+            "offset": 222
+          }
+        },
+        "c9s7": {
+          "value": {
+            "type": "float",
+            "offset": 223
+          }
+        },
+        "c9s8": {
+          "value": {
+            "type": "float",
+            "offset": 224
+          }
+        },
+        "c9s11": {
+          "value": {
+            "type": "float",
+            "offset": 225
+          },
+          "held": {
+            "type": "float",
+            "offset": 226
+          }
+        },
+        "c9s14": {
+          "on": {
+            "type": "float",
+            "offset": 227
+          }
+        },
+        "c9s15": {
+          "held": {
+            "type": "float",
+            "offset": 228
+          },
+          "high": {
+            "type": "float",
+            "offset": 229
+          }
+        },
+        "c10s0": {
+          "index": {
+            "type": "float",
+            "offset": 230
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 231
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 232
+          }
+        },
+        "c10s1": {
+          "value": {
+            "type": "float",
+            "offset": 233
+          },
+          "high": {
+            "type": "float",
+            "offset": 234
+          }
+        },
+        "c10s2": {
+          "count": {
+            "type": "float",
+            "offset": 235
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 236
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 237
+          }
+        },
+        "c10s3": {
+          "on": {
+            "type": "float",
+            "offset": 238
+          },
+          "high": {
+            "type": "float",
+            "offset": 239
+          }
+        },
+        "c10s4": {
+          "stage": {
+            "type": "float",
+            "offset": 240
+          },
+          "level": {
+            "type": "float",
+            "offset": 241
+          },
+          "high": {
+            "type": "float",
+            "offset": 242
+          }
+        },
+        "c10s6": {
+          "value": {
+            "type": "float",
+            "offset": 243
+          }
+        },
+        "c10s7": {
+          "value": {
+            "type": "float",
+            "offset": 244
+          }
+        },
+        "c10s10": {
+          "value": {
+            "type": "float",
+            "offset": 245
+          },
+          "held": {
+            "type": "float",
+            "offset": 246
+          }
+        },
+        "c10s13": {
+          "on": {
+            "type": "float",
+            "offset": 247
+          }
+        },
+        "c10s14": {
+          "held": {
+            "type": "float",
+            "offset": 248
+          },
+          "high": {
+            "type": "float",
+            "offset": 249
+          }
+        },
+        "c10s15": {
+          "count": {
+            "type": "float",
+            "offset": 250
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 251
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 252
+          }
+        },
+        "c11s0": {
+          "value": {
+            "type": "float",
+            "offset": 253
+          },
+          "high": {
+            "type": "float",
+            "offset": 254
+          }
+        },
+        "c11s1": {
+          "count": {
+            "type": "float",
+            "offset": 255
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 256
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 257
+          }
+        },
+        "c11s2": {
+          "on": {
+            "type": "float",
+            "offset": 258
+          },
+          "high": {
+            "type": "float",
+            "offset": 259
+          }
+        },
+        "c11s3": {
+          "stage": {
+            "type": "float",
+            "offset": 260
+          },
+          "level": {
+            "type": "float",
+            "offset": 261
+          },
+          "high": {
+            "type": "float",
+            "offset": 262
+          }
+        },
+        "c11s5": {
+          "value": {
+            "type": "float",
+            "offset": 263
+          }
+        },
+        "c11s6": {
+          "value": {
+            "type": "float",
+            "offset": 264
+          }
+        },
+        "c11s9": {
+          "value": {
+            "type": "float",
+            "offset": 265
+          },
+          "held": {
+            "type": "float",
+            "offset": 266
+          }
+        },
+        "c11s12": {
+          "on": {
+            "type": "float",
+            "offset": 267
+          }
+        },
+        "c11s13": {
+          "held": {
+            "type": "float",
+            "offset": 268
+          },
+          "high": {
+            "type": "float",
+            "offset": 269
+          }
+        },
+        "c11s14": {
+          "count": {
+            "type": "float",
+            "offset": 270
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 271
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 272
+          }
+        },
+        "c11s15": {
+          "index": {
+            "type": "float",
+            "offset": 273
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 274
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 275
+          }
+        },
+        "c12s0": {
+          "count": {
+            "type": "float",
+            "offset": 276
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 277
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 278
+          }
+        },
+        "c12s1": {
+          "on": {
+            "type": "float",
+            "offset": 279
+          },
+          "high": {
+            "type": "float",
+            "offset": 280
+          }
+        },
+        "c12s2": {
+          "stage": {
+            "type": "float",
+            "offset": 281
+          },
+          "level": {
+            "type": "float",
+            "offset": 282
+          },
+          "high": {
+            "type": "float",
+            "offset": 283
+          }
+        },
+        "c12s4": {
+          "value": {
+            "type": "float",
+            "offset": 284
+          }
+        },
+        "c12s5": {
+          "value": {
+            "type": "float",
+            "offset": 285
+          }
+        },
+        "c12s8": {
+          "value": {
+            "type": "float",
+            "offset": 286
+          },
+          "held": {
+            "type": "float",
+            "offset": 287
+          }
+        },
+        "c12s11": {
+          "on": {
+            "type": "float",
+            "offset": 288
+          }
+        },
+        "c12s12": {
+          "held": {
+            "type": "float",
+            "offset": 289
+          },
+          "high": {
+            "type": "float",
+            "offset": 290
+          }
+        },
+        "c12s13": {
+          "count": {
+            "type": "float",
+            "offset": 291
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 292
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 293
+          }
+        },
+        "c12s14": {
+          "index": {
+            "type": "float",
+            "offset": 294
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 295
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 296
+          }
+        },
+        "c12s15": {
+          "value": {
+            "type": "float",
+            "offset": 297
+          },
+          "high": {
+            "type": "float",
+            "offset": 298
+          }
+        },
+        "c13s0": {
+          "on": {
+            "type": "float",
+            "offset": 299
+          },
+          "high": {
+            "type": "float",
+            "offset": 300
+          }
+        },
+        "c13s1": {
+          "stage": {
+            "type": "float",
+            "offset": 301
+          },
+          "level": {
+            "type": "float",
+            "offset": 302
+          },
+          "high": {
+            "type": "float",
+            "offset": 303
+          }
+        },
+        "c13s3": {
+          "value": {
+            "type": "float",
+            "offset": 304
+          }
+        },
+        "c13s4": {
+          "value": {
+            "type": "float",
+            "offset": 305
+          }
+        },
+        "c13s7": {
+          "value": {
+            "type": "float",
+            "offset": 306
+          },
+          "held": {
+            "type": "float",
+            "offset": 307
+          }
+        },
+        "c13s10": {
+          "on": {
+            "type": "float",
+            "offset": 308
+          }
+        },
+        "c13s11": {
+          "held": {
+            "type": "float",
+            "offset": 309
+          },
+          "high": {
+            "type": "float",
+            "offset": 310
+          }
+        },
+        "c13s12": {
+          "count": {
+            "type": "float",
+            "offset": 311
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 312
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 313
+          }
+        },
+        "c13s13": {
+          "index": {
+            "type": "float",
+            "offset": 314
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 315
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 316
+          }
+        },
+        "c13s14": {
+          "value": {
+            "type": "float",
+            "offset": 317
+          },
+          "high": {
+            "type": "float",
+            "offset": 318
+          }
+        },
+        "c13s15": {
+          "count": {
+            "type": "float",
+            "offset": 319
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 320
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 321
+          }
+        },
+        "c14s0": {
+          "stage": {
+            "type": "float",
+            "offset": 322
+          },
+          "level": {
+            "type": "float",
+            "offset": 323
+          },
+          "high": {
+            "type": "float",
+            "offset": 324
+          }
+        },
+        "c14s2": {
+          "value": {
+            "type": "float",
+            "offset": 325
+          }
+        },
+        "c14s3": {
+          "value": {
+            "type": "float",
+            "offset": 326
+          }
+        },
+        "c14s6": {
+          "value": {
+            "type": "float",
+            "offset": 327
+          },
+          "held": {
+            "type": "float",
+            "offset": 328
+          }
+        },
+        "c14s9": {
+          "on": {
+            "type": "float",
+            "offset": 329
+          }
+        },
+        "c14s10": {
+          "held": {
+            "type": "float",
+            "offset": 330
+          },
+          "high": {
+            "type": "float",
+            "offset": 331
+          }
+        },
+        "c14s11": {
+          "count": {
+            "type": "float",
+            "offset": 332
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 333
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 334
+          }
+        },
+        "c14s12": {
+          "index": {
+            "type": "float",
+            "offset": 335
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 336
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 337
+          }
+        },
+        "c14s13": {
+          "value": {
+            "type": "float",
+            "offset": 338
+          },
+          "high": {
+            "type": "float",
+            "offset": 339
+          }
+        },
+        "c14s14": {
+          "count": {
+            "type": "float",
+            "offset": 340
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 341
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 342
+          }
+        },
+        "c14s15": {
+          "on": {
+            "type": "float",
+            "offset": 343
+          },
+          "high": {
+            "type": "float",
+            "offset": 344
+          }
+        },
+        "c15s1": {
+          "value": {
+            "type": "float",
+            "offset": 345
+          }
+        },
+        "c15s2": {
+          "value": {
+            "type": "float",
+            "offset": 346
+          }
+        },
+        "c15s5": {
+          "value": {
+            "type": "float",
+            "offset": 347
+          },
+          "held": {
+            "type": "float",
+            "offset": 348
+          }
+        },
+        "c15s8": {
+          "on": {
+            "type": "float",
+            "offset": 349
+          }
+        },
+        "c15s9": {
+          "held": {
+            "type": "float",
+            "offset": 350
+          },
+          "high": {
+            "type": "float",
+            "offset": 351
+          }
+        },
+        "c15s10": {
+          "count": {
+            "type": "float",
+            "offset": 352
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 353
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 354
+          }
+        },
+        "c15s11": {
+          "index": {
+            "type": "float",
+            "offset": 355
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 356
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 357
+          }
+        },
+        "c15s12": {
+          "value": {
+            "type": "float",
+            "offset": 358
+          },
+          "high": {
+            "type": "float",
+            "offset": 359
+          }
+        },
+        "c15s13": {
+          "count": {
+            "type": "float",
+            "offset": 360
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 361
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 362
+          }
+        },
+        "c15s14": {
+          "on": {
+            "type": "float",
+            "offset": 363
+          },
+          "high": {
+            "type": "float",
+            "offset": 364
+          }
+        },
+        "c15s15": {
+          "stage": {
+            "type": "float",
+            "offset": 365
+          },
+          "level": {
+            "type": "float",
+            "offset": 366
+          },
+          "high": {
+            "type": "float",
+            "offset": 367
+          }
+        },
+        "c16s0": {
+          "value": {
+            "type": "float",
+            "offset": 368
+          }
+        },
+        "c16s1": {
+          "value": {
+            "type": "float",
+            "offset": 369
+          }
+        },
+        "c16s4": {
+          "value": {
+            "type": "float",
+            "offset": 370
+          },
+          "held": {
+            "type": "float",
+            "offset": 371
+          }
+        },
+        "c16s7": {
+          "on": {
+            "type": "float",
+            "offset": 372
+          }
+        },
+        "c16s8": {
+          "held": {
+            "type": "float",
+            "offset": 373
+          },
+          "high": {
+            "type": "float",
+            "offset": 374
+          }
+        },
+        "c16s9": {
+          "count": {
+            "type": "float",
+            "offset": 375
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 376
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 377
+          }
+        },
+        "c16s10": {
+          "index": {
+            "type": "float",
+            "offset": 378
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 379
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 380
+          }
+        },
+        "c16s11": {
+          "value": {
+            "type": "float",
+            "offset": 381
+          },
+          "high": {
+            "type": "float",
+            "offset": 382
+          }
+        },
+        "c16s12": {
+          "count": {
+            "type": "float",
+            "offset": 383
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 384
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 385
+          }
+        },
+        "c16s13": {
+          "on": {
+            "type": "float",
+            "offset": 386
+          },
+          "high": {
+            "type": "float",
+            "offset": 387
+          }
+        },
+        "c16s14": {
+          "stage": {
+            "type": "float",
+            "offset": 388
+          },
+          "level": {
+            "type": "float",
+            "offset": 389
+          },
+          "high": {
+            "type": "float",
+            "offset": 390
+          }
+        },
+        "c17s0": {
+          "value": {
+            "type": "float",
+            "offset": 391
+          }
+        },
+        "c17s3": {
+          "value": {
+            "type": "float",
+            "offset": 392
+          },
+          "held": {
+            "type": "float",
+            "offset": 393
+          }
+        },
+        "c17s6": {
+          "on": {
+            "type": "float",
+            "offset": 394
+          }
+        },
+        "c17s7": {
+          "held": {
+            "type": "float",
+            "offset": 395
+          },
+          "high": {
+            "type": "float",
+            "offset": 396
+          }
+        },
+        "c17s8": {
+          "count": {
+            "type": "float",
+            "offset": 397
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 398
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 399
+          }
+        },
+        "c17s9": {
+          "index": {
+            "type": "float",
+            "offset": 400
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 401
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 402
+          }
+        },
+        "c17s10": {
+          "value": {
+            "type": "float",
+            "offset": 403
+          },
+          "high": {
+            "type": "float",
+            "offset": 404
+          }
+        },
+        "c17s11": {
+          "count": {
+            "type": "float",
+            "offset": 405
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 406
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 407
+          }
+        },
+        "c17s12": {
+          "on": {
+            "type": "float",
+            "offset": 408
+          },
+          "high": {
+            "type": "float",
+            "offset": 409
+          }
+        },
+        "c17s13": {
+          "stage": {
+            "type": "float",
+            "offset": 410
+          },
+          "level": {
+            "type": "float",
+            "offset": 411
+          },
+          "high": {
+            "type": "float",
+            "offset": 412
+          }
+        },
+        "c17s15": {
+          "value": {
+            "type": "float",
+            "offset": 413
+          }
+        },
+        "c18s2": {
+          "value": {
+            "type": "float",
+            "offset": 414
+          },
+          "held": {
+            "type": "float",
+            "offset": 415
+          }
+        },
+        "c18s5": {
+          "on": {
+            "type": "float",
+            "offset": 416
+          }
+        },
+        "c18s6": {
+          "held": {
+            "type": "float",
+            "offset": 417
+          },
+          "high": {
+            "type": "float",
+            "offset": 418
+          }
+        },
+        "c18s7": {
+          "count": {
+            "type": "float",
+            "offset": 419
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 420
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 421
+          }
+        },
+        "c18s8": {
+          "index": {
+            "type": "float",
+            "offset": 422
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 423
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 424
+          }
+        },
+        "c18s9": {
+          "value": {
+            "type": "float",
+            "offset": 425
+          },
+          "high": {
+            "type": "float",
+            "offset": 426
+          }
+        },
+        "c18s10": {
+          "count": {
+            "type": "float",
+            "offset": 427
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 428
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 429
+          }
+        },
+        "c18s11": {
+          "on": {
+            "type": "float",
+            "offset": 430
+          },
+          "high": {
+            "type": "float",
+            "offset": 431
+          }
+        },
+        "c18s12": {
+          "stage": {
+            "type": "float",
+            "offset": 432
+          },
+          "level": {
+            "type": "float",
+            "offset": 433
+          },
+          "high": {
+            "type": "float",
+            "offset": 434
+          }
+        },
+        "c18s14": {
+          "value": {
+            "type": "float",
+            "offset": 435
+          }
+        },
+        "c18s15": {
+          "value": {
+            "type": "float",
+            "offset": 436
+          }
+        },
+        "c19s1": {
+          "value": {
+            "type": "float",
+            "offset": 437
+          },
+          "held": {
+            "type": "float",
+            "offset": 438
+          }
+        },
+        "c19s4": {
+          "on": {
+            "type": "float",
+            "offset": 439
+          }
+        },
+        "c19s5": {
+          "held": {
+            "type": "float",
+            "offset": 440
+          },
+          "high": {
+            "type": "float",
+            "offset": 441
+          }
+        },
+        "c19s6": {
+          "count": {
+            "type": "float",
+            "offset": 442
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 443
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 444
+          }
+        },
+        "c19s7": {
+          "index": {
+            "type": "float",
+            "offset": 445
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 446
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 447
+          }
+        },
+        "c19s8": {
+          "value": {
+            "type": "float",
+            "offset": 448
+          },
+          "high": {
+            "type": "float",
+            "offset": 449
+          }
+        },
+        "c19s9": {
+          "count": {
+            "type": "float",
+            "offset": 450
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 451
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 452
+          }
+        },
+        "c19s10": {
+          "on": {
+            "type": "float",
+            "offset": 453
+          },
+          "high": {
+            "type": "float",
+            "offset": 454
+          }
+        },
+        "c19s11": {
+          "stage": {
+            "type": "float",
+            "offset": 455
+          },
+          "level": {
+            "type": "float",
+            "offset": 456
+          },
+          "high": {
+            "type": "float",
+            "offset": 457
+          }
+        },
+        "c19s13": {
+          "value": {
+            "type": "float",
+            "offset": 458
+          }
+        },
+        "c19s14": {
+          "value": {
+            "type": "float",
+            "offset": 459
+          }
+        },
+        "sum4_0:result": {
+          "result": {
+            "type": "float",
+            "offset": 460
+          }
+        }
+      }
     }
   },
   "usermod": {
-    "issues": [
-      {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
-      }
-    ]
+    "issues": []
   }
 }

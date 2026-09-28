@@ -1,22 +1,182 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
+    "probes": {},
+    "uniforms": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "kind": "knob",
+        "default": 1,
+        "label": "Flow Speed",
+        "min": 0,
+        "max": 3,
+        "cc": -1,
+        "node": "flowSpeed",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 0.65,
+        "label": "Warp Amount",
+        "min": 0,
+        "max": 1.5,
+        "cc": -1,
+        "node": "warpAmount",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 0,
+        "label": "Heat Bias",
+        "min": -0.4,
+        "max": 0.4,
+        "cc": -1,
+        "node": "heatBias",
+        "output": "value",
+        "offset": 2
+      },
+      {
+        "kind": "knob",
+        "default": 0.35,
+        "label": "Trail Length (s)",
+        "min": 0.05,
+        "max": 2,
+        "cc": -1,
+        "node": "trailLength",
+        "output": "value",
+        "offset": 3
       }
     ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 0.85,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 5,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "airFollower": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "bassFollower": {
+          "value": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "flowPhase": {
+          "value": {
+            "type": "float",
+            "offset": 2
+          },
+          "high": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "swirlTurn:result": {
+          "result": {
+            "type": "float",
+            "offset": 4
+          }
+        },
+        "kickPulse": {
+          "value": {
+            "type": "float",
+            "offset": 5
+          }
+        },
+        "kickZoom:result": {
+          "result": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "flowVector:vector": {
+          "vector": {
+            "type": "vec3",
+            "offset": 8
+          }
+        },
+        "warpStrength:result": {
+          "result": {
+            "type": "float",
+            "offset": 11
+          }
+        },
+        "heatOffset:result": {
+          "result": {
+            "type": "float",
+            "offset": 12
+          }
+        },
+        "bandGap:result": {
+          "result": {
+            "type": "float",
+            "offset": 13
+          }
+        },
+        "bandPhase:result": {
+          "result": {
+            "type": "float",
+            "offset": 14
+          }
+        },
+        "vocalFollower": {
+          "value": {
+            "type": "float",
+            "offset": 15
+          }
+        },
+        "cellReach:result": {
+          "result": {
+            "type": "float",
+            "offset": 16
+          }
+        },
+        "kickLift:result": {
+          "result": {
+            "type": "float",
+            "offset": 17
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "swirlTrails",
+        "message": "Trails samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

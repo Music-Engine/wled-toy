@@ -1,22 +1,169 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
+    "probes": {},
+    "uniforms": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "kind": "knob",
+        "default": 0,
+        "label": "Key Color",
+        "min": 0,
+        "max": 1,
+        "cc": -1,
+        "node": "hueKnob",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 0.7,
+        "label": "Twist",
+        "min": 0,
+        "max": 1.5,
+        "cc": -1,
+        "node": "twistKnob",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 0.3,
+        "label": "Spin",
+        "min": 0,
+        "max": 1,
+        "cc": -1,
+        "node": "spinKnob",
+        "output": "value",
+        "offset": 2
+      },
+      {
+        "kind": "knob",
+        "default": 0.85,
+        "label": "Scope",
+        "min": 0,
+        "max": 1,
+        "cc": -1,
+        "node": "scopeKnob",
+        "output": "value",
+        "offset": 3
       }
     ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "analysis": [
+        {
+          "windowSize": 8192,
+          "hop": 512,
+          "window": "hann",
+          "bands": 64,
+          "scale": "mel",
+          "fmin": 400,
+          "fmax": 3000
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 0.9,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 3,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "sparkleDensity:result": {
+          "result": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "kickEnvelope": {
+          "value": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "kickBulge:result": {
+          "result": {
+            "type": "float",
+            "offset": 2
+          }
+        },
+        "loudness": {
+          "value": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "spinPhase": {
+          "value": {
+            "type": "float",
+            "offset": 4
+          },
+          "high": {
+            "type": "float",
+            "offset": 5
+          }
+        },
+        "spinPhase:value": {
+          "value": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "noiseFloor:result": {
+          "result": {
+            "type": "float",
+            "offset": 7
+          }
+        },
+        "kickPump:result": {
+          "result": {
+            "type": "float",
+            "offset": 8
+          }
+        },
+        "scopeOpacity:result": {
+          "result": {
+            "type": "float",
+            "offset": 9
+          }
+        },
+        "scopeAmplitude:result": {
+          "result": {
+            "type": "float",
+            "offset": 10
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "thisNoteLevel",
+        "message": "Chroma samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

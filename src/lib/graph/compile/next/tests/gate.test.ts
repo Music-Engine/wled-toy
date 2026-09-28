@@ -30,4 +30,10 @@ describe('compile gate, next', () => {
   it('wrote every graph and every kind', () => {
     expect(written.size).toBe(graphs.length + kinds.length)
   })
+
+  // knob, MIDI and OSC keep only their frame body for the old pipeline and reach the new one as uniforms from resources
+  it('has a body or only resources for every kind', () => {
+    const javascriptOnly = kinds.filter(([, doc]) => glslCompiler().compile(doc).issues.some((issue) => issue.message.includes('runs only in JavaScript')))
+    expect(javascriptOnly.map(([id]) => id)).toEqual([])
+  })
 })

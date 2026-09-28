@@ -1,9 +1,11 @@
 // The offline side of the engine's LED tick, shared by the demo-graph test and the bench harness: the synthetic
 // track both run on, and the analysis slots AudioService would have opened for a compiled graph.
 import { Analyzer, type Features } from '@/lib/audio/dsp'
+import { audioFeatures } from '@/lib/audio/features'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/settings'
 import { AUDIO_BINS, AudioTextures } from '@/lib/audio/textures'
 import type { FramePlan } from '@/lib/graph/compile/js/frame'
+import type { AudioFrame } from './cpp'
 
 export const SAMPLE_RATE = 48000
 export const FPS = 30
@@ -60,7 +62,7 @@ export interface Slot {
 }
 
 /** As AudioService does it: slot 0 is the default analysis, FFT nodes add slots, the Audio Source sets gain and gate. */
-export function openSlots(plan: FramePlan, sampleRate = SAMPLE_RATE): Slot[] {
+export function openSlots(plan: Pick<FramePlan, 'resources'>, sampleRate = SAMPLE_RATE): Slot[] {
   const [source = DEFAULT_AUDIO] = (plan.resources.audioSource ?? []) as AudioSourceRequest[]
   return [DEFAULT_ANALYSIS, ...(plan.resources.analysis ?? []) as AnalysisSettings[]].slice(0, MAX_ANALYSES).map((wanted) => {
     const settings = { ...wanted, bands: Math.max(12, Math.round(wanted.bands)), hop: Math.min(wanted.hop, wanted.windowSize) }
@@ -97,13 +99,44 @@ export function feedSlots(slots: Slot[], track: Float32Array, time: number, samp
 }
 
 /**
- * iAudioBands for each of `frames` frames of the track, as runOffline takes them. The usermod has WLED's one analysis, and
- * the header's fft() reads the band nearest the frequency GLSL's samples the spectrum at, so a band is the spectrum at its center.
+ * iAudioBands for each of `frames` frames of the track, as runOffline takes them for slot 0. The usermod has WLED's one analysis,
+ * and the header's fft() reads the band nearest the frequency GLSL's samples the spectrum at, so a band is the spectrum at its center.
  */
 export function usermodBands(frames: number, track = synthTrack()): number[][] {
-  const [slot] = openSlots({ steps: [], exports: [], resources: {} })
+  const [slot] = openSlots({ resources: {} })
   return Array.from({ length: frames }, (_, frame) => {
     feedSlots([slot], track, frame / FPS)
     return Array.from({ length: 16 }, (_, band) => slot.textures.spectrum[Math.floor(((band + 0.5) / 16) * AUDIO_BINS)] / 255)
+  })
+}
+
+/**
+ * The track frame by frame for a graph that registered `resources`: what the old frame bodies saw, per frame and slot
+ * (copied, since the analyzer reuses its arrays), and what a usermod host fills the header's audio arrays with from the same hops.
+ */
+export function offlineAudio(frames: number, resources: Record<string, unknown[]>, track = synthTrack()): { analyses: (Features | null)[][]; feed: AudioFrame[] } {
+  const slots = openSlots({ resources })
+  const analyses: (Features | null)[][] = []
+  const feed = Array.from({ length: frames }, (_, frame) => {
+    const fed = slots[0].fed
+    const taken = feedSlots(slots, track, frame / FPS).analyses
+    analyses.push(structuredClone(taken))
+    const { textures } = slots[0]
+    return {
+      bands: slots.map((slot) => headerBands(slot.textures)),
+      features: audioFeatures(taken[0], SAMPLE_RATE),
+      spectrum: Array.from(textures.spectrum.subarray(0, AUDIO_BINS), (byte) => byte / 255),
+      samples: track.subarray(fed, slots[0].fed),
+    }
+  })
+  return { analyses, feed }
+}
+
+// the band texture's levels as the GPU reads them, folded to the header's 16 by the loudest of the bands each covers
+function headerBands({ bands, bandCount }: AudioTextures): number[] {
+  return Array.from({ length: 16 }, (_, i) => {
+    const from = Math.floor((i * bandCount) / 16)
+    const to = Math.max(from + 1, Math.floor(((i + 1) * bandCount) / 16))
+    return Math.max(...bands.subarray(from, to)) / 255
   })
 }

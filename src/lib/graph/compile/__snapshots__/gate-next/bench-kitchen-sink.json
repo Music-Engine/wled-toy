@@ -1,22 +1,440 @@
 {
   "glsl": {
-    "frame": null,
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "analysis": [
+        {
+          "windowSize": 1024,
+          "hop": 256,
+          "window": "blackman",
+          "bands": 64,
+          "scale": "log",
+          "fmin": 200,
+          "fmax": 12000
+        },
+        {
+          "windowSize": 4096,
+          "hop": 256,
+          "window": "hann",
+          "bands": 128,
+          "scale": "mel",
+          "fmin": 40,
+          "fmax": 16000
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "frame": {
+      "texels": 19,
+      "probes": []
+    },
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "split1",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
       }
     ],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "kc0s0": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "kc0s1": {
+          "value": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "kc0s4": {
+          "value": {
+            "type": "float",
+            "offset": 2
+          },
+          "held": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "kc0s7": {
+          "on": {
+            "type": "float",
+            "offset": 4
+          }
+        },
+        "kc0s8": {
+          "held": {
+            "type": "float",
+            "offset": 5
+          },
+          "high": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "kc0s9": {
+          "count": {
+            "type": "float",
+            "offset": 7
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 8
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 9
+          }
+        },
+        "kc0s10": {
+          "index": {
+            "type": "float",
+            "offset": 10
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 11
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 12
+          }
+        },
+        "kc0s11": {
+          "value": {
+            "type": "float",
+            "offset": 13
+          },
+          "high": {
+            "type": "float",
+            "offset": 14
+          }
+        },
+        "kc1s0": {
+          "value": {
+            "type": "float",
+            "offset": 15
+          }
+        },
+        "kc1s3": {
+          "value": {
+            "type": "float",
+            "offset": 16
+          },
+          "held": {
+            "type": "float",
+            "offset": 17
+          }
+        },
+        "kc1s6": {
+          "on": {
+            "type": "float",
+            "offset": 18
+          }
+        },
+        "kc1s7": {
+          "held": {
+            "type": "float",
+            "offset": 19
+          },
+          "high": {
+            "type": "float",
+            "offset": 20
+          }
+        },
+        "kc1s8": {
+          "count": {
+            "type": "float",
+            "offset": 21
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 22
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 23
+          }
+        },
+        "kc1s9": {
+          "index": {
+            "type": "float",
+            "offset": 24
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 25
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 26
+          }
+        },
+        "kc1s10": {
+          "value": {
+            "type": "float",
+            "offset": 27
+          },
+          "high": {
+            "type": "float",
+            "offset": 28
+          }
+        },
+        "kc1s11": {
+          "count": {
+            "type": "float",
+            "offset": 29
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 30
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 31
+          }
+        },
+        "kc2s2": {
+          "value": {
+            "type": "float",
+            "offset": 32
+          },
+          "held": {
+            "type": "float",
+            "offset": 33
+          }
+        },
+        "kc2s5": {
+          "on": {
+            "type": "float",
+            "offset": 34
+          }
+        },
+        "kc2s6": {
+          "held": {
+            "type": "float",
+            "offset": 35
+          },
+          "high": {
+            "type": "float",
+            "offset": 36
+          }
+        },
+        "kc2s7": {
+          "count": {
+            "type": "float",
+            "offset": 37
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 38
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 39
+          }
+        },
+        "kc2s8": {
+          "index": {
+            "type": "float",
+            "offset": 40
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 41
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 42
+          }
+        },
+        "kc2s9": {
+          "value": {
+            "type": "float",
+            "offset": 43
+          },
+          "high": {
+            "type": "float",
+            "offset": 44
+          }
+        },
+        "kc2s10": {
+          "count": {
+            "type": "float",
+            "offset": 45
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 46
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 47
+          }
+        },
+        "kc2s11": {
+          "on": {
+            "type": "float",
+            "offset": 48
+          },
+          "high": {
+            "type": "float",
+            "offset": 49
+          }
+        },
+        "kc3s1": {
+          "value": {
+            "type": "float",
+            "offset": 50
+          },
+          "held": {
+            "type": "float",
+            "offset": 51
+          }
+        },
+        "kc3s4": {
+          "on": {
+            "type": "float",
+            "offset": 52
+          }
+        },
+        "kc3s5": {
+          "held": {
+            "type": "float",
+            "offset": 53
+          },
+          "high": {
+            "type": "float",
+            "offset": 54
+          }
+        },
+        "kc3s6": {
+          "count": {
+            "type": "float",
+            "offset": 55
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 56
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 57
+          }
+        },
+        "kc3s7": {
+          "index": {
+            "type": "float",
+            "offset": 58
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 59
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 60
+          }
+        },
+        "kc3s8": {
+          "value": {
+            "type": "float",
+            "offset": 61
+          },
+          "high": {
+            "type": "float",
+            "offset": 62
+          }
+        },
+        "kc3s9": {
+          "count": {
+            "type": "float",
+            "offset": 63
+          },
+          "triggerHigh": {
+            "type": "float",
+            "offset": 64
+          },
+          "resetHigh": {
+            "type": "float",
+            "offset": 65
+          }
+        },
+        "kc3s10": {
+          "on": {
+            "type": "float",
+            "offset": 66
+          },
+          "high": {
+            "type": "float",
+            "offset": 67
+          }
+        },
+        "kc3s11": {
+          "stage": {
+            "type": "float",
+            "offset": 68
+          },
+          "level": {
+            "type": "float",
+            "offset": 69
+          },
+          "high": {
+            "type": "float",
+            "offset": 70
+          }
+        },
+        "gainMix:result": {
+          "result": {
+            "type": "float",
+            "offset": 71
+          }
+        },
+        "drift:vector": {
+          "vector": {
+            "type": "vec3",
+            "offset": 72
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "split1",
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "spec0",
+        "message": "Spectrum samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

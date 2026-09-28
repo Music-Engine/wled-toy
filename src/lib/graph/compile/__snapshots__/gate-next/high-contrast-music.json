@@ -1,22 +1,67 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
-      {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
-      }
-    ],
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 1,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "drift:result": {
+          "result": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "kickGate:mask": {
+          "mask": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "burstWidth:result": {
+          "result": {
+            "type": "float",
+            "offset": 2
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "spectrum",
+        "message": "Spectrum samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

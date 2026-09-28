@@ -1,22 +1,196 @@
 {
   "glsl": {
-    "frame": null,
+    "probes": {},
+    "uniforms": [
+      {
+        "kind": "knob",
+        "default": 0.25,
+        "label": "Bass Drift",
+        "min": 0,
+        "max": 1.5,
+        "cc": -1,
+        "node": "driftSpeed",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 0.5,
+        "label": "History Depth",
+        "min": 0.1,
+        "max": 2,
+        "cc": -1,
+        "node": "historyDepth",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 1.8,
+        "label": "Hat Sparkle",
+        "min": 0,
+        "max": 3,
+        "cc": -1,
+        "node": "sparkleAmount",
+        "output": "value",
+        "offset": 2
+      },
+      {
+        "kind": "knob",
+        "default": 0.3,
+        "label": "Afterglow",
+        "min": 0,
+        "max": 1.5,
+        "cc": -1,
+        "node": "afterglow",
+        "output": "value",
+        "offset": 3
+      }
+    ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 6,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "analysis": [
+        {
+          "windowSize": 4096,
+          "hop": 1024,
+          "window": "blackman",
+          "bands": 96,
+          "scale": "log",
+          "fmin": 40,
+          "fmax": 16000
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 0.9,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 5,
+      "probes": []
+    },
     "issues": [
       {
         "nodeId": "bassBand",
-        "message": "Band Split runs only in JavaScript and has no body to emit yet"
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
       }
     ],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "bassEnergy": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "curtainDrift": {
+          "value": {
+            "type": "float",
+            "offset": 1
+          },
+          "high": {
+            "type": "float",
+            "offset": 2
+          }
+        },
+        "curtainOffset:vector": {
+          "vector": {
+            "type": "vec3",
+            "offset": 4
+          }
+        },
+        "padEnvelope": {
+          "value": {
+            "type": "float",
+            "offset": 7
+          }
+        },
+        "padLift:result": {
+          "result": {
+            "type": "float",
+            "offset": 8
+          }
+        },
+        "curtainGain:result": {
+          "result": {
+            "type": "float",
+            "offset": 9
+          }
+        },
+        "sensitivity:result": {
+          "result": {
+            "type": "float",
+            "offset": 10
+          }
+        },
+        "scanRow:out": {
+          "out": {
+            "type": "float",
+            "offset": 11
+          }
+        },
+        "dropEnergy": {
+          "value": {
+            "type": "float",
+            "offset": 12
+          }
+        },
+        "trebleBoost:result": {
+          "result": {
+            "type": "float",
+            "offset": 13
+          }
+        },
+        "dropLift:result": {
+          "result": {
+            "type": "float",
+            "offset": 14
+          }
+        },
+        "hatEnvelope": {
+          "value": {
+            "type": "float",
+            "offset": 15
+          }
+        },
+        "sparkleDensity:result": {
+          "result": {
+            "type": "float",
+            "offset": 16
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
         "nodeId": "bassBand",
-        "message": "Band Split runs only in JavaScript and has no body to emit yet"
+        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
+      },
+      {
+        "nodeId": "waterfall",
+        "message": "Spectrum samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

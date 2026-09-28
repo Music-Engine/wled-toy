@@ -1,22 +1,273 @@
 {
   "glsl": {
-    "frame": null,
-    "issues": [
+    "probes": {},
+    "uniforms": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "kind": "knob",
+        "default": 0,
+        "label": "Hue Shift",
+        "min": -0.5,
+        "max": 0.5,
+        "cc": -1,
+        "node": "hueShift",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 0.72,
+        "label": "Bar Reach",
+        "min": 0.4,
+        "max": 1,
+        "cc": -1,
+        "node": "barReach",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 0.15,
+        "label": "Tail Length",
+        "min": 0.02,
+        "max": 0.8,
+        "cc": -1,
+        "node": "tailLength",
+        "output": "value",
+        "offset": 2
       }
     ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "frame": {
+      "texels": 9,
+      "probes": []
+    },
+    "issues": [],
     "slots": {
       "pixel": {},
-      "global": {}
+      "global": {
+        "leadSlow": {
+          "value": {
+            "type": "float",
+            "offset": 0
+          }
+        },
+        "kickPresence": {
+          "value": {
+            "type": "float",
+            "offset": 1
+          }
+        },
+        "dropTension": {
+          "value": {
+            "type": "float",
+            "offset": 2
+          }
+        },
+        "sparkGate": {
+          "on": {
+            "type": "float",
+            "offset": 3
+          }
+        },
+        "sparkFlash": {
+          "stage": {
+            "type": "float",
+            "offset": 4
+          },
+          "level": {
+            "type": "float",
+            "offset": 5
+          },
+          "high": {
+            "type": "float",
+            "offset": 6
+          }
+        },
+        "sparkFlash:envelope": {
+          "envelope": {
+            "type": "float",
+            "offset": 7
+          }
+        },
+        "sparkSeed": {
+          "held": {
+            "type": "float",
+            "offset": 8
+          },
+          "high": {
+            "type": "float",
+            "offset": 9
+          }
+        },
+        "sparkSeed:value": {
+          "value": {
+            "type": "float",
+            "offset": 10
+          }
+        },
+        "kickGate": {
+          "on": {
+            "type": "float",
+            "offset": 11
+          }
+        },
+        "alternateKick": {
+          "on": {
+            "type": "float",
+            "offset": 12
+          },
+          "high": {
+            "type": "float",
+            "offset": 13
+          }
+        },
+        "meteorGlow": {
+          "stage": {
+            "type": "float",
+            "offset": 14
+          },
+          "level": {
+            "type": "float",
+            "offset": 15
+          },
+          "high": {
+            "type": "float",
+            "offset": 16
+          }
+        },
+        "meteorGlow:envelope": {
+          "envelope": {
+            "type": "float",
+            "offset": 17
+          }
+        },
+        "meteorFlight": {
+          "stage": {
+            "type": "float",
+            "offset": 18
+          },
+          "level": {
+            "type": "float",
+            "offset": 19
+          },
+          "high": {
+            "type": "float",
+            "offset": 20
+          }
+        },
+        "meteorHead:result": {
+          "result": {
+            "type": "float",
+            "offset": 21
+          }
+        },
+        "meteorTailEnd:result": {
+          "result": {
+            "type": "float",
+            "offset": 22
+          }
+        },
+        "highEnv": {
+          "value": {
+            "type": "float",
+            "offset": 23
+          }
+        },
+        "highEnv:envelope": {
+          "envelope": {
+            "type": "float",
+            "offset": 24
+          }
+        },
+        "barBallistics": {
+          "value": {
+            "type": "float",
+            "offset": 25
+          }
+        },
+        "barGlow:result": {
+          "result": {
+            "type": "float",
+            "offset": 26
+          }
+        },
+        "barLength:result": {
+          "result": {
+            "type": "float",
+            "offset": 27
+          }
+        },
+        "peakHang": {
+          "value": {
+            "type": "float",
+            "offset": 28
+          },
+          "held": {
+            "type": "float",
+            "offset": 29
+          }
+        },
+        "fallSpeed": {
+          "value": {
+            "type": "float",
+            "offset": 30
+          },
+          "high": {
+            "type": "float",
+            "offset": 31
+          }
+        },
+        "peakGravity": {
+          "value": {
+            "type": "float",
+            "offset": 32
+          }
+        },
+        "peakGravity:value": {
+          "value": {
+            "type": "float",
+            "offset": 33
+          }
+        },
+        "peakEdge:result": {
+          "result": {
+            "type": "float",
+            "offset": 34
+          }
+        }
+      }
     }
   },
   "usermod": {
     "issues": [
       {
-        "nodeId": "audio",
-        "message": "Audio runs only in JavaScript and has no body to emit yet"
+        "nodeId": "trails",
+        "message": "Trails samples a texture or takes a derivative, which C++ has no pixels for"
       }
     ]
   }

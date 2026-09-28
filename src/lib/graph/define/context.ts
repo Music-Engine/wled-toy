@@ -13,6 +13,8 @@ export interface GlslChunk {
   id: string
   requires: GlslChunk[]
   source: string
+  /** Defined by the pixel prelude and the C++ header already, so only a frame pass, which has neither, pastes it. */
+  inPrelude?: true
 }
 
 /** What a frame body computes with: plain numbers, one evaluation per frame. */
