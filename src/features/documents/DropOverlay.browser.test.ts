@@ -19,7 +19,8 @@ import '@vue-flow/core/dist/style.css'
 
 // Tailwind does not run in the tests; these are the utilities that give the canvas its size in the app
 const layout = document.createElement('style')
-layout.textContent = '.h-full { height: 100% } .flex { display: flex } .flex-col { flex-direction: column } .flex-1 { flex: 1 1 0% } .min-h-0 { min-height: 0 } .relative { position: relative }'
+layout.textContent =
+  '.h-full { height: 100% } .flex { display: flex } .flex-col { flex-direction: column } .flex-1 { flex: 1 1 0% } .min-h-0 { min-height: 0 } .relative { position: relative }'
 document.head.append(layout)
 
 let unmount: (() => void) | undefined
@@ -32,13 +33,28 @@ function mount(graph: NodeGraph | null) {
   const app = createApp({
     render: () => h('div', { style: 'width: 1000px; height: 600px' }, [h(KeepAlive, null, () => h(GraphPage)), h(DropOverlay)]),
   })
-  app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null, reopen: async () => { throw new DocumentError('file-gone', 'it is gone') } })
-  app.provide(routerKey, { push: async (path: string) => { pushed.push(path) } } as unknown as Router)
+  app.provide(graphFileBackendKey, {
+    open: async () => null,
+    save: async () => undefined,
+    saveAs: async () => null,
+    reopen: async () => {
+      throw new DocumentError('file-gone', 'it is gone')
+    },
+  })
+  app.provide(routerKey, {
+    push: async (path: string) => {
+      pushed.push(path)
+    },
+  } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
   const removeKeys = installKeyDispatcher()
-  unmount = () => { removeKeys(); app.unmount(); root.remove() }
+  unmount = () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })
@@ -62,7 +78,10 @@ afterEach(() => {
 const flow = () => useVueFlow('wledtoy-graph')
 const overlay = () => document.querySelector<HTMLElement>('.drop-overlay')
 const messages = () => logs.value.map((entry) => `${entry.level}: ${entry.message}`)
-const kinds = () => flow().getNodes.value.map((n) => (n.data as GraphNodeData).kind).sort()
+const kinds = () =>
+  flow()
+    .getNodes.value.map((n) => (n.data as GraphNodeData).kind)
+    .sort()
 
 async function ready(count: number) {
   await expect.poll(() => document.querySelectorAll('.vue-flow__node').length).toBe(count)
@@ -95,10 +114,18 @@ function wav(seconds: number) {
   const samples = rate * seconds
   const view = new DataView(new ArrayBuffer(44 + samples * 2))
   const text = (offset: number, value: string) => [...value].forEach((ch, i) => view.setUint8(offset + i, ch.charCodeAt(0)))
-  text(0, 'RIFF'); view.setUint32(4, 36 + samples * 2, true); text(8, 'WAVEfmt ')
-  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true)
-  view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true)
-  text(36, 'data'); view.setUint32(40, samples * 2, true)
+  text(0, 'RIFF')
+  view.setUint32(4, 36 + samples * 2, true)
+  text(8, 'WAVEfmt ')
+  view.setUint32(16, 16, true)
+  view.setUint16(20, 1, true)
+  view.setUint16(22, 1, true)
+  view.setUint32(24, rate, true)
+  view.setUint32(28, rate * 2, true)
+  view.setUint16(32, 2, true)
+  view.setUint16(34, 16, true)
+  text(36, 'data')
+  view.setUint32(40, samples * 2, true)
   return new File([view.buffer], 'drop.wav', { type: 'audio/wav' })
 }
 
@@ -237,7 +264,11 @@ it('asks first when the graph has unsaved work: Cancel keeps it, Discard opens t
   await expect.poll(() => dialog()?.textContent).toContain('Save changes to Untitled?')
   dialog()!.querySelector<HTMLButtonElement>('[data-choice="cancel"]')!.click()
   await expect.poll(() => dialog()).toBeNull()
-  expect(flow().getNodes.value.map((n) => n.id).sort()).toEqual(['a', 'b', 'extra'])
+  expect(
+    flow()
+      .getNodes.value.map((n) => n.id)
+      .sort(),
+  ).toEqual(['a', 'b', 'extra'])
 
   dropFiles([incoming])
   await expect.poll(() => dialog()).not.toBeNull()
@@ -253,7 +284,11 @@ it('a .wledgraph that does not parse reports like File > Open does and leaves th
   await expect.poll(() => documentSessions.graph!.error.value).toBe('Open failed: This is not a wledtoy graph file (found app "something else").')
   expect(messages()).toContain('error: Open failed: This is not a wledtoy graph file (found app "something else").')
   expect(documentSessions.graph!.name.value).toBe('Untitled')
-  expect(flow().getNodes.value.map((n) => n.id).sort()).toEqual(['a', 'b'])
+  expect(
+    flow()
+      .getNodes.value.map((n) => n.id)
+      .sort(),
+  ).toEqual(['a', 'b'])
 })
 
 it('a text file is refused with one warning that names it, and a JSON that is no settings export says so', async () => {

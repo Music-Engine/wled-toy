@@ -21,7 +21,11 @@ describe('sanitize', () => {
 
   it('the LED strip shows unless a stored layout hid it', async () => {
     const { sanitize } = await reload()
-    expect([sanitize({}).stripVisible, sanitize({ stripVisible: false }).stripVisible, sanitize({ stripVisible: 'no' }).stripVisible]).toEqual([true, false, true])
+    expect([sanitize({}).stripVisible, sanitize({ stripVisible: false }).stripVisible, sanitize({ stripVisible: 'no' }).stripVisible]).toEqual([
+      true,
+      false,
+      true,
+    ])
   })
 
   it('keeps a known preview view and falls back to the render for anything else', async () => {
@@ -36,7 +40,15 @@ describe('sanitize', () => {
       placement: { log: 'right', glsl: 'left', nonsense: 'bottom' },
       activeTab: { right: { graph: 'log', shader: 'nonsense', settings: 'log' }, bottom: 'log' },
     })
-    expect(layout.placement).toEqual({ parameters: 'right', output: 'right', inputs: 'right', problems: 'bottom', log: 'right', glsl: 'bottom', performance: 'bottom' })
+    expect(layout.placement).toEqual({
+      parameters: 'right',
+      output: 'right',
+      inputs: 'right',
+      problems: 'bottom',
+      log: 'right',
+      glsl: 'bottom',
+      performance: 'bottom',
+    })
     expect(layout.activeTab).toEqual({ right: { graph: 'log' }, bottom: {} })
   })
 })
@@ -120,11 +132,20 @@ describe('tabs', () => {
     const { workspace, visibleTabs } = await reload()
     const ids = (dock: 'right' | 'bottom') => visibleTabs(dock).map((tab) => tab.id)
     workspace.mode = 'shader'
-    expect([ids('right'), ids('bottom')]).toEqual([['output', 'inputs'], ['problems', 'log', 'performance']])
+    expect([ids('right'), ids('bottom')]).toEqual([
+      ['output', 'inputs'],
+      ['problems', 'log', 'performance'],
+    ])
     workspace.mode = 'graph'
-    expect([ids('right'), ids('bottom')]).toEqual([['parameters', 'output', 'inputs'], ['problems', 'log', 'glsl', 'performance']])
+    expect([ids('right'), ids('bottom')]).toEqual([
+      ['parameters', 'output', 'inputs'],
+      ['problems', 'log', 'glsl', 'performance'],
+    ])
     workspace.mode = 'reference'
-    expect([ids('right'), ids('bottom')]).toEqual([['output', 'inputs'], ['log', 'performance']])
+    expect([ids('right'), ids('bottom')]).toEqual([
+      ['output', 'inputs'],
+      ['log', 'performance'],
+    ])
   })
 
   it('each mode remembers its own tab, and a remembered tab that is not showing yields the first one', async () => {

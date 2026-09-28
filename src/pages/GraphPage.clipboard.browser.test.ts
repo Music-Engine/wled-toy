@@ -19,13 +19,24 @@ beforeEach(() => {
   const root = document.createElement('div')
   document.body.append(root)
   // the page listens for clipboard events while it is the active page of a KeepAlive, and keys come through the app's dispatcher
-  const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
+  const app = createApp({
+    render: () =>
+      h(
+        'div',
+        { style: 'width: 1000px; height: 600px' },
+        h(KeepAlive, null, () => h(GraphPage)),
+      ),
+  })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   // Nuxt UI and the router are not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
   const removeKeys = installKeyDispatcher()
-  unmount = () => { removeKeys(); app.unmount(); root.remove() }
+  unmount = () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
 })
 
 afterEach(() => {

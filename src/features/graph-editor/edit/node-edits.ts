@@ -24,8 +24,9 @@ export function linkSelected(flow: VueFlowStore) {
   const nodes = [...flow.getSelectedNodes.value].sort((a, b) => a.position.x - b.position.x)
   for (let i = 1; i < nodes.length; i++) {
     const [from, to] = [nodes[i - 1].id, nodes[i].id]
-    const free = (readStoredShape(readNodeData(flow, to))?.inputs ?? [])
-      .filter((s) => s.linkable && !flow.edges.value.some((e) => e.target === to && e.targetHandle === s.name))
+    const free = (readStoredShape(readNodeData(flow, to))?.inputs ?? []).filter(
+      (s) => s.linkable && !flow.edges.value.some((e) => e.target === to && e.targetHandle === s.name),
+    )
     const link = (readStoredShape(readNodeData(flow, from))?.outputs ?? [])
       .flatMap((out) => free.map((input) => ({ source: from, sourceHandle: out.name, target: to, targetHandle: input.name })))
       .find((c) => canConnect(c, (id) => readNodeData(flow, id)))

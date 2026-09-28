@@ -16,7 +16,10 @@ function mount() {
   // Nuxt UI is not installed here: its wrappers render as unknown elements that still show their default slot
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root.querySelector<HTMLElement>('footer')!
 }
 

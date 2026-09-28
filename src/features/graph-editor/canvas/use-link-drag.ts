@@ -29,9 +29,7 @@ export function useLinkDrag(flow: VueFlowStore, offerNodes: (at: { x: number; y:
     // onConnect for the same gesture can land after this hook, so decide next tick
     setTimeout(() => {
       if (dragConnected || !isDroppedOnEmpty(event)) return
-      const existing = from.handleType === 'target'
-        ? flow.edges.value.filter((e) => e.target === from.nodeId && e.targetHandle === from.handleId)
-        : []
+      const existing = from.handleType === 'target' ? flow.edges.value.filter((e) => e.target === from.nodeId && e.targetHandle === from.handleId) : []
       if (existing.length) {
         flow.removeEdges(existing.map((e) => e.id))
         log('Link removed')
@@ -76,11 +74,13 @@ export function connectLink(flow: VueFlowStore, connection: Connection): boolean
   const replaced = flow.edges.value.filter((e) => e.target === connection.target && e.targetHandle === connection.targetHandle)
   if (replaced.length) flow.removeEdges(replaced.map((e) => e.id))
   const from = findOutputSocket(readNodeData(flow, connection.source), connection.sourceHandle)!
-  flow.addEdges([{
-    ...connection,
-    id: `e-${connection.source}-${connection.sourceHandle}-${connection.target}-${connection.targetHandle}-${newId()}`,
-    style: { stroke: socketColor(from.type), strokeWidth: 2 },
-  }])
+  flow.addEdges([
+    {
+      ...connection,
+      id: `e-${connection.source}-${connection.sourceHandle}-${connection.target}-${connection.targetHandle}-${newId()}`,
+      style: { stroke: socketColor(from.type), strokeWidth: 2 },
+    },
+  ])
   return true
 }
 

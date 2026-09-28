@@ -127,31 +127,37 @@ export function menuTree(): Submenu[] {
 /** Context menu groups in the item shape of Nuxt UI's `UContextMenu` and `UDropdownMenu`; hidden and unknown ids drop out. */
 export function contextMenuItems(groups: string[][]) {
   return groups
-    .map((ids) => ids.flatMap((id) => {
-      const command = getCommand(id)
-      if (!command || !isVisible(command)) return []
-      return [{
-        label: commandTitle(command),
-        kbds: command.accelerator ? acceleratorKbds(command.accelerator) : undefined,
-        disabled: !isEnabled(command),
-        ...(command.checked ? { type: 'checkbox' as const, checked: isChecked(command) } : {}),
-        onSelect: () => void runCommand(id),
-      }]
-    }))
+    .map((ids) =>
+      ids.flatMap((id) => {
+        const command = getCommand(id)
+        if (!command || !isVisible(command)) return []
+        return [
+          {
+            label: commandTitle(command),
+            kbds: command.accelerator ? acceleratorKbds(command.accelerator) : undefined,
+            disabled: !isEnabled(command),
+            ...(command.checked ? { type: 'checkbox' as const, checked: isChecked(command) } : {}),
+            onSelect: () => void runCommand(id),
+          },
+        ]
+      }),
+    )
     .filter((group) => group.length)
 }
 
 const nativeMenuInstalled = ref(false)
 
 /** The desktop shell calls this once it has built the operating system's menu from `menuTree()`. */
-export const markNativeMenuInstalled = (installed = true) => { nativeMenuInstalled.value = installed }
+export const markNativeMenuInstalled = (installed = true) => {
+  nativeMenuInstalled.value = installed
+}
 
 /** True when the operating system shows the menus, so the window must not draw its own. */
 export const hasNativeMenu = () => nativeMenuInstalled.value
 
 /** The accelerator a native menu item binds. It takes the key before the page sees it, so text keys and keys without Cmd/Ctrl, which text fields need, stay with the page. */
 export const nativeAccelerator = (command: Command) =>
-  (!command.textKey && !command.contextOnly && command.accelerator && parseAccelerator(command.accelerator).mod ? command.accelerator : undefined)
+  !command.textKey && !command.contextOnly && command.accelerator && parseAccelerator(command.accelerator).mod ? command.accelerator : undefined
 
 /**
  * The one place accelerators fire from. It leaves alone what somebody handled already (CodeMirror, a widget),

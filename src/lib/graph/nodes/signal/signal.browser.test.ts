@@ -16,19 +16,23 @@ import { stepSequencerNode } from './triggers/step-sequencer'
 const compiler = await commands.cppCompiler()
 
 // Every flag and stage a float slot; the sequencer's `values` come from `resolve`
-it.each(([
-  [counterNode, ['count', 'triggerHigh', 'resetHigh']],
-  [toggleNode, ['on', 'high']],
-  [clockDividerNode, ['count', 'triggerHigh', 'resetHigh']],
-  [integratorNode, ['value', 'high']],
-  [sampleHoldNode, ['held', 'high']],
-  [envelopeNode, ['stage', 'level', 'high']],
-  [envelopeFollowerNode, ['value']],
-  [slewLimiterNode, ['value']],
-  [peakHoldNode, ['value', 'held']],
-  [schmittTriggerNode, ['on']],
-  [stepSequencerNode, ['index', 'triggerHigh', 'resetHigh']],
-] as const).map(([item, slots]) => [item.id, item, slots] as const))('%s keeps its state in these slots', (_, item, slots) => {
+it.each(
+  (
+    [
+      [counterNode, ['count', 'triggerHigh', 'resetHigh']],
+      [toggleNode, ['on', 'high']],
+      [clockDividerNode, ['count', 'triggerHigh', 'resetHigh']],
+      [integratorNode, ['value', 'high']],
+      [sampleHoldNode, ['held', 'high']],
+      [envelopeNode, ['stage', 'level', 'high']],
+      [envelopeFollowerNode, ['value']],
+      [slewLimiterNode, ['value']],
+      [peakHoldNode, ['value', 'held']],
+      [schmittTriggerNode, ['on']],
+      [stepSequencerNode, ['index', 'triggerHigh', 'resetHigh']],
+    ] as const
+  ).map(([item, slots]) => [item.id, item, slots] as const),
+)('%s keeps its state in these slots', (_, item, slots) => {
   expect(Object.keys(item.base.state!)).toEqual(slots)
 })
 
@@ -44,30 +48,47 @@ describe.skipIf(!compiler)('stateless nodes (needs g++ or c++ on PATH)', () => {
 
 describe('what may feed a stateful node', () => {
   it('a per-pixel link runs it per pixel, with its state in pixel state', () => {
-    const { program, slots, issues } = createGlslCompiler().compile(graph(
-      [node('uv', 'uv'), node('env', 'envelopeFollower'), node('o', 'output')],
-      [['uv.x', 'env.signal'], ['env.envelope', 'o.color']],
-    ))
+    const { program, slots, issues } = createGlslCompiler().compile(
+      graph(
+        [node('uv', 'uv'), node('env', 'envelopeFollower'), node('o', 'output')],
+        [
+          ['uv.x', 'env.signal'],
+          ['env.envelope', 'o.color'],
+        ],
+      ),
+    )
     expect(issues).toEqual([])
     expect(program!.frame).toBeNull()
     expect(Object.keys(slots.pixel)).toEqual(['env'])
   })
 
   it('a per-pixel value that passes through a stateless node first does the same', () => {
-    const { program, slots, issues } = createGlslCompiler().compile(graph(
-      [node('uv', 'uv'), node('m', 'math'), node('env', 'envelopeFollower'), node('o', 'output')],
-      [['uv.x', 'm.a'], ['m.result', 'env.signal'], ['env.envelope', 'o.color']],
-    ))
+    const { program, slots, issues } = createGlslCompiler().compile(
+      graph(
+        [node('uv', 'uv'), node('m', 'math'), node('env', 'envelopeFollower'), node('o', 'output')],
+        [
+          ['uv.x', 'm.a'],
+          ['m.result', 'env.signal'],
+          ['env.envelope', 'o.color'],
+        ],
+      ),
+    )
     expect(issues).toEqual([])
     expect(program!.frame).toBeNull()
     expect(Object.keys(slots.pixel)).toEqual(['env'])
   })
 
   it('knob -> curve -> envelope follower run once per frame, and only the envelope reaches the pixel pass', () => {
-    const { program, slots, issues } = createGlslCompiler().compile(graph(
-      [node('k', 'knob'), node('c', 'curve'), node('env', 'envelopeFollower'), node('o', 'output')],
-      [['k.value', 'c.value'], ['c.result', 'env.signal'], ['env.envelope', 'o.color']],
-    ))
+    const { program, slots, issues } = createGlslCompiler().compile(
+      graph(
+        [node('k', 'knob'), node('c', 'curve'), node('env', 'envelopeFollower'), node('o', 'output')],
+        [
+          ['k.value', 'c.value'],
+          ['c.result', 'env.signal'],
+          ['env.envelope', 'o.color'],
+        ],
+      ),
+    )
     expect(issues).toEqual([])
     expect(program!.lineNodes.frame.filter((id) => id !== null)).toEqual(expect.arrayContaining(['c', 'env']))
     expect(new Set(program!.lineNodes.pixel.filter((id) => id !== null))).toEqual(new Set(['o']))

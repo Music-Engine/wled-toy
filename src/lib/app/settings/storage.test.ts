@@ -50,7 +50,11 @@ describe('loadStored', () => {
   })
 
   it('returns the defaults without recording a failure when the browser forbids storage', async () => {
-    vi.stubGlobal('localStorage', { getItem: () => { throw new DOMException('blocked', 'SecurityError') } })
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        throw new DOMException('blocked', 'SecurityError')
+      },
+    })
     const { loadStored, storageFailures } = await import('./storage')
     const defaults = { count: 0 }
     expect(loadStored('k', 'the count', sanitizeCount, defaults)).toBe(defaults)

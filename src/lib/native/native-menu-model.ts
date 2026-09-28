@@ -1,9 +1,30 @@
 import {
-  commandTitle, getCommand, isChecked, isEnabled, isVisible, menuTree, nativeAccelerator, parseAccelerator,
-  type Command, type MenuNode,
+  commandTitle,
+  getCommand,
+  isChecked,
+  isEnabled,
+  isVisible,
+  menuTree,
+  nativeAccelerator,
+  parseAccelerator,
+  type Command,
+  type MenuNode,
 } from '@/lib/app/commands'
 
-export type Predefined = 'Separator' | 'Undo' | 'Redo' | 'Cut' | 'Copy' | 'Paste' | 'Services' | 'Hide' | 'HideOthers' | 'ShowAll' | 'Minimize' | 'Maximize' | 'CloseWindow'
+export type Predefined =
+  | 'Separator'
+  | 'Undo'
+  | 'Redo'
+  | 'Cut'
+  | 'Copy'
+  | 'Paste'
+  | 'Services'
+  | 'Hide'
+  | 'HideOthers'
+  | 'ShowAll'
+  | 'Minimize'
+  | 'Maximize'
+  | 'CloseWindow'
 
 export interface NativeItem {
   type: 'item'
@@ -26,7 +47,12 @@ export type NativeNode = NativeItem | NativeSubmenu | { type: 'predefined'; item
 /** `Mod+Alt+S` as muda reads it: `CmdOrCtrl+Alt+S`. */
 export function toNativeAccelerator(text: string): string {
   const { mod, shift, alt, key } = parseAccelerator(text)
-  return [...(mod ? ['CmdOrCtrl'] : []), ...(alt ? ['Alt'] : []), ...(shift ? ['Shift'] : []), key.length === 1 ? key.toUpperCase() : key[0].toUpperCase() + key.slice(1)].join('+')
+  return [
+    ...(mod ? ['CmdOrCtrl'] : []),
+    ...(alt ? ['Alt'] : []),
+    ...(shift ? ['Shift'] : []),
+    key.length === 1 ? key.toUpperCase() : key[0].toUpperCase() + key.slice(1),
+  ].join('+')
 }
 
 const predefined = (item: Predefined): NativeNode => ({ type: 'predefined', item })
@@ -62,25 +88,44 @@ function nativeItem(command: Command): NativeItem {
  */
 export function nativeMenuModel(): NativeSubmenu[] {
   const inAppMenu = ['help.about', 'app.preferences', 'app.quit']
-  const convert = (nodes: MenuNode[]): NativeNode[] => withoutStraySeparators(nodes.flatMap((node): NativeNode[] => {
-    if (node.type === 'separator') return [predefined('Separator')]
-    if (node.type === 'submenu') return [{ type: 'submenu', text: node.title, items: convert(node.items) }]
-    return inAppMenu.includes(node.command.id) ? [] : [nativeItem(node.command)]
-  }))
+  const convert = (nodes: MenuNode[]): NativeNode[] =>
+    withoutStraySeparators(
+      nodes.flatMap((node): NativeNode[] => {
+        if (node.type === 'separator') return [predefined('Separator')]
+        if (node.type === 'submenu') return [{ type: 'submenu', text: node.title, items: convert(node.items) }]
+        return inAppMenu.includes(node.command.id) ? [] : [nativeItem(node.command)]
+      }),
+    )
   const [about, preferences, quit] = inAppMenu.map((id): NativeNode[] => {
     const command = getCommand(id)
     return command && isVisible(command) ? [nativeItem(command)] : []
   })
-  const menus: NativeSubmenu[] = [{
-    type: 'submenu',
-    text: 'WLEDtoy',
-    items: withoutStraySeparators([
-      ...about, predefined('Separator'), ...preferences, predefined('Separator'), predefined('Services'), predefined('Separator'),
-      predefined('Hide'), predefined('HideOthers'), predefined('ShowAll'), predefined('Separator'), ...quit,
-    ]),
-  }]
+  const menus: NativeSubmenu[] = [
+    {
+      type: 'submenu',
+      text: 'WLEDtoy',
+      items: withoutStraySeparators([
+        ...about,
+        predefined('Separator'),
+        ...preferences,
+        predefined('Separator'),
+        predefined('Services'),
+        predefined('Separator'),
+        predefined('Hide'),
+        predefined('HideOthers'),
+        predefined('ShowAll'),
+        predefined('Separator'),
+        ...quit,
+      ]),
+    },
+  ]
   for (const menu of convert(menuTree()) as NativeSubmenu[]) {
-    if (menu.text === 'Help') menus.push({ type: 'submenu', text: 'Window', items: [predefined('Minimize'), predefined('Maximize'), predefined('Separator'), predefined('CloseWindow')] })
+    if (menu.text === 'Help')
+      menus.push({
+        type: 'submenu',
+        text: 'Window',
+        items: [predefined('Minimize'), predefined('Maximize'), predefined('Separator'), predefined('CloseWindow')],
+      })
     menus.push(menu)
     if (menu.text === 'File') {
       menus.push({
@@ -89,7 +134,10 @@ export function nativeMenuModel(): NativeSubmenu[] {
         items: [
           { type: 'item', id: 'edit.undo', text: 'Undo', enabled: true, accelerator: 'CmdOrCtrl+Z' },
           { type: 'item', id: 'edit.redo', text: 'Redo', enabled: true, accelerator: 'CmdOrCtrl+Shift+Z' },
-          predefined('Separator'), predefined('Cut'), predefined('Copy'), predefined('Paste'),
+          predefined('Separator'),
+          predefined('Cut'),
+          predefined('Copy'),
+          predefined('Paste'),
           { type: 'item', id: 'edit.selectAll', text: 'Select All', enabled: true, accelerator: 'CmdOrCtrl+A' },
         ],
       })

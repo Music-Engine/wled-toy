@@ -1,7 +1,11 @@
 import { defineNode, Enum, Float, SpectrumStream } from '@/lib/graph/authoring'
 import { audioReadsChunk } from '@/lib/graph/nodes/glsl/audio'
 
-const COUNTS = [{ value: '4', label: '4 bands' }, { value: '8', label: '8 bands' }, { value: '16', label: '16 bands' }] as const
+const COUNTS = [
+  { value: '4', label: '4 bands' },
+  { value: '8', label: '8 bands' },
+  { value: '16', label: '16 bands' },
+] as const
 
 /** Count decides the outputs */
 export const bandsNode = defineNode('bands', ({ count = '8' }: { count?: string }) => {
@@ -15,7 +19,12 @@ export const bandsNode = defineNode('bands', ({ count = '8' }: { count?: string 
     output: Object.fromEntries(Array.from({ length: bandCount }, (_, i) => [`band${i + 1}`, { type: Float, label: `Band ${i + 1}` }])),
     body: ({ spectrum }, ctx) => {
       ctx.include(audioReadsChunk)
-      return Object.fromEntries(Array.from({ length: bandCount }, (_, i) => [`band${i + 1}`, ctx.declare('float', `bandsPeak(${spectrum?.slot ?? 0}, ${i}, ${bandCount})`, `band${i + 1}`)]))
+      return Object.fromEntries(
+        Array.from({ length: bandCount }, (_, i) => [
+          `band${i + 1}`,
+          ctx.declare('float', `bandsPeak(${spectrum?.slot ?? 0}, ${i}, ${bandCount})`, `band${i + 1}`),
+        ]),
+      )
     },
   }
 })

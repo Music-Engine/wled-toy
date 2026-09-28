@@ -9,7 +9,10 @@ export const mapRangeNode = defineNode('remap', {
   input: {
     clamp: { type: Bool, default: true, linkable: false },
     value: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
-    inLow: toBoundSocket(0), inHigh: toBoundSocket(1), outLow: toBoundSocket(0), outHigh: toBoundSocket(1),
+    inLow: toBoundSocket(0),
+    inHigh: toBoundSocket(1),
+    outLow: toBoundSocket(0),
+    outHigh: toBoundSocket(1),
   },
   output: { result: Float },
   body: ({ clamp, value, inLow, inHigh, outLow, outHigh }, ctx) => {

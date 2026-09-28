@@ -1,6 +1,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DialogClose, DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle, TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui'
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+  TabsContent,
+  TabsList,
+  TabsRoot,
+  TabsTrigger,
+} from 'reka-ui'
 import AppearanceSection from './sections/AppearanceSection.vue'
 import DataSection from './sections/DataSection.vue'
 import DevicesSection from './sections/DevicesSection.vue'

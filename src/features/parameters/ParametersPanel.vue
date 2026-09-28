@@ -28,12 +28,21 @@ interface Knob {
   cc: number
 }
 
-const knobs = computed<Knob[]>(() => nodes.value
-  .filter((n) => (n.data as GraphNodeData).kind === 'knob')
-  .map((n) => {
-    const values = (n.data as GraphNodeData).values as Record<string, number | string | undefined>
-    return { id: n.id, label: String(values.label ?? 'Knob'), value: Number(values.value ?? 0.5), min: Number(values.min ?? 0), max: Number(values.max ?? 1), cc: Number(values.cc ?? -1) }
-  }))
+const knobs = computed<Knob[]>(() =>
+  nodes.value
+    .filter((n) => (n.data as GraphNodeData).kind === 'knob')
+    .map((n) => {
+      const values = (n.data as GraphNodeData).values as Record<string, number | string | undefined>
+      return {
+        id: n.id,
+        label: String(values.label ?? 'Knob'),
+        value: Number(values.value ?? 0.5),
+        min: Number(values.min ?? 0),
+        max: Number(values.max ?? 1),
+        cc: Number(values.cc ?? -1),
+      }
+    }),
+)
 
 function set(id: string, patch: Record<string, SocketValue>) {
   const node = nodes.value.find((n) => n.id === id)
@@ -75,7 +84,11 @@ const sceneSwitch = computed(() => {
   const node = nodes.value.find((n) => (n.data as GraphNodeData).kind === 'sceneSwitch')
   return node ? { id: node.id, fade: Number((node.data as GraphNodeData).values.fade ?? 0.5) } : null
 })
-watch(() => sceneSwitch.value?.id, (nodeId) => engine.fades.followSwitch(nodeId ? { nodeId, recall: recallRequestedScene } : null), { immediate: true })
+watch(
+  () => sceneSwitch.value?.id,
+  (nodeId) => engine.fades.followSwitch(nodeId ? { nodeId, recall: recallRequestedScene } : null),
+  { immediate: true },
+)
 
 function recallRequestedScene(index: number) {
   const scene = scenes.value[index % Math.max(1, scenes.value.length)]

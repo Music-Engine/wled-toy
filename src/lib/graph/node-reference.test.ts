@@ -26,15 +26,30 @@ it('gives every socket type one of the three kinds', () => {
 })
 
 function writeReference(): string {
-  const lines = ['## Node reference', '', 'Generated from the registry (`listItems()` in `src/lib/graph/registry.ts`). The heading is the `data.kind` to write. Socket names are the handles edges use and the keys of `data.values`.', '']
+  const lines = [
+    '## Node reference',
+    '',
+    'Generated from the registry (`listItems()` in `src/lib/graph/registry.ts`). The heading is the `data.kind` to write. Socket names are the handles edges use and the keys of `data.values`.',
+    '',
+  ]
   for (const category of CATEGORIES) {
     const items = listItems().filter((item) => item.category === category.id)
     if (!items.length) continue
     lines.push(`### Category: ${category.label}`, '')
     for (const item of items) {
-      lines.push(`#### \`${item.id}\` (${item.title})`, '', `${item.description}`, '', `  - runs: ${describePass(item.base)}${item.base.isOutput ? '; a sink, compiled even when nothing reads it' : ''}`)
+      lines.push(
+        `#### \`${item.id}\` (${item.title})`,
+        '',
+        `${item.description}`,
+        '',
+        `  - runs: ${describePass(item.base)}${item.base.isOutput ? '; a sink, compiled even when nothing reads it' : ''}`,
+      )
       lines.push(...item.base.inputs.map((socket) => describeInput(socket, {})))
-      lines.push(...item.base.outputs.map((out) => `  - out \`${out.name}\`${out.label.toLowerCase() !== out.name.toLowerCase() ? ` "${out.label}"` : ''}: ${out.type.label}`))
+      lines.push(
+        ...item.base.outputs.map(
+          (out) => `  - out \`${out.name}\`${out.label.toLowerCase() !== out.name.toLowerCase() ? ` "${out.label}"` : ''}: ${out.type.label}`,
+        ),
+      )
       lines.push(...listVariants(item), '')
     }
   }
@@ -49,25 +64,39 @@ function describePass(shape: NodeShape): string {
 
 function describeInput(socket: Socket, values: Record<string, unknown>): string {
   const props = typeof socket.props === 'function' ? socket.props(values) : socket.props
-  const range = ['min', 'max', 'step'].filter((key) => typeof props[key] === 'number').map((key) => `${key} ${props[key]}`).join(', ')
+  const range = ['min', 'max', 'step']
+    .filter((key) => typeof props[key] === 'number')
+    .map((key) => `${key} ${props[key]}`)
+    .join(', ')
   const fallback = isImplicit(socket.default) ? `unlinked it reads \`${socket.default.label}\`` : `default \`${JSON.stringify(socket.default)}\``
-  const kind = socket.type.id === 'enum' ? `one of ${listEnumValues(socket).map((value) => `\`${value}\``).join(' ')}` : socket.type.label
+  const kind =
+    socket.type.id === 'enum'
+      ? `one of ${listEnumValues(socket)
+          .map((value) => `\`${value}\``)
+          .join(' ')}`
+      : socket.type.label
   return `  - in \`${socket.name}\`${socket.label && socket.label.toLowerCase() !== socket.name.toLowerCase() ? ` "${socket.label}"` : ''}: ${kind}, ${socket.linkable ? 'linkable' : 'stored only'}, ${fallback}${range ? `, ${range}` : ''}`
 }
 
 /** Options that give the node other sockets than its defaults, grouped by those sockets */
 function listVariants(item: NodeItem): string[] {
-  return item.base.inputs.filter((socket) => socket.type.id === 'enum').flatMap((socket) => {
-    const groups = new Map<string, string[]>()
-    for (const value of listEnumValues(socket)) {
-      const key = listSockets(item.shape({ [socket.name]: value }), item.base)
-      groups.set(key, [...(groups.get(key) ?? []), value])
-    }
-    if (groups.size < 2) return []
-    return [`  - sockets by \`${socket.name}\`:`, ...[...groups].map(([key, values]) => `    - ${values.map((value) => `\`${value}\``).join(' ')}: ${key}`)]
-  })
+  return item.base.inputs
+    .filter((socket) => socket.type.id === 'enum')
+    .flatMap((socket) => {
+      const groups = new Map<string, string[]>()
+      for (const value of listEnumValues(socket)) {
+        const key = listSockets(item.shape({ [socket.name]: value }), item.base)
+        groups.set(key, [...(groups.get(key) ?? []), value])
+      }
+      if (groups.size < 2) return []
+      return [`  - sockets by \`${socket.name}\`:`, ...[...groups].map(([key, values]) => `    - ${values.map((value) => `\`${value}\``).join(' ')}: ${key}`)]
+    })
 }
 
-const listSockets = (shape: NodeShape, base: NodeShape) => `${shape.inputs.filter((socket) => socket.linkable || !base.inputs.some((known) => known.name === socket.name)).map((socket) => `${socket.name}${socket.label ? ` "${socket.label}"` : ''}${isImplicit(socket.default) ? '' : `=${JSON.stringify(socket.default)}`}`).join(', ')} -> ${shape.outputs.map((output) => output.name).join(', ')}`
+const listSockets = (shape: NodeShape, base: NodeShape) =>
+  `${shape.inputs
+    .filter((socket) => socket.linkable || !base.inputs.some((known) => known.name === socket.name))
+    .map((socket) => `${socket.name}${socket.label ? ` "${socket.label}"` : ''}${isImplicit(socket.default) ? '' : `=${JSON.stringify(socket.default)}`}`)
+    .join(', ')} -> ${shape.outputs.map((output) => output.name).join(', ')}`
 
 const listEnumValues = (socket: Socket) => ((socket.type.props?.options ?? []) as EnumOption[]).map((option) => option.value)

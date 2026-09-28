@@ -65,16 +65,30 @@ class Engine {
     this.ledOutput.restart()
     this.rafId = requestAnimationFrame(this.renderLoop)
     this.stopWatchers.push(
-      watch(() => config.fps, () => this.ledOutput.restart()),
-      watch(() => config.layout, (layout) => this.renderer?.setLayout(layout && layoutPositions(layout)), { deep: true, immediate: true }),
-      watch(() => [config.host, config.protocol, config.universe], () => this.bridge.sendConfig()),
+      watch(
+        () => config.fps,
+        () => this.ledOutput.restart(),
+      ),
+      watch(
+        () => config.layout,
+        (layout) => this.renderer?.setLayout(layout && layoutPositions(layout)),
+        { deep: true, immediate: true },
+      ),
+      watch(
+        () => [config.host, config.protocol, config.universe],
+        () => this.bridge.sendConfig(),
+      ),
     )
     log('WLEDtoy ready')
   }
 
   /** Hand-written shader; last graph's global state kept for its return */
   compile(code: string): boolean {
-    return this.load({ pixel: code, frame: null, lineNodes: { pixel: [], frame: [] }, probes: {}, uniforms: [], resources: readShaderResources(code), output: null }, this.readSlots(), 'shader')
+    return this.load(
+      { pixel: code, frame: null, lineNodes: { pixel: [], frame: [] }, probes: {}, uniforms: [], resources: readShaderResources(code), output: null },
+      this.readSlots(),
+      'shader',
+    )
   }
 
   /** State laid out by `slots`, the table its compile returned; on failure the running program stays */
@@ -164,7 +178,10 @@ class Engine {
     const now = performance.now()
     // rAF lands early or late; 2 ms slack keeps a 30 fps cap from skipping every third 60 Hz frame
     if (preferences.previewFps && now - this.lastPreview < 1000 / preferences.previewFps - 2) return
-    this.renderer!.renderPreview(this.clock.fillParams(Math.min(0.1, (now - this.lastPreview) / 1000), config.ledCount, config.scanY), preferences.previewHeight)
+    this.renderer!.renderPreview(
+      this.clock.fillParams(Math.min(0.1, (now - this.lastPreview) / 1000), config.ledCount, config.scanY),
+      preferences.previewHeight,
+    )
     this.lastPreview = now
     this.clock.frame++
     this.bridge.countRender()
@@ -182,7 +199,12 @@ class Engine {
     runtime.readMidiAndOsc(this.midi, this.bridge.oscArgs)
     const analyses = this.audio.features ? this.audio.takeFeatures() : null
     const [first, ...extra] = this.audio.slots
-    if (first?.features) this.renderer!.setAudio(first.textures, extra.map((slot) => slot.textures), analyses?.[0] ?? null)
+    if (first?.features)
+      this.renderer!.setAudio(
+        first.textures,
+        extra.map((slot) => slot.textures),
+        analyses?.[0] ?? null,
+      )
     const t0 = performance.now()
     this.ledOutput.finish(runtime.tick(params))
     this.bridge.recordLedRender(performance.now() - t0)

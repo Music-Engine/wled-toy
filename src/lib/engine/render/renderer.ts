@@ -97,7 +97,7 @@ export class ShaderRenderer {
     const { canvas } = this
     const displayHeight = Math.max(1, Math.round(canvas.clientHeight * devicePixelRatio))
     const height = maxHeight ? Math.min(maxHeight, displayHeight) : displayHeight
-    const width = Math.max(1, Math.round(canvas.clientWidth * devicePixelRatio * height / displayHeight))
+    const width = Math.max(1, Math.round((canvas.clientWidth * devicePixelRatio * height) / displayHeight))
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width
       canvas.height = height
@@ -150,7 +150,8 @@ export class ShaderRenderer {
   private countStateLayers(userCode: string, frame: FrameSource | undefined): number {
     const indices = [...new Set(Array.from(userCode.matchAll(/\boutState([1-3])\b/g), (m) => Number(m[1])))].sort()
     // Layer k = attachment k + 1, so a gap leaves an output nowhere to land
-    if (indices.some((index, i) => index !== i + 1)) throw new EngineError('state-outputs', `outState indices must be contiguous from 1, found ${indices.join(', ')}`)
+    if (indices.some((index, i) => index !== i + 1))
+      throw new EngineError('state-outputs', `outState indices must be contiguous from 1, found ${indices.join(', ')}`)
     if (indices.length > 0 && !this.floatTargets) throw new EngineError('no-float-targets', 'this GPU cannot keep per-pixel state')
     if (frame && !this.floatTargets) throw new EngineError('no-float-targets', 'this GPU cannot keep global state')
     return indices.length

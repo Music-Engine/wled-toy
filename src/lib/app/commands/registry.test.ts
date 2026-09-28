@@ -72,8 +72,12 @@ describe('registry', () => {
   it('a handler that rejects or throws is reported with the command id', async () => {
     const { registerHandlers, runCommand, logs } = await load()
     registerHandlers({
-      'file.save': async () => { throw new Error('disk full') },
-      'file.saveAs': () => { throw new Error('no dialog') },
+      'file.save': async () => {
+        throw new Error('disk full')
+      },
+      'file.saveAs': () => {
+        throw new Error('no dialog')
+      },
     })
     const lines = () => logs.value.map((entry) => `${entry.level}: ${entry.message}`)
     expect(runCommand('file.save')).toBe(true)
@@ -97,7 +101,9 @@ describe('registry', () => {
   it('registering an existing id replaces it where it stands; unregistering removes it', async () => {
     const { registerCommands, commands } = await load()
     const before = commands.value.map((command) => command.id)
-    const release = registerCommands([{ id: 'file.open', title: 'Open Graph...', menu: ['File'], group: 'document', accelerator: 'Mod+O', run: () => undefined }])
+    const release = registerCommands([
+      { id: 'file.open', title: 'Open Graph...', menu: ['File'], group: 'document', accelerator: 'Mod+O', run: () => undefined },
+    ])
     expect(commands.value.map((command) => command.id)).toEqual(before)
     expect(commands.value.find((command) => command.id === 'file.open')!.title).toBe('Open Graph...')
     release()
@@ -107,15 +113,19 @@ describe('registry', () => {
   it('a command list contributes its members at its own position', async () => {
     const { registerCommands, commands } = await load()
     const names = ['one', 'two']
-    registerCommands([{ id: 'file.openRecent', list: () => names.map((name) => ({ id: `file.recent.${name}`, title: name, menu: ['File', 'Open Recent'], group: 'document', run: () => undefined })) }])
+    registerCommands([
+      {
+        id: 'file.openRecent',
+        list: () => names.map((name) => ({ id: `file.recent.${name}`, title: name, menu: ['File', 'Open Recent'], group: 'document', run: () => undefined })),
+      },
+    ])
     const ids = commands.value.map((command) => command.id)
     expect(ids.slice(ids.indexOf('file.open') + 1, ids.indexOf('file.save'))).toEqual(['file.recent.one', 'file.recent.two'])
   })
 })
 
 describe('menu tree', () => {
-  const titles = (nodes: MenuNode[]) =>
-    nodes.map((node) => (node.type === 'separator' ? '-' : node.type === 'submenu' ? `${node.title} >` : node.command.id))
+  const titles = (nodes: MenuNode[]) => nodes.map((node) => (node.type === 'separator' ? '-' : node.type === 'submenu' ? `${node.title} >` : node.command.id))
   const submenu = (nodes: MenuNode[], title: string) => nodes.find((node): node is Submenu => node.type === 'submenu' && node.title === title)!
 
   it('has exactly File, View and Help in every mode', async () => {
@@ -130,8 +140,21 @@ describe('menu tree', () => {
     const { menuTree, workspace } = await load()
     workspace.mode = 'graph'
     expect(titles(menuTree()[0].items)).toEqual([
-      'file.new', 'file.open', 'file.openRecent', 'file.save', 'file.saveAs', 'file.revert', 'Export >', '-',
-      'Set Audio >', 'Set Image >', '-', 'config.import', 'config.export', '-', 'app.preferences',
+      'file.new',
+      'file.open',
+      'file.openRecent',
+      'file.save',
+      'file.saveAs',
+      'file.revert',
+      'Export >',
+      '-',
+      'Set Audio >',
+      'Set Image >',
+      '-',
+      'config.import',
+      'config.export',
+      '-',
+      'app.preferences',
     ])
     workspace.mode = 'shader'
     expect(titles(menuTree()[0].items)).toContain('Load Example >')
@@ -149,10 +172,32 @@ describe('menu tree', () => {
     expect(editorIds()).toEqual(['shader.compile', 'shader.addFunction', 'shader.undo', 'shader.redo', 'shader.selectAll'])
     workspace.mode = 'graph'
     expect(editorIds()).toEqual([
-      'graph.addNode', 'graph.searchNodes', 'graph.fitView', 'graph.viewSelected', 'graph.findNode', 'graph.sendToShader', 'graph.copyGlsl',
-      'graph.copy', 'graph.cut', 'graph.paste', 'graph.undo', 'graph.redo', 'graph.selectAll', 'graph.deselectAll',
-      'graph.invertSelection', 'graph.selectLinkedFrom', 'graph.selectLinkedTo', 'graph.delete',
-      'graph.duplicate', 'graph.grab', 'graph.dissolve', 'graph.linkSelected', 'graph.toggleCollapse', 'graph.hideUnusedSockets', 'graph.mute', 'graph.rename',
+      'graph.addNode',
+      'graph.searchNodes',
+      'graph.fitView',
+      'graph.viewSelected',
+      'graph.findNode',
+      'graph.sendToShader',
+      'graph.copyGlsl',
+      'graph.copy',
+      'graph.cut',
+      'graph.paste',
+      'graph.undo',
+      'graph.redo',
+      'graph.selectAll',
+      'graph.deselectAll',
+      'graph.invertSelection',
+      'graph.selectLinkedFrom',
+      'graph.selectLinkedTo',
+      'graph.delete',
+      'graph.duplicate',
+      'graph.grab',
+      'graph.dissolve',
+      'graph.linkSelected',
+      'graph.toggleCollapse',
+      'graph.hideUnusedSockets',
+      'graph.mute',
+      'graph.rename',
     ])
     workspace.mode = 'reference'
     expect(editorIds()).toEqual([])
@@ -165,9 +210,14 @@ describe('menu tree', () => {
       workspace.mode = mode
       const items = flat(menuTree()).flatMap((node) => (node.type === 'item' ? [node.command] : []))
       const docks = items.filter((command) => /^view\.(toggle|hide)/.test(command.id))
-      expect(docks.map((command) => [commandTitle(command), command.accelerator, typeof command.checked])).toEqual([['Side Panel', 'Mod+B', 'function'], ['Bottom Panel', 'Mod+J', 'function']])
+      expect(docks.map((command) => [commandTitle(command), command.accelerator, typeof command.checked])).toEqual([
+        ['Side Panel', 'Mod+B', 'function'],
+        ['Bottom Panel', 'Mod+J', 'function'],
+      ])
       const viewItems = items.filter((command) => command.id.startsWith('view.'))
-      expect(viewItems.filter((command) => /hide/i.test(`${command.id} ${typeof command.title === 'string' ? command.title : ''}`)).map((command) => command.id)).toEqual([])
+      expect(
+        viewItems.filter((command) => /hide/i.test(`${command.id} ${typeof command.title === 'string' ? command.title : ''}`)).map((command) => command.id),
+      ).toEqual([])
       workspace.dockVisible = false
       workspace.bottomVisible = true
       expect(docks.map(isChecked)).toEqual([false, true])
@@ -181,7 +231,15 @@ describe('menu tree', () => {
     workspace.mode = 'reference'
     expect(panels()).toEqual(['view.panel.output', 'view.panel.inputs', 'view.panel.log', 'view.panel.performance'])
     workspace.mode = 'graph'
-    expect(panels()).toEqual(['view.panel.parameters', 'view.panel.output', 'view.panel.inputs', 'view.panel.problems', 'view.panel.log', 'view.panel.glsl', 'view.panel.performance'])
+    expect(panels()).toEqual([
+      'view.panel.parameters',
+      'view.panel.output',
+      'view.panel.inputs',
+      'view.panel.problems',
+      'view.panel.log',
+      'view.panel.glsl',
+      'view.panel.performance',
+    ])
   })
 
   it('context menu items carry title, keys and disabled state, and drop what is hidden or unknown', async () => {

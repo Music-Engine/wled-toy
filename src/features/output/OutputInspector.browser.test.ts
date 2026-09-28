@@ -5,7 +5,14 @@ import { config } from '@/lib/app/settings/config'
 import { activeDevice, addDevice, removeDevice, setActiveDevice } from '@/lib/app/settings/devices'
 import { settingsView } from '@/lib/app/settings/preferences'
 
-const initial = { brightness: config.brightness, scanY: config.scanY, fps: config.fps, protocol: config.protocol, universe: config.universe, layout: config.layout }
+const initial = {
+  brightness: config.brightness,
+  scanY: config.scanY,
+  fps: config.fps,
+  protocol: config.protocol,
+  universe: config.universe,
+  layout: config.layout,
+}
 
 let unmount: (() => void) | undefined
 afterEach(() => {
@@ -18,7 +25,10 @@ function mount(component: Component) {
   document.body.append(root)
   const app = createApp({ render: () => h(component) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root
 }
 

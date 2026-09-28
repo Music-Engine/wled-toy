@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{ text: string, query: string }>()
+const props = defineProps<{ text: string; query: string }>()
 
 const parts = computed(() => {
   const q = props.query.trim().toLowerCase()
   if (!q) return [{ text: props.text, hit: false }]
   const pattern = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-  return props.text.split(pattern).filter(Boolean).map((text) => ({ text, hit: text.toLowerCase() === q }))
+  return props.text
+    .split(pattern)
+    .filter(Boolean)
+    .map((text) => ({ text, hit: text.toLowerCase() === q }))
 })
 </script>
 

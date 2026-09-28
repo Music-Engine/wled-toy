@@ -9,11 +9,19 @@ const { MidiService } = await import('@/lib/engine/midi')
 type Midi = InstanceType<typeof MidiService>
 
 /** Runtime over a renderer keeping only the uniform block; returns a reader of the float the Output's source reads, after the latest MIDI and OSC */
-function loadOutputUniform(doc: ReturnType<typeof graph>, { midi, osc = () => undefined }: { midi?: Midi; osc?: (address: string) => number[] | undefined } = {}) {
+function loadOutputUniform(
+  doc: ReturnType<typeof graph>,
+  { midi, osc = () => undefined }: { midi?: Midi; osc?: (address: string) => number[] | undefined } = {},
+) {
   const { program, slots, issues } = createGlslCompiler().compile(doc)
   expect(issues).toEqual([])
   let block: Float32Array = new Float32Array()
-  const renderer = { setControls: (controls: Float32Array) => (block = controls), compile: () => 0, setAudioReads: () => undefined, clearGlobalState: () => undefined }
+  const renderer = {
+    setControls: (controls: Float32Array) => (block = controls),
+    compile: () => 0,
+    setAudioReads: () => undefined,
+    clearGlobalState: () => undefined,
+  }
   const runtime = new Runtime(renderer as unknown as ShaderRenderer)
   runtime.load(program!, slots)
   const linked = doc.edges.find((edge) => edge.target === 'o')!
@@ -28,7 +36,8 @@ function loadOutputUniform(doc: ReturnType<typeof graph>, { midi, osc = () => un
 describe('MIDI In', () => {
   it('CC 74 at 64 reads 0.504, on the channel asked for or on any', () => {
     const midi = new MidiService()
-    const loadReader = (values: object) => loadOutputUniform(graph([node('m', 'midiIn', values as never), node('o', 'output')], [['m.value', 'o.color']]), { midi })
+    const loadReader = (values: object) =>
+      loadOutputUniform(graph([node('m', 'midiIn', values as never), node('o', 'output')], [['m.value', 'o.color']]), { midi })
     const readAny = loadReader({ number: 74 })
     const readChannelTwo = loadReader({ number: 74, channel: 2 })
     expect(readAny()).toBe(0)
@@ -61,10 +70,16 @@ describe('OSC In', () => {
 
   it('asks for its port; of two on different ports the first is opened and the other says so', () => {
     const one = createGlslCompiler().compile(graph([node('i', 'oscIn'), node('o', 'output')], [['i.value', 'o.color']]))
-    const two = createGlslCompiler().compile(graph(
-      [node('i', 'oscIn'), node('j', 'oscIn', { port: 9001 }), node('m', 'math'), node('o', 'output')],
-      [['i.value', 'm.a'], ['j.value', 'm.b'], ['m.result', 'o.color']],
-    ))
+    const two = createGlslCompiler().compile(
+      graph(
+        [node('i', 'oscIn'), node('j', 'oscIn', { port: 9001 }), node('m', 'math'), node('o', 'output')],
+        [
+          ['i.value', 'm.a'],
+          ['j.value', 'm.b'],
+          ['m.result', 'o.color'],
+        ],
+      ),
+    )
     expect(one.program!.resources.osc).toEqual([9000])
     expect(two.program!.resources.osc).toEqual([9000])
     expect(two.issues).toEqual([{ nodeId: 'j', message: 'Another OSC In listens on port 9000; one port is open at a time, so this one reads that port' }])

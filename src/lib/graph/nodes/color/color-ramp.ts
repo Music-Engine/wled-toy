@@ -73,8 +73,11 @@ function emitSpline(ctx: NodeContext, stops: RampStop[], f: string): Value {
   const t = ctx.declare('float', `${x} - float(${i})`, 't').expr
   const t2 = `${t} * ${t}`
   const t3 = `${t2} * ${t}`
-  return ctx.declare('vec3', `(pow(1.0 - ${t}, 3.0) * ${points}[${i}] + (3.0 * ${t3} - 6.0 * ${t2} + 4.0) * ${points}[${i} + 1] `
-    + `+ (-3.0 * ${t3} + 3.0 * ${t2} + 3.0 * ${t} + 1.0) * ${points}[${i} + 2] + ${t3} * ${points}[${i} + 3]) / 6.0`)
+  return ctx.declare(
+    'vec3',
+    `(pow(1.0 - ${t}, 3.0) * ${points}[${i}] + (3.0 * ${t3} - 6.0 * ${t2} + 4.0) * ${points}[${i} + 1] ` +
+      `+ (-3.0 * ${t3} + 3.0 * ${t2} + 3.0 * ${t} + 1.0) * ${points}[${i} + 2] + ${t3} * ${points}[${i} + 3]) / 6.0`,
+  )
 }
 
 function emitSegments(ctx: NodeContext, ramp: ColorRamp, stops: RampStop[], f: string): Value {
@@ -84,9 +87,12 @@ function emitSegments(ctx: NodeContext, ramp: ColorRamp, stops: RampStop[], f: s
     const b = stops[i]
     const span = b.position - a.position
     const blend = pickSegmentBlend(ramp.interpolation, span)
-    const weight = blend === 'constant' ? `step(${fmt(b.position)}, ${f})`
-      : blend === 'ease' ? `smoothstep(${fmt(a.position)}, ${fmt(b.position)}, ${f})`
-        : `clamp((${f} - ${fmt(a.position)}) / ${fmt(span)}, 0.0, 1.0)`
+    const weight =
+      blend === 'constant'
+        ? `step(${fmt(b.position)}, ${f})`
+        : blend === 'ease'
+          ? `smoothstep(${fmt(a.position)}, ${fmt(b.position)}, ${f})`
+          : `clamp((${f} - ${fmt(a.position)}) / ${fmt(span)}, 0.0, 1.0)`
     ctx.emit(`${color.expr} = mix(${color.expr}, ${toColorLiteral(b.color)}, ${weight});`)
   }
   return color

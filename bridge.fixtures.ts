@@ -11,11 +11,14 @@ export const fixtureDir = new URL('./src-tauri/tests/fixtures/', import.meta.url
 const pixels = (count: number) => Buffer.from(Array.from({ length: count * 3 }, (_, i) => (i * 7 + 3) % 256))
 const cid = Buffer.from(Array.from({ length: 16 }, (_, i) => 0xa0 + i))
 
-const framed = (packets: Buffer[]) => Buffer.concat(packets.flatMap((p) => {
-  const length = Buffer.alloc(4)
-  length.writeUInt32BE(p.length)
-  return [length, p]
-}))
+const framed = (packets: Buffer[]) =>
+  Buffer.concat(
+    packets.flatMap((p) => {
+      const length = Buffer.alloc(4)
+      length.writeUInt32BE(p.length)
+      return [length, p]
+    }),
+  )
 
 // frames around every point where a sequence field wraps: DDP at 15, Art-Net at 255, sACN at 256, the counter itself at 3825
 const sequenceFrames = [0, 13, 14, 15, 253, 254, 255, 256, 3823, 3824, 3825]

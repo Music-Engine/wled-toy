@@ -17,7 +17,10 @@ function mount() {
   document.body.append(root)
   const app = createApp({ render: () => h(CommandPalette) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
 }
 
 const rows = () => [...document.querySelectorAll<HTMLElement>('.command-palette [data-command]')].map((el) => el.dataset.command)

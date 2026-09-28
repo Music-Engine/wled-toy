@@ -1,6 +1,17 @@
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { lintEdges } from '@/lib/graph/model/lint'
-import { createSlotTable, GraphError, type GraphIssue, type Annotation, type Check, type CompileContext, type Hook, type SlotTable, type Stage, type Target } from './context'
+import {
+  createSlotTable,
+  GraphError,
+  type GraphIssue,
+  type Annotation,
+  type Check,
+  type CompileContext,
+  type Hook,
+  type SlotTable,
+  type Stage,
+  type Target,
+} from './context'
 import { topoSort } from './topo'
 
 export function createCompiler<P>(config: CompilerConfig<P>): Compiler<P> {
@@ -44,7 +55,11 @@ function checkReads(annotations: Annotation[], after: { name: string; reads: str
 
 function compile<P>(config: CompilerConfig<P>, doc: NodeGraph, previous: SlotTable): CompileResult<P> {
   if (doc.version !== config.version) {
-    return { program: null, issues: [{ nodeId: null, message: `This graph is version ${doc.version}; the compiler reads version ${config.version}` }], slots: previous }
+    return {
+      program: null,
+      issues: [{ nodeId: null, message: `This graph is version ${doc.version}; the compiler reads version ${config.version}` }],
+      slots: previous,
+    }
   }
   const issues: GraphIssue[] = []
   try {

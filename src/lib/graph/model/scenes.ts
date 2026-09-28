@@ -21,11 +21,13 @@ export function captureScene(nodes: StoredNode[], name: string): Scene {
  */
 export function fadeScene(from: Record<string, number>, scene: Scene, t: number): Record<string, number> {
   const progress = Math.min(1, Math.max(0, t))
-  return Object.fromEntries(Object.entries(from).map(([id, start]) => {
-    const target = scene.values[id]
-    if (target === undefined) return [id, start]
-    return [id, progress === 1 ? target : start + (target - start) * progress]
-  }))
+  return Object.fromEntries(
+    Object.entries(from).map(([id, start]) => {
+      const target = scene.values[id]
+      if (target === undefined) return [id, start]
+      return [id, progress === 1 ? target : start + (target - start) * progress]
+    }),
+  )
 }
 
 /** Drops values of knobs that no longer exist, so scenes do not accumulate ids of deleted nodes. */

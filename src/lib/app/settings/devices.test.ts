@@ -5,8 +5,12 @@ function fakeLocalStorage(initial: Record<string, string> = {}) {
   const store = new Map(Object.entries(initial))
   return {
     getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => { store.set(key, value) },
-    removeItem: (key: string) => { store.delete(key) },
+    setItem: (key: string, value: string) => {
+      store.set(key, value)
+    },
+    removeItem: (key: string) => {
+      store.delete(key)
+    },
   }
 }
 
@@ -68,7 +72,10 @@ describe('devices store', () => {
   })
 
   it('keeps ids as stable strings across a reload', async () => {
-    const stored = { devices: [{ id: 'stable-id', name: 'A', host: '', ledCount: 60, protocol: 'ddp', universe: 0, layout: null }], activeDeviceId: 'stable-id' }
+    const stored = {
+      devices: [{ id: 'stable-id', name: 'A', host: '', ledCount: 60, protocol: 'ddp', universe: 0, layout: null }],
+      activeDeviceId: 'stable-id',
+    }
     const { activeDevice } = await loadDevices({ 'wledtoy:devices': JSON.stringify(stored) })
     expect(activeDevice.value.id).toBe('stable-id')
   })

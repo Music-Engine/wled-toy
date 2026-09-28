@@ -4,15 +4,18 @@ import { useNodeField } from './use-node-field'
 import '@/features/node-ui/node.css'
 import './fields.css'
 
-const props = withDefaults(defineProps<{
-  modelValue: number
-  label?: string
-  min?: number
-  max?: number
-  /** Shows steppers and sets their increment. */
-  step?: number
-  decimals?: number
-}>(), { label: '', min: -Infinity, max: Infinity, step: undefined, decimals: 3 })
+const props = withDefaults(
+  defineProps<{
+    modelValue: number
+    label?: string
+    min?: number
+    max?: number
+    /** Shows steppers and sets their increment. */
+    step?: number
+    decimals?: number
+  }>(),
+  { label: '', min: -Infinity, max: Infinity, step: undefined, decimals: 3 },
+)
 const emit = defineEmits<{
   'update:modelValue': [value: number]
   invalid: [invalid: boolean]

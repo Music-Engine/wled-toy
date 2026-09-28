@@ -14,9 +14,20 @@ function mount() {
   const open = ref(true)
   const root = document.createElement('div')
   document.body.append(root)
-  const app = createApp({ render: () => h(AboutDialog, { open: open.value, 'onUpdate:open': (value: boolean) => { open.value = value } }) })
+  const app = createApp({
+    render: () =>
+      h(AboutDialog, {
+        open: open.value,
+        'onUpdate:open': (value: boolean) => {
+          open.value = value
+        },
+      }),
+  })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return open
 }
 
@@ -30,7 +41,10 @@ it('says what the app is, what it does, which version runs and who developed it'
   expect(dialog()!.querySelector('[data-value="version"]')!.textContent).toBe(`Version ${version}`)
   expect(text).toContain('A live shader and node-graph playground for addressable LEDs.')
   expect([...dialog()!.querySelectorAll('li')].map((el) => el.textContent)).toEqual([
-    'Write GLSL or build node graphs', 'React to audio and MIDI', 'Preview on a virtual strip or matrix', 'Stream to WLED over DDP, DNRGB, Art-Net or sACN',
+    'Write GLSL or build node graphs',
+    'React to audio and MIDI',
+    'Preview on a virtual strip or matrix',
+    'Stream to WLED over DDP, DNRGB, Art-Net or sACN',
   ])
   const link = dialog()!.querySelector('a')!
   expect([link.textContent, link.href, link.target]).toEqual(['@omargfh', 'https://github.com/omargfh', '_blank'])
@@ -48,7 +62,7 @@ it('reports the runtime and the WebGL2 renderer of this machine', async () => {
 })
 
 it('names the desktop app under Tauri, and Close closes', async () => {
-  (window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__ = {}
+  ;(window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__ = {}
   const open = mount()
   await expect.poll(() => dialog()).not.toBeNull()
   expect(dialog()!.querySelector('[data-value="runtime"]')!.textContent).toBe('Desktop app (Tauri)')

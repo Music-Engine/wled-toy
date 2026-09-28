@@ -73,8 +73,12 @@ export function useNodeClipboard(
     if (run(e.type === 'cut' ? 'dissolve' : (e.type as ClipboardAction))) e.preventDefault()
   }
 
-  const listen = () => { for (const type of ['copy', 'cut', 'paste'] as const) window.addEventListener(type, onClipboardEvent) }
-  const unlisten = () => { for (const type of ['copy', 'cut', 'paste'] as const) window.removeEventListener(type, onClipboardEvent) }
+  const listen = () => {
+    for (const type of ['copy', 'cut', 'paste'] as const) window.addEventListener(type, onClipboardEvent)
+  }
+  const unlisten = () => {
+    for (const type of ['copy', 'cut', 'paste'] as const) window.removeEventListener(type, onClipboardEvent)
+  }
   onActivated(listen)
   onDeactivated(unlisten)
   onBeforeUnmount(unlisten)

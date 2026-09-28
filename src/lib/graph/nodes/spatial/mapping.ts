@@ -3,7 +3,8 @@ import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 export const mappingNode = defineNode('mapping', {
   title: 'Mapping',
-  description: 'Moves, turns and scales a coordinate before a texture or image reads it: scale around the pivot, rotate around it (in turns), then add the location.',
+  description:
+    'Moves, turns and scales a coordinate before a texture or image reads it: scale around the pivot, rotate around it (in turns), then add the location.',
   category: 'math',
   input: {
     vector: textureVector,

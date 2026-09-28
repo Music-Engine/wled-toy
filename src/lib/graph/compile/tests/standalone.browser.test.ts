@@ -26,12 +26,27 @@ describe('standalone code', () => {
   })
 
   it('Time is iTime and the Audio node reads the features shader mode uploads', () => {
-    const { program } = compileStandalone(graph([node('t', 'time'), node('a', 'audio'), node('m', 'math', { op: 'multiply' }), node('o', 'output')], [['t.time', 'm.a'], ['a.kick', 'm.b'], ['m.result', 'o.color']]))
+    const { program } = compileStandalone(
+      graph(
+        [node('t', 'time'), node('a', 'audio'), node('m', 'math', { op: 'multiply' }), node('o', 'output')],
+        [
+          ['t.time', 'm.a'],
+          ['a.kick', 'm.b'],
+          ['m.result', 'o.color'],
+        ],
+      ),
+    )
     expect(program!.pixel).toMatch(/float n_m = iTime \* iAudioFeatures\[\d\]\.\w;/)
   })
 
   it('a stateful node keeps no memory, and a knob holds its default, each with an issue on its node', () => {
-    const doc = graph([node('k', 'knob', { value: 0.25 }), node('e', 'envelopeFollower'), node('o', 'output')], [['k.value', 'e.signal'], ['e.envelope', 'o.color']])
+    const doc = graph(
+      [node('k', 'knob', { value: 0.25 }), node('e', 'envelopeFollower'), node('o', 'output')],
+      [
+        ['k.value', 'e.signal'],
+        ['e.envelope', 'o.color'],
+      ],
+    )
     const { program, issues } = compileStandalone(doc)
     expect(issues).toEqual([
       { nodeId: 'e', message: 'Envelope Follower keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame' },

@@ -35,16 +35,41 @@ const smooth = (prev: number | null, next: number) => (prev == null ? next : pre
 
 export function createBridge(config: AppConfig, openTransport: (handlers: TransportHandlers) => BridgeTransport | null = openBridgeTransport) {
   const stats = reactive<BridgeStats>({
-    renderFps: 0, sendFps: 0, framesSent: 0, framesDropped: 0, kbps: 0,
-    ledRenderMs: null, rttMs: null, udpMs: null, deviceMs: null, deviceFps: null,
-    status: 'connecting', device: null,
+    renderFps: 0,
+    sendFps: 0,
+    framesSent: 0,
+    framesDropped: 0,
+    kbps: 0,
+    ledRenderMs: null,
+    rttMs: null,
+    udpMs: null,
+    deviceMs: null,
+    deviceFps: null,
+    status: 'connecting',
+    device: null,
   })
   const history = reactive<Record<HistoryKey, number[]>>({
-    renderFps: [], sendFps: [], kbps: [], ledRenderMs: [], rttMs: [], udpMs: [], deviceMs: [],
+    renderFps: [],
+    sendFps: [],
+    kbps: [],
+    ledRenderMs: [],
+    rttMs: [],
+    udpMs: [],
+    deviceMs: [],
   })
 
   // per-frame values live outside the reactive object and are published once per second
-  const raw = { render: 0, send: 0, bytes: 0, sent: 0, dropped: 0, last: performance.now(), rtt: null as number | null, udp: null as number | null, led: null as number | null }
+  const raw = {
+    render: 0,
+    send: 0,
+    bytes: 0,
+    sent: 0,
+    dropped: 0,
+    last: performance.now(),
+    rtt: null as number | null,
+    udp: null as number | null,
+    led: null as number | null,
+  }
   const pending = new Map<number, number>()
   let frameId = 0
   let link: BridgeTransport | null = null
@@ -83,7 +108,13 @@ export function createBridge(config: AppConfig, openTransport: (handlers: Transp
   function sendConfig(override: { protocol: string; universe: number } | null | undefined = wire) {
     wire = override
     if (link?.isOpen()) {
-      link.sendConfig({ type: 'config', host: config.host.trim(), protocol: wire?.protocol ?? config.protocol, universe: wire?.universe ?? config.universe, oscPort })
+      link.sendConfig({
+        type: 'config',
+        host: config.host.trim(),
+        protocol: wire?.protocol ?? config.protocol,
+        universe: wire?.universe ?? config.universe,
+        oscPort,
+      })
     }
   }
 
@@ -142,7 +173,10 @@ export function createBridge(config: AppConfig, openTransport: (handlers: Transp
         stats.deviceFps = msg.fps ?? null
         break
       case 'osc':
-        osc.set(msg.address, msg.args.filter((arg): arg is number => typeof arg === 'number'))
+        osc.set(
+          msg.address,
+          msg.args.filter((arg): arg is number => typeof arg === 'number'),
+        )
         break
       case 'device':
         stats.device = { name: msg.name, version: msg.version, ledCount: msg.ledCount }

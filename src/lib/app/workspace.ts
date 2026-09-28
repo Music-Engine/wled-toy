@@ -76,7 +76,7 @@ export function sanitize(raw: unknown): Layout {
   const src = record(raw)
   const out = defaults()
   const size = (value: unknown, { min, max, initial }: { min: number; max: number; initial: number }) =>
-    (typeof value === 'number' && Number.isFinite(value) ? Math.round(Math.min(max, Math.max(min, value))) : initial)
+    typeof value === 'number' && Number.isFinite(value) ? Math.round(Math.min(max, Math.max(min, value))) : initial
   out.dockWidth = size(src.dockWidth, DOCK_SIZES.right)
   out.bottomHeight = size(src.bottomHeight, DOCK_SIZES.bottom)
   if (typeof src.dockVisible === 'boolean') out.dockVisible = src.dockVisible
@@ -105,15 +105,18 @@ function saveLayout() {
   localStorage.setItem(STORAGE_KEY, unsaved)
   unsaved = null
 }
-watch(() => {
-  const { mode, problemCount, ...layout } = workspace
-  return JSON.stringify(layout)
-}, (serialized) => {
-  // dragging a split handle changes the layout per pointer move; one write per pause is enough
-  unsaved = serialized
-  clearTimeout(saveTimer)
-  saveTimer = setTimeout(saveLayout, 300)
-})
+watch(
+  () => {
+    const { mode, problemCount, ...layout } = workspace
+    return JSON.stringify(layout)
+  },
+  (serialized) => {
+    // dragging a split handle changes the layout per pointer move; one write per pause is enough
+    unsaved = serialized
+    clearTimeout(saveTimer)
+    saveTimer = setTimeout(saveLayout, 300)
+  },
+)
 if (typeof window !== 'undefined') window.addEventListener('pagehide', saveLayout)
 
 export function resetLayout() {
@@ -145,7 +148,7 @@ export const visibleTabs = (dock: DockId) =>
 export function activeTab(dock: DockId): TabId | null {
   const tabs = visibleTabs(dock)
   const stored = workspace.activeTab[dock][workspace.mode]
-  return tabs.some((tab) => tab.id === stored) ? stored! : tabs[0]?.id ?? null
+  return tabs.some((tab) => tab.id === stored) ? stored! : (tabs[0]?.id ?? null)
 }
 
 export function selectTab(id: TabId) {

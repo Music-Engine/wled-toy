@@ -59,8 +59,12 @@ const releaseHandlers = registerHandlers({
   'mode.reference': () => router.push('/reference'),
   'help.reference': () => router.push('/reference'),
   'app.preferences': () => openSettings(),
-  'help.launchScreen': () => { launchScreen.open = true },
-  'help.about': () => { aboutOpen.value = true },
+  'help.launchScreen': () => {
+    launchScreen.open = true
+  },
+  'help.about': () => {
+    aboutOpen.value = true
+  },
 })
 const removeKeyDispatcher = installKeyDispatcher()
 onBeforeUnmount(() => {

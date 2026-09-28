@@ -5,7 +5,12 @@ export const checkUsermodInputs = ({ sliders }: { sliders: number }): Check => (
   name: 'checkUsermodInputs',
   reads: ['resources'],
   check: (ctx) => {
-    const unslid = new Set(ctx.uniforms.filter((uniform) => uniform.kind === 'knob').slice(sliders).map((uniform) => uniform.node))
+    const unslid = new Set(
+      ctx.uniforms
+        .filter((uniform) => uniform.kind === 'knob')
+        .slice(sliders)
+        .map((uniform) => uniform.node),
+    )
     return ctx.order.flatMap((id) => {
       const reason = findUnsupportedInput(ctx, id) ?? (unslid.has(id) ? `has no slider left; the effect has ${sliders}` : undefined)
       return reason ? [{ nodeId: id, message: `${ctx.nodes[id].shape.title} ${reason}` }] : []

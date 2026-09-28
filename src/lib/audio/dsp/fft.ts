@@ -4,9 +4,7 @@ export function createWindow(type: WindowType, size: number): Float32Array {
   const w = new Float32Array(size)
   for (let i = 0; i < size; i++) {
     const x = (2 * Math.PI * i) / (size - 1)
-    w[i] = type === 'hann' ? 0.5 - 0.5 * Math.cos(x)
-      : type === 'hamming' ? 0.54 - 0.46 * Math.cos(x)
-        : 0.42 - 0.5 * Math.cos(x) + 0.08 * Math.cos(2 * x)
+    w[i] = type === 'hann' ? 0.5 - 0.5 * Math.cos(x) : type === 'hamming' ? 0.54 - 0.46 * Math.cos(x) : 0.42 - 0.5 * Math.cos(x) + 0.08 * Math.cos(2 * x)
   }
   return w
 }

@@ -25,7 +25,9 @@ const app = createApp(App).use(router).use(ui)
 if (isTauri()) app.provide(graphFileBackendKey, createTauriBackend()).provide(shaderFileBackendKey, createTauriBackend(loadTauriFiles, SHADER_FILES))
 const start = launchPath(location.pathname)
 if (start) void router.replace(start)
-router.afterEach((to, _from, failure) => { if (!failure) rememberMode(to.name) })
+router.afterEach((to, _from, failure) => {
+  if (!failure) rememberMode(to.name)
+})
 app.mount('#app')
 if (isTauri()) {
   // after the mount, so the menu is built once with the handlers App.vue binds

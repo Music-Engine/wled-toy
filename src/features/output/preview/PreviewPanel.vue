@@ -20,9 +20,11 @@ const ledDots = computed(() => {
   return Array.from({ length: p.length / 4 }, (_, i) => ({ x: p[i * 4] * 100, y: (1 - p[i * 4 + 1]) * 100 }))
 })
 
-const summary = computed(() => (config.layout
-  ? config.layout.segments.map((s) => (s.kind === 'matrix' ? `matrix ${s.width}x${s.height}` : s.kind)).join(', ')
-  : `y ${Format.fixed(config.scanY, 2)}`))
+const summary = computed(() =>
+  config.layout
+    ? config.layout.segments.map((s) => (s.kind === 'matrix' ? `matrix ${s.width}x${s.height}` : s.kind)).join(', ')
+    : `y ${Format.fixed(config.scanY, 2)}`,
+)
 
 const VIEWS: { id: PreviewView; label: string; title: string }[] = [
   { id: 'render', label: 'Render', title: 'The shader, with the LEDs marked where they sample it' },

@@ -17,7 +17,10 @@ function mount(component: Component) {
   document.body.append(root)
   const app = createApp({ render: () => h(component) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root
 }
 

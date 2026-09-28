@@ -13,7 +13,13 @@ const files = {
 } as Record<string, string>
 export const graphText = Object.fromEntries(Object.entries(files).map(([path, text]) => [path.split('/').pop()!.replace('.wledgraph', ''), text]))
 
-const ALL_PREVIEW_SIZES: readonly (readonly [number, number])[] = [[480, 270], [960, 540], [1280, 720], [1920, 1080], [2560, 1440]]
+const ALL_PREVIEW_SIZES: readonly (readonly [number, number])[] = [
+  [480, 270],
+  [960, 540],
+  [1280, 720],
+  [1920, 1080],
+  [2560, 1440],
+]
 // SwiftShader takes minutes per frame at the top sizes, so a run there caps the sweep
 const MAX_PREVIEW_WIDTH = Number(import.meta.env.VITE_PERF_GPU_MAX_PREVIEW ?? 4096)
 export const PREVIEW_SIZES = ALL_PREVIEW_SIZES.filter(([width]) => width <= MAX_PREVIEW_WIDTH)
@@ -24,7 +30,14 @@ export function summarize(values: number[]) {
   const sorted = [...values].sort((a, b) => a - b)
   const at = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0
   const mean = sorted.reduce((a, b) => a + b, 0) / (sorted.length || 1)
-  return { median: roundToMicros(at(0.5)), mean: roundToMicros(mean), p95: roundToMicros(at(0.95)), max: roundToMicros(sorted[sorted.length - 1] ?? 0), min: roundToMicros(sorted[0] ?? 0), samples: sorted.length }
+  return {
+    median: roundToMicros(at(0.5)),
+    mean: roundToMicros(mean),
+    p95: roundToMicros(at(0.95)),
+    max: roundToMicros(sorted[sorted.length - 1] ?? 0),
+    min: roundToMicros(sorted[0] ?? 0),
+    samples: sorted.length,
+  }
 }
 
 /** performance.now() is clamped to 0.1 ms here; timing `calls` repetitions moves the quantum below what is measured */
@@ -100,11 +113,13 @@ export function timePreview(code: string, [width, height]: readonly [number, num
   renderer.compile(code)
   const gl = canvas.getContext('webgl2')!
   const pixel = new Uint8Array(4)
-  const preview = summarize(timeFrames(60, (frame) => {
-    renderer.renderPreview({ time: frame / 60, dt: 1 / 60, frame, ledCount: 60, scanY: 0.5 })
-    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
-    gl.finish()
-  }))
+  const preview = summarize(
+    timeFrames(60, (frame) => {
+      renderer.renderPreview({ time: frame / 60, dt: 1 / 60, frame, ledCount: 60, scanY: 0.5 })
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
+      gl.finish()
+    }),
+  )
   const extra = after?.(renderer)
   const size = `${canvas.width}x${canvas.height}`
   renderer.dispose()

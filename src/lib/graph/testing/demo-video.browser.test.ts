@@ -50,7 +50,13 @@ async function renderSegment(segment: Segment, fps: number) {
   for (let frame = 0; frame < skipped + frames; frame++) {
     const tick = { time: frame / fps, dt: 1 / fps, frame, scanY: 0.5 }
     const [features] = feedSlots(slots, track, tick.time, SAMPLE_RATE).analyses
-    if (features) for (const renderer of [strip, matrix]) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures), features)
+    if (features)
+      for (const renderer of [strip, matrix])
+        renderer.setAudio(
+          slots[0].textures,
+          slots.slice(1).map((slot) => slot.textures),
+          features,
+        )
     const leds = [runtimes[0].tick({ ...tick, ledCount: STRIP_LEDS }), runtimes[1].tick({ ...tick, ledCount: MATRIX_SIDE * MATRIX_SIDE })]
     if (frame >= skipped) writeFrame(out.subarray((frame - skipped) * frameBytes), leds, features, bands)
   }

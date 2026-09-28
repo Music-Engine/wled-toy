@@ -14,13 +14,31 @@ const text = computed<{ title: string; description: string; buttons: [PromptChoi
     return {
       title: `Recover unsaved ${noun}?`,
       description: `The last session ended with unsaved changes. Recover them, or discard them and start a new ${noun}.`,
-      buttons: [['recover', 'Recover'], ['discard', 'Discard']],
+      buttons: [
+        ['recover', 'Recover'],
+        ['discard', 'Discard'],
+      ],
     }
   }
   if (prompt.value?.kind === 'revert') {
-    return { title: `Revert ${name}?`, description: 'Every change since the last save is discarded.', buttons: [['discard', 'Revert'], ['cancel', 'Cancel']] }
+    return {
+      title: `Revert ${name}?`,
+      description: 'Every change since the last save is discarded.',
+      buttons: [
+        ['discard', 'Revert'],
+        ['cancel', 'Cancel'],
+      ],
+    }
   }
-  return { title: `Save changes to ${name}?`, description: 'Your changes are lost if you do not save them.', buttons: [['save', 'Save'], ['discard', 'Discard'], ['cancel', 'Cancel']] }
+  return {
+    title: `Save changes to ${name}?`,
+    description: 'Your changes are lost if you do not save them.',
+    buttons: [
+      ['save', 'Save'],
+      ['discard', 'Discard'],
+      ['cancel', 'Cancel'],
+    ],
+  }
 })
 
 // Escape and a click outside mean Cancel; the recovery question has no Cancel, so there they do nothing

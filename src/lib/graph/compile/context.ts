@@ -10,7 +10,10 @@ export interface GraphIssue {
 
 /** Stops a compile; becomes the last issue */
 export class GraphError extends Error {
-  constructor(message: string, readonly nodeId: string) {
+  constructor(
+    message: string,
+    readonly nodeId: string,
+  ) {
     super(message)
   }
 }

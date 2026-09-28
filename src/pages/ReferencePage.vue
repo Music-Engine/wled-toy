@@ -6,7 +6,23 @@ import ReferenceIndex from '@/features/reference/ReferenceIndex.vue'
 import { useReferenceSearch } from '@/features/reference/use-reference-search'
 import { NODES } from '@/lib/shader/catalog'
 
-const { query, categoryIndex, copied, search, entryList, activeEntry, matchedNodes, categories, sections, trackActiveEntry, jumpTo, onEntryKeydown, copy, copyFocused, focusSearch } = useReferenceSearch()
+const {
+  query,
+  categoryIndex,
+  copied,
+  search,
+  entryList,
+  activeEntry,
+  matchedNodes,
+  categories,
+  sections,
+  trackActiveEntry,
+  jumpTo,
+  onEntryKeydown,
+  copy,
+  copyFocused,
+  focusSearch,
+} = useReferenceSearch()
 </script>
 
 <template>

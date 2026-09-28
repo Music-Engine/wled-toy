@@ -18,8 +18,9 @@ export const layerMixNode = defineNode('layerMix', ({ mode = 'mix' }: { mode?: B
       mask: { type: Float, default: 1, props: { min: 0, max: 1, decimals: 2 } },
     },
     output: { color: Color },
-    body: ({ base, layer, opacity, mask }, ctx) =>
-      ({ color: ctx.declare('vec3', `clamp(${blendFunction}(clamp(${opacity.expr} * ${mask.expr}, 0.0, 1.0), ${base.expr}, ${layer.expr}), 0.0, 1.0)`) }),
+    body: ({ base, layer, opacity, mask }, ctx) => ({
+      color: ctx.declare('vec3', `clamp(${blendFunction}(clamp(${opacity.expr} * ${mask.expr}, 0.0, 1.0), ${base.expr}, ${layer.expr}), 0.0, 1.0)`),
+    }),
   }
 })
 

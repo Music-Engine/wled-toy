@@ -19,7 +19,12 @@ export function referenceCategories(categories: readonly Category[], nodes: read
     { id: null, label: 'All', color: null, count: matched.length },
     ...categories
       .filter((category) => nodes.some((node) => node.category === category.id))
-      .map((category) => ({ id: category.id, label: category.label, color: category.color, count: matched.filter((node) => node.category === category.id).length })),
+      .map((category) => ({
+        id: category.id,
+        label: category.label,
+        color: category.color,
+        count: matched.filter((node) => node.category === category.id).length,
+      })),
   ]
 }
 

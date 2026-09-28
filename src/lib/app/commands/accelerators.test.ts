@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { acceleratorKbds, formatAccelerator, matchesAccelerator, parseAccelerator } from './accelerators'
 
-const key = (init: Partial<Record<'key' | 'code', string> & Record<'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey', boolean>>) =>
-  ({ key: '', code: '', metaKey: false, ctrlKey: false, shiftKey: false, altKey: false, ...init })
+const key = (init: Partial<Record<'key' | 'code', string> & Record<'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey', boolean>>) => ({
+  key: '',
+  code: '',
+  metaKey: false,
+  ctrlKey: false,
+  shiftKey: false,
+  altKey: false,
+  ...init,
+})
 
 describe('accelerators', () => {
   it('parses modifiers in any order and lowercases the key', () => {
@@ -82,4 +89,3 @@ describe('accelerators', () => {
     expect(matchesAccelerator(key({ key: 'X', code: 'KeyX', shiftKey: true }), parseAccelerator('X'), true)).toBe(false)
   })
 })
-

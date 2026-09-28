@@ -15,7 +15,11 @@ const { bar, selected, stops, current, updateCurrent, addStop, removeStop, posit
   (next) => emit('update:modelValue', next),
 )
 
-const css = (c: number[]) => `rgb(${c.slice(0, 3).map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255)).join(' ')})`
+const css = (c: number[]) =>
+  `rgb(${c
+    .slice(0, 3)
+    .map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255))
+    .join(' ')})`
 const gradient = computed(() => {
   const samples = Array.from({ length: 49 }, (_, i) => `${css(sampleRamp(props.modelValue, i / 48))} ${(i / 48) * 100}%`)
   return `linear-gradient(to right, ${samples.join(', ')})`

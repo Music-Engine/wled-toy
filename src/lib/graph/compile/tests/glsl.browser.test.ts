@@ -23,7 +23,14 @@ describe.skipIf(!floatTargets)('GLSL target programs (needs EXT_color_buffer_flo
 
   it('computes a value in the frame pass on the LED tick that the LED pass reads from global state', () => {
     // Viewer keeps `m` per frame: a probe and everything upstream of it
-    const doc = graph([node('t', 'time'), node('m', 'math', { op: 'multiply', b: 0.25 }), node('v', 'viewer'), node('o', 'output')], [['t.time', 'm.a'], ['m.result', 'v.value'], ['m.result', 'o.color']])
+    const doc = graph(
+      [node('t', 'time'), node('m', 'math', { op: 'multiply', b: 0.25 }), node('v', 'viewer'), node('o', 'output')],
+      [
+        ['t.time', 'm.a'],
+        ['m.result', 'v.value'],
+        ['m.result', 'o.color'],
+      ],
+    )
     const program = createGlslCompiler().compile(doc).program!
     expect(program.frame).not.toBeNull()
     const renderer = new ShaderRenderer(document.createElement('canvas'))
@@ -38,7 +45,12 @@ describe.skipIf(!floatTargets)('GLSL target programs (needs EXT_color_buffer_flo
   it('reads the features and the bands setAudio uploaded in the frame pass', () => {
     const doc = graph(
       [node('a', 'audio'), node('b', 'bands', { count: '16' }), node('c', 'combineXYZ'), node('o', 'output')],
-      [['a.level', 'c.x'], ['a.beat', 'c.y'], ['b.band2', 'c.z'], ['c.vector', 'o.color']],
+      [
+        ['a.level', 'c.x'],
+        ['a.beat', 'c.y'],
+        ['b.band2', 'c.z'],
+        ['c.vector', 'o.color'],
+      ],
     )
     const program = createGlslCompiler().compile(doc).program!
     const textures = new AudioTextures(64)
@@ -54,11 +66,28 @@ describe.skipIf(!floatTargets)('GLSL target programs (needs EXT_color_buffer_flo
 
   it('names the node behind a driver error in either pass, the frame pass as source string 1', () => {
     const doc = graph(
-      [node('t', 'time'), node('m', 'math', { op: 'multiply', b: 0.25 }), node('v', 'viewer'), node('u', 'uv'), node('a', 'math', { op: 'add' }), node('o', 'output')],
-      [['t.time', 'm.a'], ['m.result', 'v.value'], ['m.result', 'a.a'], ['u.x', 'a.b'], ['a.result', 'o.color']],
+      [
+        node('t', 'time'),
+        node('m', 'math', { op: 'multiply', b: 0.25 }),
+        node('v', 'viewer'),
+        node('u', 'uv'),
+        node('a', 'math', { op: 'add' }),
+        node('o', 'output'),
+      ],
+      [
+        ['t.time', 'm.a'],
+        ['m.result', 'v.value'],
+        ['m.result', 'a.a'],
+        ['u.x', 'a.b'],
+        ['a.result', 'o.color'],
+      ],
     )
     const program = createGlslCompiler().compile(doc).program!
-    const breakNodeLines = (code: string, lines: (string | null)[], id: string) => code.split('\n').map((line, i) => (lines[i + 1] === id ? `${line} breakNodeLines` : line)).join('\n')
+    const breakNodeLines = (code: string, lines: (string | null)[], id: string) =>
+      code
+        .split('\n')
+        .map((line, i) => (lines[i + 1] === id ? `${line} breakNodeLines` : line))
+        .join('\n')
     const renderer = new ShaderRenderer(document.createElement('canvas'))
     const readFirstError = (pixel: string, frame: string) => {
       try {

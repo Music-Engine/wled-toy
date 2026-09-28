@@ -32,7 +32,8 @@ export class Runtime {
    */
   load(program: GlslProgram, slots: SlotTable): number | null {
     const running = this.program
-    const compiled = running?.pixel === program.pixel && running.frame?.code === program.frame?.code ? null : this.renderer.compile(program.pixel, program.frame ?? undefined)
+    const compiled =
+      running?.pixel === program.pixel && running.frame?.code === program.frame?.code ? null : this.renderer.compile(program.pixel, program.frame ?? undefined)
     this.renderer.setAudioReads(program.resources.audioFeatures !== undefined, (program.resources.spectra ?? []) as number[])
     this.renderer.clearGlobalState(collectFreedFloats(this.slots.global, slots.global))
     this.slots = slots
@@ -88,5 +89,6 @@ function collectFreedFloats(previous: SlotTable['global'], next: SlotTable['glob
 }
 
 const keepsSlots = (next: Slots | undefined, previous: Slots) =>
-  next !== undefined && Object.keys(next).length === Object.keys(previous).length
-  && Object.entries(previous).every(([name, slot]) => next[name]?.offset === slot.offset && next[name].type === slot.type && next[name].kind === slot.kind)
+  next !== undefined &&
+  Object.keys(next).length === Object.keys(previous).length &&
+  Object.entries(previous).every(([name, slot]) => next[name]?.offset === slot.offset && next[name].type === slot.type && next[name].kind === slot.kind)

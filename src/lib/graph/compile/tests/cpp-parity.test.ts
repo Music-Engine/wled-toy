@@ -59,6 +59,9 @@ describe('cppParity', () => {
       return program ? [] : [[id, issues.at(-1)] as const]
     })
     expect(refused.map(([id]) => id)).toEqual(['texture', 'chroma', 'trails', 'stripBlur', 'previousFrame', 'imageTexture'])
-    expect(refused.find(([id]) => id === 'trails')![1]).toEqual({ nodeId: 'n', message: 'Trails reads a texture or a GLSL-only helper, which a C++ unit has nothing for' })
+    expect(refused.find(([id]) => id === 'trails')![1]).toEqual({
+      nodeId: 'n',
+      message: 'Trails reads a texture or a GLSL-only helper, which a C++ unit has nothing for',
+    })
   })
 })

@@ -85,11 +85,18 @@ export interface MidiKnob {
  * every knob bound to it across the knob's range. `knobs` is read after the bind, so the knob just bound moves at once.
  * Returns the unsubscribe function.
  */
-export function bindKnobs(midi: Pick<MidiService, 'onMessage'>, { knobs, learning, set }: {
-  knobs: () => readonly MidiKnob[]
-  learning: Ref<string | null>
-  set: (id: string, patch: { cc: number } | { value: number }) => void
-}): () => void {
+export function bindKnobs(
+  midi: Pick<MidiService, 'onMessage'>,
+  {
+    knobs,
+    learning,
+    set,
+  }: {
+    knobs: () => readonly MidiKnob[]
+    learning: Ref<string | null>
+    set: (id: string, patch: { cc: number } | { value: number }) => void
+  },
+): () => void {
   return midi.onMessage((message) => {
     if (message.kind !== 'cc') return
     if (learning.value) {

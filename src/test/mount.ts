@@ -10,5 +10,12 @@ export function mountField<T>(component: Component, initial: T, props: Record<st
   document.body.append(root)
   const app = createApp({ render: () => h(component, { ...props, modelValue: value.value, 'onUpdate:modelValue': (next: T) => (value.value = next) }) })
   app.mount(root)
-  return { value, root, unmount: () => { app.unmount(); root.remove() } }
+  return {
+    value,
+    root,
+    unmount: () => {
+      app.unmount()
+      root.remove()
+    },
+  }
 }

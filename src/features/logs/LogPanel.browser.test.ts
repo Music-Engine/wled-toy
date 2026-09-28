@@ -20,7 +20,8 @@ afterEach(() => {
 // the stylesheet is not loaded here, so the test gives the list the box the dock gives it: a fixed height that scrolls
 function mount() {
   const root = document.createElement('div')
-  root.innerHTML = '<style>.log-panel { display: block; height: 100px; overflow-y: auto; margin: 0; padding: 0 } .log-panel li { display: block; min-height: 20px; line-height: 20px; white-space: pre-wrap }</style>'
+  root.innerHTML =
+    '<style>.log-panel { display: block; height: 100px; overflow-y: auto; margin: 0; padding: 0 } .log-panel li { display: block; min-height: 20px; line-height: 20px; white-space: pre-wrap }</style>'
   const holder = document.createElement('div')
   root.append(holder)
   document.body.append(root)
@@ -28,7 +29,10 @@ function mount() {
   // Nuxt UI is not installed here: UContextMenu renders as an unknown element that still shows its default slot
   app.config.warnHandler = () => undefined
   app.mount(holder)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   selectTab('log')
   return { root, list: dockHost('log').querySelector<HTMLElement>('.log-panel')! }
 }
@@ -137,6 +141,9 @@ it('shows the level as text color only, with no header, card or icon, and the ro
   await nextTick()
   const host = dockHost('log')
   expect(host.querySelector('header, h2, ubadge, uicon, svg, [class*="i-lucide"], [class*="rounded"]')).toBeNull()
-  expect([...list.querySelectorAll('li[data-level] span')].map((el) => [...el.classList].filter((c) => /^text-(warning|error)$/.test(c)))).toEqual([['text-warning'], ['text-error']])
+  expect([...list.querySelectorAll('li[data-level] span')].map((el) => [...el.classList].filter((c) => /^text-(warning|error)$/.test(c)))).toEqual([
+    ['text-warning'],
+    ['text-error'],
+  ])
   expect(list.classList.contains('select-text')).toBe(true)
 })

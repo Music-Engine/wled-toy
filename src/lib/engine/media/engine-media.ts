@@ -19,13 +19,21 @@ export class EngineMedia {
   // library ids per layer of the renderer's image array, as last uploaded
   private imageLayers: string[] = []
 
-  constructor(private readonly audio: AudioService, private readonly images: ImageLibrary, private readonly renderer: () => ShaderRenderer | null) {}
+  constructor(
+    private readonly audio: AudioService,
+    private readonly images: ImageLibrary,
+    private readonly renderer: () => ShaderRenderer | null,
+  ) {}
 
   /** Shows the built-in image, then the user's own song and image from an earlier visit, when there are any. */
   restore() {
     this.showImage('/assets/image.jpg')
-    void loadMedia('image').then((stored) => stored && this.useImage(stored, false)).catch((cause) => report(new EngineError('media-store', 'Your image from the last visit could not be loaded', cause)))
-    void loadMedia('song').then((stored) => stored && this.useSong(stored, false)).catch((cause) => report(new EngineError('media-store', 'Your song from the last visit could not be loaded', cause)))
+    void loadMedia('image')
+      .then((stored) => stored && this.useImage(stored, false))
+      .catch((cause) => report(new EngineError('media-store', 'Your image from the last visit could not be loaded', cause)))
+    void loadMedia('song')
+      .then((stored) => stored && this.useSong(stored, false))
+      .catch((cause) => report(new EngineError('media-store', 'Your song from the last visit could not be loaded', cause)))
   }
 
   /** Uses this picture as the image texture and remembers it for the next visit; null restores the built-in one. */
@@ -48,7 +56,10 @@ export class EngineMedia {
       await this.audio.setFile(file)
       await this.remember('song', file)
       const playing = this.audio.state.playing && this.audio.state.settings.source === 'file'
-      this.trackStatus.value = { level: 'info', message: `${file.name} (${Format.duration(check.seconds)}) is the default track now and at every launch. ${playing ? 'It is playing.' : 'It starts when you press Play.'}` }
+      this.trackStatus.value = {
+        level: 'info',
+        message: `${file.name} (${Format.duration(check.seconds)}) is the default track now and at every launch. ${playing ? 'It is playing.' : 'It starts when you press Play.'}`,
+      }
       return true
     }
     await this.audio.setFile(file)

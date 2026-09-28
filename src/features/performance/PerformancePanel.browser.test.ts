@@ -7,19 +7,34 @@ let unmount: (() => void) | undefined
 afterEach(() => unmount?.())
 
 const healthy = (): BridgeStats => ({
-  renderFps: 60, sendFps: 29.8, framesSent: 18204, framesDropped: 0, kbps: 212,
-  ledRenderMs: 0.42, rttMs: 3.1, udpMs: 0.08, deviceMs: 84, deviceFps: 30,
-  status: 'connected', device: null,
+  renderFps: 60,
+  sendFps: 29.8,
+  framesSent: 18204,
+  framesDropped: 0,
+  kbps: 212,
+  ledRenderMs: 0.42,
+  rttMs: 3.1,
+  udpMs: 0.08,
+  deviceMs: 84,
+  deviceFps: 30,
+  status: 'connected',
+  device: null,
 })
 
 function mount(stats: BridgeStats, streaming = true) {
-  const history = Object.fromEntries(['renderFps', 'sendFps', 'kbps', 'ledRenderMs', 'rttMs', 'udpMs', 'deviceMs'].map((key) => [key, [1, 3, 2]])) as Record<HistoryKey, number[]>
+  const history = Object.fromEntries(['renderFps', 'sendFps', 'kbps', 'ledRenderMs', 'rttMs', 'udpMs', 'deviceMs'].map((key) => [key, [1, 3, 2]])) as Record<
+    HistoryKey,
+    number[]
+  >
   const props = reactive({ stats, history, targetFps: 30, streaming })
   const root = document.createElement('div')
   document.body.append(root)
   const app = createApp({ render: () => h(PerformancePanel, props) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   const value = (metric: string) => root.querySelector<HTMLElement>(`[data-metric="${metric}"] .metric-value`)!
   return { root, props, value }
 }
@@ -38,7 +53,15 @@ it('is one table of rows in three groups, with frames sent and dropped as rows a
   expect([...root.querySelectorAll('tr')].every((row) => row.classList.contains('h-(--app-row-dense-h)'))).toBe(true)
   expect(root.querySelector('ubadge, uicon, [class*="i-lucide"], [class*="rounded"], [class*="uppercase"]')).toBeNull()
   // a sparkline for every metric with a history, and only for those
-  expect([...root.querySelectorAll('tr:has(svg)')].map((row) => row.getAttribute('data-metric'))).toEqual(['renderFps', 'ledRenderMs', 'sendFps', 'kbps', 'rttMs', 'udpMs', 'deviceMs'])
+  expect([...root.querySelectorAll('tr:has(svg)')].map((row) => row.getAttribute('data-metric'))).toEqual([
+    'renderFps',
+    'ledRenderMs',
+    'sendFps',
+    'kbps',
+    'rttMs',
+    'udpMs',
+    'deviceMs',
+  ])
   expect(root.querySelector('[data-metric="sendFps"]')!.textContent).toContain('29.8')
   expect(root.querySelector('[data-metric="sendFps"]')!.textContent).toContain('/ 30 fps')
   expect(root.querySelector('[data-metric="framesSent"] .metric-value')!.textContent).toBe((18204).toLocaleString())
@@ -65,7 +88,12 @@ it('a crossed threshold colors the value text and nothing else in the row', asyn
   props.stats.renderFps = 30
   props.stats.ledRenderMs = (1000 / 30) * 0.7
   await nextTick()
-  expect(['rttMs', 'framesDropped', 'renderFps', 'ledRenderMs'].map((metric) => value(metric).getAttribute('data-status'))).toEqual(['ok', 'warning', 'warning', 'error'])
+  expect(['rttMs', 'framesDropped', 'renderFps', 'ledRenderMs'].map((metric) => value(metric).getAttribute('data-status'))).toEqual([
+    'ok',
+    'warning',
+    'warning',
+    'error',
+  ])
 })
 
 it('a slow send rate is a warning only while streaming, and a value that is not known yet shows a dash', async () => {

@@ -20,7 +20,9 @@ export function computeStats(run: Run, notes: string[], stripLeds: number, matri
       meanBrightness: roundToMillis(computeMean(strip.brightness)),
       minBrightness: roundToMillis(Math.min(...strip.brightness)),
       maxBrightness: roundToMillis(Math.max(...strip.brightness)),
-      meanBrightnessBySection: Object.fromEntries(['groove', 'breakdown', 'drop'].map((name) => [name, roundToMillis(computeMean(strip.brightness.filter((_, i) => findSection(times[i]) === name)))])),
+      meanBrightnessBySection: Object.fromEntries(
+        ['groove', 'breakdown', 'drop'].map((name) => [name, roundToMillis(computeMean(strip.brightness.filter((_, i) => findSection(times[i]) === name)))]),
+      ),
       meanFrameDelta: roundToMillis(computeMean(strip.delta)),
       blackLedFraction: roundToMillis(strip.blackFraction),
       whiteLedFraction: roundToMillis(strip.whiteFraction),
@@ -53,7 +55,7 @@ function summarizeFrames(frames: Float32Array[]) {
       if (Math.min(leds[i], leds[i + 1], leds[i + 2]) > 0.98) white++
     }
   }
-  const ledSamples = frames.length * frames[0].length / 3
+  const ledSamples = (frames.length * frames[0].length) / 3
   return { brightness, delta, blackFraction: black / ledSamples, whiteFraction: white / ledSamples }
 }
 

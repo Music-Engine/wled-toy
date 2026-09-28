@@ -31,7 +31,13 @@ export function synthesizeTrack(seconds = SECONDS): Float32Array {
 }
 
 // Am, C, Em, Dm (breakdown), Am (drop)
-const CHORDS = [[220, 261.63, 329.63], [261.63, 329.63, 392], [329.63, 392, 493.88], [293.66, 349.23, 440], [220, 261.63, 329.63]]
+const CHORDS = [
+  [220, 261.63, 329.63],
+  [261.63, 329.63, 392],
+  [329.63, 392, 493.88],
+  [293.66, 349.23, 440],
+  [220, 261.63, 329.63],
+]
 
 function mixSample(t: number, noise: number, hiss: number): number {
   const playTone = (hz: number, at: number) => Math.sin(2 * Math.PI * hz * at)
@@ -62,7 +68,7 @@ export interface Slot {
 /** As AudioService opens them: slot 0 default analysis, FFT nodes add slots, Audio Source sets gain and gate */
 export function openSlots(program: { resources: Record<string, unknown[]> }, sampleRate = SAMPLE_RATE): Slot[] {
   const [source = DEFAULT_AUDIO] = (program.resources.audioSource ?? []) as AudioSourceRequest[]
-  return [DEFAULT_ANALYSIS, ...(program.resources.analysis ?? []) as AnalysisSettings[]].slice(0, MAX_ANALYSES).map((wanted) => {
+  return [DEFAULT_ANALYSIS, ...((program.resources.analysis ?? []) as AnalysisSettings[])].slice(0, MAX_ANALYSES).map((wanted) => {
     const settings = { ...wanted, bands: Math.max(12, Math.round(wanted.bands)), hop: Math.min(wanted.hop, wanted.windowSize) }
     return {
       hop: settings.hop,

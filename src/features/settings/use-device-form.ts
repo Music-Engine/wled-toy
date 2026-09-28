@@ -2,7 +2,18 @@ import { computed, reactive, ref, watch } from 'vue'
 import { activeDevice, addDevice, devices, duplicateDevice, removeDevice, updateDevice, type SavedDevice } from '@/lib/app/settings/devices'
 import { useEngine } from '@/lib/engine/engine'
 import { EngineError } from '@/lib/engine/engine-error'
-import { layoutCount, layoutKind, layoutSummary, onlySegment, parseLayout, parseLayoutJson, presetLayout, type Layout, type LayoutKind, type Segment } from '@/lib/engine/output/layout'
+import {
+  layoutCount,
+  layoutKind,
+  layoutSummary,
+  onlySegment,
+  parseLayout,
+  parseLayoutJson,
+  presetLayout,
+  type Layout,
+  type LayoutKind,
+  type Segment,
+} from '@/lib/engine/output/layout'
 
 /** The device the settings form edits, its inline field errors, and the connection line of the active device. */
 export function useDeviceForm() {
@@ -22,10 +33,14 @@ export function useDeviceForm() {
   const matrix = computed(() => (only.value?.kind === 'matrix' ? only.value : null))
   const summary = computed(() => layoutSummary(device.value.layout))
 
-  watch(() => device.value.id, () => {
-    for (const key of Object.keys(errors)) errors[key] = null
-    customOpen.value = false
-  }, { flush: 'sync' })
+  watch(
+    () => device.value.id,
+    () => {
+      for (const key of Object.keys(errors)) errors[key] = null
+      customOpen.value = false
+    },
+    { flush: 'sync' },
+  )
 
   const patch = (fields: Partial<Omit<SavedDevice, 'id'>>) => updateDevice(device.value.id, fields)
 
@@ -81,13 +96,40 @@ export function useDeviceForm() {
   }
 
   const connection = computed(() => {
-    if (stats.status !== 'connected') return { dot: 'bg-error', text: stats.status === 'connecting' ? 'Connecting to the bridge...' : 'The bridge is offline, so frames cannot reach any device.' }
+    if (stats.status !== 'connected')
+      return {
+        dot: 'bg-error',
+        text: stats.status === 'connecting' ? 'Connecting to the bridge...' : 'The bridge is offline, so frames cannot reach any device.',
+      }
     if (!device.value.host) return { dot: 'bg-warning', text: 'No host set. Frames are rendered but not sent.' }
-    if (!stats.device) return { dot: 'bg-(--ui-text-dimmed)', text: `No reply from ${device.value.host} yet. Art-Net and sACN receivers other than WLED never reply.` }
+    if (!stats.device)
+      return { dot: 'bg-(--ui-text-dimmed)', text: `No reply from ${device.value.host} yet. Art-Net and sACN receivers other than WLED never reply.` }
     const ping = stats.deviceMs == null ? '' : ` in ${Math.round(stats.deviceMs)} ms`
     return { dot: 'bg-success', text: `${stats.device.name} ${stats.device.version} answered${ping} and reports ${stats.device.ledCount} LEDs.` }
   })
-  const reportedCount = computed(() => (isActive.value && stats.device && !device.value.layout && stats.device.ledCount !== device.value.ledCount ? stats.device.ledCount : null))
+  const reportedCount = computed(() =>
+    isActive.value && stats.device && !device.value.layout && stats.device.ledCount !== device.value.ledCount ? stats.device.ledCount : null,
+  )
 
-  return { selectedId, device, isActive, errors, customJson, layoutKind: kind, layoutSummary: summary, ring, matrix, patch, setKind, setSegment, setLedCount, commitCustom, add, duplicate, remove, connection, reportedCount }
+  return {
+    selectedId,
+    device,
+    isActive,
+    errors,
+    customJson,
+    layoutKind: kind,
+    layoutSummary: summary,
+    ring,
+    matrix,
+    patch,
+    setKind,
+    setSegment,
+    setLedCount,
+    commitCustom,
+    add,
+    duplicate,
+    remove,
+    connection,
+    reportedCount,
+  }
 }

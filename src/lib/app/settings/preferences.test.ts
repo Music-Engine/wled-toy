@@ -5,8 +5,12 @@ function fakeLocalStorage(initial: Record<string, string> = {}) {
   const store = new Map(Object.entries(initial))
   return {
     getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => { store.set(key, value) },
-    removeItem: (key: string) => { store.delete(key) },
+    setItem: (key: string, value: string) => {
+      store.set(key, value)
+    },
+    removeItem: (key: string) => {
+      store.delete(key)
+    },
   }
 }
 
@@ -27,12 +31,28 @@ describe('sanitizePreferences', () => {
   it('keeps each valid field and replaces each invalid one on its own', async () => {
     const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
     const out = sanitizePreferences({
-      launchMode: 'graph', lastMode: 'reference', autosave: 'yes', autosaveSeconds: 30, confirmClose: false,
-      logLines: '500', previewFps: 24, previewHeight: 180, density: 'huge', editorFontSize: 16, reduceMotion: true, unknown: 1,
+      launchMode: 'graph',
+      lastMode: 'reference',
+      autosave: 'yes',
+      autosaveSeconds: 30,
+      confirmClose: false,
+      logLines: '500',
+      previewFps: 24,
+      previewHeight: 180,
+      density: 'huge',
+      editorFontSize: 16,
+      reduceMotion: true,
+      unknown: 1,
     })
     expect(out).toEqual({
       ...PREFERENCE_DEFAULTS,
-      launchMode: 'graph', autosaveSeconds: 30, confirmClose: false, previewFps: 24, previewHeight: 180, editorFontSize: 16, reduceMotion: true,
+      launchMode: 'graph',
+      autosaveSeconds: 30,
+      confirmClose: false,
+      previewFps: 24,
+      previewHeight: 180,
+      editorFontSize: 16,
+      reduceMotion: true,
     })
     expect(out).not.toHaveProperty('unknown')
   })
@@ -52,10 +72,18 @@ describe('sanitizePreferences', () => {
 
   it('rounds and clamps numbers into their ranges and rejects non-finite ones', async () => {
     const { sanitizePreferences, PREFERENCE_DEFAULTS } = await load()
-    expect(sanitizePreferences({ autosaveSeconds: 0, logLines: 1e9, previewFps: -5, editorFontSize: 13.6 })).toMatchObject({ autosaveSeconds: 1, logLines: 10000, previewFps: 0, editorFontSize: 14 })
+    expect(sanitizePreferences({ autosaveSeconds: 0, logLines: 1e9, previewFps: -5, editorFontSize: 13.6 })).toMatchObject({
+      autosaveSeconds: 1,
+      logLines: 10000,
+      previewFps: 0,
+      editorFontSize: 14,
+    })
     expect(sanitizePreferences({ editorFontSize: 99 }).editorFontSize).toBe(24)
     expect([-1, 1e6, NaN].map((previewHeight) => sanitizePreferences({ previewHeight }).previewHeight)).toEqual([0, 4320, PREFERENCE_DEFAULTS.previewHeight])
-    expect(sanitizePreferences({ logLines: NaN, previewFps: Infinity })).toMatchObject({ logLines: PREFERENCE_DEFAULTS.logLines, previewFps: PREFERENCE_DEFAULTS.previewFps })
+    expect(sanitizePreferences({ logLines: NaN, previewFps: Infinity })).toMatchObject({
+      logLines: PREFERENCE_DEFAULTS.logLines,
+      previewFps: PREFERENCE_DEFAULTS.previewFps,
+    })
   })
 })
 

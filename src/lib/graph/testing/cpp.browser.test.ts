@@ -15,8 +15,12 @@ describe.skipIf(!compiler)('the usermod unit against WebGL (needs g++ or c++ on 
     const cpp = await commands.runUsermod(program!.code, { leds, frames })
     const webgl = tickGraph(doc, { leds, frames })
     expect(cpp).toHaveLength(frames)
-    cpp.forEach((rendered, frame) => rendered.forEach((led, i) => led.forEach((channel, c) => {
-      expect(Math.abs(channel - webgl[frame][i][c]), `frame ${frame} LED ${i} channel ${c}`).toBeLessThanOrEqual(1)
-    })))
+    cpp.forEach((rendered, frame) =>
+      rendered.forEach((led, i) =>
+        led.forEach((channel, c) => {
+          expect(Math.abs(channel - webgl[frame][i][c]), `frame ${frame} LED ${i} channel ${c}`).toBeLessThanOrEqual(1)
+        }),
+      ),
+    )
   }, 60_000)
 })

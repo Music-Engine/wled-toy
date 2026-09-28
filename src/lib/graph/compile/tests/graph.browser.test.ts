@@ -16,7 +16,11 @@ describe('default graph', () => {
 describe('constants reach the LEDs', () => {
   it('Color -> Output', () => {
     const [leds] = tickGraph(graph([node('c', 'color', { color: [1, 0.5, 0] }), node('o', 'output')], [['c.color', 'o.color']]), { leds: 3 })
-    expect(leds).toEqual([[255, 128, 0], [255, 128, 0], [255, 128, 0]])
+    expect(leds).toEqual([
+      [255, 128, 0],
+      [255, 128, 0],
+      [255, 128, 0],
+    ])
   })
 
   it('UV.x -> Output spreads a float across all channels along the strip', () => {
@@ -27,7 +31,9 @@ describe('constants reach the LEDs', () => {
 })
 
 describe('every node in the menu', () => {
-  const items = flattenFs(GRAPH_FS.items).map((row) => row.node).filter((item) => !item.base.isOutput)
+  const items = flattenFs(GRAPH_FS.items)
+    .map((row) => row.node)
+    .filter((item) => !item.base.isOutput)
 
   it.each(items.map((item) => [item.id, item] as const))('%s compiles, twice in one graph', (_, item) => {
     const out = item.base.outputs[0]
@@ -50,7 +56,15 @@ describe('every node in the menu', () => {
 
 describe('links the editor would refuse', () => {
   it('a vector into a sampler socket is a graph error, not a GLSL error', () => {
-    const { program, issues } = createGlslCompiler().compile(graph([node('c', 'color'), node('t', 'texture'), node('o', 'output')], [['c.color', 't.texture'], ['t.out', 'o.color']]))
+    const { program, issues } = createGlslCompiler().compile(
+      graph(
+        [node('c', 'color'), node('t', 'texture'), node('o', 'output')],
+        [
+          ['c.color', 't.texture'],
+          ['t.out', 'o.color'],
+        ],
+      ),
+    )
     expect(program).toBeNull()
     expect(issues.at(-1)).toMatchObject({ nodeId: 't', message: expect.stringMatching(/Cannot cast vec3 to sampler2D/) })
   })

@@ -1,4 +1,9 @@
-export function createTexture(gl: WebGL2RenderingContext, unit: number, wrap: number = WebGL2RenderingContext.CLAMP_TO_EDGE, filter: number = WebGL2RenderingContext.LINEAR): WebGLTexture {
+export function createTexture(
+  gl: WebGL2RenderingContext,
+  unit: number,
+  wrap: number = WebGL2RenderingContext.CLAMP_TO_EDGE,
+  filter: number = WebGL2RenderingContext.LINEAR,
+): WebGLTexture {
   const texture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE0 + unit)
   gl.bindTexture(gl.TEXTURE_2D, texture)

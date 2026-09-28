@@ -19,7 +19,9 @@ function fakeDisk(files: Record<string, string>) {
   const dialog = { pick: null as string | null }
   const backend: Required<FileBackend> = {
     open: async () => (dialog.pick === null ? null : { handle: { name: dialog.pick }, text: files[dialog.pick] }),
-    save: async (handle, text) => { files[handle.name] = text },
+    save: async (handle, text) => {
+      files[handle.name] = text
+    },
     saveAs: async (text, suggestedName) => {
       files[suggestedName] = text
       return { handle: { name: suggestedName }, text }
@@ -42,7 +44,10 @@ function mount(backend: FileBackend) {
   // Nuxt UI and the router are not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
 }
 
 const clearStored = () => ['wledtoy:graph:recent', 'wledtoy:graph:recovery'].forEach((key) => localStorage.removeItem(key))
@@ -154,10 +159,12 @@ it('rejects a file of another version: logged, and the editor keeps its graph an
 
   await openFile(disk, 'old.wledgraph')
   // the engine logs on its own schedule, so the entry is looked up rather than expected last
-  await expect.poll(() => logs.value.find((entry) => entry.message.startsWith('Open failed'))).toMatchObject({
-    level: 'error',
-    message: 'Open failed: This graph was saved by an older version (2); this app reads version 3.',
-  })
+  await expect
+    .poll(() => logs.value.find((entry) => entry.message.startsWith('Open failed')))
+    .toMatchObject({
+      level: 'error',
+      message: 'Open failed: This graph was saved by an older version (2); this app reads version 3.',
+    })
   expect(nodeCount()).toBe(defaultNodes)
   expect(titleBarText()).toBe('Untitled')
   expect(recentIds()).toEqual(['file.recent.none'])

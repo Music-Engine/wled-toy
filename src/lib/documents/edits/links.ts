@@ -30,7 +30,9 @@ export function dissolveLinks(edges: readonly LinkEnds[], dissolved: ReadonlySet
     const order = readStoredShape(dataOf(id))?.inputs.map((s) => s.name) ?? []
     const incoming = edges.filter((e) => e.target === id).sort((a, b) => order.indexOf(a.targetHandle!) - order.indexOf(b.targetHandle!))
     for (const e of incoming) {
-      const link = dissolved.has(e.source) ? feed(e.source, into, seen) : { source: e.source, sourceHandle: e.sourceHandle, target: into.target, targetHandle: into.targetHandle }
+      const link = dissolved.has(e.source)
+        ? feed(e.source, into, seen)
+        : { source: e.source, sourceHandle: e.sourceHandle, target: into.target, targetHandle: into.targetHandle }
       if (link && canConnect(link, dataOf)) return link
     }
     return undefined

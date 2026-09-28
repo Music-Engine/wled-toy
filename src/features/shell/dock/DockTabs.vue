@@ -11,7 +11,12 @@ const hideItems = computed(() => contextMenuItems([[props.dock === 'right' ? 'vi
 
 function tabMenu(id: TabId) {
   return [
-    [{ label: props.dock === 'right' ? 'Move to bottom panel' : 'Move to side panel', onSelect: () => moveTab(id, props.dock === 'right' ? 'bottom' : 'right') }],
+    [
+      {
+        label: props.dock === 'right' ? 'Move to bottom panel' : 'Move to side panel',
+        onSelect: () => moveTab(id, props.dock === 'right' ? 'bottom' : 'right'),
+      },
+    ],
     ...hideItems.value,
   ]
 }

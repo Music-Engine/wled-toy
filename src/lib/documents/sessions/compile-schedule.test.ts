@@ -61,7 +61,7 @@ describe('applying the program', () => {
     expect(open.target.load.mock.calls[1][0].output).toMatchObject({ gamma: 1.8 })
   })
 
-  it('compiles against the running program\'s slot table and loads the table it got back', async () => {
+  it("compiles against the running program's slot table and loads the table it got back", async () => {
     open = setupSession()
     const running = createSlotTable()
     open.target.readSlots.mockReturnValue(running)

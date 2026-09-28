@@ -148,7 +148,19 @@ describe('keeping the menu current', () => {
 
   it('puts the check mark back where the command says after the system flipped it on a click', async () => {
     const picked = reactive({ value: 'a' })
-    cleanups.push(registerCommands(['a', 'b'].map((value) => ({ id: `test.pick.${value}`, title: value, menu: ['View'], checked: () => picked.value === value, run: () => { picked.value = value } }))))
+    cleanups.push(
+      registerCommands(
+        ['a', 'b'].map((value) => ({
+          id: `test.pick.${value}`,
+          title: value,
+          menu: ['View'],
+          checked: () => picked.value === value,
+          run: () => {
+            picked.value = value
+          },
+        })),
+      ),
+    )
     const fake = fakeMenuApi()
     const menu = createNativeMenu(fake.api)
     await menu.sync()
@@ -182,7 +194,11 @@ describe('installNativeMenu', () => {
   })
 
   it('leaves Windows, Linux and the browser with the menubar the window draws', async () => {
-    for (const [tauri, platform] of [[true, 'Win32'], [true, 'Linux x86_64'], [false, 'MacIntel']] as const) {
+    for (const [tauri, platform] of [
+      [true, 'Win32'],
+      [true, 'Linux x86_64'],
+      [false, 'MacIntel'],
+    ] as const) {
       setTauri(tauri)
       setPlatform(platform)
       const loadApi = vi.fn(async () => fakeMenuApi().api)

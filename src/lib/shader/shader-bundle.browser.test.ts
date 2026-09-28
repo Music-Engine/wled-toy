@@ -29,7 +29,10 @@ function runStandalone(fragment: string, size = 4): Uint8Array {
 
 function linkStandalone(gl: WebGL2RenderingContext, fragment: string): WebGLProgram {
   const program = gl.createProgram()
-  for (const [type, source] of [[gl.VERTEX_SHADER, '#version 300 es\nin vec2 p;\nvoid main() { gl_Position = vec4(p, 0.0, 1.0); }'], [gl.FRAGMENT_SHADER, fragment]] as const) {
+  for (const [type, source] of [
+    [gl.VERTEX_SHADER, '#version 300 es\nin vec2 p;\nvoid main() { gl_Position = vec4(p, 0.0, 1.0); }'],
+    [gl.FRAGMENT_SHADER, fragment],
+  ] as const) {
     const shader = gl.createShader(type)!
     gl.shaderSource(shader, source)
     gl.compileShader(shader)
@@ -91,7 +94,14 @@ it.each(EXAMPLES.map((example) => [example.name, example.code]))('the example "%
 })
 
 it('a shader that reaches every helper and every uniform of the prelude still compiles', () => {
-  const toLiteral = (value: Param['default']) => (value === undefined ? 'vec3(0.5)' : typeof value === 'number' ? value.toFixed(2) : Array.isArray(value) ? `vec${value.length}(${value.map((v) => v.toFixed(2)).join(', ')})` : value)
+  const toLiteral = (value: Param['default']) =>
+    value === undefined
+      ? 'vec3(0.5)'
+      : typeof value === 'number'
+        ? value.toFixed(2)
+        : Array.isArray(value)
+          ? `vec${value.length}(${value.map((v) => v.toFixed(2)).join(', ')})`
+          : value
   const documented = NODES.filter((node) => node.kind === 'function' && node.category !== 'builtin')
   const source = [
     'void mainImage(out vec4 c, vec2 uv, float ledIndex) {',

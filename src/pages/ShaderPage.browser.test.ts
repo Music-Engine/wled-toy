@@ -28,7 +28,9 @@ function fakeDisk(files: Record<string, string>) {
       state.opened.push(args)
       return state.pick === null ? null : { handle: { name: state.pick }, text: files[state.pick] }
     },
-    save: async (handle, text) => { files[handle.name] = text },
+    save: async (handle, text) => {
+      files[handle.name] = text
+    },
     saveAs: async (text, suggestedName) => {
       files[suggestedName] = text
       return { handle: { name: suggestedName }, text }
@@ -48,7 +50,11 @@ function mount(backend: FileBackend = fakeDisk({}).backend) {
   app.config.warnHandler = () => undefined
   app.mount(root)
   const removeKeys = installKeyDispatcher()
-  unmount = () => { removeKeys(); app.unmount(); root.remove() }
+  unmount = () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
   return root
 }
 
@@ -56,7 +62,14 @@ const titleBarText = () => document.querySelector('.document-name')?.textContent
 
 function press(target: EventTarget, key: string, init: KeyboardEventInit = {}) {
   // CodeMirror resolves a shifted letter through the legacy key code
-  const event = new KeyboardEvent('keydown', { key, keyCode: key.toUpperCase().charCodeAt(0), bubbles: true, cancelable: true, ...(isMac() ? { metaKey: true } : { ctrlKey: true }), ...init } as KeyboardEventInit)
+  const event = new KeyboardEvent('keydown', {
+    key,
+    keyCode: key.toUpperCase().charCodeAt(0),
+    bubbles: true,
+    cancelable: true,
+    ...(isMac() ? { metaKey: true } : { ctrlKey: true }),
+    ...init,
+  } as KeyboardEventInit)
   target.dispatchEvent(event)
   return event
 }
@@ -151,7 +164,12 @@ it('Cmd+A selects all in the editor, and Cmd+Shift+A opens the function menu', a
 })
 
 it('clicking a shader problem puts the editor cursor on its line', async () => {
-  const lines = ['void mainImage(out vec4 c, vec2 uv, float ledIndex) {', ...Array.from({ length: 40 }, (_, i) => `  float v${i} = ${i}.0;`), '  c = vec4(missing, 0.0, 0.0, 1.0);', '}']
+  const lines = [
+    'void mainImage(out vec4 c, vec2 uv, float ledIndex) {',
+    ...Array.from({ length: 40 }, (_, i) => `  float v${i} = ${i}.0;`),
+    '  c = vec4(missing, 0.0, 0.0, 1.0);',
+    '}',
+  ]
   config.code = lines.join('\n')
   const root = mount()
 

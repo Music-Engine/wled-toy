@@ -26,7 +26,12 @@ interface ItemOptions {
 /** The part of `@tauri-apps/api/menu` the menu is built with; tests pass a fake. */
 export interface MenuApi {
   Menu: { 'new'(options?: { items?: unknown[] }): Promise<Resource & { setAsAppMenu(): Promise<Resource | null> }> }
-  Submenu: { 'new'(options: { text: string; items?: unknown[] }): Promise<Resource & { setAsWindowsMenuForNSApp(): Promise<void>; setAsHelpMenuForNSApp(): Promise<void> }> }
+  Submenu: {
+    'new'(options: {
+      text: string
+      items?: unknown[]
+    }): Promise<Resource & { setAsWindowsMenuForNSApp(): Promise<void>; setAsHelpMenuForNSApp(): Promise<void> }>
+  }
   MenuItem: { 'new'(options: ItemOptions): Promise<ItemHandle> }
   CheckMenuItem: { 'new'(options: ItemOptions & { checked: boolean }): Promise<ItemHandle & { setChecked(checked: boolean): Promise<void> }> }
   PredefinedMenuItem: { 'new'(options: { item: Predefined }): Promise<Resource> }
@@ -39,10 +44,13 @@ export async function installNativeMenu(load: () => Promise<MenuApi> = () => imp
   await menu.sync()
   markNativeMenuInstalled()
   let timer: ReturnType<typeof setTimeout> | undefined
-  watch(() => JSON.stringify(nativeMenuModel()), () => {
-    clearTimeout(timer)
-    timer = setTimeout(() => menu.sync().catch(menu.report), 50)
-  })
+  watch(
+    () => JSON.stringify(nativeMenuModel()),
+    () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => menu.sync().catch(menu.report), 50)
+    },
+  )
 }
 
 export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = runNativeItem) {
@@ -111,14 +119,16 @@ export function createNativeMenu(api: MenuApi, run: (id: string) => unknown = ru
   /** Brings the system menu in line with the registry: item state is patched in place, anything else rebuilds the menu. */
   function sync(): Promise<void> {
     // whoever awaited the previous sync reported its failure; dropping it here keeps one failure from stopping every later sync
-    queue = queue.catch(() => undefined).then(async () => {
-      const model = nativeMenuModel()
-      const next = JSON.stringify(structureOf(model))
-      if (next === structure) return patch(model)
-      const old = await build(model)
-      structure = next
-      await Promise.all(old.map((resource) => resource.close()))
-    })
+    queue = queue
+      .catch(() => undefined)
+      .then(async () => {
+        const model = nativeMenuModel()
+        const next = JSON.stringify(structureOf(model))
+        if (next === structure) return patch(model)
+        const old = await build(model)
+        structure = next
+        await Promise.all(old.map((resource) => resource.close()))
+      })
     return queue
   }
 
@@ -144,12 +154,16 @@ function runHistoryItem(step: 'undo' | 'redo') {
   const focused = document.activeElement
   // CodeMirror keeps its own history; the browser's would not know its edits
   if (focused?.closest('.cm-editor')) return runCommand(`shader.${step}`)
-  if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement || focused?.closest('[contenteditable="true"]')) return document.execCommand(step)
+  if (focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement || focused?.closest('[contenteditable="true"]'))
+    return document.execCommand(step)
   return workspace.mode === 'graph' && runCommand(`graph.${step}`)
 }
 
-const itemsOf = (nodes: NativeNode[]): NativeItem[] => nodes.flatMap((node) => (node.type === 'item' ? [node] : node.type === 'submenu' ? itemsOf(node.items) : []))
+const itemsOf = (nodes: NativeNode[]): NativeItem[] =>
+  nodes.flatMap((node) => (node.type === 'item' ? [node] : node.type === 'submenu' ? itemsOf(node.items) : []))
 
 // what cannot be patched: which items exist, where, of which kind and on which key
-const structureOf = (nodes: NativeNode[]): unknown[] => nodes.map((node) =>
-  (node.type === 'item' ? [node.id, node.accelerator, node.checked !== undefined] : node.type === 'submenu' ? [node.text, structureOf(node.items)] : node.item))
+const structureOf = (nodes: NativeNode[]): unknown[] =>
+  nodes.map((node) =>
+    node.type === 'item' ? [node.id, node.accelerator, node.checked !== undefined] : node.type === 'submenu' ? [node.text, structureOf(node.items)] : node.item,
+  )

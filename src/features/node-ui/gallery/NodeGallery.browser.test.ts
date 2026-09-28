@@ -23,7 +23,10 @@ beforeAll(async () => {
   document.body.append(root)
   const app = createApp(NodeGallery)
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   await vi.waitFor(() => expect(root.querySelector('[data-laid-out="true"]')).not.toBeNull(), { timeout: 20000 })
   await document.fonts.ready
   await new Promise((resolve) => setTimeout(resolve, 300))
@@ -78,7 +81,10 @@ describe('each check fails on a broken kit', () => {
     root.append(host)
     const app = createApp({ render: () => h('div', { class: 'nui nui-node' }, h(TextField, { modelValue: 'Screen' })) })
     app.mount(host)
-    unlabelled = () => { app.unmount(); host.remove() }
+    unlabelled = () => {
+      app.unmount()
+      host.remove()
+    }
   })
   afterAll(() => unlabelled())
 
@@ -97,12 +103,17 @@ describe('each check fails on a broken kit', () => {
 })
 
 describe('the enum popup inside a node', () => {
-  const optionsOf = (kind: string, socket: string) => findNodeItem(kind)!.base.inputs.find((s) => s.name === socket)!.type.props!.options as readonly EnumOption[]
+  const optionsOf = (kind: string, socket: string) =>
+    findNodeItem(kind)!.base.inputs.find((s) => s.name === socket)!.type.props!.options as readonly EnumOption[]
   const popup = () => document.querySelector<HTMLElement>('.nui-dropdown-menu')
   // a popup left open by a failed case would be the one the next case finds
   afterEach(() => void document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))
 
-  for (const [kind, socket, pick] of [['math', 'op', 'Arctan2'], ['vectorMath', 'op', 'Cross Product'], ['layerMix', 'mode', 'Overlay']] as const) {
+  for (const [kind, socket, pick] of [
+    ['math', 'op', 'Arctan2'],
+    ['vectorMath', 'op', 'Cross Product'],
+    ['layerMix', 'mode', 'Overlay'],
+  ] as const) {
     it(`${kind}: one column per group, every option reachable, a click sets the value`, async () => {
       const options = optionsOf(kind, socket)
       const button = nodeEl(kind).querySelector<HTMLElement>('.nui-dropdown-button')!
@@ -123,7 +134,10 @@ describe('the enum popup inside a node', () => {
       expect(box.bottom).toBeLessThanOrEqual(window.innerHeight)
       for (const option of menu.querySelectorAll('[role=option]')) {
         const rect = option.getBoundingClientRect()
-        expect(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2), `${option.textContent!.trim()} is not covered or clipped`).toBe(option)
+        expect(
+          document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2),
+          `${option.textContent!.trim()} is not covered or clipped`,
+        ).toBe(option)
       }
 
       await click([...menu.querySelectorAll('[role=option]')].find((el) => el.textContent!.trim() === pick)!)

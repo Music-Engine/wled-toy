@@ -9,7 +9,9 @@ const compiler = await commands.cppCompiler()
 
 // Host's iAudioFeatures for a gated-off analysis w/ these three measures
 const toFeatureRow = ({ level = 0, rms = 0, peak = 0 }) =>
-  Array.from(computeAudioFeatures({ level, rms, peak, gate: false, onset: false, beat: false, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0 } as Features, 48000))
+  Array.from(
+    computeAudioFeatures({ level, rms, peak, gate: false, onset: false, beat: false, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0 } as Features, 48000),
+  )
 
 describe.skipIf(!compiler)('Audio to Signal (needs g++ or c++ on PATH)', () => {
   it('follows the chosen measure with attack and release, one step per frame', async () => {
@@ -31,7 +33,9 @@ describe.skipIf(!compiler)('Audio to Signal (needs g++ or c++ on PATH)', () => {
 
 describe('Audio to Signal in shader mode', () => {
   it('reads the uploaded features and says that the exported shader keeps no memory', () => {
-    const { program, issues } = createGlslCompiler({ standalone: true }).compile(graph([node('s', 'audioSignal'), node('o', 'output')], [['s.signal', 'o.color']]))
+    const { program, issues } = createGlslCompiler({ standalone: true }).compile(
+      graph([node('s', 'audioSignal'), node('o', 'output')], [['s.signal', 'o.color']]),
+    )
     expect(program!.pixel).toContain('iAudioFeatures')
     expect(issues.map((issue) => issue.nodeId)).toEqual(['s'])
     expect(issues[0].message).toContain('keeps no memory')

@@ -13,15 +13,18 @@ interface BackendHarness {
 
 function fileSystemAccessHarness(): BackendHarness {
   let fileText = 'seed content'
-  const fakeHandle = (name: string) => ({
-    kind: 'file',
-    name,
-    getFile: async () => ({ text: async () => fileText }),
-    createWritable: async () => ({
-      write: async (chunk: string) => { fileText = chunk },
-      close: async () => undefined,
-    }),
-  }) as unknown as FileSystemFileHandle
+  const fakeHandle = (name: string) =>
+    ({
+      kind: 'file',
+      name,
+      getFile: async () => ({ text: async () => fileText }),
+      createWritable: async () => ({
+        write: async (chunk: string) => {
+          fileText = chunk
+        },
+        close: async () => undefined,
+      }),
+    }) as unknown as FileSystemFileHandle
 
   vi.stubGlobal('window', {
     showOpenFilePicker: async () => [fakeHandle('seed.test')],
@@ -48,7 +51,10 @@ function downloadHarness(): BackendHarness {
     body: { append: () => undefined },
   })
   vi.stubGlobal('URL', {
-    createObjectURL: (blob: Blob) => { lastBlob = blob; return 'blob:fake' },
+    createObjectURL: (blob: Blob) => {
+      lastBlob = blob
+      return 'blob:fake'
+    },
     revokeObjectURL: () => undefined,
   })
 
@@ -81,8 +87,12 @@ describe.each([
 describe('createFileSystemAccessBackend', () => {
   it('returns null instead of throwing when the user cancels the picker', async () => {
     vi.stubGlobal('window', {
-      showOpenFilePicker: async () => { throw new DOMException('cancelled', 'AbortError') },
-      showSaveFilePicker: async () => { throw new DOMException('cancelled', 'AbortError') },
+      showOpenFilePicker: async () => {
+        throw new DOMException('cancelled', 'AbortError')
+      },
+      showSaveFilePicker: async () => {
+        throw new DOMException('cancelled', 'AbortError')
+      },
     })
     const backend = createFileSystemAccessBackend()
     expect(await backend.open('.test')).toBeNull()
@@ -95,13 +105,21 @@ function fakeTauriFiles(disk: Record<string, string>) {
   const dialogs: Array<{ kind: 'open' | 'save'; defaultPath?: string; filter: FileFilter }> = []
   const state = { pick: null as string | null }
   const files: TauriFiles = {
-    pickOpen: async (filter) => { dialogs.push({ kind: 'open', filter }); return state.pick },
-    pickSave: async (defaultPath, filter) => { dialogs.push({ kind: 'save', defaultPath, filter }); return state.pick },
+    pickOpen: async (filter) => {
+      dialogs.push({ kind: 'open', filter })
+      return state.pick
+    },
+    pickSave: async (defaultPath, filter) => {
+      dialogs.push({ kind: 'save', defaultPath, filter })
+      return state.pick
+    },
     readTextFile: async (path) => {
       if (!(path in disk)) throw new Error(`forbidden path: ${path}`)
       return disk[path]
     },
-    writeTextFile: async (path, text) => { disk[path] = text },
+    writeTextFile: async (path, text) => {
+      disk[path] = text
+    },
   }
   return { state, dialogs, load: async () => files }
 }
@@ -157,7 +175,10 @@ describe('createTauriBackend', () => {
     const fake = fakeTauriFiles({ '/Users/me/a.wledgraph': 'one' })
     const backend = createTauriBackend(fake.load)
     expect(await backend.reopen!('/Users/me/a.wledgraph')).toEqual({ handle: { name: 'a.wledgraph', path: '/Users/me/a.wledgraph' }, text: 'one' })
-    await expect(backend.reopen!('/Users/me/gone.wledgraph')).rejects.toMatchObject({ code: 'file-gone', cause: new Error('forbidden path: /Users/me/gone.wledgraph') })
+    await expect(backend.reopen!('/Users/me/gone.wledgraph')).rejects.toMatchObject({
+      code: 'file-gone',
+      cause: new Error('forbidden path: /Users/me/gone.wledgraph'),
+    })
     expect(fake.dialogs).toEqual([])
   })
 })

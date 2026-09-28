@@ -42,7 +42,9 @@ export function webSocketTransport(url: string, handlers: TransportHandlers): Br
   const socket = new WebSocket(url)
   let closed = false
   socket.onopen = () => handlers.onOpen()
-  socket.onclose = () => { if (!closed) handlers.onClose() }
+  socket.onclose = () => {
+    if (!closed) handlers.onClose()
+  }
   socket.onmessage = ({ data }) => handlers.onMessage(JSON.parse(data))
   return {
     isOpen: () => socket.readyState === WebSocket.OPEN,
@@ -81,7 +83,9 @@ export function tauriTransport(handlers: TransportHandlers, load: () => Promise<
   void (async () => {
     const loaded = await load()
     const events = new loaded.Channel()
-    events.onmessage = (message) => { if (!closed) handlers.onMessage(message) }
+    events.onmessage = (message) => {
+      if (!closed) handlers.onMessage(message)
+    }
     await loaded.invoke('bridge_open', { events })
     if (closed) return
     ipc = loaded
@@ -96,7 +100,13 @@ export function tauriTransport(handlers: TransportHandlers, load: () => Promise<
     sendFrame(frame) {
       if (!ipc) return
       inFlight++
-      ipc.invoke('bridge_frame', frame).then(() => inFlight--, (cause) => { inFlight--; fail(cause) })
+      ipc.invoke('bridge_frame', frame).then(
+        () => inFlight--,
+        (cause) => {
+          inFlight--
+          fail(cause)
+        },
+      )
     },
     close() {
       const open = ipc

@@ -4,9 +4,13 @@ import { directory, leaf, type MenuEntry, type MenuFs } from './menu-fs'
 /** Everything the shader editor can insert, one directory per category. */
 export const SHADER_FS: MenuFs<ShaderNode> = {
   title: 'Add',
-  items: CATEGORIES
-    .map((c) => directory(c.label, NODES.filter((n) => n.category === c.id).map((n) => leaf(n)), { icon: c.icon, color: c.color }))
-    .filter((d) => d.items.length > 0),
+  items: CATEGORIES.map((c) =>
+    directory(
+      c.label,
+      NODES.filter((n) => n.category === c.id).map((n) => leaf(n)),
+      { icon: c.icon, color: c.color },
+    ),
+  ).filter((d) => d.items.length > 0),
 }
 
 export function describeShaderNode(node: ShaderNode): MenuEntry {

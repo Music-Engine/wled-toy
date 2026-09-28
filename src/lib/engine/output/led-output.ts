@@ -13,9 +13,15 @@ export class LedOutput {
   private readonly post = new LedPostProcess()
   private output: OutputSettings = DEFAULT_OUTPUT
   // Timer, not rAF, so LEDs keep going in a hidden tab
-  private readonly timer = new DeadlineTimer(() => this.tick(), () => 1000 / (this.output.fps || config.fps))
+  private readonly timer = new DeadlineTimer(
+    () => this.tick(),
+    () => 1000 / (this.output.fps || config.fps),
+  )
 
-  constructor(private readonly bridge: Bridge, private readonly tick: () => void) {}
+  constructor(
+    private readonly bridge: Bridge,
+    private readonly tick: () => void,
+  ) {}
 
   restart() {
     this.timer.restart()

@@ -9,7 +9,27 @@ import PrefText from '@/ui/primitives/PrefText.vue'
 import { useDeviceForm } from '@/features/settings/use-device-form'
 import { activeDevice, devices, setActiveDevice, validateHost } from '@/lib/app/settings/devices'
 
-const { selectedId, device, isActive, errors, customJson, layoutKind, layoutSummary, ring, matrix, patch, setKind, setSegment, setLedCount, commitCustom, add, duplicate, remove, connection, reportedCount } = useDeviceForm()
+const {
+  selectedId,
+  device,
+  isActive,
+  errors,
+  customJson,
+  layoutKind,
+  layoutSummary,
+  ring,
+  matrix,
+  patch,
+  setKind,
+  setSegment,
+  setLedCount,
+  commitCustom,
+  add,
+  duplicate,
+  remove,
+  connection,
+  reportedCount,
+} = useDeviceForm()
 </script>
 
 <template>

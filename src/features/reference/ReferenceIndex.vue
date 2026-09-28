@@ -8,7 +8,11 @@ defineEmits<{ jump: [name: string] }>()
 
 const nav = ref<HTMLElement>()
 
-watch(() => props.activeEntry, (name) => nav.value?.querySelector(`[data-index-entry="${name}"]`)?.scrollIntoView({ block: 'nearest' }), { flush: 'post' })
+watch(
+  () => props.activeEntry,
+  (name) => nav.value?.querySelector(`[data-index-entry="${name}"]`)?.scrollIntoView({ block: 'nearest' }),
+  { flush: 'post' },
+)
 </script>
 
 <template>

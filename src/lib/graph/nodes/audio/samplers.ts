@@ -19,17 +19,21 @@ export const spectrumNode = defineNode('spectrum', {
 
 export const chromaNode = defineNode('chroma', {
   title: 'Chroma',
-  description: 'Strength of each of the 12 pitch classes, C first. Position 0 to 1 sweeps C to B, so a strip shows which notes are sounding. Only the FFT node\'s Lowest to Highest Hz count (raise Lowest to keep the kick out), and a bigger Window tells low notes apart.',
+  description:
+    "Strength of each of the 12 pitch classes, C first. Position 0 to 1 sweeps C to B, so a strip shows which notes are sounding. Only the FFT node's Lowest to Highest Hz count (raise Lowest to keep the kick out), and a bigger Window tells low notes apart.",
   category: 'audio',
   varies: 'pixel',
   input: { spectrum: SpectrumStream, position: alongStrip },
   output: { level: Float },
-  body: ({ spectrum, position }, ctx) => ({ level: ctx.declare('float', `chromaAt(${spectrum?.slot ?? 0}, floor(clamp(${position.expr}, 0.0, 0.9999) * 12.0))`) }),
+  body: ({ spectrum, position }, ctx) => ({
+    level: ctx.declare('float', `chromaAt(${spectrum?.slot ?? 0}, floor(clamp(${position.expr}, 0.0, 0.9999) * 12.0))`),
+  }),
 })
 
 export const waveformNode = defineNode('waveform', {
   title: 'Waveform',
-  description: 'The raw signal, -1 to 1. Position sweeps across Span seconds of audio ending Delay seconds ago; the delay line holds about a third of a second.',
+  description:
+    'The raw signal, -1 to 1. Position sweeps across Span seconds of audio ending Delay seconds ago; the delay line holds about a third of a second.',
   category: 'audio',
   varies: 'pixel',
   input: {
@@ -39,5 +43,7 @@ export const waveformNode = defineNode('waveform', {
     delay: { type: Float, label: 'Delay (s)', default: 0, props: { min: 0, max: 0.3, decimals: 3 } },
   },
   output: { sample: Float },
-  body: ({ position, span, delay }, ctx) => ({ sample: ctx.declare('float', `waveformAt(((1.0 - ${position.expr}) * ${span.expr} + ${delay.expr}) * iAudioHeads.z)`) }),
+  body: ({ position, span, delay }, ctx) => ({
+    sample: ctx.declare('float', `waveformAt(((1.0 - ${position.expr}) * ${span.expr} + ${delay.expr}) * iAudioHeads.z)`),
+  }),
 })

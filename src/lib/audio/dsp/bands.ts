@@ -28,7 +28,11 @@ export class Filterbank {
   readonly centers: number[]
   private readonly filters: { start: number; weights: Float32Array }[]
 
-  constructor(readonly config: BandConfig, sampleRate: number, fftSize: number) {
+  constructor(
+    readonly config: BandConfig,
+    sampleRate: number,
+    fftSize: number,
+  ) {
     const edges = bandEdges(config)
     const hzPerBin = sampleRate / fftSize
     this.centers = edges.slice(1, -1)

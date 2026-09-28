@@ -19,11 +19,13 @@ function open(): Promise<IDBDatabase> {
 }
 
 function transact<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
-  return open().then((db) => new Promise<T>((resolve, reject) => {
-    const request = run(db.transaction('media', mode).objectStore('media'))
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  }).finally(() => db.close()))
+  return open().then((db) =>
+    new Promise<T>((resolve, reject) => {
+      const request = run(db.transaction('media', mode).objectStore('media'))
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    }).finally(() => db.close()),
+  )
 }
 
 export const saveMedia = (key: MediaKey, media: StoredMedia) => transact('readwrite', (store) => store.put(media, key))

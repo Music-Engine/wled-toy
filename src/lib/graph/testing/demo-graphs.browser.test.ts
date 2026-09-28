@@ -30,34 +30,60 @@ describe('demo graphs', () => {
     expect(graphs.filter(([name]) => !ONLY || name === ONLY)).not.toEqual([])
   })
 
-  it.each(graphs.filter(([name]) => !ONLY || name === ONLY))('%s is valid, renders and reacts to music', async (name, text) => {
-    const { doc, problems } = readGraphFile(text)
-    expect(problems, 'structural problems').toEqual([])
+  it.each(graphs.filter(([name]) => !ONLY || name === ONLY))(
+    '%s is valid, renders and reacts to music',
+    async (name, text) => {
+      const { doc, problems } = readGraphFile(text)
+      expect(problems, 'structural problems').toEqual([])
 
-    const run = play(doc, track)
-    expect(run.strip.some((leds) => leds.some(Number.isNaN)), 'NaN in the LED colors').toBe(false)
-    expect(run.strip.some((leds) => leds.some((channel) => channel > 0.02)), 'every LED is black for the whole run').toBe(true)
-    expect(run.strip.some((leds) => leds.some((channel, i) => Math.abs(channel - run.strip[0][i]) > 0.02)), 'the output never changes over time').toBe(true)
+      const run = play(doc, track)
+      expect(
+        run.strip.some((leds) => leds.some(Number.isNaN)),
+        'NaN in the LED colors',
+      ).toBe(false)
+      expect(
+        run.strip.some((leds) => leds.some((channel) => channel > 0.02)),
+        'every LED is black for the whole run',
+      ).toBe(true)
+      expect(
+        run.strip.some((leds) => leds.some((channel, i) => Math.abs(channel - run.strip[0][i]) > 0.02)),
+        'the output never changes over time',
+      ).toBe(true)
 
-    if (!PREVIEW) return
-    const dir = `.work/graph-previews/${name}`
-    await writePng(`${dir}/strip-timeline.png`, drawTimeline(run, run.strip, `x: LED 0 (uv.x = 0) to LED ${STRIP_LEDS - 1}, y: time running downward, ${FPS} rows per second`))
-    await writePng(`${dir}/matrix-sheet.png`, drawMatrixSheet(run, MATRIX_SIDE))
-    await commands.writeFile(`${dir}/stats.json`, JSON.stringify(computeStats(run, listWarnings(doc), STRIP_LEDS, MATRIX_SIDE), null, 1))
-  }, 300_000)
+      if (!PREVIEW) return
+      const dir = `.work/graph-previews/${name}`
+      await writePng(
+        `${dir}/strip-timeline.png`,
+        drawTimeline(run, run.strip, `x: LED 0 (uv.x = 0) to LED ${STRIP_LEDS - 1}, y: time running downward, ${FPS} rows per second`),
+      )
+      await writePng(`${dir}/matrix-sheet.png`, drawMatrixSheet(run, MATRIX_SIDE))
+      await commands.writeFile(`${dir}/stats.json`, JSON.stringify(computeStats(run, listWarnings(doc), STRIP_LEDS, MATRIX_SIDE), null, 1))
+    },
+    300_000,
+  )
 
-  it.runIf(PREVIEW)('draws what the analyzer hears in the test track', async () => {
-    const run = play(graph([node('o', 'output')]), track)
-    const toGrey = (levels: Float32Array) => [...levels].flatMap((level) => [level, level, level])
-    const rows = run.audio.map((audio) => Float32Array.from([...toGrey(audio.bands), 0, 0.2, 0, ...toGrey(audio.chroma)]))
-    await writePng('.work/graph-previews/track.png', drawTimeline(run, rows, 'x: the 64 default FFT bands, 40 Hz to 16 kHz (mel), then the 12 pitch classes C to B; y: time'))
-  }, 300_000)
+  it.runIf(PREVIEW)(
+    'draws what the analyzer hears in the test track',
+    async () => {
+      const run = play(graph([node('o', 'output')]), track)
+      const toGrey = (levels: Float32Array) => [...levels].flatMap((level) => [level, level, level])
+      const rows = run.audio.map((audio) => Float32Array.from([...toGrey(audio.bands), 0, 0.2, 0, ...toGrey(audio.chroma)]))
+      await writePng(
+        '.work/graph-previews/track.png',
+        drawTimeline(run, rows, 'x: the 64 default FFT bands, 40 Hz to 16 kHz (mel), then the 12 pitch classes C to B; y: time'),
+      )
+    },
+    300_000,
+  )
 })
 
 /** Engine's LED tick offline: hops up to the frame's time analyzed, then audio upload, frame pass, LED render */
 function play(doc: NodeGraph, track: Float32Array): Run {
   const { program, slots: table, issues } = createGlslCompiler().compile(doc)
-  expect(issues.map((issue) => `${issue.nodeId}: ${issue.message}`), 'graph issues').toEqual([])
+  expect(
+    issues.map((issue) => `${issue.nodeId}: ${issue.message}`),
+    'graph issues',
+  ).toEqual([])
   const [strip, matrix] = [0, 1].map(() => new ShaderRenderer(document.createElement('canvas')))
   const [stripRuntime, matrixRuntime] = loadRuntimes([strip, matrix], program!, table)
   matrix.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: MATRIX_SIDE, height: MATRIX_SIDE, serpentine: false, origin: 'top-left' }] }))
@@ -67,7 +93,13 @@ function play(doc: NodeGraph, track: Float32Array): Run {
     const tick = { time: frame / FPS, dt: 1 / FPS, frame, scanY: 0.5 }
     const [features] = feedSlots(slots, track, tick.time, SAMPLE_RATE).analyses
     run.audio.push(readFrameAudio(features))
-    if (features) for (const renderer of [strip, matrix]) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures), features)
+    if (features)
+      for (const renderer of [strip, matrix])
+        renderer.setAudio(
+          slots[0].textures,
+          slots.slice(1).map((slot) => slot.textures),
+          features,
+        )
     run.strip.push(stripRuntime.tick({ ...tick, ledCount: STRIP_LEDS }).slice())
     run.matrix.push(matrixRuntime.tick({ ...tick, ledCount: MATRIX_SIDE * MATRIX_SIDE }).slice())
   }
@@ -104,10 +136,15 @@ function listWarnings(doc: NodeGraph): string[] {
   const boxes = doc.nodes.flatMap((stored) => {
     const shape = readStoredShape(stored.data)
     if (!shape) return []
-    const rows = shape.outputs.length + shape.inputs.reduce((sum, socket) => sum + (Array.isArray(socket.default) && socket.type.id !== 'color' ? 1 + socket.default.length : 1), 0)
+    const rows =
+      shape.outputs.length +
+      shape.inputs.reduce((sum, socket) => sum + (Array.isArray(socket.default) && socket.type.id !== 'color' ? 1 + socket.default.length : 1), 0)
     return [{ id: stored.id, x: stored.position.x, y: stored.position.y, w: 200, h: 34 + 22 * rows }]
   })
-  return boxes.flatMap((a, i) => boxes.slice(i + 1)
-    .filter((b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h)
-    .map((b) => `"${a.id}" and "${b.id}" probably overlap in the editor`))
+  return boxes.flatMap((a, i) =>
+    boxes
+      .slice(i + 1)
+      .filter((b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h)
+      .map((b) => `"${a.id}" and "${b.id}" probably overlap in the editor`),
+  )
 }

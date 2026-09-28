@@ -35,7 +35,10 @@ export class AudioTextures {
   private readonly rows: RingRows
   private readonly samples = new SampleRing(WAVE_WIDTH * WAVE_ROWS)
 
-  constructor(readonly bandCount: number, readonly sampleRate = 48000) {
+  constructor(
+    readonly bandCount: number,
+    readonly sampleRate = 48000,
+  ) {
     // the pitch classes share the band texture's width
     if (bandCount < 12) throw new Error('At least 12 bands are needed')
     this.bands = new Uint8Array(bandCount * 2)

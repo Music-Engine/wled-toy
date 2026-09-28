@@ -1,10 +1,14 @@
 import { AUDIO_EXTRA_SLOTS } from './uniforms'
 
 // GLSL ES 3.00 indexes sampler arrays w/ constants only, so one branch per slot
-const branchPerSlot = (call: (sampler: (name: string) => string, head: string) => string) => [
-  ...Array.from({ length: AUDIO_EXTRA_SLOTS }, (_, i) => `  if (slot == ${i + 1}) return ${call((name) => `${name}Extra[${i}]`, `iAudioHistoryHeadExtra[${i}]`)};`),
-  `  return ${call((name) => name, 'iAudioHeads.x')};`,
-].join('\n')
+const branchPerSlot = (call: (sampler: (name: string) => string, head: string) => string) =>
+  [
+    ...Array.from(
+      { length: AUDIO_EXTRA_SLOTS },
+      (_, i) => `  if (slot == ${i + 1}) return ${call((name) => `${name}Extra[${i}]`, `iAudioHistoryHeadExtra[${i}]`)};`,
+    ),
+    `  return ${call((name) => name, 'iAudioHeads.x')};`,
+  ].join('\n')
 
 /** Audio node features, band levels and spectrum peaks per slot; also pasted alone into a frame pass, which lacks the prelude */
 export const AUDIO_READS = `// the Audio node's outputs for the default analysis, in the order of AUDIO_FEATURES, four to a vector

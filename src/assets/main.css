@@ -4,8 +4,8 @@
 @import "@/ui/primitives/pref.css";
 
 @theme static {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-ember-50: oklch(0.97 0.02 52);
   --color-ember-100: oklch(0.94 0.05 50);
@@ -42,9 +42,15 @@
 }
 
 /* Appearance preferences (src/lib/preferences.ts applyPreferences). :root wins over CodeMirror's own theme class, which sets 14px. */
-:root[data-density="compact"] { font-size: 13px; }
-:root[data-density="comfortable"] { font-size: 15px; }
-:root .cm-editor { font-size: var(--app-editor-font-size, 14px); }
+:root[data-density="compact"] {
+  font-size: 13px;
+}
+:root[data-density="comfortable"] {
+  font-size: 15px;
+}
+:root .cm-editor {
+  font-size: var(--app-editor-font-size, 14px);
+}
 :root[data-reduce-motion] *,
 :root[data-reduce-motion] *::before,
 :root[data-reduce-motion] *::after {

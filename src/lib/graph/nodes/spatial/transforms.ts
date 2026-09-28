@@ -16,8 +16,15 @@ export const polarNode = defineNode('polar', {
   },
 })
 
-const MIRROR_AXES = [{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }, { value: 'both', label: 'X and Y' }] as const
-const MIRROR_MODES = [{ value: 'toCenter', label: '1 at Center' }, { value: 'fromCenter', label: '0 at Center' }] as const
+const MIRROR_AXES = [
+  { value: 'x', label: 'X' },
+  { value: 'y', label: 'Y' },
+  { value: 'both', label: 'X and Y' },
+] as const
+const MIRROR_MODES = [
+  { value: 'toCenter', label: '1 at Center' },
+  { value: 'fromCenter', label: '0 at Center' },
+] as const
 
 export const mirrorNode = defineNode('mirror', {
   title: 'Mirror',
@@ -59,13 +66,19 @@ export const rotateNode = defineNode('rotate', {
     const radians = ctx.declare('float', `${angle.expr} * 6.2831853`, 'a').expr
     const offset = ctx.declare('vec2', `${uv.expr} - ${center.expr}`, 'p').expr
     // Lookup turned by -angle turns the picture by +angle
-    return { uv: ctx.declare('vec2', `vec2(${offset}.x * cos(${radians}) + ${offset}.y * sin(${radians}), ${offset}.y * cos(${radians}) - ${offset}.x * sin(${radians})) + ${center.expr}`) }
+    return {
+      uv: ctx.declare(
+        'vec2',
+        `vec2(${offset}.x * cos(${radians}) + ${offset}.y * sin(${radians}), ${offset}.y * cos(${radians}) - ${offset}.x * sin(${radians})) + ${center.expr}`,
+      ),
+    }
   },
 })
 
 export const segmentSplitNode = defineNode('segmentSplit', {
   title: 'Segment Split',
-  description: 'Cut a strip into equal segments. Local restarts at 0 in each one, Segment is its number, and Fraction spreads the segments over 0 to 1 for picking a color per segment.',
+  description:
+    'Cut a strip into equal segments. Local restarts at 0 in each one, Segment is its number, and Fraction spreads the segments over 0 to 1 for picking a color per segment.',
   category: 'math',
   input: {
     position: { type: Float, default: { expr: 'uv.x', label: 'uv.x' } },
@@ -76,6 +89,10 @@ export const segmentSplitNode = defineNode('segmentSplit', {
     const segments = ctx.declare('float', `max(1.0, floor(${count.expr}))`, 'n').expr
     const scaled = ctx.declare('float', `clamp(${position.expr}, 0.0, 0.999999) * ${segments}`, 'scaled').expr
     const segment = ctx.declare('float', `floor(${scaled})`, 'segment')
-    return { local: ctx.declare('float', `fract(${scaled})`), segment, fraction: ctx.declare('float', `${segment.expr} / max(1.0, ${segments} - 1.0)`, 'fraction') }
+    return {
+      local: ctx.declare('float', `fract(${scaled})`),
+      segment,
+      fraction: ctx.declare('float', `${segment.expr} / max(1.0, ${segments} - 1.0)`, 'fraction'),
+    }
   },
 })

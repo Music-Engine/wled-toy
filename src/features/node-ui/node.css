@@ -1,4 +1,4 @@
-@import '@fontsource-variable/inter/wght.css';
+@import "@fontsource-variable/inter/wght.css";
 
 /*
  * Node editor look, after Blender. Sizes are in em so a node scales with its font size.
@@ -28,7 +28,7 @@
   --nui-glyph: calc(10em / 12);
   --nui-glyph-small: calc(8em / 12);
 
-  font-family: 'Inter Variable', Inter, system-ui, sans-serif;
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
   font-size: 12px;
   line-height: 1.3;
   color: var(--nui-text);
@@ -42,8 +42,12 @@
  * A field clips its content, so a ring on the input inside it survives only as a sliver in the field's padding.
  * The field wears the ring instead, flush, so it fits the gap between rows.
  */
-.nui-field:has(:focus-visible) { outline: 2px solid var(--nui-accent); }
-.nui-field :focus-visible { outline: none; }
+.nui-field:has(:focus-visible) {
+  outline: 2px solid var(--nui-accent);
+}
+.nui-field :focus-visible {
+  outline: none;
+}
 
 .nui-node {
   min-width: calc(140em / 12);
@@ -52,14 +56,30 @@
   background: var(--nui-surface);
   box-shadow: 0 0 5px rgb(0 0 0 / 0.5);
 }
-.nui-node.is-source { min-width: 10em; }
-.nui-node.is-wide { width: 20em; }
-.nui-node:hover { border-color: var(--nui-field); }
-.nui-node.is-selected { border-color: var(--nui-text); }
-.nui-node.is-error { border-color: var(--nui-error); }
-.nui-node.is-collapsed { background: var(--nui-surface-folded); }
-.nui-node.is-muted { opacity: 0.55; }
-.nui-node.is-muted .nui-header { filter: grayscale(1); }
+.nui-node.is-source {
+  min-width: 10em;
+}
+.nui-node.is-wide {
+  width: 20em;
+}
+.nui-node:hover {
+  border-color: var(--nui-field);
+}
+.nui-node.is-selected {
+  border-color: var(--nui-text);
+}
+.nui-node.is-error {
+  border-color: var(--nui-error);
+}
+.nui-node.is-collapsed {
+  background: var(--nui-surface-folded);
+}
+.nui-node.is-muted {
+  opacity: 0.55;
+}
+.nui-node.is-muted .nui-header {
+  filter: grayscale(1);
+}
 
 .nui-header {
   position: relative;
@@ -72,7 +92,9 @@
   cursor: grab;
   text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
 }
-.nui-node.is-collapsed .nui-header { border-radius: calc(var(--nui-radius) - 1px); }
+.nui-node.is-collapsed .nui-header {
+  border-radius: calc(var(--nui-radius) - 1px);
+}
 
 .nui-title {
   flex: 1;
@@ -111,7 +133,9 @@
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5));
   transition: transform 0.15s ease;
 }
-.nui-node.is-collapsed .nui-collapse svg { transform: rotate(-90deg); }
+.nui-node.is-collapsed .nui-collapse svg {
+  transform: rotate(-90deg);
+}
 
 /*
  * Folded sockets are zero-width columns in the header's flow, so the header grows to fit the
@@ -128,16 +152,24 @@
   min-width: 0;
   padding: calc(4em / 12) 0;
 }
-.nui-folded.is-in { margin: 0 var(--nui-gap) 0 calc(-1 * var(--nui-pad)); }
-.nui-folded.is-out { margin: 0 calc(-1 * var(--nui-pad)) 0 var(--nui-gap); }
-.nui-folded:empty { display: none; }
+.nui-folded.is-in {
+  margin: 0 var(--nui-gap) 0 calc(-1 * var(--nui-pad));
+}
+.nui-folded.is-out {
+  margin: 0 calc(-1 * var(--nui-pad)) 0 var(--nui-gap);
+}
+.nui-folded:empty {
+  display: none;
+}
 .nui-folded .vue-flow__handle.nui-socket {
   position: relative;
   inset: auto;
   flex: none;
   transform: translateX(-50%);
 }
-.nui-folded .vue-flow__handle.nui-socket.is-diamond { transform: translateX(-50%) rotate(45deg) scale(0.85); }
+.nui-folded .vue-flow__handle.nui-socket.is-diamond {
+  transform: translateX(-50%) rotate(45deg) scale(0.85);
+}
 
 .nui-warning {
   width: 1em;
@@ -161,8 +193,12 @@
   min-height: var(--nui-field-height);
   padding: 0 calc(var(--nui-pad) + var(--nui-socket) / 2);
 }
-.nui-row.is-output { justify-content: flex-end; }
-.nui-block { padding: 0 calc(var(--nui-pad) + var(--nui-socket) / 2); }
+.nui-row.is-output {
+  justify-content: flex-end;
+}
+.nui-block {
+  padding: 0 calc(var(--nui-pad) + var(--nui-socket) / 2);
+}
 
 .nui-label {
   overflow: hidden;
@@ -192,5 +228,11 @@
   border: 1px solid var(--nui-outline);
   border-radius: 50%;
 }
-.vue-flow__handle-left.nui-socket.is-diamond { border-radius: 1px; transform: translate(-50%, -50%) rotate(45deg) scale(0.85); }
-.vue-flow__handle-right.nui-socket.is-diamond { border-radius: 1px; transform: translate(50%, -50%) rotate(45deg) scale(0.85); }
+.vue-flow__handle-left.nui-socket.is-diamond {
+  border-radius: 1px;
+  transform: translate(-50%, -50%) rotate(45deg) scale(0.85);
+}
+.vue-flow__handle-right.nui-socket.is-diamond {
+  border-radius: 1px;
+  transform: translate(50%, -50%) rotate(45deg) scale(0.85);
+}

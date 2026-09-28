@@ -5,7 +5,13 @@ import type { Value } from './value'
 const NUMERIC = ['float', 'int', 'vec2', 'vec3', 'color', 'vec4', 'genType']
 
 export const Float = createNumericType('float', 'Float', 1, isFiniteNumber, () => 0.5)
-export const Int = createNumericType('int', 'Integer', 1, (raw): raw is number => Number.isInteger(raw), () => 0)
+export const Int = createNumericType(
+  'int',
+  'Integer',
+  1,
+  (raw): raw is number => Number.isInteger(raw),
+  () => 0,
+)
 export const Vec2 = createNumericType('vec2', 'Vector 2', 2, isVector(2), () => [0.5, 0.5])
 export const Vec3 = createNumericType('vec3', 'Vector', 3, isVector(3), () => [0.5, 0.5, 0.5])
 export const Vec4 = createNumericType('vec4', 'Vector 4', 4, isVector(4), () => [0.5, 0.5, 0.5, 1])
@@ -27,16 +33,41 @@ export const Sampler2D: DataType<never, Value> = {
   kind: 'value',
   castableFrom: [],
   check: (raw): raw is never => false,
-  initial: () => { throw new Error('Texture has no literal value') },
+  initial: () => {
+    throw new Error('Texture has no literal value')
+  },
 }
 
-export const Bool = createParamType<boolean>('bool', 'Boolean', (raw): raw is boolean => typeof raw === 'boolean', () => false)
-export const Text = createParamType<string>('text', 'Text', (raw): raw is string => typeof raw === 'string' && raw.length <= 200, () => '')
+export const Bool = createParamType<boolean>(
+  'bool',
+  'Boolean',
+  (raw): raw is boolean => typeof raw === 'boolean',
+  () => false,
+)
+export const Text = createParamType<string>(
+  'text',
+  'Text',
+  (raw): raw is string => typeof raw === 'string' && raw.length <= 200,
+  () => '',
+)
 /** Stored string the node's own UI edits (file picker, learn button); no widget */
-export const Reference = createParamType<string>('reference', 'Reference', (raw): raw is string => typeof raw === 'string' && raw.length <= 500, () => '')
+export const Reference = createParamType<string>(
+  'reference',
+  'Reference',
+  (raw): raw is string => typeof raw === 'string' && raw.length <= 500,
+  () => '',
+)
 
 export function Enum<const V extends string>(options: readonly EnumOption<V>[]): DataType<V> {
-  return { ...createParamType<V>('enum', 'Option', (raw): raw is V => options.some((option) => option.value === raw), () => options[0].value), props: { options } }
+  return {
+    ...createParamType<V>(
+      'enum',
+      'Option',
+      (raw): raw is V => options.some((option) => option.value === raw),
+      () => options[0].value,
+    ),
+    props: { options },
+  }
 }
 
 /** For shader functions taking their mode as an int */

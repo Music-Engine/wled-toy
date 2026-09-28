@@ -78,18 +78,26 @@ const mirrorFromDevice = (device: { host: string; ledCount: number; protocol: Pr
   Object.assign(config, { host: device.host, ledCount: device.ledCount, protocol: device.protocol, universe: device.universe, layout: device.layout })
 mirrorFromDevice(activeDevice.value)
 watch(activeDevice, mirrorFromDevice, { deep: true })
-watch(() => [config.host, config.ledCount, config.protocol, config.universe, config.layout] as const, ([host, ledCount, protocol, universe, layout]) => {
-  updateActiveDevice({ host, ledCount, protocol, universe, layout })
-}, { deep: true })
+watch(
+  () => [config.host, config.ledCount, config.protocol, config.universe, config.layout] as const,
+  ([host, ledCount, protocol, universe, layout]) => {
+    updateActiveDevice({ host, ledCount, protocol, universe, layout })
+  },
+  { deep: true },
+)
 
 let lastSerialized: string | null = localStorage.getItem(STORAGE_KEY)
 
-watch(config, () => {
-  const serialized = JSON.stringify(config)
-  if (serialized === lastSerialized) return
-  lastSerialized = serialized
-  localStorage.setItem(STORAGE_KEY, serialized)
-}, { deep: true })
+watch(
+  config,
+  () => {
+    const serialized = JSON.stringify(config)
+    if (serialized === lastSerialized) return
+    lastSerialized = serialized
+    localStorage.setItem(STORAGE_KEY, serialized)
+  },
+  { deep: true },
+)
 
 // every open tab of the app shares this key; adopt other tabs' saves instead of overwriting them later
 window.addEventListener('storage', (event) => {
@@ -111,10 +119,15 @@ export async function resetStoredData() {
   // workspace.ts has no way to drop its key; its own watcher stores the defaults before the reload below
   resetLayout()
   lastSerialized = null
-  await Promise.all(['wledtoy-media', 'wledtoy-images'].map((name) => new Promise<void>((resolve) => {
-    const request = indexedDB.deleteDatabase(name)
-    request.onsuccess = request.onerror = request.onblocked = () => resolve()
-  })))
+  await Promise.all(
+    ['wledtoy-media', 'wledtoy-images'].map(
+      (name) =>
+        new Promise<void>((resolve) => {
+          const request = indexedDB.deleteDatabase(name)
+          request.onsuccess = request.onerror = request.onblocked = () => resolve()
+        }),
+    ),
+  )
   location.reload()
 }
 
@@ -145,7 +158,14 @@ export function importData(raw: unknown): Partial<AppConfig> & { devices?: Saved
     const store = sanitizeDeviceStore(raw)
     restoreDevices(store)
     const active = store.devices.find((device) => device.id === store.activeDeviceId)!
-    Object.assign(picked, { host: active.host, ledCount: active.ledCount, protocol: active.protocol, universe: active.universe, layout: active.layout, devices: store.devices })
+    Object.assign(picked, {
+      host: active.host,
+      ledCount: active.ledCount,
+      protocol: active.protocol,
+      universe: active.universe,
+      layout: active.layout,
+      devices: store.devices,
+    })
   }
   const { devices: _, ...fields } = picked
   Object.assign(config, fields)

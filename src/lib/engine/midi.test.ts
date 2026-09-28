@@ -55,7 +55,10 @@ describe('bindKnobs', () => {
   }
 
   it('moves a bound knob across its range, rounded to four places', () => {
-    const { midi, patches } = setup([{ id: 'a', min: 0, max: 2, cc: 74 }, { id: 'b', min: 0, max: 1, cc: -1 }])
+    const { midi, patches } = setup([
+      { id: 'a', min: 0, max: 2, cc: 74 },
+      { id: 'b', min: 0, max: 1, cc: -1 },
+    ])
     midi.receive(Uint8Array.of(0xb0, 74, 64))
     expect(patches).toEqual([['a', { value: 1.0079 }]])
   })
@@ -63,7 +66,10 @@ describe('bindKnobs', () => {
   it('binds the learning knob to the controller and moves it with the same message', () => {
     const { midi, learning, patches } = setup([{ id: 'a', min: 0, max: 1, cc: -1 }], 'a')
     midi.receive(Uint8Array.of(0xb0, 20, 127))
-    expect(patches).toEqual([['a', { cc: 20 }], ['a', { value: 1 }]])
+    expect(patches).toEqual([
+      ['a', { cc: 20 }],
+      ['a', { value: 1 }],
+    ])
     expect(learning.value).toBeNull()
   })
 

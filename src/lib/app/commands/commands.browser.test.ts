@@ -13,7 +13,13 @@ afterEach(() => {
 
 function press(target: EventTarget, key: string, init: KeyboardEventInit & { mod?: boolean } = {}) {
   const { mod, ...rest } = init
-  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...(mod ? (isMac() ? { metaKey: true } : { ctrlKey: true }) : {}), ...rest })
+  const event = new KeyboardEvent('keydown', {
+    key,
+    bubbles: true,
+    cancelable: true,
+    ...(mod ? (isMac() ? { metaKey: true } : { ctrlKey: true }) : {}),
+    ...rest,
+  })
   target.dispatchEvent(event)
   return event
 }
@@ -51,7 +57,7 @@ it('under a native menu the keys its items bind are left to them, so no command 
   expect(fit).toHaveBeenCalledTimes(1)
 })
 
-it('the platform\'s other modifier is not Mod', () => {
+it("the platform's other modifier is not Mod", () => {
   const event = press(document.body, 'b', isMac() ? { ctrlKey: true } : { metaKey: true })
   expect(event.defaultPrevented).toBe(false)
   expect(workspace.dockVisible).toBe(true)
@@ -113,13 +119,14 @@ it('a text key stays with text fields and the code editor, and fires everywhere 
   const compile = bind('shader.compile')
   const editor = attach(document.createElement('div'))
   editor.className = 'cm-editor'
-  for (const target of [attach(document.createElement('input')), editor]) expect(press(target, 'Enter', { mod: true }).defaultPrevented, target.tagName).toBe(false)
+  for (const target of [attach(document.createElement('input')), editor])
+    expect(press(target, 'Enter', { mod: true }).defaultPrevented, target.tagName).toBe(false)
   expect(compile).not.toHaveBeenCalled()
   expect(press(document.body, 'Enter', { mod: true }).defaultPrevented).toBe(true)
   expect(compile).toHaveBeenCalledOnce()
 })
 
-it('text selected on the page keeps the browser\'s copy', () => {
+it("text selected on the page keeps the browser's copy", () => {
   workspace.mode = 'graph'
   const copy = bind('graph.copy')
   const text = attach(document.createElement('p'))
@@ -133,7 +140,7 @@ it('text selected on the page keeps the browser\'s copy', () => {
   expect(copy).toHaveBeenCalledOnce()
 })
 
-it('Space on a focused button is the button\'s click', () => {
+it("Space on a focused button is the button's click", () => {
   workspace.mode = 'graph'
   const search = bind('graph.searchNodes')
   expect(press(attach(document.createElement('button')), ' ').defaultPrevented).toBe(false)

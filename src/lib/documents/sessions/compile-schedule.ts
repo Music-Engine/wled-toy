@@ -1,5 +1,14 @@
 import { computed, shallowRef, ref, type Ref } from 'vue'
-import { pruneScenes, type CompileResult, type GlslProgram, type NodeGraph, type ProgramUniform, type Scene, type SlotTable, type StoredNode } from '@/lib/graph'
+import {
+  pruneScenes,
+  type CompileResult,
+  type GlslProgram,
+  type NodeGraph,
+  type ProgramUniform,
+  type Scene,
+  type SlotTable,
+  type StoredNode,
+} from '@/lib/graph'
 import { clampBetween } from '@/lib/util/math'
 import { compileKey } from './compile-key'
 

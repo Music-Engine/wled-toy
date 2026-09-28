@@ -1,11 +1,16 @@
 import { defineNode, Float, floatLiteral, fmt, Text } from '@/lib/graph/authoring'
 import { declareRisingEdge, wrapCount } from '@/lib/graph/nodes/shared/signal'
 
-const parseSteps = (steps: string) => steps.split(/[\s,]+/).map(Number).filter(Number.isFinite)
+const parseSteps = (steps: string) =>
+  steps
+    .split(/[\s,]+/)
+    .map(Number)
+    .filter(Number.isFinite)
 
 export const stepSequencerNode = defineNode('stepSequencer', {
   title: 'Step Sequencer',
-  description: 'A list of values, one per trigger: "1 0 0.5 0" gives four steps. Each trigger moves to the next value and wraps around; Reset goes back to the first.',
+  description:
+    'A list of values, one per trigger: "1 0 0.5 0" gives four steps. Each trigger moves to the next value and wraps around; Reset goes back to the first.',
   category: 'signal',
   input: {
     steps: { type: Text, label: 'Steps', default: '1 0 0.5 0', linkable: false, props: { placeholder: '1 0 0.5 0' } },

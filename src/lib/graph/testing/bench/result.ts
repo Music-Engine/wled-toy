@@ -43,9 +43,10 @@ export function toResult(name: string, { loading, shader, frames, batched, previ
       tick: Object.fromEntries(TARGETS.map((target) => [target.name, summarizeTimes(frames.tick[target.name])])),
     },
     frameBatched: batched,
-    heap: heapStart && heapEnd
-      ? { startBytes: heapStart, endBytes: heapEnd, growthBytes: heapEnd - heapStart, bytesPerFrame: Math.round((heapEnd - heapStart) / FRAMES) }
-      : null,
+    heap:
+      heapStart && heapEnd
+        ? { startBytes: heapStart, endBytes: heapEnd, growthBytes: heapEnd - heapStart, bytesPerFrame: Math.round((heapEnd - heapStart) / FRAMES) }
+        : null,
   }
 }
 

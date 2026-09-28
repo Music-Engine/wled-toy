@@ -31,7 +31,9 @@ async function measureIntervalRate(fps: number, busyMs = 0) {
   const burn = () => {
     raf = requestAnimationFrame(burn)
     const until = performance.now() + busyMs
-    while (performance.now() < until) { /* hold the main thread */ }
+    while (performance.now() < until) {
+      /* hold the main thread */
+    }
   }
   if (busyMs) raf = requestAnimationFrame(burn)
   const start = performance.now()
@@ -58,7 +60,13 @@ async function measureEngineRate(fps: number, previewFps: number, code: string, 
   const rate = ticks.durations.length / ((performance.now() - ticks.start) / 1000)
   const gaps = ticks.durations.sort((a, b) => a - b)
   const readQuantile = (q: number) => gaps[Math.min(gaps.length - 1, Math.floor(q * gaps.length))]?.toFixed(1)
-  return { rate: +rate.toFixed(1), ledRenderMs: +(engine.bridge.stats.ledRenderMs ?? 0).toFixed(2), gapP50: readQuantile(0.5), gapP90: readQuantile(0.9), gapMax: readQuantile(1) }
+  return {
+    rate: +rate.toFixed(1),
+    ledRenderMs: +(engine.bridge.stats.ledRenderMs ?? 0).toFixed(2),
+    gapP50: readQuantile(0.5),
+    gapP90: readQuantile(0.9),
+    gapMax: readQuantile(1),
+  }
 }
 
 // Bridge hears of every rendered LED frame, so ticks are timed there
@@ -87,14 +95,22 @@ function watchLedTicks(engine: ReturnType<typeof useEngine>) {
 function mountStrip() {
   // No Tailwind in browser tests: the box the strip's classes give it in the app
   const style = document.createElement('style')
-  style.textContent = '.led-monitor { position: relative; height: 64px; overflow: hidden } .led-monitor canvas { position: absolute; inset: 0; width: 100%; height: 100% }'
+  style.textContent =
+    '.led-monitor { position: relative; height: 64px; overflow: hidden } .led-monitor canvas { position: absolute; inset: 0; width: 100%; height: 100% }'
   const host = document.createElement('div')
   host.style.width = '1200px'
   document.head.append(style)
   document.body.append(host)
   const app = createApp(LedStrip)
   app.mount(host)
-  return { host, unmount: () => { app.unmount(); host.remove(); style.remove() } }
+  return {
+    host,
+    unmount: () => {
+      app.unmount()
+      host.remove()
+      style.remove()
+    },
+  }
 }
 
 // Chromium truncates intervals to whole ms and WebKit fires late, so setInterval never delivers fps (62.5 for 60 in
@@ -113,31 +129,35 @@ const softwareRenderer = (() => {
 })()
 
 // A view drawing inside the tick used to stall the next readback: 18 ms per tick, 53 ticks at fps 60
-it.skipIf(softwareRenderer)('the LED strip draws off the tick', async () => {
-  const ledCount = config.ledCount
-  config.ledCount = 300
-  const bare = await measureEngineRate(60, -1, PLAIN, 3)
+it.skipIf(softwareRenderer)(
+  'the LED strip draws off the tick',
+  async () => {
+    const ledCount = config.ledCount
+    config.ledCount = 300
+    const bare = await measureEngineRate(60, -1, PLAIN, 3)
 
-  const strip = mountStrip()
-  const draws = vi.spyOn(CanvasRenderingContext2D.prototype, 'putImageData')
-  let frames = 0
-  let raf = requestAnimationFrame(function count() {
-    frames++
-    raf = requestAnimationFrame(count)
-  })
-  const withStrip = await measureEngineRate(60, -1, PLAIN, 3)
-  cancelAnimationFrame(raf)
-  const drawn = draws.mock.calls.length
-  draws.mockRestore()
-  strip.unmount()
-  config.ledCount = ledCount
+    const strip = mountStrip()
+    const draws = vi.spyOn(CanvasRenderingContext2D.prototype, 'putImageData')
+    let frames = 0
+    let raf = requestAnimationFrame(function count() {
+      frames++
+      raf = requestAnimationFrame(count)
+    })
+    const withStrip = await measureEngineRate(60, -1, PLAIN, 3)
+    cancelAnimationFrame(raf)
+    const drawn = draws.mock.calls.length
+    draws.mockRestore()
+    strip.unmount()
+    config.ledCount = ledCount
 
-  expect(Math.abs(withStrip.rate - bare.rate)).toBeLessThanOrEqual(bare.rate * 0.05)
-  // Regression was 18 ms vs 2; bound relative to the bare run also holds on SwiftShader (bare tick 13 ms)
-  expect(withStrip.ledRenderMs).toBeLessThanOrEqual(bare.ledRenderMs * 1.5 + 1)
-  expect(drawn).toBeGreaterThan(0)
-  expect(drawn).toBeLessThanOrEqual(frames + 1)
-}, 30_000)
+    expect(Math.abs(withStrip.rate - bare.rate)).toBeLessThanOrEqual(bare.rate * 0.05)
+    // Regression was 18 ms vs 2; bound relative to the bare run also holds on SwiftShader (bare tick 13 ms)
+    expect(withStrip.ledRenderMs).toBeLessThanOrEqual(bare.ledRenderMs * 1.5 + 1)
+    expect(drawn).toBeGreaterThan(0)
+    expect(drawn).toBeLessThanOrEqual(frames + 1)
+  },
+  30_000,
+)
 
 // Moving to another display density or zooming fires no resize
 it('the LED strip follows a display density change', async () => {
@@ -157,7 +177,12 @@ describe.skipIf(!enabled)('LED clock probe', () => {
   it('bare setInterval reaches the configured rate', async () => {
     const rows = []
     for (const fps of [30, 60, 90, 120]) {
-      rows.push({ fps, idle: +(await measureIntervalRate(fps)).toFixed(1), busy4ms: +(await measureIntervalRate(fps, 4)).toFixed(1), busy12ms: +(await measureIntervalRate(fps, 12)).toFixed(1) })
+      rows.push({
+        fps,
+        idle: +(await measureIntervalRate(fps)).toFixed(1),
+        busy4ms: +(await measureIntervalRate(fps, 4)).toFixed(1),
+        busy12ms: +(await measureIntervalRate(fps, 12)).toFixed(1),
+      })
     }
     await commands.writeFile(`.work/perf/clock/interval-${label}.json`, JSON.stringify(rows, null, 1))
     expect(rows.every((row) => row.idle > row.fps * 0.95)).toBe(true)

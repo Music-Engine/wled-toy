@@ -1,6 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { EngineError } from '@/lib/engine/engine-error'
-import { isStripLayout, layoutCount, layoutKind, layoutPositions, layoutSummary, onlySegment, parseLayout, parseLayoutJson, presetLayout, type Layout, type Segment } from './layout'
+import {
+  isStripLayout,
+  layoutCount,
+  layoutKind,
+  layoutPositions,
+  layoutSummary,
+  onlySegment,
+  parseLayout,
+  parseLayoutJson,
+  presetLayout,
+  type Layout,
+  type Segment,
+} from './layout'
 
 const xy = (layout: Layout) => {
   const p = layoutPositions(layout)
@@ -9,7 +21,12 @@ const xy = (layout: Layout) => {
 
 describe('layoutPositions', () => {
   it('strip: LEDs at cell centers, like the pixels of the LED pass', () => {
-    expect(xy({ segments: [{ kind: 'strip', count: 4, from: [0, 0.5], to: [1, 0.5] }] })).toEqual([[0.125, 0.5], [0.375, 0.5], [0.625, 0.5], [0.875, 0.5]])
+    expect(xy({ segments: [{ kind: 'strip', count: 4, from: [0, 0.5], to: [1, 0.5] }] })).toEqual([
+      [0.125, 0.5],
+      [0.375, 0.5],
+      [0.625, 0.5],
+      [0.875, 0.5],
+    ])
   })
 
   it('ring: LED 0 at the start angle, the LED half way around is diametrically opposite', () => {
@@ -23,13 +40,35 @@ describe('layoutPositions', () => {
 
   it('matrix: serpentine reverses every other row; origin picks which row is first', () => {
     const matrix = (serpentine: boolean, origin: 'top-left' | 'bottom-left') => xy({ segments: [{ kind: 'matrix', width: 3, height: 2, serpentine, origin }] })
-    expect(matrix(false, 'bottom-left')).toEqual([[0.1667, 0.25], [0.5, 0.25], [0.8333, 0.25], [0.1667, 0.75], [0.5, 0.75], [0.8333, 0.75]])
-    expect(matrix(true, 'bottom-left').slice(3)).toEqual([[0.8333, 0.75], [0.5, 0.75], [0.1667, 0.75]])
+    expect(matrix(false, 'bottom-left')).toEqual([
+      [0.1667, 0.25],
+      [0.5, 0.25],
+      [0.8333, 0.25],
+      [0.1667, 0.75],
+      [0.5, 0.75],
+      [0.8333, 0.75],
+    ])
+    expect(matrix(true, 'bottom-left').slice(3)).toEqual([
+      [0.8333, 0.75],
+      [0.5, 0.75],
+      [0.1667, 0.75],
+    ])
     expect(matrix(false, 'top-left')[0]).toEqual([0.1667, 0.75])
   })
 
   it('points keep z, and segments carry their index', () => {
-    const layout: Layout = { segments: [{ kind: 'strip', count: 2, from: [0, 0], to: [1, 0] }, { kind: 'points', points: [[0.2, 0.3, 0.9], [0.4, 0.5]] }] }
+    const layout: Layout = {
+      segments: [
+        { kind: 'strip', count: 2, from: [0, 0], to: [1, 0] },
+        {
+          kind: 'points',
+          points: [
+            [0.2, 0.3, 0.9],
+            [0.4, 0.5],
+          ],
+        },
+      ],
+    }
     expect(layoutCount(layout)).toBe(4)
     expect([...layoutPositions(layout).slice(8)].map((v) => Number(v.toFixed(2)))).toEqual([0.2, 0.3, 0.9, 1, 0.4, 0.5, 0, 1])
   })
@@ -79,7 +118,17 @@ describe('device form presets', () => {
     expect(onlySegment(two)).toBeNull()
     expect(layoutKind(two)).toBe('custom')
     expect(layoutSummary(two)).toBe('2 segments, 24 LEDs. The LED count follows it.')
-    const points: Layout = { segments: [{ kind: 'points', points: [[0, 0], [1, 1]] }] }
+    const points: Layout = {
+      segments: [
+        {
+          kind: 'points',
+          points: [
+            [0, 0],
+            [1, 1],
+          ],
+        },
+      ],
+    }
     expect(layoutKind(points)).toBe('custom')
     expect(layoutSummary(points)).toBe('1 segment, 2 LEDs. The LED count follows it.')
   })

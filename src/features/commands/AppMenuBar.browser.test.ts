@@ -17,11 +17,15 @@ function mount() {
   document.body.append(root)
   const app = createApp({ render: () => h(AppMenuBar) })
   app.mount(root)
-  cleanups.push(() => { app.unmount(); root.remove() })
+  cleanups.push(() => {
+    app.unmount()
+    root.remove()
+  })
   return root
 }
 
-const trigger = (root: HTMLElement, title: string) => [...root.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) => el.textContent!.trim() === title)!
+const trigger = (root: HTMLElement, title: string) =>
+  [...root.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) => el.textContent!.trim() === title)!
 const entry = (id: string) => document.querySelector<HTMLElement>(`[role="menu"] [data-command="${id}"]`)
 
 it('shows exactly File, View and Help, as text', () => {

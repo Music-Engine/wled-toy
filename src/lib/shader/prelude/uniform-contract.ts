@@ -11,7 +11,8 @@ export const UNIFORM_CONTRACT: Record<string, string> = {
   iAudio: `R8 texture, ${AUDIO_BINS} x 2, linear filtering, clamped. Row 0: FFT magnitudes 0 to 1, lowest frequency first. Row 1: the waveform, 0.5 is silence.`,
   iImage: 'RGBA8 image of any size, linear filtering, clamped, first row at the top (the helpers flip y).',
   iImages: `RGBA8 2D array texture, ${IMAGE_LAYERS} layers of ${IMAGE_LAYER_SIZE} x ${IMAGE_LAYER_SIZE}, linear filtering, clamped: one image per layer.`,
-  iAudioBands: 'R8 texture, N x 2 with N at least 12, linear filtering, clamped. Row 0: N band levels 0 to 1 (log or mel spaced), bass first. Row 1: the 12 pitch classes from C in texels 0 to 11.',
+  iAudioBands:
+    'R8 texture, N x 2 with N at least 12, linear filtering, clamped. Row 0: N band levels 0 to 1 (log or mel spaced), bass first. Row 1: the 12 pitch classes from C in texels 0 to 11.',
   iAudioHistory: `R8 texture, N x ${HISTORY_ROWS}, linear filtering, clamped in x and repeating in y: one row of band levels per analysis hop, written as a ring. iAudioHeads.x is the newest row.`,
   iAudioBandsExtra: `${AUDIO_EXTRA_SLOTS} more textures shaped like iAudioBands, for analyses with other settings (slots 1 to ${AUDIO_EXTRA_SLOTS}). Every element needs a texture unit of its own.`,
   iAudioHistoryExtra: `${AUDIO_EXTRA_SLOTS} more textures shaped like iAudioHistory, one per extra analysis. Every element needs a texture unit of its own.`,
@@ -20,7 +21,8 @@ export const UNIFORM_CONTRACT: Record<string, string> = {
   iAudioSpectrumBins: `${AUDIO_EXTRA_SLOTS + 1} floats: how many bins of each row of iAudioSpectra hold the spectrum, half the analysis's window.`,
   iAudioWave: `R8 texture, ${WAVE_WIDTH} x ${WAVE_ROWS}, repeating in y: the most recent samples as a ring in row-major order, 128 is silence.`,
   iAudioHeads: '(newest row of iAudioHistory, index of the next sample to be written to iAudioWave, sample rate in Hz).',
-  iAudioFeatures: "4 vec4 of the default analysis's features for this frame, four to a vector: level, rms, peak, gate, onset, beat, beat phase, BPM, brightness, noisiness, then the sub, kick, low mid, vocal, presence and air levels. Onset and beat are 1 when the analysis raised them since the previous frame.",
+  iAudioFeatures:
+    "4 vec4 of the default analysis's features for this frame, four to a vector: level, rms, peak, gate, onset, beat, beat phase, BPM, brightness, noisiness, then the sub, kick, low mid, vocal, presence and air levels. Onset and beat are 1 when the analysis raised them since the previous frame.",
   iLayout: 'RGBA32F texture, iLayoutCount x 1, nearest filtering: x, y, z (0 to 1) and segment index of every LED in wire order.',
   iLayoutCount: 'number of LEDs in iLayout, or 0 for a plain strip that samples the row at iScanY.',
   iPrevFrame: 'what this shader drew into the same target on the previous frame (render to two targets in turn), linear filtering, clamped.',

@@ -4,12 +4,15 @@ import { audioReadsChunk } from '@/lib/graph/nodes/glsl/audio'
 import { toApproachFraction } from '@/lib/graph/nodes/shared/signal'
 
 const MODES = [
-  { value: 'level', label: 'Level (gain controlled)' }, { value: 'rms', label: 'RMS' }, { value: 'peak', label: 'Peak' },
+  { value: 'level', label: 'Level (gain controlled)' },
+  { value: 'rms', label: 'RMS' },
+  { value: 'peak', label: 'Peak' },
 ] as const
 
 export const audioSignalNode = defineNode('audioSignal', {
   title: 'Audio to Signal',
-  description: 'The loudness of an audio stream as one per-frame number, smoothed with Attack and Release so it can drive anything a knob can. Level follows the automatic gain and fills 0 to 1; RMS and Peak are the raw values.',
+  description:
+    'The loudness of an audio stream as one per-frame number, smoothed with Attack and Release so it can drive anything a knob can. Level follows the automatic gain and fills 0 to 1; RMS and Peak are the raw values.',
   category: 'audio',
   input: {
     mode: { type: Enum(MODES), label: '', default: 'level', linkable: false, props: { label: 'Measure' } },

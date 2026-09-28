@@ -3,7 +3,9 @@ import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, ty
 import { REPLACED_FUNCTIONS } from './catalog-replaced'
 
 // Time node covers iTime and iFrame
-export const CATALOG_UNIFORMS: NodeItem[] = NODES.filter((node) => node.kind === 'uniform' && node.name !== 'iTime' && node.name !== 'iFrame').map(defineUniformItem)
+export const CATALOG_UNIFORMS: NodeItem[] = NODES.filter((node) => node.kind === 'uniform' && node.name !== 'iTime' && node.name !== 'iFrame').map(
+  defineUniformItem,
+)
 
 export const CATALOG_FUNCTIONS: NodeItem[] = NODES.filter((node) => node.kind === 'function' && !REPLACED_FUNCTIONS.includes(node.name)).map(defineFunctionItem)
 

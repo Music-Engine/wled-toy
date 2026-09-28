@@ -11,7 +11,10 @@ export class DeadlineTimer {
   private due = 0
   private timer: ReturnType<typeof setTimeout> | undefined
 
-  constructor(private readonly tick: () => void, private readonly readPeriod: () => number) {}
+  constructor(
+    private readonly tick: () => void,
+    private readonly readPeriod: () => number,
+  ) {}
 
   restart() {
     clearTimeout(this.timer)

@@ -15,7 +15,14 @@ export async function mountGraphPage(): Promise<() => void> {
   workspace.mode = 'graph'
   const root = document.createElement('div')
   document.body.append(root)
-  const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
+  const app = createApp({
+    render: () =>
+      h(
+        'div',
+        { style: 'width: 1000px; height: 600px' },
+        h(KeepAlive, null, () => h(GraphPage)),
+      ),
+  })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   // Nuxt UI and the router are not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
@@ -24,5 +31,9 @@ export async function mountGraphPage(): Promise<() => void> {
   await expect.poll(() => document.querySelectorAll('.vue-flow__node').length).toBe(createDefaultGraph().nodes.length)
   // pointer math reads the zoom the canvas settles on
   await expect.poll(() => useVueFlow('wledtoy-graph').fitViewOnInitDone.value).toBe(true)
-  return () => { removeKeys(); app.unmount(); root.remove() }
+  return () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
 }

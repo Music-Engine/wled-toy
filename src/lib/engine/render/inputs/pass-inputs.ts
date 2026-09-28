@@ -13,7 +13,10 @@ export class PassInputs {
   private layoutCount = 0
   private controls: Float32Array | null = null
 
-  constructor(private readonly gl: WebGL2RenderingContext, private readonly global: GlobalPass) {
+  constructor(
+    private readonly gl: WebGL2RenderingContext,
+    private readonly global: GlobalPass,
+  ) {
     this.audio = new AudioInputs(gl)
     this.images = new ImageInputs(gl)
     // Float positions unfilterable w/o extension, and fetched per LED anyway

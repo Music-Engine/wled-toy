@@ -1,6 +1,19 @@
 export type GlslType = 'float' | 'int' | 'vec2' | 'vec3' | 'vec4' | 'mat2' | 'sampler2D' | 'genType' | 'void'
 
-export type CategoryId = 'input' | 'output' | 'converter' | 'signal' | 'strip' | 'animation' | 'audio' | 'image' | 'color' | 'math' | 'noise' | 'builtin' | 'recipe'
+export type CategoryId =
+  | 'input'
+  | 'output'
+  | 'converter'
+  | 'signal'
+  | 'strip'
+  | 'animation'
+  | 'audio'
+  | 'image'
+  | 'color'
+  | 'math'
+  | 'noise'
+  | 'builtin'
+  | 'recipe'
 
 export interface Category {
   id: CategoryId
@@ -106,12 +119,34 @@ function fn(name: string, title: string, category: CategoryId, returns: string, 
 }
 
 function uniform(name: string, title: string, type: GlslType, doc: string): ShaderNode {
-  return { name, title, category: 'input', kind: 'uniform', returns: type, output: { name, label: title, type, isColor: false }, params: [], doc, signature: `uniform ${type} ${name}`, snippet: name }
+  return {
+    name,
+    title,
+    category: 'input',
+    kind: 'uniform',
+    returns: type,
+    output: { name, label: title, type, isColor: false },
+    params: [],
+    doc,
+    signature: `uniform ${type} ${name}`,
+    snippet: name,
+  }
 }
 
 // placeholders must not be bare integers: CodeMirror reads ${2} as a field index, not text
 function recipe(name: string, title: string, returns: GlslType, doc: string, snippet: string): ShaderNode {
-  return { name, title, category: 'recipe', kind: 'recipe', returns, output: { name, label: title, type: returns, isColor: false }, params: [], doc, signature: snippet.replace(/\$\{([^}]*)\}/g, '$1'), snippet }
+  return {
+    name,
+    title,
+    category: 'recipe',
+    kind: 'recipe',
+    returns,
+    output: { name, label: title, type: returns, isColor: false },
+    params: [],
+    doc,
+    signature: snippet.replace(/\$\{([^}]*)\}/g, '$1'),
+    snippet,
+  }
 }
 
 export const NODES: ShaderNode[] = [
@@ -125,19 +160,54 @@ export const NODES: ShaderNode[] = [
 
   fn('fft', 'Audio Spectrum', 'audio', 'float level', 'float frequency = uv.x', 'FFT magnitude 0 to 1 at normalized frequency f.'),
   fn('waveform', 'Audio Waveform', 'audio', 'float sample', 'float position = uv.x', 'Waveform sample -1 to 1 at normalized position x.'),
-  fn('bandLevel', 'Audio Band', 'audio', 'float level', 'float low = 0 [0, 1], float high = 1 [0, 1]', 'Average FFT magnitude between two normalized frequencies.'),
-  fn('bass', 'Bass Level', 'audio', 'float level', '', 'Average low-frequency energy, 0 to 1. Store it under another name (float low = bass();): a variable called bass hides the function for the rest of its scope.'),
+  fn(
+    'bandLevel',
+    'Audio Band',
+    'audio',
+    'float level',
+    'float low = 0 [0, 1], float high = 1 [0, 1]',
+    'Average FFT magnitude between two normalized frequencies.',
+  ),
+  fn(
+    'bass',
+    'Bass Level',
+    'audio',
+    'float level',
+    '',
+    'Average low-frequency energy, 0 to 1. Store it under another name (float low = bass();): a variable called bass hides the function for the rest of its scope.',
+  ),
   fn('mid', 'Mid Level', 'audio', 'float level', '', 'Average mid-frequency energy, 0 to 1.'),
   fn('treble', 'Treble Level', 'audio', 'float level', '', 'Average high-frequency energy, 0 to 1.'),
 
   fn('image', 'Image Texture', 'image', 'vec4 color', 'vec2 uv = uv', 'Sample the image at uv (origin bottom-left).'),
-  fn('imageScroll', 'Scrolling Image', 'image', 'vec4 color', 'vec2 uv = uv, vec2 speed = vec2(0.1, 0.0)', 'Sample the image scrolling over time, wrapping at the edges.'),
+  fn(
+    'imageScroll',
+    'Scrolling Image',
+    'image',
+    'vec4 color',
+    'vec2 uv = uv, vec2 speed = vec2(0.1, 0.0)',
+    'Sample the image scrolling over time, wrapping at the edges.',
+  ),
   fn('imagePixelate', 'Pixelated Image', 'image', 'vec4 color', 'vec2 uv = uv, float cells = 16', 'Sample the image quantized to a grid of cells.'),
 
   fn('hsv2rgb', 'HSV to RGB', 'color', 'color color', 'vec3 hsv = vec3(uv.x, 1.0, 1.0)', 'Convert hue, saturation, value (all 0 to 1) to RGB.'),
   fn('rainbow', 'Rainbow', 'color', 'color color', 'float position = uv.x', 'Smooth cyclic rainbow color for t.'),
-  fn('palette', 'Cosine Palette', 'color', 'color color', 'float position = uv.x, vec3 bias = vec3(0.5), vec3 amplitude = vec3(0.5), vec3 frequency = vec3(1.0), vec3 phase = vec3(0.0, 0.33, 0.67)', 'Inigo Quilez cosine palette: a + b * cos(2pi * (c * t + d)).'),
-  fn('gammaCorrect', 'Gamma', 'color', 'color color', 'color color, float gamma = 2.2', 'Apply a power curve per channel. LEDs usually look better with gamma above 1.'),
+  fn(
+    'palette',
+    'Cosine Palette',
+    'color',
+    'color color',
+    'float position = uv.x, vec3 bias = vec3(0.5), vec3 amplitude = vec3(0.5), vec3 frequency = vec3(1.0), vec3 phase = vec3(0.0, 0.33, 0.67)',
+    'Inigo Quilez cosine palette: a + b * cos(2pi * (c * t + d)).',
+  ),
+  fn(
+    'gammaCorrect',
+    'Gamma',
+    'color',
+    'color color',
+    'color color, float gamma = 2.2',
+    'Apply a power curve per channel. LEDs usually look better with gamma above 1.',
+  ),
 
   fn('rotate2d', 'Rotate 2D', 'math', 'mat2 matrix', 'float angle = 0', '2D rotation matrix. Multiply with a vec2: rotate2d(a) * p.'),
 
@@ -155,7 +225,14 @@ export const NODES: ShaderNode[] = [
   fn('clamp', 'Clamp', 'builtin', 'genType result', 'genType value = uv.x, genType low = 0, genType high = 1', 'Constrain x between lo and hi.'),
   fn('mix', 'Mix', 'builtin', 'genType result', 'genType a = 0, genType b = 1, genType factor = uv.x', 'Linear blend from a to b by t.'),
   fn('step', 'Step', 'builtin', 'genType result', 'genType edge = 0.5, genType value = uv.x', '0 when x < edge, otherwise 1.'),
-  fn('smoothstep', 'Smooth Step', 'builtin', 'genType result', 'genType low = 0, genType high = 1, genType value = uv.x', 'Hermite interpolation between two edges.'),
+  fn(
+    'smoothstep',
+    'Smooth Step',
+    'builtin',
+    'genType result',
+    'genType low = 0, genType high = 1, genType value = uv.x',
+    'Hermite interpolation between two edges.',
+  ),
   fn('length', 'Length', 'builtin', 'float length', 'genType vector = uv.x', 'Euclidean length of a vector.'),
   fn('distance', 'Distance', 'builtin', 'float distance', 'genType a = 0.5, genType b = 0.5', 'Distance between two points.'),
   fn('dot', 'Dot Product', 'builtin', 'float product', 'genType a = 0.5, genType b = 0.5', 'Dot product of two vectors.'),
@@ -169,21 +246,70 @@ export const NODES: ShaderNode[] = [
   fn('fromCenter', 'Distance From Center', 'strip', 'float distance', 'float position = uv.x', '0 at the middle of the strip, 1 at both ends. Pass uv.x.'),
   fn('mirror', 'Mirror', 'strip', 'float position', 'float position = uv.x', '0 at both ends, 1 in the middle, so effects play symmetrically.'),
   fn('stripes', 'Stripes', 'strip', 'float mask', 'float position = uv.x, float count = 4', 'Hard on/off stripes along x.'),
-  fn('chase', 'Theater Chase', 'strip', 'float mask', 'float ledIndex = ledIndex, float spacing = 3, float speed = 1', '1 on every spacing-th LED, stepping along at speed LEDs per second.'),
-  fn('scanner', 'Scanner', 'strip', 'float glow', 'float position = uv.x, float speed = 1, float width = 0.05', 'Glow that bounces back and forth, like a Larson scanner.'),
-  fn('sparkle', 'Sparkle', 'strip', 'float glow', 'float ledIndex = ledIndex, float density = 0.1 [0, 1], float speed = 1', 'Random twinkles per LED. density 0 to 1 is the share of LEDs lit.'),
+  fn(
+    'chase',
+    'Theater Chase',
+    'strip',
+    'float mask',
+    'float ledIndex = ledIndex, float spacing = 3, float speed = 1',
+    '1 on every spacing-th LED, stepping along at speed LEDs per second.',
+  ),
+  fn(
+    'scanner',
+    'Scanner',
+    'strip',
+    'float glow',
+    'float position = uv.x, float speed = 1, float width = 0.05',
+    'Glow that bounces back and forth, like a Larson scanner.',
+  ),
+  fn(
+    'sparkle',
+    'Sparkle',
+    'strip',
+    'float glow',
+    'float ledIndex = ledIndex, float density = 0.1 [0, 1], float speed = 1',
+    'Random twinkles per LED. density 0 to 1 is the share of LEDs lit.',
+  ),
 
   fn('sawWave', 'Saw Wave', 'animation', 'float value', 'float time = iTime', 'Ramps 0 to 1 then jumps back. Try sawWave(iTime * 0.5).'),
   fn('triangleWave', 'Triangle Wave', 'animation', 'float value', 'float time = iTime', 'Ramps 0 to 1 and back to 0 each cycle.'),
-  fn('squareWave', 'Square Wave', 'animation', 'float value', 'float time = iTime, float duty = 0.5 [0, 1]', 'Blinks between 1 and 0; duty is the share of the cycle that is on.'),
+  fn(
+    'squareWave',
+    'Square Wave',
+    'animation',
+    'float value',
+    'float time = iTime, float duty = 0.5 [0, 1]',
+    'Blinks between 1 and 0; duty is the share of the cycle that is on.',
+  ),
   fn('sineWave', 'Sine Wave', 'animation', 'float value', 'float time = iTime', 'Smooth 0 to 1 oscillation, one cycle per unit of t.'),
   fn('easeInOut', 'Ease In Out', 'animation', 'float value', 'float value = uv.x', 'Smooth start and stop for a 0 to 1 value.'),
   fn('bounce', 'Bounce', 'animation', 'float value', 'float time = iTime', 'Bouncing ball curve, 0 to 1.'),
-  fn('pulse', 'Gaussian Pulse', 'animation', 'float glow', 'float position = uv.x, float center = 0.5, float width = 0.05', 'Soft bump that peaks at 1 where x equals center.'),
+  fn(
+    'pulse',
+    'Gaussian Pulse',
+    'animation',
+    'float glow',
+    'float position = uv.x, float center = 0.5, float width = 0.05',
+    'Soft bump that peaks at 1 where x equals center.',
+  ),
 
-  fn('remap', 'Map Range', 'math', 'float value', 'float value = uv.x, float inLow = 0, float inHigh = 1, float outLow = 0, float outHigh = 1', 'Linearly map a value from one range to another.'),
+  fn(
+    'remap',
+    'Map Range',
+    'math',
+    'float value',
+    'float value = uv.x, float inLow = 0, float inHigh = 1, float outLow = 0, float outHigh = 1',
+    'Linearly map a value from one range to another.',
+  ),
   fn('saturate', 'Saturate', 'math', 'float value', 'float value = uv.x', 'Clamp to 0 to 1.'),
-  fn('band', 'Band', 'math', 'float mask', 'float value = uv.x, float low = 0, float high = 1, float softness = 0.05', '1 between lo and hi with soft edges, else 0.'),
+  fn(
+    'band',
+    'Band',
+    'math',
+    'float mask',
+    'float value = uv.x, float low = 0, float high = 1, float softness = 0.05',
+    '1 between lo and hi with soft edges, else 0.',
+  ),
   fn('tile', 'Tile UV', 'math', 'vec2 uv', 'vec2 uv = uv, float count = 4', 'Repeat the UV space n times.'),
   fn('polar', 'Polar UV', 'math', 'vec2 polar', 'vec2 uv = uv', 'Convert to (angle 0 to 1, radius) around the center.'),
 
@@ -191,9 +317,23 @@ export const NODES: ShaderNode[] = [
   fn('rgb2hsv', 'RGB to HSV', 'color', 'vec3 hsv', 'color color', 'Convert RGB to hue, saturation, value.'),
   fn('hueShift', 'Hue Shift', 'color', 'color color', 'color color, float shift = 0.25', 'Rotate the hue; shift of 1 is a full turn.'),
   fn('saturation', 'Saturation', 'color', 'color color', 'color color, float amount = 1.5', '0 is grayscale, 1 unchanged, above 1 more vivid.'),
-  fn('brightnessContrast', 'Brightness Contrast', 'color', 'color color', 'color color, float brightness = 0, float contrast = 1', 'Add brightness and scale contrast around mid gray.'),
+  fn(
+    'brightnessContrast',
+    'Brightness Contrast',
+    'color',
+    'color color',
+    'color color, float brightness = 0, float contrast = 1',
+    'Add brightness and scale contrast around mid gray.',
+  ),
   fn('heatColor', 'Heat Color', 'color', 'color color', 'float heat = uv.x', 'Black to red to yellow to white, like fire.'),
-  fn('kelvin', 'Color Temperature', 'color', 'color color', 'float kelvin = 2700 [1000, 40000]', 'White point for a temperature, e.g. 2700 warm, 6500 daylight.'),
+  fn(
+    'kelvin',
+    'Color Temperature',
+    'color',
+    'color color',
+    'float kelvin = 2700 [1000, 40000]',
+    'White point for a temperature, e.g. 2700 warm, 6500 daylight.',
+  ),
 
   fn('random', 'Random', 'noise', 'float value', 'float seed = ledIndex', 'Pseudo-random 0 to 1 from a number, e.g. random(ledIndex).'),
   fn('fbm', 'Fractal Noise', 'noise', 'float value', 'vec2 point = uv * 8.0', 'Layered value noise with more detail, 0 to about 1.'),
@@ -209,39 +349,210 @@ export const NODES: ShaderNode[] = [
   fn('imageLuma', 'Image Brightness', 'image', 'float luminance', 'vec2 uv = uv', 'Grayscale brightness of the image at uv.'),
 
   recipe('beatFlash', 'Beat Flash', 'float', 'Float that snaps to 1 on strong bass hits.', 'float flash = smoothstep(${0.45}, ${0.6}, bass());'),
-  recipe('spectrumBars', 'Spectrum Bars', 'vec3', 'Rainbow spectrum analyzer in the 2D preview.', 'vec3 bars = rainbow(uv.x) * step(uv.y, fft(uv.x * ${0.5}));'),
-  recipe('comet', 'Comet', 'vec3', 'Glowing dot that travels along the strip.', 'float head = fract(iTime * ${0.25});\nvec3 comet = ${vec3(1.0, 0.6, 0.2)} * exp(-abs(uv.x - head) * ${40.0});'),
+  recipe(
+    'spectrumBars',
+    'Spectrum Bars',
+    'vec3',
+    'Rainbow spectrum analyzer in the 2D preview.',
+    'vec3 bars = rainbow(uv.x) * step(uv.y, fft(uv.x * ${0.5}));',
+  ),
+  recipe(
+    'comet',
+    'Comet',
+    'vec3',
+    'Glowing dot that travels along the strip.',
+    'float head = fract(iTime * ${0.25});\nvec3 comet = ${vec3(1.0, 0.6, 0.2)} * exp(-abs(uv.x - head) * ${40.0});',
+  ),
   recipe('scrollImage', 'Scrolling Image', 'vec3', 'Image scrolling horizontally along the strip.', 'vec3 img = imageScroll(uv, vec2(${0.1}, 0.0)).rgb;'),
-  recipe('kaleido', 'Kaleidoscope UV', 'vec2', 'Rotating mirrored UV coordinates.', 'vec2 k = abs(fract(rotate2d(iTime * ${0.2}) * (uv - 0.5) * ${3.0}) - 0.5);'),
-  recipe('fire', 'Fire', 'vec3', 'Flickering fire colors from noise.', 'vec3 fire = palette(noise(vec2(uv.x * ${8.0}, iTime * ${2.0})), vec3(0.5), vec3(0.5), vec3(1.0, 0.7, 0.4), vec3(0.0, 0.15, 0.2));'),
+  recipe(
+    'kaleido',
+    'Kaleidoscope UV',
+    'vec2',
+    'Rotating mirrored UV coordinates.',
+    'vec2 k = abs(fract(rotate2d(iTime * ${0.2}) * (uv - 0.5) * ${3.0}) - 0.5);',
+  ),
+  recipe(
+    'fire',
+    'Fire',
+    'vec3',
+    'Flickering fire colors from noise.',
+    'vec3 fire = palette(noise(vec2(uv.x * ${8.0}, iTime * ${2.0})), vec3(0.5), vec3(0.5), vec3(1.0, 0.7, 0.4), vec3(0.0, 0.15, 0.2));',
+  ),
   recipe('checker', 'LED Checker', 'vec3', 'Alternate every other LED, handy for testing wiring.', 'vec3 checker = vec3(mod(ledIndex, ${2.0}));'),
-  recipe('vuMeter', 'VU Meter', 'vec3', 'Green to red bar that grows with loudness.', 'vec3 vu = mix(vec3(0.0, 1.0, 0.2), vec3(1.0, 0.1, 0.0), uv.x) * step(uv.x, energy() * ${2.5});'),
-  recipe('spectrumStrip', 'Spectrum Along Strip', 'vec3', 'Log spectrum from bass (start) to treble (end) in fire colors.', 'vec3 spectrum = heatColor(fftLog(uv.x) * ${1.2});'),
-  recipe('bassBurst', 'Bass Burst', 'vec3', 'Fire that bursts outward from the center on bass.', 'vec3 burst = heatColor(1.0 - fromCenter(uv.x) / max(bass() * ${1.5}, 0.01));'),
-  recipe('beatStrobe', 'Beat Strobe', 'vec3', 'Fast white strobe only while the beat hits.', 'vec3 strobe = vec3(1.0) * beat(${0.5}) * squareWave(iTime * ${12.0}, 0.5);'),
-  recipe('rainbowChase', 'Rainbow Chase', 'vec3', 'Theater chase with moving rainbow colors.', 'vec3 chaseCol = rainbow(ledIndex / iLedCount + iTime * ${0.2}) * chase(ledIndex, ${3.0}, ${10.0});'),
+  recipe(
+    'vuMeter',
+    'VU Meter',
+    'vec3',
+    'Green to red bar that grows with loudness.',
+    'vec3 vu = mix(vec3(0.0, 1.0, 0.2), vec3(1.0, 0.1, 0.0), uv.x) * step(uv.x, energy() * ${2.5});',
+  ),
+  recipe(
+    'spectrumStrip',
+    'Spectrum Along Strip',
+    'vec3',
+    'Log spectrum from bass (start) to treble (end) in fire colors.',
+    'vec3 spectrum = heatColor(fftLog(uv.x) * ${1.2});',
+  ),
+  recipe(
+    'bassBurst',
+    'Bass Burst',
+    'vec3',
+    'Fire that bursts outward from the center on bass.',
+    'vec3 burst = heatColor(1.0 - fromCenter(uv.x) / max(bass() * ${1.5}, 0.01));',
+  ),
+  recipe(
+    'beatStrobe',
+    'Beat Strobe',
+    'vec3',
+    'Fast white strobe only while the beat hits.',
+    'vec3 strobe = vec3(1.0) * beat(${0.5}) * squareWave(iTime * ${12.0}, 0.5);',
+  ),
+  recipe(
+    'rainbowChase',
+    'Rainbow Chase',
+    'vec3',
+    'Theater chase with moving rainbow colors.',
+    'vec3 chaseCol = rainbow(ledIndex / iLedCount + iTime * ${0.2}) * chase(ledIndex, ${3.0}, ${10.0});',
+  ),
   recipe('twinkle', 'Twinkle Stars', 'vec3', 'Warm random twinkles.', 'vec3 stars = vec3(1.0, 0.9, 0.7) * sparkle(ledIndex, ${0.08}, ${1.5});'),
-  recipe('breathing', 'Breathing', 'vec3', 'Whole strip slowly fades in and out.', 'vec3 breathe = ${vec3(0.2, 0.5, 1.0)} * easeInOut(triangleWave(iTime * ${0.25}));'),
+  recipe(
+    'breathing',
+    'Breathing',
+    'vec3',
+    'Whole strip slowly fades in and out.',
+    'vec3 breathe = ${vec3(0.2, 0.5, 1.0)} * easeInOut(triangleWave(iTime * ${0.25}));',
+  ),
   recipe('larson', 'Larson Scanner', 'vec3', 'Red eye sweeping back and forth.', 'vec3 larson = vec3(1.0, 0.0, 0.0) * scanner(uv.x, ${0.5}, ${0.04});'),
-  recipe('police', 'Police Lights', 'vec3', 'Alternating red and blue halves.', 'float side = step(0.5, uv.x);\nvec3 police = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.2, 1.0), side) * squareWave(iTime * ${4.0} + side * 0.5, 0.5);'),
-  recipe('colorWipe', 'Color Wipe', 'vec3', 'A color fills the strip from start to end, then repeats.', 'vec3 wipe = mix(${vec3(0.0)}, ${vec3(0.0, 1.0, 0.5)}, step(uv.x, sawWave(iTime * ${0.3})));'),
-  recipe('meteor', 'Meteor Rain', 'vec3', 'Bright head with a sparkly fading tail.', 'float meteorHead = sawWave(iTime * ${0.4});\nfloat meteorTail = uv.x < meteorHead ? exp(-(meteorHead - uv.x) * ${12.0}) : 0.0;\nvec3 meteor = vec3(0.8, 0.9, 1.0) * meteorTail * (0.6 + 0.4 * hash(vec2(ledIndex, floor(iTime * 20.0))));'),
-  recipe('gradient', 'Moving Gradient', 'vec3', 'Two colors blending back and forth along the strip.', 'vec3 gradient = mix(${vec3(1.0, 0.2, 0.5)}, ${vec3(0.1, 0.4, 1.0)}, sineWave(uv.x - iTime * ${0.1}));'),
-  recipe('plasma', 'Plasma', 'vec3', 'Classic demoscene plasma.', 'float plasmaV = sin(uv.x * ${10.0} + iTime) + sin((uv.y + uv.x) * 8.0 - iTime * 1.3) + sin(length(uv - 0.5) * 12.0 - iTime);\nvec3 plasma = rainbow(plasmaV * ${0.15});'),
-  recipe('ocean', 'Ocean', 'vec3', 'Slow rolling blue-green waves.', 'vec3 ocean = palette(fbm(vec2(uv.x * ${3.0} - iTime * 0.3, iTime * 0.2)), vec3(0.0, 0.3, 0.5), vec3(0.0, 0.3, 0.4), vec3(1.0), vec3(0.0, 0.1, 0.2));'),
+  recipe(
+    'police',
+    'Police Lights',
+    'vec3',
+    'Alternating red and blue halves.',
+    'float side = step(0.5, uv.x);\nvec3 police = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.2, 1.0), side) * squareWave(iTime * ${4.0} + side * 0.5, 0.5);',
+  ),
+  recipe(
+    'colorWipe',
+    'Color Wipe',
+    'vec3',
+    'A color fills the strip from start to end, then repeats.',
+    'vec3 wipe = mix(${vec3(0.0)}, ${vec3(0.0, 1.0, 0.5)}, step(uv.x, sawWave(iTime * ${0.3})));',
+  ),
+  recipe(
+    'meteor',
+    'Meteor Rain',
+    'vec3',
+    'Bright head with a sparkly fading tail.',
+    'float meteorHead = sawWave(iTime * ${0.4});\nfloat meteorTail = uv.x < meteorHead ? exp(-(meteorHead - uv.x) * ${12.0}) : 0.0;\nvec3 meteor = vec3(0.8, 0.9, 1.0) * meteorTail * (0.6 + 0.4 * hash(vec2(ledIndex, floor(iTime * 20.0))));',
+  ),
+  recipe(
+    'gradient',
+    'Moving Gradient',
+    'vec3',
+    'Two colors blending back and forth along the strip.',
+    'vec3 gradient = mix(${vec3(1.0, 0.2, 0.5)}, ${vec3(0.1, 0.4, 1.0)}, sineWave(uv.x - iTime * ${0.1}));',
+  ),
+  recipe(
+    'plasma',
+    'Plasma',
+    'vec3',
+    'Classic demoscene plasma.',
+    'float plasmaV = sin(uv.x * ${10.0} + iTime) + sin((uv.y + uv.x) * 8.0 - iTime * 1.3) + sin(length(uv - 0.5) * 12.0 - iTime);\nvec3 plasma = rainbow(plasmaV * ${0.15});',
+  ),
+  recipe(
+    'ocean',
+    'Ocean',
+    'vec3',
+    'Slow rolling blue-green waves.',
+    'vec3 ocean = palette(fbm(vec2(uv.x * ${3.0} - iTime * 0.3, iTime * 0.2)), vec3(0.0, 0.3, 0.5), vec3(0.0, 0.3, 0.4), vec3(1.0), vec3(0.0, 0.1, 0.2));',
+  ),
   recipe('lava', 'Lava', 'vec3', 'Glowing molten noise.', 'vec3 lava = heatColor(fbm(vec2(uv.x * ${4.0}, iTime * ${0.3})) * 1.4);'),
-  recipe('aurora', 'Aurora', 'vec3', 'Green and teal curtains drifting slowly.', 'vec3 aurora = hsv2rgb(vec3(0.35 + 0.25 * fbm(vec2(uv.x * ${2.0}, iTime * 0.1)), 0.8, smoothstep(0.3, 0.8, fbm(vec2(uv.x * 5.0 + iTime * ${0.2}, 1.0)))));'),
-  recipe('candle', 'Candle', 'vec3', 'Warm flickering candlelight.', 'float flicker = 0.75 + 0.25 * fbm(vec2(iTime * ${6.0}, ledIndex * 0.3));\nvec3 candle = kelvin(${1900.0}) * flicker;'),
+  recipe(
+    'aurora',
+    'Aurora',
+    'vec3',
+    'Green and teal curtains drifting slowly.',
+    'vec3 aurora = hsv2rgb(vec3(0.35 + 0.25 * fbm(vec2(uv.x * ${2.0}, iTime * 0.1)), 0.8, smoothstep(0.3, 0.8, fbm(vec2(uv.x * 5.0 + iTime * ${0.2}, 1.0)))));',
+  ),
+  recipe(
+    'candle',
+    'Candle',
+    'vec3',
+    'Warm flickering candlelight.',
+    'float flicker = 0.75 + 0.25 * fbm(vec2(iTime * ${6.0}, ledIndex * 0.3));\nvec3 candle = kelvin(${1900.0}) * flicker;',
+  ),
   recipe('warmWhite', 'Warm White', 'vec3', 'Solid white at a color temperature.', 'vec3 white = kelvin(${2700.0});'),
-  recipe('mirrorCenter', 'Mirror From Center', 'vec2', 'UV that is symmetric around the strip center; use mirrored.x in place of uv.x.', 'vec2 mirrored = vec2(fromCenter(uv.x), uv.y);'),
+  recipe(
+    'mirrorCenter',
+    'Mirror From Center',
+    'vec2',
+    'UV that is symmetric around the strip center; use mirrored.x in place of uv.x.',
+    'vec2 mirrored = vec2(fromCenter(uv.x), uv.y);',
+  ),
   recipe('hueCycleImage', 'Hue Cycling Image', 'vec3', 'The image with its hue rotating over time.', 'vec3 hueImg = hueShift(image(uv).rgb, iTime * ${0.1});'),
 ]
 
 export const nodeByName = new Map(NODES.map((n) => [n.name, n]))
 
-export const GLSL_KEYWORDS = ['if', 'else', 'for', 'while', 'do', 'break', 'continue', 'return', 'discard', 'const', 'in', 'out', 'inout', 'uniform', 'precision', 'highp', 'mediump', 'lowp', 'struct', 'true', 'false']
-export const GLSL_TYPES = ['void', 'bool', 'int', 'uint', 'float', 'vec2', 'vec3', 'vec4', 'ivec2', 'ivec3', 'ivec4', 'bvec2', 'bvec3', 'bvec4', 'mat2', 'mat3', 'mat4', 'sampler2D']
-export const GLSL_EXTRA_BUILTINS = ['sign', 'ceil', 'tan', 'asin', 'acos', 'radians', 'degrees', 'log', 'cross', 'reflect', 'refract', 'texelFetch', 'dFdx', 'dFdy', 'fwidth']
+export const GLSL_KEYWORDS = [
+  'if',
+  'else',
+  'for',
+  'while',
+  'do',
+  'break',
+  'continue',
+  'return',
+  'discard',
+  'const',
+  'in',
+  'out',
+  'inout',
+  'uniform',
+  'precision',
+  'highp',
+  'mediump',
+  'lowp',
+  'struct',
+  'true',
+  'false',
+]
+export const GLSL_TYPES = [
+  'void',
+  'bool',
+  'int',
+  'uint',
+  'float',
+  'vec2',
+  'vec3',
+  'vec4',
+  'ivec2',
+  'ivec3',
+  'ivec4',
+  'bvec2',
+  'bvec3',
+  'bvec4',
+  'mat2',
+  'mat3',
+  'mat4',
+  'sampler2D',
+]
+export const GLSL_EXTRA_BUILTINS = [
+  'sign',
+  'ceil',
+  'tan',
+  'asin',
+  'acos',
+  'radians',
+  'degrees',
+  'log',
+  'cross',
+  'reflect',
+  'refract',
+  'texelFetch',
+  'dFdx',
+  'dFdy',
+  'fwidth',
+]
 
 const SOCKET_COLORS: Record<GlslType, string> = {
   float: '#a1a1a1',

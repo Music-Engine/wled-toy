@@ -18,7 +18,10 @@ export function openTargets(program: GlslProgram, table: SlotTable): Targets {
     const renderer = new ShaderRenderer(document.createElement('canvas'))
     const runtime = new Runtime(renderer)
     runtime.load(program, table)
-    if (target.layout) renderer.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: target.layout, height: target.layout, serpentine: false, origin: 'top-left' }] }))
+    if (target.layout)
+      renderer.setLayout(
+        layoutPositions({ segments: [{ kind: 'matrix', width: target.layout, height: target.layout, serpentine: false, origin: 'top-left' }] }),
+      )
     return { renderer, runtime }
   })
   const canvas = createPreviewCanvas()

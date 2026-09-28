@@ -29,9 +29,18 @@ it('analyzes a capture device: hops arrive from the worklet and the beeping fake
 function wavFile(pcm: Int16Array<ArrayBuffer>, rate: number, name: string) {
   const header = new DataView(new ArrayBuffer(44))
   const text = (at: number, s: string) => [...s].forEach((c, i) => header.setUint8(at + i, c.charCodeAt(0)))
-  text(0, 'RIFF'); header.setUint32(4, 36 + pcm.byteLength, true); text(8, 'WAVEfmt '); header.setUint32(16, 16, true)
-  header.setUint16(20, 1, true); header.setUint16(22, 1, true); header.setUint32(24, rate, true); header.setUint32(28, rate * 2, true)
-  header.setUint16(32, 2, true); header.setUint16(34, 16, true); text(36, 'data'); header.setUint32(40, pcm.byteLength, true)
+  text(0, 'RIFF')
+  header.setUint32(4, 36 + pcm.byteLength, true)
+  text(8, 'WAVEfmt ')
+  header.setUint32(16, 16, true)
+  header.setUint16(20, 1, true)
+  header.setUint16(22, 1, true)
+  header.setUint32(24, rate, true)
+  header.setUint32(28, rate * 2, true)
+  header.setUint16(32, 2, true)
+  header.setUint16(34, 16, true)
+  text(36, 'data')
+  header.setUint32(40, pcm.byteLength, true)
   return { blob: new Blob([header, pcm], { type: 'audio/wav' }), name }
 }
 
@@ -99,7 +108,11 @@ it('runs a second analysis with its own window, hop and bands next to the defaul
 it('plays a song the user chose, and goes back to the built-in one', async () => {
   // one second of a 440 Hz tone
   const rate = 8000
-  const song = wavFile(new Int16Array(rate).map((_, i) => Math.sin((2 * Math.PI * 440 * i) / rate) * 20000), rate, 'tone.wav')
+  const song = wavFile(
+    new Int16Array(rate).map((_, i) => Math.sin((2 * Math.PI * 440 * i) / rate) * 20000),
+    rate,
+    'tone.wav',
+  )
 
   service = new AudioService('/assets/audio.mp3')
   await service.setFile(song)
@@ -119,7 +132,9 @@ it('plays a song the user chose, and goes back to the built-in one', async () =>
 
 const setPlatform = (value: string) => {
   Object.defineProperty(navigator, 'platform', { value, configurable: true })
-  return () => { delete (navigator as { platform?: string }).platform }
+  return () => {
+    delete (navigator as { platform?: string }).platform
+  }
 }
 
 it('an error clears as soon as the next attempt starts, and stays clear when it works', async () => {
@@ -131,7 +146,12 @@ it('an error clears as soon as the next attempt starts, and stays clear when it 
   expect(service.state.error).toBe('Permission to capture audio was refused')
 
   let answer!: () => void
-  capture.mockImplementationOnce((constraints) => new Promise((resolve) => { answer = () => resolve(original(constraints)) }))
+  capture.mockImplementationOnce(
+    (constraints) =>
+      new Promise((resolve) => {
+        answer = () => resolve(original(constraints))
+      }),
+  )
   const attempt = service.configure({ source: 'device' })
   expect(service.state.error).toBeNull()
   answer()
@@ -184,7 +204,9 @@ it('the macOS desktop app refuses system audio with the way around it, without a
     await service.start()
     await service.configure({ source: 'loopback' })
     expect(share).not.toHaveBeenCalled()
-    expect(service.state.error).toBe('System audio capture is not available in the desktop app yet. Route audio through a loopback device such as BlackHole and pick it as the capture device.')
+    expect(service.state.error).toBe(
+      'System audio capture is not available in the desktop app yet. Route audio through a loopback device such as BlackHole and pick it as the capture device.',
+    )
     expect(service.state.settings.source).toBe('file')
   } finally {
     delete (window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__

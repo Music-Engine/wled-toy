@@ -48,32 +48,40 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target, c
 
   // Vue Flow writes coordinates back into store edges, which link whole nodes, so a deep watch would fire every render;
   // only stored fields are read
-  const storedEdgeKey = () => storeEdges()
-    .map((e) => [e.id, e.source, e.sourceHandle, e.target, e.targetHandle, (e.style as { stroke?: string } | undefined)?.stroke].join('\u0000'))
-    .join('\n')
+  const storedEdgeKey = () =>
+    storeEdges()
+      .map((e) => [e.id, e.source, e.sourceHandle, e.target, e.targetHandle, (e.style as { stroke?: string } | undefined)?.stroke].join('\u0000'))
+      .join('\n')
 
   // Same, and a Vue Flow node's measurements and handlers make deep traversal the cost of a drag; `data` still deep
   const storedNodeFields = () => nodes.value.map((n) => [n.id, n.type, n.position.x, n.position.y, n.data])
 
   // Saved in the watcher: Vue batches per tick, and a rAF deferral never runs in a background tab, letting another
   // tab's save overwrite this graph
-  watch([storedNodeFields, storedEdgeKey, scenes], () => {
-    // Drag or scrubbed slider = one step, recorded and saved once changes pause
-    clearTimeout(saveTimer)
-    saveTimer = setTimeout(flush, 350)
-    if (!restoring && !held) {
-      clearTimeout(recordTimer)
-      recordTimer = setTimeout(recordNow, 350)
-    }
-    schedule.regenerateSoon()
-  }, { deep: true })
+  watch(
+    [storedNodeFields, storedEdgeKey, scenes],
+    () => {
+      // Drag or scrubbed slider = one step, recorded and saved once changes pause
+      clearTimeout(saveTimer)
+      saveTimer = setTimeout(flush, 350)
+      if (!restoring && !held) {
+        clearTimeout(recordTimer)
+        recordTimer = setTimeout(recordNow, 350)
+      }
+      schedule.regenerateSoon()
+    },
+    { deep: true },
+  )
 
   // Import or another tab's save replaces the graph; own writes ignored
-  watch(() => workingCopy.graph, (graph) => {
-    if (!graph || toRaw(graph) === lastSaved) return
-    lastSaved = toRaw(graph)
-    replace(normalizeDoc(cloneJson(graph)))
-  })
+  watch(
+    () => workingCopy.graph,
+    (graph) => {
+      if (!graph || toRaw(graph) === lastSaved) return
+      lastSaved = toRaw(graph)
+      replace(normalizeDoc(cloneJson(graph)))
+    },
+  )
 
   return {
     nodes,

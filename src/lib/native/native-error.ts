@@ -4,7 +4,11 @@ export type NativeErrorCode = 'menu-sync'
 export class NativeError extends Error {
   override readonly name = 'NativeError'
 
-  constructor(readonly code: NativeErrorCode, message: string, override readonly cause?: unknown) {
+  constructor(
+    readonly code: NativeErrorCode,
+    message: string,
+    override readonly cause?: unknown,
+  ) {
     super(message)
   }
 }

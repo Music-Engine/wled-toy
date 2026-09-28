@@ -14,7 +14,7 @@ const clockTimer = setInterval(() => {
 }, 100)
 onUnmounted(() => clearInterval(clockTimer))
 
-const track = computed(() => ({ file: audio.fileName, device: 'Microphone', loopback: 'System audio' }[audio.settings.source]))
+const track = computed(() => ({ file: audio.fileName, device: 'Microphone', loopback: 'System audio' })[audio.settings.source])
 
 const trackItems = [
   { label: 'Choose song...', onSelect: () => emit('chooseSong') },

@@ -17,7 +17,12 @@ function mount(orientation: 'vertical' | 'horizontal', initial: number) {
     render: () => [
       h('div', { style: 'flex: 1' }),
       h(SplitHandle, {
-        orientation, min: 100, max: 300, initial: 200, label: 'Resize', modelValue: size.value,
+        orientation,
+        min: 100,
+        max: 300,
+        initial: 200,
+        label: 'Resize',
+        modelValue: size.value,
         'onUpdate:modelValue': (next: number) => (size.value = next),
         onCollapse: () => collapsed.value++,
         // Tailwind is not loaded here, so the handle gets its thickness inline
@@ -27,7 +32,10 @@ function mount(orientation: 'vertical' | 'horizontal', initial: number) {
     ],
   })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return { size, collapsed, handle: root.querySelector<HTMLElement>('.split-handle')! }
 }
 
@@ -37,7 +45,8 @@ async function dragDown(el: Element, dy: number) {
   const rect = el.getBoundingClientRect()
   const x = rect.left + rect.width / 2 + (frame?.left ?? 0)
   const y = rect.top + rect.height / 2 + (frame?.top ?? 0)
-  const send = (type: 'mousePressed' | 'mouseMoved' | 'mouseReleased', at: number) => cdp().send('Input.dispatchMouseEvent', { type, x, y: at, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1 })
+  const send = (type: 'mousePressed' | 'mouseMoved' | 'mouseReleased', at: number) =>
+    cdp().send('Input.dispatchMouseEvent', { type, x, y: at, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1 })
   await send('mouseMoved', y)
   await send('mousePressed', y)
   for (let step = 1; step <= 4; step++) await send('mouseMoved', y + (dy * step) / 4)

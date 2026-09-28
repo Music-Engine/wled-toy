@@ -15,7 +15,9 @@ export const resolveResources = (): Annotation => ({
 
 function resolveNode(ctx: CompileContext, node: CompiledNode): void {
   const { shape } = node
-  node.streams = Object.fromEntries(shape.inputs.filter((socket) => socket.type.kind === 'stream').map((socket) => [socket.name, readStreamInput(ctx, node, socket)]))
+  node.streams = Object.fromEntries(
+    shape.inputs.filter((socket) => socket.type.kind === 'stream').map((socket) => [socket.name, readStreamInput(ctx, node, socket)]),
+  )
   if (!shape.resolve) {
     node.resolved = {}
     return
@@ -23,7 +25,8 @@ function resolveNode(ctx: CompileContext, node: CompiledNode): void {
   const stored = shape.inputs.filter((socket) => !socket.linkable).map((socket) => [socket.name, readStoredValue(node, socket)])
   node.resolved = shape.resolve({ ...node.streams, ...Object.fromEntries(stored) }, ctx.resources)
   register(ctx, node.id, node.resolved)
-  for (const [output, uniform] of Object.entries(node.resolved.uniforms ?? {})) ctx.uniforms.push({ ...uniform, node: node.id, output, offset: ctx.uniforms.length })
+  for (const [output, uniform] of Object.entries(node.resolved.uniforms ?? {}))
+    ctx.uniforms.push({ ...uniform, node: node.id, output, offset: ctx.uniforms.length })
   if (node.id === ctx.output) ctx.settings = node.resolved.output ?? null
 }
 

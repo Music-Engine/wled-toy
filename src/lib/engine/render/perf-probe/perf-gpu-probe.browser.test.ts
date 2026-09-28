@@ -6,7 +6,17 @@ import { FRAMES, graphText, readEnvironment, writeReport } from './probe-tools'
 // probe contexts draw the same emitted GLSL, so readback strategies compare on one draw w/o changing ShaderRenderer
 const RUN = import.meta.env.VITE_PERF_GPU === '1'
 
-const VARIANTS = ['gpu-full', 'gpu-drop-noise', 'gpu-drop-voronoi', 'gpu-drop-magic', 'gpu-drop-brick', 'gpu-drop-wave', 'gpu-drop-ramp', 'gpu-drop-mix', 'gpu-drop-all']
+const VARIANTS = [
+  'gpu-full',
+  'gpu-drop-noise',
+  'gpu-drop-voronoi',
+  'gpu-drop-magic',
+  'gpu-drop-brick',
+  'gpu-drop-wave',
+  'gpu-drop-ramp',
+  'gpu-drop-mix',
+  'gpu-drop-all',
+]
 
 describe.runIf(RUN)('gpu path probe', () => {
   const env = readEnvironment()
@@ -17,7 +27,8 @@ describe.runIf(RUN)('gpu path probe', () => {
 
   it('readback strategies per graph and target', async () => {
     const results: unknown[] = []
-    for (const name of ['bench-baseline', 'bench-gpu-heavy', 'bench-kitchen-sink', 'liquid-nebula', 'spectral-aurora']) results.push(...await measureReadback(name))
+    for (const name of ['bench-baseline', 'bench-gpu-heavy', 'bench-kitchen-sink', 'liquid-nebula', 'spectral-aurora'])
+      results.push(...(await measureReadback(name)))
     await writeReport('readback', { env, frames: FRAMES, results })
   }, 900_000)
 
@@ -27,7 +38,9 @@ describe.runIf(RUN)('gpu path probe', () => {
       const measured = await measureVariant(name)
       if (measured) variants.push(measured)
     }
-    const showcase = ['bar-sequencer', 'chroma-keys', 'high-contrast-music', 'kick-shockwave', 'liquid-nebula', 'peak-meteor', 'spectral-aurora'].map(measureShowcase)
+    const showcase = ['bar-sequencer', 'chroma-keys', 'high-contrast-music', 'kick-shockwave', 'liquid-nebula', 'peak-meteor', 'spectral-aurora'].map(
+      measureShowcase,
+    )
     await writeReport('families', { env, frames: FRAMES, variants, showcase })
   }, 1_800_000)
 

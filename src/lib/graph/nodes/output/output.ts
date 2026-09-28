@@ -2,14 +2,21 @@ import { DEFAULT_OUTPUT } from '@/lib/engine/output/output'
 import { Color, defineNode, Enum, Float, Int } from '@/lib/graph/authoring'
 
 const PROTOCOLS = [
-  { value: 'settings', label: 'Protocol from Settings' }, { value: 'ddp', label: 'DDP' }, { value: 'dnrgb', label: 'WLED DNRGB' },
-  { value: 'artnet', label: 'Art-Net' }, { value: 'sacn', label: 'sACN (E1.31)' },
+  { value: 'settings', label: 'Protocol from Settings' },
+  { value: 'ddp', label: 'DDP' },
+  { value: 'dnrgb', label: 'WLED DNRGB' },
+  { value: 'artnet', label: 'Art-Net' },
+  { value: 'sacn', label: 'sACN (E1.31)' },
 ] as const
-const DITHERING = [{ value: 'off', label: 'No Dithering' }, { value: 'temporal', label: 'Temporal Dithering' }] as const
+const DITHERING = [
+  { value: 'off', label: 'No Dithering' },
+  { value: 'temporal', label: 'Temporal Dithering' },
+] as const
 
 export const outputNode = defineNode('output', {
   title: 'Output',
-  description: 'Final LED color, and how it gets to the wire. These settings travel with the graph and replace the ones in Settings while the graph is running.',
+  description:
+    'Final LED color, and how it gets to the wire. These settings travel with the graph and replace the ones in Settings while the graph is running.',
   category: 'output',
   varies: 'pixel',
   signature: 'c = vec4(color, 1.0);',
@@ -21,7 +28,13 @@ export const outputNode = defineNode('output', {
     fps: { type: Int, label: 'FPS (0 = Settings)', default: DEFAULT_OUTPUT.fps, linkable: false, props: { min: 0, max: 120, step: 1, decimals: 0 } },
     gamma: { type: Float, default: DEFAULT_OUTPUT.gamma, linkable: false, props: { min: 0.1, max: 4, step: 0.1, decimals: 2 } },
     ceiling: { type: Float, label: 'Brightness Ceiling', default: DEFAULT_OUTPUT.ceiling, linkable: false, props: { min: 0, max: 1, decimals: 2 } },
-    powerBudgetMa: { type: Float, label: 'Power Budget (mA, 0 = off)', default: DEFAULT_OUTPUT.powerBudgetMa, linkable: false, props: { min: 0, step: 100, decimals: 0 } },
+    powerBudgetMa: {
+      type: Float,
+      label: 'Power Budget (mA, 0 = off)',
+      default: DEFAULT_OUTPUT.powerBudgetMa,
+      linkable: false,
+      props: { min: 0, step: 100, decimals: 0 },
+    },
     maPerChannel: { type: Float, label: 'mA per Channel', default: DEFAULT_OUTPUT.maPerChannel, linkable: false, props: { min: 1, max: 100, decimals: 0 } },
     dithering: { type: Enum(DITHERING), label: '', default: DEFAULT_OUTPUT.dithering, linkable: false, props: { label: 'Dithering' } },
   },
@@ -32,4 +45,3 @@ export const outputNode = defineNode('output', {
     return {}
   },
 })
-

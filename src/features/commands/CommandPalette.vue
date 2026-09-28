@@ -1,10 +1,30 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import {
-  DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle,
-  ListboxContent, ListboxFilter, ListboxItem, ListboxRoot, VisuallyHidden,
+  DialogContent,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+  ListboxContent,
+  ListboxFilter,
+  ListboxItem,
+  ListboxRoot,
+  VisuallyHidden,
 } from 'reka-ui'
-import { commandTitle, commands, formatAccelerator, getCommand, isEnabled, isVisible, matchesAccelerator, palette, parseAccelerator, runCommand } from '@/lib/app/commands'
+import {
+  commandTitle,
+  commands,
+  formatAccelerator,
+  getCommand,
+  isEnabled,
+  isVisible,
+  matchesAccelerator,
+  palette,
+  parseAccelerator,
+  runCommand,
+} from '@/lib/app/commands'
 
 const query = ref('')
 const list = ref<{ highlightFirstItem: () => void }>()
@@ -20,7 +40,12 @@ const rows = computed(() => {
     .filter((row) => words.every((word) => `${row.path} ${row.title}`.toLowerCase().includes(word)))
 })
 
-watch(() => [palette.open, palette.view], () => { query.value = '' })
+watch(
+  () => [palette.open, palette.view],
+  () => {
+    query.value = ''
+  },
+)
 watch(rows, () => void nextTick(() => list.value?.highlightFirstItem()))
 
 function select(id: string) {

@@ -54,14 +54,25 @@ const session = createGraphSession({
 const graphDocument = shallowRef<GraphSession>()
 const fileBackend = inject(graphFileBackendKey, createBrowserBackend, true)
 
-const problems = useProblems(session, computed(() => graphDocument.value?.error.value))
+const problems = useProblems(
+  session,
+  computed(() => graphDocument.value?.error.value),
+)
 const { menu, menuFs, openMenu, addNode } = useAddNode(flow, session, () => canvas.value?.rect())
-const clipboard = useNodeClipboard(flow, session, () => canvas.value?.pointerAt() ?? null, () => menu.open, () => dissolveSelection(flow))
+const clipboard = useNodeClipboard(
+  flow,
+  session,
+  () => canvas.value?.pointerAt() ?? null,
+  () => menu.open,
+  () => dissolveSelection(flow),
+)
 const grab = useGrab(flow, session, () => canvas.value?.pointerAt() ?? null)
 const renaming = ref<string | null>(null)
 provide(renamingNodeKey, renaming)
 const findOpen = ref(false)
-const findRows = computed(() => (findOpen.value ? flow.getNodes.value.map((n) => ({ id: n.id, title: n.data.label || readStoredShape(n.data)?.title || n.data.kind })) : []))
+const findRows = computed(() =>
+  findOpen.value ? flow.getNodes.value.map((n) => ({ id: n.id, title: n.data.label || readStoredShape(n.data)?.title || n.data.kind })) : [],
+)
 const blenderKeys = nodeCommands({ flow, session, grab, renaming, findOpen })
 
 // After mount: first snapshot = "unedited", and Vue Flow's store has no edges before

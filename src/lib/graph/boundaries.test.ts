@@ -14,14 +14,12 @@ function nodesAllow(file: string, from: string): boolean {
   return file.endsWith('.test.ts') && (from === '@/lib/graph' || from === '@/lib/graph/testing')
 }
 
-const defineAllows = (file: string, from: string) =>
-  from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
+const defineAllows = (file: string, from: string) => from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
 // Outside compile/, only its entry point
 const COMPILE_ENTRIES = /(^|\/)compile\/compilers$/
 
-const stageAllows = (file: string, from: string) =>
-  file.startsWith('compile/') || !/(^|\/)compile\//.test(from) || COMPILE_ENTRIES.test(from)
+const stageAllows = (file: string, from: string) => file.startsWith('compile/') || !/(^|\/)compile\//.test(from) || COMPILE_ENTRIES.test(from)
 
 const RULES = [
   { rule: 'nodes', covers: (file: string) => file.startsWith('nodes/'), allows: nodesAllow },
@@ -33,15 +31,14 @@ function listImports(root: string): { file: string; from: string }[] {
   return readdirSync(root, { recursive: true, encoding: 'utf8' })
     .filter((file) => file.endsWith('.ts') && !file.startsWith('boundaries.fixtures/'))
     .flatMap((file) =>
-      [...readFileSync(`${root}/${file}`, 'utf8').matchAll(/^(?:import|export)\s+(?:[\w*{}\s,]+?\s+from\s+)?'([^']+)'|\bimport\(\s*'([^']+)'/gm)]
-        .map((match) => ({ file, from: match[1] ?? match[2] })),
+      [...readFileSync(`${root}/${file}`, 'utf8').matchAll(/^(?:import|export)\s+(?:[\w*{}\s,]+?\s+from\s+)?'([^']+)'|\bimport\(\s*'([^']+)'/gm)].map(
+        (match) => ({ file, from: match[1] ?? match[2] }),
+      ),
     )
 }
 
 const listViolations = (root: string) =>
-  listImports(root).flatMap(({ file, from }) =>
-    RULES.filter((r) => r.covers(file) && !r.allows(file, from)).map((r) => `${r.rule}: ${file} imports ${from}`),
-  )
+  listImports(root).flatMap(({ file, from }) => RULES.filter((r) => r.covers(file) && !r.allows(file, from)).map((r) => `${r.rule}: ${file} imports ${from}`))
 
 it('graph files import only across the boundaries the module allows', () => {
   expect(listViolations(GRAPH)).toEqual([])

@@ -52,8 +52,12 @@ export function tickGraph(doc: NodeGraph, { leds = 8, frames = 1, layout = null,
   }
 }
 
-export const node = (id: string, kind: string, values: Record<string, SocketValue> = {}): StoredNode =>
-  ({ id, type: GRAPH_NODE_TYPE, position: { x: 0, y: 0 }, data: { kind, values } })
+export const node = (id: string, kind: string, values: Record<string, SocketValue> = {}): StoredNode => ({
+  id,
+  type: GRAPH_NODE_TYPE,
+  position: { x: 0, y: 0 },
+  data: { kind, values },
+})
 
 /** `link('uv.x', 'math.a')` */
 export function link(from: string, to: string): StoredEdge {
@@ -62,8 +66,11 @@ export function link(from: string, to: string): StoredEdge {
   return { id: `${from}-${to}`, source, sourceHandle, target, targetHandle }
 }
 
-export const graph = (nodes: StoredNode[], links: [string, string][] = []): NodeGraph =>
-  ({ version: GRAPH_VERSION, nodes, edges: links.map(([from, to]) => link(from, to)) })
+export const graph = (nodes: StoredNode[], links: [string, string][] = []): NodeGraph => ({
+  version: GRAPH_VERSION,
+  nodes,
+  edges: links.map(([from, to]) => link(from, to)),
+})
 
 /** Kind alone, wired to an Output when its first output draws: how the gate compiles every kind */
 export function placeAlone(item: NodeItem): NodeGraph {

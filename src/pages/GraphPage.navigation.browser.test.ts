@@ -13,7 +13,8 @@ import '@vue-flow/core/dist/style.css'
 
 // Tailwind does not run in the tests; these are the utilities that give the canvas its size in the app
 const layout = document.createElement('style')
-layout.textContent = '.h-full { height: 100% } .flex { display: flex } .flex-col { flex-direction: column } .flex-1 { flex: 1 1 0% } .min-h-0 { min-height: 0 } .relative { position: relative }'
+layout.textContent =
+  '.h-full { height: 100% } .flex { display: flex } .flex-col { flex-direction: column } .flex-1 { flex: 1 1 0% } .min-h-0 { min-height: 0 } .relative { position: relative }'
 document.head.append(layout)
 
 let unmount: (() => void) | undefined
@@ -23,20 +24,36 @@ function mount(graph: NodeGraph | null) {
   const root = document.createElement('div')
   document.body.append(root)
   // the page binds its commands while it is the active page of a KeepAlive, and keys come through the app's dispatcher
-  const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
+  const app = createApp({
+    render: () =>
+      h(
+        'div',
+        { style: 'width: 1000px; height: 600px' },
+        h(KeepAlive, null, () => h(GraphPage)),
+      ),
+  })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   app.provide(routerKey, { push: async () => undefined } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
   const removeKeys = installKeyDispatcher()
-  unmount = () => { removeKeys(); app.unmount(); root.remove() }
+  unmount = () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })
 
 /** Three nodes far apart, so a box can touch one without coming near another; the knob has a text field. */
-const spread = (): NodeGraph => ({ ...createDefaultGraph(), nodes: [node('a', 'uv', 0, 0), node('b', 'time', 900, 0), node('knob', 'knob', 0, 500)], edges: [], scenes: [] })
+const spread = (): NodeGraph => ({
+  ...createDefaultGraph(),
+  nodes: [node('a', 'uv', 0, 0), node('b', 'time', 900, 0), node('knob', 'knob', 0, 500)],
+  edges: [],
+  scenes: [],
+})
 
 beforeEach(async () => {
   // the default test frame is narrower than the page, and a press outside the frame never arrives
@@ -53,7 +70,10 @@ afterEach(() => {
 })
 
 const flow = () => useVueFlow('wledtoy-graph')
-const selected = () => flow().getSelectedNodes.value.map((n) => n.id).sort()
+const selected = () =>
+  flow()
+    .getSelectedNodes.value.map((n) => n.id)
+    .sort()
 const view = () => ({ ...flow().viewport.value })
 const menuOpen = () => !!document.querySelector('[role="dialog"]')
 const rectOf = (selector: string) => document.querySelector(selector)!.getBoundingClientRect()
@@ -71,7 +91,11 @@ function toViewport(x: number, y: number) {
   return { x: x + (frame?.left ?? 0), y: y + (frame?.top ?? 0) }
 }
 
-interface Press { button?: 'left' | 'middle'; shift?: boolean; ctrl?: boolean }
+interface Press {
+  button?: 'left' | 'middle'
+  shift?: boolean
+  ctrl?: boolean
+}
 
 /** A real press, move and release through the browser's input pipeline. */
 async function drag(from: { x: number; y: number }, to: { x: number; y: number }, { button = 'left', shift = false, ctrl = false }: Press = {}) {
@@ -80,7 +104,12 @@ async function drag(from: { x: number; y: number }, to: { x: number; y: number }
   await cdp().send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...toViewport(from.x, from.y), ...common, button: 'none', buttons: 0 })
   await cdp().send('Input.dispatchMouseEvent', { type: 'mousePressed', ...toViewport(from.x, from.y), ...common, buttons: held })
   for (let step = 1; step <= 4; step++) {
-    await cdp().send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...toViewport(from.x + ((to.x - from.x) * step) / 4, from.y + ((to.y - from.y) * step) / 4), ...common, buttons: held })
+    await cdp().send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      ...toViewport(from.x + ((to.x - from.x) * step) / 4, from.y + ((to.y - from.y) * step) / 4),
+      ...common,
+      buttons: held,
+    })
   }
   await cdp().send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...toViewport(to.x, to.y), ...common, buttons: 0 })
 }
@@ -136,7 +165,10 @@ it('a left drag on a node moves it instead of drawing a box', async () => {
   await ready(3)
   const before = nodeRect('b')
   const title = rectOf('.vue-flow__node[data-id="b"] .nui-title')
-  await drag({ x: title.left + title.width / 2, y: title.top + title.height / 2 }, { x: title.left + title.width / 2 + 80, y: title.top + title.height / 2 + 40 })
+  await drag(
+    { x: title.left + title.width / 2, y: title.top + title.height / 2 },
+    { x: title.left + title.width / 2 + 80, y: title.top + title.height / 2 + 40 },
+  )
   await expect.poll(() => nodeRect('b').left).toBeGreaterThan(before.left + 40)
   expect(nodeRect('b').top).toBeGreaterThan(before.top + 20)
 })
@@ -273,7 +305,10 @@ it('keys typed in a node text field stay with the field', async () => {
 it('Cmd+Z takes back a deleted node and a moved one, Cmd+Shift+Z brings the change back, and typing in a field keeps its own undo', async () => {
   mount(spread())
   await ready(3)
-  const ids = () => flow().nodes.value.map((n) => n.id).sort()
+  const ids = () =>
+    flow()
+      .nodes.value.map((n) => n.id)
+      .sort()
   const xOf = (id: string) => flow().findNode(id)!.position.x
   const mod = isMac() ? { metaKey: true } : { ctrlKey: true }
   // a change becomes one undo step once it has paused

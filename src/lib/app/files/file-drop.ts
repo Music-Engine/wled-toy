@@ -52,11 +52,13 @@ export function planDrop<F extends DroppedFile>(files: readonly F[]): DropPlan<F
  * so a .wledgraph or .glsl, which has no registered type, reads as an empty string and gets the neutral wording.
  */
 export function dragHint(types: readonly string[], mode: Mode): string {
-  const kinds = new Set(types.map((type) => {
-    // text/plain and octet-stream are what some systems report for a shader or a graph file
-    if (!type || type.startsWith('text/') || type === 'application/octet-stream') return null
-    return byMime(type)
-  }))
+  const kinds = new Set(
+    types.map((type) => {
+      // text/plain and octet-stream are what some systems report for a shader or a graph file
+      if (!type || type.startsWith('text/') || type === 'application/octet-stream') return null
+      return byMime(type)
+    }),
+  )
   const [kind] = kinds
   if (kinds.size !== 1 || kind === null) return types.length > 1 ? 'Drop files' : 'Drop file'
   if (kind === 'audio') return 'Drop to use as the audio track'
@@ -66,8 +68,7 @@ export function dragHint(types: readonly string[], mode: Mode): string {
 }
 
 /** A WLEDtoy config export, as opposed to any other JSON (a .wledgraph envelope carries `formatVersion`). */
-export const isConfigExport = (raw: unknown) =>
-  !!raw && typeof raw === 'object' && (raw as { app?: unknown }).app === 'wledtoy' && !('formatVersion' in raw)
+export const isConfigExport = (raw: unknown) => !!raw && typeof raw === 'object' && (raw as { app?: unknown }).app === 'wledtoy' && !('formatVersion' in raw)
 
 /** A saved graph whatever it is called on disk: a .wledgraph that was renamed to .json still opens as one. */
 export const isGraphEnvelope = (raw: unknown) =>
@@ -121,7 +122,10 @@ async function useAsTrack(file: File, targets: DropTargets) {
 }
 
 async function importSettings(file: File, targets: DropTargets) {
-  const raw: unknown = await file.text().then(JSON.parse).catch((error) => report(error, `${file.name} could not be read as JSON`))
+  const raw: unknown = await file
+    .text()
+    .then(JSON.parse)
+    .catch((error) => report(error, `${file.name} could not be read as JSON`))
   if (isGraphEnvelope(raw)) return openDocument('graph', file, targets)
   if (!isConfigExport(raw)) return log(`${file.name} is not a WLEDtoy settings file`, 'warn')
   log(`Imported ${file.name} (${Object.keys(targets.importData(raw)).join(', ') || 'nothing usable'})`)

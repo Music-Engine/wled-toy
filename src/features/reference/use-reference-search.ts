@@ -65,5 +65,21 @@ export function useReferenceSearch() {
 
   onActivated(trackActiveEntry)
 
-  return { query, categoryIndex, copied, search, entryList, activeEntry, matchedNodes, categories, sections, trackActiveEntry, jumpTo, onEntryKeydown, copy, copyFocused, focusSearch }
+  return {
+    query,
+    categoryIndex,
+    copied,
+    search,
+    entryList,
+    activeEntry,
+    matchedNodes,
+    categories,
+    sections,
+    trackActiveEntry,
+    jumpTo,
+    onEntryKeydown,
+    copy,
+    copyFocused,
+    focusSearch,
+  }
 }

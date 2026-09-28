@@ -11,7 +11,10 @@ export class LedTarget {
   // LED row and probes in 32-bit floats, made once a program has probes
   private floatRow: { texture: WebGLTexture; framebuffer: WebGLFramebuffer; width: number } | null = null
 
-  constructor(private readonly gl: WebGL2RenderingContext, private readonly floatTargets: boolean) {
+  constructor(
+    private readonly gl: WebGL2RenderingContext,
+    private readonly floatTargets: boolean,
+  ) {
     this.texture = createTexture(gl, 2)
     this.framebuffer = gl.createFramebuffer()
   }

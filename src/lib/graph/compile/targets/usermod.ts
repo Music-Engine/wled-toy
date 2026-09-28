@@ -30,7 +30,14 @@ function emitUnit(ctx: CompileContext, frame: PassCode, pixel: PassCode, leds: n
   const texels = countVectors(ctx.slots.global)
   const framePass = texels > 0 ? ['void framePass() {', ...frame.lines.map((line) => `  ${line.text}`), '}', ''] : []
   const chunks = texels > 0 ? [...toChunks(frame), ...toChunks(pixel)] : toChunks(pixel)
-  const source = joinLines(emitPixelShaderLines(pixel, { chunks, globals: [...declareStateTargets(layers), ...declareControlBlock(ctx)], beforeMain: framePass, locals: loadStateLayers(layers) }))
+  const source = joinLines(
+    emitPixelShaderLines(pixel, {
+      chunks,
+      globals: [...declareStateTargets(layers), ...declareControlBlock(ctx)],
+      beforeMain: framePass,
+      locals: loadStateLayers(layers),
+    }),
+  )
   const definitions = [
     `constexpr int ledCount = ${leds};`,
     ...(layers ? [`vec4 pixelState[ledCount][${layers}] = {};`] : []),
@@ -45,7 +52,10 @@ function emitUnit(ctx: CompileContext, frame: PassCode, pixel: PassCode, leds: n
 function declareControlBlock(ctx: CompileContext): string[] {
   const defaults = ctx.uniforms.map((uniform) => uniform.default)
   if (defaults.length === 0) return []
-  const vectors = Array.from({ length: Math.ceil(defaults.length / 4) }, (_, vector) => `vec4(${[0, 1, 2, 3].map((component) => defaults[vector * 4 + component] ?? 0).join(', ')})`)
+  const vectors = Array.from(
+    { length: Math.ceil(defaults.length / 4) },
+    (_, vector) => `vec4(${[0, 1, 2, 3].map((component) => defaults[vector * 4 + component] ?? 0).join(', ')})`,
+  )
   return [`vec4 iControl[${vectors.length}] = { ${vectors.join(', ')} };`]
 }
 
@@ -53,7 +63,10 @@ function declareControlBlock(ctx: CompileContext): string[] {
 function readPixelStatePerLed(code: string): string {
   return code
     .replace(/^(uniform highp sampler2DArray iState;|layout\(location = \d+\) out vec4 outState\d+;)\n/gm, '')
-    .replace(/^ {2}(outState\d+) = texelFetch\(iState, ivec3\(gl_FragCoord\.xy, (\d+)\), 0\);$/gm, '  [[maybe_unused]] vec4& $1 = pixelState[int(ledIndex)][$2];')
+    .replace(
+      /^ {2}(outState\d+) = texelFetch\(iState, ivec3\(gl_FragCoord\.xy, (\d+)\), 0\);$/gm,
+      '  [[maybe_unused]] vec4& $1 = pixelState[int(ledIndex)][$2];',
+    )
     .replace(/\b(outState\d+)\.([xyzw]{2,4})\b/g, (_, layer: string, run: string) => `stateSlot<vec${run.length}>{${layer}, ${'xyzw'.indexOf(run[0])}}`)
 }
 
