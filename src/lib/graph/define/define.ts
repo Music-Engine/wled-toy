@@ -1,7 +1,7 @@
 import { titleCase, type CategoryId } from '@/lib/shader/catalog'
 import type { FrameContext, GlslChunk, NodeContext, ResolveResult, Resources } from './context'
 import type { Inputs, Outputs, PixelState, State, StateDef } from './infer'
-import type { NodeItem, NodePreset, NodeShape, OutputSocket, Rate, Socket, WidgetProps } from './shape'
+import type { NodeItem, NodePreset, NodeShape, OutputSocket, Socket, WidgetProps } from './shape'
 import { isImplicit, type DataType } from './types'
 
 /**
@@ -44,27 +44,28 @@ export interface NodeDefinition<I extends Record<string, InputDef>, O extends Re
   varies?: 'pixel'
   /** The output the host reads back once per frame. */
   probe?: keyof O & string
-  /** Per pixel: emits GLSL. A node with only `pixel` is drawn in the shader, and can hold pixel-scope `state`. */
-  pixel?(input: Inputs<I, 'pixel'>, ctx: NodeContext<PixelState<S>>): Outputs<O, 'pixel'>
   /**
-   * Once per frame, in JS. A node with only `frame` can hold frame-scope `state`, and its inputs must not vary per pixel. A node with
-   * both is evaluated per frame whenever everything linked into it is, and in the shader otherwise. Beside `body`, it
-   * serves only the old pipeline, which runs the body as `pixel`; with `state`, it runs this frame body alone instead.
+   * Once per frame, in JS, for the old pipeline only. A node with only `frame` can hold state there. Beside `body`, the
+   * old pipeline runs the body per pixel and this per frame, whichever its inputs need.
    */
   frame?(input: Inputs<I, 'frame'>, info: FrameContext<State<S>>): Outputs<O, 'frame'>
   /**
+   * Beside `body` and `frame`, for a node that had only a frame body: the old pipeline keeps running `frame` alone, so
+   * what it compiles does not change. Goes with the old pipeline at cut-over-8.
+   */
+  frameOnlyInOldPipeline?: true
+  /**
    * While the graph compiles, from its stored values and the streams linked into it: what this node puts on its stream
-   * outputs (Audio, Spectrum), what its bodies get as `resolved`, what the engine has to provide, and what is wrong.
+   * outputs (Audio, Spectrum), what its bodies get as `resolved`, what the engine has to provide, the uniforms its
+   * outputs read, and what is wrong.
    * `resources` is what earlier nodes registered, for a node whose result depends on the index its config gets.
    */
   resolve?(input: Inputs<I, 'pixel'>, resources: Resources): ResolveResult
   /**
-   * Slots that start at their type's zero. Frame-scope state survives recompiles for as long as the node exists;
-   * pixel-scope state starts over on every recompile, resize and clock reset.
+   * Slots that start at their type's zero, in pixel state or global state after the node's pass. Global state survives
+   * recompiles for as long as the node exists; pixel state starts over on every recompile, resize and clock reset.
    */
   state?: S
-  /** Where the slots live: `frame` (the default) keeps one set per node, `pixel` one per LED (per pixel in the preview). Ignored beside `body` unless `frame` is there too. */
-  stateScope?: Rate
   presets?: NodePreset[]
 }
 
@@ -88,16 +89,15 @@ export type OutputDef = DataType<any, any, any> | { type: DataType<any, any, any
 
 function toShape<I extends Record<string, InputDef>, O extends Record<string, OutputDef>, S extends StateDef>(
   id: string,
-  { title, signature, isOutput, includes, input, output, body, varies, probe, pixel, frame, state, stateScope = 'frame', resolve }: NodeDefinition<I, O, S>,
+  definition: NodeDefinition<I, O, S>,
 ): NodeShape {
-  if (!body && !pixel && !frame && !resolve) throw new Error(`${id}: a node needs body, pixel, frame or resolve`)
-  if (body && pixel) throw new Error(`${id}: body replaces pixel, so a node has one or the other`)
-  // the old pipeline runs a body as its pixel body, with pixel state; beside a stateful frame body it runs that frame body
-  // alone, with frame state
-  const framed = Boolean(frame && state)
-  const oldPixel = framed ? pixel : pixel ?? body
-  const scope = body && !framed ? 'pixel' : stateScope
-  if (state) checkState(id, state, scope, { body, pixel: oldPixel, frame })
+  const { title, signature, isOutput, includes, input, output, body, varies, probe, frame, frameOnlyInOldPipeline, state, resolve } = definition
+  if ('pixel' in definition) throw new Error(`${id}: pixel is now body`)
+  if (!body && !frame && !resolve) throw new Error(`${id}: a node needs body, frame or resolve`)
+  if (frameOnlyInOldPipeline && !(body && frame)) throw new Error(`${id}: frameOnlyInOldPipeline needs both body and frame`)
+  // the old pipeline runs a body as its pixel body, so its state is pixel state there
+  const oldPixel = frameOnlyInOldPipeline ? undefined : body
+  if (state && body) checkSlots(id, state)
   return {
     title,
     signature: signature ?? '',
@@ -112,15 +112,11 @@ function toShape<I extends Record<string, InputDef>, O extends Record<string, Ou
     frame: frame as NodeShape['frame'],
     resolve: resolve as NodeShape['resolve'],
     state,
-    stateScope: state && scope,
+    stateScope: state && (oldPixel ? 'pixel' : 'frame'),
   }
 }
 
-function checkState(id: string, state: StateDef, scope: Rate, bodies: { body?: unknown; pixel?: unknown; frame?: unknown }): void {
-  if (scope === 'frame' && bodies.pixel) throw new Error(`${id}: only a frame-only node can hold frame-scope state; a pixel body needs stateScope pixel`)
-  if (scope === 'pixel' && (bodies.frame || !bodies.pixel)) throw new Error(`${id}: only a pixel-only node can hold pixel-scope state; a frame body has no pixel to keep it for`)
-  // the new compiler keeps a body's slots in pixel or global state whatever the old pipeline does
-  if (scope === 'frame' && !bodies.body) return
+function checkSlots(id: string, state: StateDef): void {
   for (const [name, type] of Object.entries(state)) {
     if (!keepsInShader(type)) throw new Error(`${id}.${name}: shader state holds a number or a vector of 1 to 4 components, not ${type.label}`)
   }

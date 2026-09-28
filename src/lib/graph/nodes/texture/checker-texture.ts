@@ -14,6 +14,6 @@ export const checkerTextureNode = defineNode('checkerTexture', {
     scale: { type: Float, default: 5, props: { min: 0, step: 0.1, decimals: 2 } },
   },
   output: { fac: Float, color: Color },
-  pixel: ({ vector, color1, color2, scale }, ctx) =>
+  body: ({ vector, color1, color2, scale }, ctx) =>
     ctx.call('checker_texture', [scale.expr, vector.expr, color1.expr, color2.expr], { fac: 'float', color: 'vec3' }),
 })

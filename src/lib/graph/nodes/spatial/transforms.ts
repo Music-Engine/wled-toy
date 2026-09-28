@@ -9,9 +9,9 @@ export const polarNode = defineNode('polar', {
   category: 'math',
   input: { uv: uvInput, center },
   output: { polar: { type: Vec2, label: 'Polar UV' }, angle: Float, radius: Float },
-  pixel: ({ uv, center }, ctx) => {
-    const p = ctx.declare('vec2', `${uv.expr} - ${center.expr}`, 'p').expr
-    const polar = ctx.declare('vec2', `vec2(atan(${p}.y, ${p}.x) / 6.2831853 + 0.5, length(${p}) * 2.0)`)
+  body: ({ uv, center }, ctx) => {
+    const offset = ctx.declare('vec2', `${uv.expr} - ${center.expr}`, 'p').expr
+    const polar = ctx.declare('vec2', `vec2(atan(${offset}.y, ${offset}.x) / 6.2831853 + 0.5, length(${offset}) * 2.0)`)
     return { polar, angle: swizzle(polar, 'x'), radius: swizzle(polar, 'y') }
   },
 })
@@ -30,7 +30,7 @@ export const mirrorNode = defineNode('mirror', {
     center,
   },
   output: { uv: { type: Vec2, label: 'UV' } },
-  pixel: ({ axis, mode, uv, center }, ctx) => {
+  body: ({ axis, mode, uv, center }, ctx) => {
     const folded = `abs(${uv.expr} - ${center.expr}) / max(${center.expr}, 1.0 - ${center.expr})`
     const result = ctx.declare('vec2', mode === 'toCenter' ? `1.0 - ${folded}` : folded, 'folded').expr
     return { uv: ctx.declare('vec2', axis === 'both' ? result : axis === 'x' ? `vec2(${result}.x, ${uv.expr}.y)` : `vec2(${uv.expr}.x, ${result}.y)`) }
@@ -43,7 +43,7 @@ export const tileNode = defineNode('tile', {
   category: 'math',
   input: { uv: uvInput, count: { type: Vec2, default: [4, 1] } },
   output: { uv: { type: Vec2, label: 'UV' }, cell: Vec2 },
-  pixel: ({ uv, count }, ctx) => {
+  body: ({ uv, count }, ctx) => {
     const scaled = ctx.declare('vec2', `${uv.expr} * ${count.expr}`, 'scaled').expr
     return { uv: ctx.declare('vec2', `fract(${scaled})`), cell: ctx.declare('vec2', `floor(${scaled})`, 'cell') }
   },
@@ -55,11 +55,11 @@ export const rotateNode = defineNode('rotate', {
   category: 'math',
   input: { uv: uvInput, angle: { type: Float, default: 0, props: { step: 0.01, decimals: 3 } }, center },
   output: { uv: { type: Vec2, label: 'UV' } },
-  pixel: ({ uv, angle, center }, ctx) => {
-    const a = ctx.declare('float', `${angle.expr} * 6.2831853`, 'a').expr
-    const p = ctx.declare('vec2', `${uv.expr} - ${center.expr}`, 'p').expr
-    // rotating the lookup by -a turns the picture by +a
-    return { uv: ctx.declare('vec2', `vec2(${p}.x * cos(${a}) + ${p}.y * sin(${a}), ${p}.y * cos(${a}) - ${p}.x * sin(${a})) + ${center.expr}`) }
+  body: ({ uv, angle, center }, ctx) => {
+    const radians = ctx.declare('float', `${angle.expr} * 6.2831853`, 'a').expr
+    const offset = ctx.declare('vec2', `${uv.expr} - ${center.expr}`, 'p').expr
+    // Lookup turned by -angle turns the picture by +angle
+    return { uv: ctx.declare('vec2', `vec2(${offset}.x * cos(${radians}) + ${offset}.y * sin(${radians}), ${offset}.y * cos(${radians}) - ${offset}.x * sin(${radians})) + ${center.expr}`) }
   },
 })
 
@@ -72,10 +72,10 @@ export const segmentSplitNode = defineNode('segmentSplit', {
     count: { type: Float, default: 4, props: { min: 1, step: 1, decimals: 0 } },
   },
   output: { local: Float, segment: Float, fraction: Float },
-  pixel: ({ position, count }, ctx) => {
-    const n = ctx.declare('float', `max(1.0, floor(${count.expr}))`, 'n').expr
-    const scaled = ctx.declare('float', `clamp(${position.expr}, 0.0, 0.999999) * ${n}`, 'scaled').expr
+  body: ({ position, count }, ctx) => {
+    const segments = ctx.declare('float', `max(1.0, floor(${count.expr}))`, 'n').expr
+    const scaled = ctx.declare('float', `clamp(${position.expr}, 0.0, 0.999999) * ${segments}`, 'scaled').expr
     const segment = ctx.declare('float', `floor(${scaled})`, 'segment')
-    return { local: ctx.declare('float', `fract(${scaled})`), segment, fraction: ctx.declare('float', `${segment.expr} / max(1.0, ${n} - 1.0)`, 'fraction') }
+    return { local: ctx.declare('float', `fract(${scaled})`), segment, fraction: ctx.declare('float', `${segment.expr} / max(1.0, ${segments} - 1.0)`, 'fraction') }
   },
 })

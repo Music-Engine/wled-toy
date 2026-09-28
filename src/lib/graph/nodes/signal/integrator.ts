@@ -12,6 +12,7 @@ export const integratorNode = defineNode('integrator', {
   },
   output: { value: Float },
   state: { value: Float, high: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ wrap, rate, reset }, ctx) => {
     const { value, high } = ctx.state
     const restart = risingEdgeFlag(ctx, high, reset, 'restart')

@@ -8,6 +8,7 @@ export const sampleHoldNode = defineNode('sampleHold', {
   input: { signal: { type: Float, default: 0 }, trigger: { type: Float, default: 0 } },
   output: { value: Float },
   state: { held: Float, high: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ signal, trigger }, ctx) => {
     const { held, high } = ctx.state
     const rose = risingEdgeFlag(ctx, high, trigger, 'rose')

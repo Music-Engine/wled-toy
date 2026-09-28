@@ -14,6 +14,6 @@ export const magicTextureNode = defineNode('magicTexture', {
     distortion: { type: Float, default: 1, props: { step: 0.1, decimals: 2 } },
   },
   output: { fac: Float, color: Color },
-  pixel: ({ depth, vector, scale, distortion }, ctx) =>
+  body: ({ depth, vector, scale, distortion }, ctx) =>
     ctx.call('magic_texture', [String(depth), distortion.expr, scale.expr, vector.expr], { fac: 'float', color: 'vec3' }),
 })

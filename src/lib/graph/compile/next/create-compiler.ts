@@ -60,7 +60,7 @@ function compile<P>(config: CompilerConfig<P>, doc: NodeGraph, previous: SlotTab
 /** `issues` is the context's own list, so what the stages reported before one threw is kept. */
 function runStages<P>(config: CompilerConfig<P>, doc: NodeGraph, previous: SlotTable, issues: GraphIssue[]): CompileResult<P> {
   const fire = (stage: Stage, ctx: CompileContext) => config.hooks?.[stage]?.(stage, ctx)
-  const ctx: CompileContext = { doc, order: [], nodes: {}, output: '', resources: {}, settings: null, previous, slots: emptySlots(), issues }
+  const ctx: CompileContext = { doc, order: [], nodes: {}, output: '', resources: {}, settings: null, uniforms: [], previous, slots: emptySlots(), issues }
   fire('lint', ctx)
   if (!topoSort(ctx)) return { program: null, issues, slots: previous }
   fire('topo', ctx)

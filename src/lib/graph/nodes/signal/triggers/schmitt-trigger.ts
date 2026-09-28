@@ -9,6 +9,7 @@ export const schmittTriggerNode = defineNode('schmittTrigger', {
   input: { signal: { type: Float, default: 0 }, low: level(0.4), high: level(0.6) },
   output: { gate: Float },
   state: { on: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ signal, low, high }, ctx) => {
     const { on } = ctx.state
     ctx.emit(`${on.expr} = ${on.expr} > 0.5 ? float(${signal.expr} > ${low.expr}) : float(${signal.expr} >= ${high.expr});`)

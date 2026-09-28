@@ -12,6 +12,7 @@ export const clockDividerNode = defineNode('clockDivider', {
   },
   output: { trigger: Float, phase: Float },
   state: { count: Float, triggerHigh: Float, resetHigh: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ divide, trigger, reset }, ctx) => {
     const { count, triggerHigh, resetHigh } = ctx.state
     const restart = risingEdgeFlag(ctx, resetHigh, reset, 'restart')

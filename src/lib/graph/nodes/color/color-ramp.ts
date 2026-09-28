@@ -27,11 +27,6 @@ export const defaultRamp = (): ColorRamp => ({
   ],
 })
 
-const isStop = (raw: unknown): raw is RampStop => {
-  const stop = raw as Partial<RampStop> | null
-  return !!stop && Number.isFinite(stop.position) && Array.isArray(stop.color) && stop.color.length >= 3 && stop.color.every(Number.isFinite)
-}
-
 const Ramp: DataType<ColorRamp> = {
   id: 'ramp',
   label: 'Color ramp',
@@ -54,12 +49,12 @@ export const colorRampNode = defineNode('colorRamp', {
     fac: { type: Float, label: 'Factor', default: { expr: 'uv.x', label: 'uv.x' } },
   },
   output: { color: Color },
-  pixel: ({ ramp, fac }, ctx) => ({ color: emitRamp(ctx, ramp, fac.expr) }),
+  body: ({ ramp, fac }, ctx) => ({ color: emitRamp(ctx, ramp, fac.expr) }),
 })
 
-/** Emits the GLSL that evaluates `ramp` at the float expression `fac`. Shared with the Palette node. */
+/** Shared w/ Palette */
 export function emitRamp(ctx: NodeContext, ramp: ColorRamp, fac: string): Value {
-  const stops = sorted(ramp)
+  const stops = sortStops(ramp)
   if (stops.length === 0) {
     ctx.issue('Color ramp needs at least one stop')
     return { expr: 'vec3(0.0)', type: 'vec3' }
@@ -70,9 +65,9 @@ export function emitRamp(ctx: NodeContext, ramp: ColorRamp, fac: string): Value 
 }
 
 function emitSpline(ctx: NodeContext, stops: RampStop[], f: string): Value {
-  const controls = splineControls(stops.map((s) => s.color))
+  const controls = toSplineControls(stops.map((stop) => stop.color))
   const points = ctx.variable('points')
-  ctx.emit(`vec3 ${points}[${controls.length}] = vec3[${controls.length}](${controls.map(colorLiteral).join(', ')});`)
+  ctx.emit(`vec3 ${points}[${controls.length}] = vec3[${controls.length}](${controls.map(toColorLiteral).join(', ')});`)
   const x = ctx.declare('float', `clamp(${f}, 0.0, 1.0) * ${fmt(stops.length - 1)}`, 'x').expr
   const i = ctx.declare('int', `min(int(${x}), ${stops.length - 2})`, 'i').expr
   const t = ctx.declare('float', `${x} - float(${i})`, 't').expr
@@ -83,30 +78,30 @@ function emitSpline(ctx: NodeContext, stops: RampStop[], f: string): Value {
 }
 
 function emitSegments(ctx: NodeContext, ramp: ColorRamp, stops: RampStop[], f: string): Value {
-  const color = ctx.declare('vec3', colorLiteral(stops[0].color))
+  const color = ctx.declare('vec3', toColorLiteral(stops[0].color))
   for (let i = 1; i < stops.length; i++) {
     const a = stops[i - 1]
     const b = stops[i]
     const span = b.position - a.position
-    const blend = segmentBlend(ramp.interpolation, span)
+    const blend = pickSegmentBlend(ramp.interpolation, span)
     const weight = blend === 'constant' ? `step(${fmt(b.position)}, ${f})`
       : blend === 'ease' ? `smoothstep(${fmt(a.position)}, ${fmt(b.position)}, ${f})`
         : `clamp((${f} - ${fmt(a.position)}) / ${fmt(span)}, 0.0, 1.0)`
-    ctx.emit(`${color.expr} = mix(${color.expr}, ${colorLiteral(b.color)}, ${weight});`)
+    ctx.emit(`${color.expr} = mix(${color.expr}, ${toColorLiteral(b.color)}, ${weight});`)
   }
   return color
 }
 
-/** The color a ramp yields at `fac`. The editor previews with this, and the GLSL the node emits computes the same thing. */
+/** Editor preview; matches what the emitted GLSL computes */
 export function sampleRamp(ramp: ColorRamp, fac: number): number[] {
-  const stops = sorted(ramp)
+  const stops = sortStops(ramp)
   if (stops.length === 0) return [0, 0, 0]
   if (ramp.interpolation === 'spline' && stops.length > 1) return sampleSpline(stops, fac)
   return sampleSegments(ramp, stops, fac)
 }
 
 function sampleSpline(stops: RampStop[], fac: number): number[] {
-  const controls = splineControls(stops.map((stop) => stop.color.slice(0, 3)))
+  const controls = toSplineControls(stops.map((stop) => stop.color.slice(0, 3)))
   const x = Math.min(1, Math.max(0, fac)) * (stops.length - 1)
   const i = Math.min(stops.length - 2, Math.floor(x))
   const t = x - i
@@ -121,27 +116,31 @@ function sampleSegments(ramp: ColorRamp, stops: RampStop[], fac: number): number
     const b = stops[i]
     const span = b.position - a.position
     const linear = Math.min(1, Math.max(0, (fac - a.position) / span))
-    const blend = segmentBlend(ramp.interpolation, span)
+    const blend = pickSegmentBlend(ramp.interpolation, span)
     const weight = blend === 'constant' ? Number(fac >= b.position) : blend === 'ease' ? linear * linear * (3 - 2 * linear) : linear
     color = color.map((c, k) => c + (b.color[k] - c) * weight)
   }
   return color
 }
 
-// smoothstep is undefined when both edges are equal, so coincident stops snap instead
-function segmentBlend(interpolation: RampInterpolation, span: number): 'constant' | 'ease' | 'linear' {
+// Smoothstep undefined for equal edges, so coincident stops snap
+function pickSegmentBlend(interpolation: RampInterpolation, span: number): 'constant' | 'ease' | 'linear' {
   if (interpolation === 'constant' || span < 1e-4) return 'constant'
   return interpolation === 'ease' ? 'ease' : 'linear'
 }
 
-// Uniform cubic B-spline through evenly spaced colors: smooth, and like Blender's it only approaches the stops.
-// The first and last colors are mirrored so the curve starts and ends on the outer stops.
-function splineControls(colors: number[][]): number[][] {
+// Uniform cubic B-spline, like Blender's only approaching the stops; outer colors mirrored so it starts and ends on them
+function toSplineControls(colors: number[][]): number[][] {
   if (colors.length < 2) return colors
   const mirror = (a: number[], b: number[]) => a.map((c, k) => 2 * c - b[k])
   return [mirror(colors[0], colors[1]), ...colors, mirror(colors[colors.length - 1], colors[colors.length - 2])]
 }
 
-const sorted = (ramp: ColorRamp) => [...ramp.stops].sort((a, b) => a.position - b.position)
+const sortStops = (ramp: ColorRamp) => [...ramp.stops].sort((a, b) => a.position - b.position)
 
-const colorLiteral = (color: number[]) => vectorLiteral(color.slice(0, 3)).expr
+const toColorLiteral = (color: number[]) => vectorLiteral(color.slice(0, 3)).expr
+
+function isStop(raw: unknown): raw is RampStop {
+  const stop = raw as Partial<RampStop> | null
+  return !!stop && Number.isFinite(stop.position) && Array.isArray(stop.color) && stop.color.length >= 3 && stop.color.every(Number.isFinite)
+}

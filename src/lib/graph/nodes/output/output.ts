@@ -27,7 +27,7 @@ export const outputNode = defineNode('output', {
   },
   output: {},
   resolve: ({ color, ...output }) => ({ output }),
-  pixel: ({ color }, ctx) => {
+  body: ({ color }, ctx) => {
     ctx.emit(`c = vec4(${color.expr}, 1.0);`)
     return {}
   },

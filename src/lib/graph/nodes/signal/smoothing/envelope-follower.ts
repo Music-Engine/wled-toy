@@ -9,6 +9,7 @@ export const envelopeFollowerNode = defineNode('envelopeFollower', {
   input: { signal: { type: Float, default: 0 }, attack: seconds(0.01), release: seconds(0.3) },
   output: { envelope: Float },
   state: { value: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ signal, attack, release }, ctx) => {
     const { value } = ctx.state
     const time = ctx.declare('float', `${signal.expr} > ${value.expr} ? ${attack.expr} : ${release.expr}`, 'time').expr

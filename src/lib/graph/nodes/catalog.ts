@@ -31,7 +31,9 @@ function functionItem(fn: ShaderNode): NodeItem {
     signature: fn.signature,
     input: Object.fromEntries(fn.params.map((param) => [param.name, inputDef(param)])),
     output: { out: { type: paramType(fn.output), label: fn.output.label } },
-    pixel: (input, ctx) => {
+    // the shader library is part of the prelude, which only the pixel pass is drawn with
+    varies: 'pixel',
+    body: (input, ctx) => {
       // a function that takes a sampler samples it, and only GLSL has textures
       if (fn.params.some((param) => param.type === 'sampler2D')) ctx.require('glsl')
       const args = fn.params.map((param) => input[param.name].expr)
@@ -48,7 +50,7 @@ function uniformItem(uniform: ShaderNode): NodeItem {
     signature: uniform.signature,
     input: {},
     output: { out: { type: graphType(uniform.returns), label: uniform.output.label } },
-    pixel: () => ({ out: { expr: uniform.name, type: uniform.returns } }),
+    body: () => ({ out: { expr: uniform.name, type: uniform.returns } }),
   })
 }
 

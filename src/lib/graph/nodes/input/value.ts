@@ -9,5 +9,5 @@ export const valueNode = defineNode('value', {
     value: { type: Float, label: 'Value', default: 0.5, linkable: false },
   },
   output: { value: Float },
-  pixel: ({ value }) => ({ value: floatLiteral(value) }),
+  body: ({ value }) => ({ value: floatLiteral(value) }),
 })

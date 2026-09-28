@@ -12,11 +12,11 @@ export const rangeSelectNode = defineNode('rangeSelect', {
     softness: { type: Float, default: 0, props: { min: 0, decimals: 3 } },
   },
   output: { mask: Float },
-  pixel: ({ invert, value, from, to, softness }, ctx) => {
+  body: ({ invert, value, from, to, softness }, ctx) => {
     const edge = ctx.declare('float', `max(${softness.expr}, 0.0001) * 0.5`, 'edge').expr
-    const lo = ctx.declare('float', `min(${from.expr}, ${to.expr})`, 'lo').expr
-    const hi = ctx.declare('float', `max(${from.expr}, ${to.expr})`, 'hi').expr
-    const mask = `smoothstep(${lo} - ${edge}, ${lo} + ${edge}, ${value.expr}) * (1.0 - smoothstep(${hi} - ${edge}, ${hi} + ${edge}, ${value.expr}))`
+    const low = ctx.declare('float', `min(${from.expr}, ${to.expr})`, 'lo').expr
+    const high = ctx.declare('float', `max(${from.expr}, ${to.expr})`, 'hi').expr
+    const mask = `smoothstep(${low} - ${edge}, ${low} + ${edge}, ${value.expr}) * (1.0 - smoothstep(${high} - ${edge}, ${high} + ${edge}, ${value.expr}))`
     return { mask: ctx.declare('float', invert ? `1.0 - ${mask}` : mask) }
   },
 })

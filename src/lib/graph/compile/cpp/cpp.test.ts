@@ -17,26 +17,26 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
   const { Color, defineNode, Float, swizzle } = await import('@/lib/graph/authoring')
   const kinds = [
     defineNode('stateFloat', {
-      title: 'State Float', description: 'test', category: 'signal', stateScope: 'pixel',
+      title: 'State Float', description: 'test', category: 'signal',
       input: { rate: Float }, output: { value: Float }, state: { value: Float },
-      pixel: ({ rate }, ctx) => {
+      body: ({ rate }, ctx) => {
         ctx.emit(`${ctx.state.value.expr} += ${rate.expr};`)
         return { value: ctx.state.value }
       },
     }),
     defineNode('stateColor', {
-      title: 'State Color', description: 'test', category: 'signal', stateScope: 'pixel',
+      title: 'State Color', description: 'test', category: 'signal',
       input: { color: Color }, output: { color: Color }, state: { tint: Color },
-      pixel: ({ color }, ctx) => {
+      body: ({ color }, ctx) => {
         ctx.emit(`${ctx.state.tint.expr} = mix(${ctx.state.tint.expr}, ${color.expr}, 0.5);`)
         return { color: ctx.state.tint }
       },
     }),
     // the float slot pushes the color to .yzw, so a component of it is a component of a run
     defineNode('stateComponent', {
-      title: 'State Component', description: 'test', category: 'signal', stateScope: 'pixel',
+      title: 'State Component', description: 'test', category: 'signal',
       input: { rate: Float }, output: { value: Float }, state: { count: Float, tint: Color },
-      pixel: ({ rate }, ctx) => {
+      body: ({ rate }, ctx) => {
         ctx.emit(`${ctx.state.tint.expr}.y += ${rate.expr};`)
         return { value: swizzle(ctx.state.tint, 'x') }
       },

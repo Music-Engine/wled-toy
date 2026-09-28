@@ -19,6 +19,7 @@ export const envelopeNode = defineNode('envelope', {
   },
   output: { envelope: Float },
   state: { stage: Float, level: Float, high: Float },
+  frameOnlyInOldPipeline: true,
   body: ({ mode, gate, attack, decay, sustain, release }, ctx) => {
     const { stage, level, high } = ctx.state
     const [s, l] = [stage.expr, level.expr]

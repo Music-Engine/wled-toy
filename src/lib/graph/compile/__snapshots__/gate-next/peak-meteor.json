@@ -3,8 +3,8 @@
     "frame": null,
     "issues": [
       {
-        "nodeId": "hueShift",
-        "message": "Knob runs only in JavaScript and has no body to emit yet"
+        "nodeId": "audio",
+        "message": "Audio runs only in JavaScript and has no body to emit yet"
       }
     ],
     "slots": {
@@ -15,8 +15,8 @@
   "usermod": {
     "issues": [
       {
-        "nodeId": "hueShift",
-        "message": "Knob runs only in JavaScript and has no body to emit yet"
+        "nodeId": "audio",
+        "message": "Audio runs only in JavaScript and has no body to emit yet"
       }
     ]
   }

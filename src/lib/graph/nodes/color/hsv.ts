@@ -8,7 +8,7 @@ export const hsvToRgbNode = defineNode('hsv2rgb', {
   includes: [hsvToRgbChunk],
   input: { hsv: { type: Vec3, label: 'HSV', default: { expr: 'vec3(uv.x, 1.0, 1.0)', label: 'hue along strip' } } },
   output: { color: Color },
-  pixel: ({ hsv }, ctx) => ({ color: ctx.declare('vec3', `hsv_to_rgb(${hsv.expr})`) }),
+  body: ({ hsv }, ctx) => ({ color: ctx.declare('vec3', `hsv_to_rgb(${hsv.expr})`) }),
 })
 
 export const rgbToHsvNode = defineNode('rgb2hsv', {
@@ -18,7 +18,7 @@ export const rgbToHsvNode = defineNode('rgb2hsv', {
   includes: [rgbToHsvChunk],
   input: { color: { type: Color, default: [1, 0.45, 0.1] } },
   output: { hsv: { type: Vec3, label: 'HSV' } },
-  pixel: ({ color }, ctx) => ({ hsv: ctx.declare('vec3', `rgb_to_hsv(${color.expr})`) }),
+  body: ({ color }, ctx) => ({ hsv: ctx.declare('vec3', `rgb_to_hsv(${color.expr})`) }),
 })
 
 export const hueSaturationNode = defineNode('hueSaturation', {
@@ -34,7 +34,7 @@ export const hueSaturationNode = defineNode('hueSaturation', {
     color: { type: Color, default: [1, 0.45, 0.1] },
   },
   output: { color: Color },
-  pixel: ({ hue, saturation, value, factor, color }, ctx) => {
+  body: ({ hue, saturation, value, factor, color }, ctx) => {
     const hsv = ctx.declare('vec3', `rgb_to_hsv(${color.expr})`, 'hsv').expr
     const adjusted = `hsv_to_rgb(vec3(fract(${hsv}.x + ${hue.expr}), clamp(${hsv}.y * ${saturation.expr}, 0.0, 1.0), ${hsv}.z * ${value.expr}))`
     return { color: ctx.declare('vec3', `mix(${color.expr}, max(${adjusted}, vec3(0.0)), ${factor.expr})`) }

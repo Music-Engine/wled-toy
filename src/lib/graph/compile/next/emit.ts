@@ -8,7 +8,7 @@ import { fallsBackToImplicit } from '@/lib/graph/registry'
 import type { glslForm } from '@/lib/graph/compile/glsl/glsl-types'
 import { concreteType, GraphError } from '@/lib/graph/compile/front-end/program'
 import type { CompileContext, CompiledNode, Pass } from './context'
-import { isGenericSocket, storedValue } from './sockets'
+import { isGenericSocket, linkedUniform, storedValue } from './sockets'
 
 export interface Spelling {
   /** A value type as the target writes it: its type name, a literal of it, a value cast to it. */
@@ -30,7 +30,7 @@ export function emitPass(ctx: CompileContext, spelling: Spelling, pass: Pass): P
   const values = new Map<string, Record<string, Value>>()
   for (const id of ctx.order.filter((id) => ctx.nodes[id].pass === pass)) {
     const node = ctx.nodes[id]
-    const body = node.shape.body ?? node.shape.pixel
+    const { body } = node.shape
     if (!body) continue
     const input = Object.fromEntries(node.shape.inputs.map((socket) => [socket.name, bodyInput(ctx, spelling, values, node, socket)]))
     node.shape.includes.forEach((chunk) => code.chunks.add(chunk))
@@ -57,13 +57,18 @@ function bodyInput(ctx: CompileContext, spelling: Spelling, values: Map<string, 
   }
 }
 
-/** A link to an output the source does not have falls back as if unlinked; one to a stream is refused. */
+/**
+ * A link to an output the source does not have falls back as if unlinked; one to a stream is refused. An output that
+ * reads a uniform reads it wherever it is linked, from `iControl`, four floats to a vector.
+ */
 function linkedValue(ctx: CompileContext, spelling: Spelling, values: Map<string, Record<string, Value>>, node: CompiledNode, socket: Socket): Value | undefined {
   const source = node.links[socket.name]
   const from = source && ctx.nodes[source.id]
   const out = from && from.shape.outputs.find((o) => o.name === source.output)
   if (!out) return undefined
   if (out.type.kind !== 'value') throw new GraphError(`${socket.label} needs a number or a color, not ${out.type.label}`, node.id)
+  const uniform = linkedUniform(ctx, source)
+  if (uniform) return { expr: `iControl[${Math.floor(uniform.offset / 4)}].${'xyzw'[uniform.offset % 4]}`, type: 'float' }
   if (from.pass !== node.pass) {
     const dim = out.type.id === 'genType' ? from.width! : out.type.dim!
     return { expr: spelling.globalSlot(from.exports![source.output], dim, node.pass!), type: vectorType(dim) }

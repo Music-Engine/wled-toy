@@ -11,5 +11,8 @@ export const sceneSwitchNode = defineNode('sceneSwitch', {
     fade: { type: Float, label: 'Fade (s)', default: 0.5, props: { min: 0, step: 0.1, decimals: 2 } },
   },
   output: { scene: Float },
+  body: ({ index }, ctx) => ({ scene: ctx.declare('float', `max(0.0, floor(${index.expr} + 0.5))`) }),
+  probe: 'scene',
+  frameOnlyInOldPipeline: true,
   frame: ({ index }) => ({ scene: Math.max(0, Math.round(index)) }),
 })

@@ -9,5 +9,5 @@ export const colorNode = defineNode('color', {
     color: { type: Color, label: '', default: [1, 0.45, 0.1], linkable: false },
   },
   output: { color: Color },
-  pixel: ({ color }) => ({ color: vectorLiteral(color) }),
+  body: ({ color }) => ({ color: vectorLiteral(color) }),
 })

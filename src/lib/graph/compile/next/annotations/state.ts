@@ -4,11 +4,11 @@
 import type { DataType } from '@/lib/graph/define/types'
 import { GraphError } from '@/lib/graph/compile/front-end/program'
 import type { Annotation, CompileContext, CompiledNode, Pass, Slots } from '@/lib/graph/compile/next/context'
-import { linkedOutput } from '@/lib/graph/compile/next/sockets'
+import { linkedOutput, linkedUniform } from '@/lib/graph/compile/next/sockets'
 
 export const state = (): Annotation => ({
   name: 'state',
-  reads: ['width', 'pass'],
+  reads: ['resources', 'width', 'pass'],
   annotate: (ctx) => {
     const wanted = wantedSlots(ctx)
     ctx.slots = { pixel: allocate(wanted.pixel, ctx.previous.pixel), global: allocate(wanted.global, ctx.previous.global) }
@@ -38,13 +38,13 @@ function wantedSlots(ctx: CompileContext): Record<'pixel' | 'global', Wanted[]> 
 
 const tableName = (pass: Pass) => (pass === 'pixel' ? 'pixel' : 'global')
 
-/** `id:output` for every frame output a pixel node links to. */
+/** `id:output` for every frame output a pixel node links to, but those that read a uniform, which either pass reads. */
 function readAcrossPasses(ctx: CompileContext): Set<string> {
   const read = new Set<string>()
   for (const node of Object.values(ctx.nodes).filter((n) => n.pass === 'pixel')) {
     for (const socket of node.shape.inputs) {
       const linked = linkedOutput(ctx, node, socket)
-      if (linked && ctx.nodes[linked.source.id].pass === 'frame') read.add(`${linked.source.id}:${linked.source.output}`)
+      if (linked && ctx.nodes[linked.source.id].pass === 'frame' && !linkedUniform(ctx, linked.source)) read.add(`${linked.source.id}:${linked.source.output}`)
     }
   }
   return read

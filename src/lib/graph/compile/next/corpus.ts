@@ -1,4 +1,4 @@
-// What the gate compiles: every graph under graphs/ and every kind with a body alone, by name.
+// What the gate compiles: every graph under graphs/ and every kind alone, by name.
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { allItems } from '@/lib/graph/registry'
@@ -9,4 +9,4 @@ const files = import.meta.glob('/graphs/**/*.wledgraph', { query: '?raw', import
 export const corpusGraphs = (): [string, NodeGraph][] =>
   Object.entries(files).map(([path, text]) => [path.split('/').pop()!.replace('.wledgraph', ''), readGraphFile(text).doc])
 
-export const corpusKinds = (): [string, NodeGraph][] => allItems().filter((item) => item.base.body).map((item) => [item.id, alone(item)])
+export const corpusKinds = (): [string, NodeGraph][] => allItems().map((item) => [item.id, alone(item)])

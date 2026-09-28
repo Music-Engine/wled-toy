@@ -1,0 +1,38 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [
+      {
+        "kind": "knob",
+        "default": 0.5,
+        "label": "Knob",
+        "min": 0,
+        "max": 1,
+        "cc": -1,
+        "node": "n",
+        "output": "value",
+        "offset": 0
+      }
+    ],
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "frame": null,
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": []
+  }
+}
