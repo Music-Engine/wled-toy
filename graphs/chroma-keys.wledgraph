@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "song",
@@ -511,7 +510,7 @@
               "interpolation": "linear",
               "stops": [
                 {
-                  "position": 0.0,
+                  "position": 0,
                   "color": [
                     1,
                     0.04,
@@ -607,7 +606,7 @@
                   ]
                 },
                 {
-                  "position": 1.0,
+                  "position": 1,
                   "color": [
                     1,
                     0.04,
@@ -828,8 +827,8 @@
       {
         "id": "e-noteSlot-result-thisNoteStep-a",
         "source": "noteSlot",
-        "sourceHandle": "result",
         "target": "thisNoteStep",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -839,8 +838,8 @@
       {
         "id": "e-thisNoteStep-result-thisNotePosition-a",
         "source": "thisNoteStep",
-        "sourceHandle": "result",
         "target": "thisNotePosition",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -850,8 +849,8 @@
       {
         "id": "e-thisNotePosition-result-thisNoteLevel-position",
         "source": "thisNotePosition",
-        "sourceHandle": "result",
         "target": "thisNoteLevel",
+        "sourceHandle": "result",
         "targetHandle": "position",
         "style": {
           "stroke": "#a1a1a1",
@@ -861,8 +860,8 @@
       {
         "id": "e-pitchFft-spectrum-thisNoteLevel-spectrum",
         "source": "pitchFft",
-        "sourceHandle": "spectrum",
         "target": "thisNoteLevel",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -872,8 +871,8 @@
       {
         "id": "e-noteSlot-result-nextFifthStep-a",
         "source": "noteSlot",
-        "sourceHandle": "result",
         "target": "nextFifthStep",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -883,8 +882,8 @@
       {
         "id": "e-nextFifthStep-result-nextFifthPosition-a",
         "source": "nextFifthStep",
-        "sourceHandle": "result",
         "target": "nextFifthPosition",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -894,8 +893,8 @@
       {
         "id": "e-nextFifthPosition-result-nextFifthLevel-position",
         "source": "nextFifthPosition",
-        "sourceHandle": "result",
         "target": "nextFifthLevel",
+        "sourceHandle": "result",
         "targetHandle": "position",
         "style": {
           "stroke": "#a1a1a1",
@@ -905,8 +904,8 @@
       {
         "id": "e-pitchFft-spectrum-nextFifthLevel-spectrum",
         "source": "pitchFft",
-        "sourceHandle": "spectrum",
         "target": "nextFifthLevel",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -916,8 +915,8 @@
       {
         "id": "e-song-audio-pitchFft-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "pitchFft",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -927,8 +926,8 @@
       {
         "id": "e-song-audio-audio-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -938,8 +937,8 @@
       {
         "id": "e-song-audio-scope-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "scope",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -949,8 +948,8 @@
       {
         "id": "e-audio-kick-kickEnvelope-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kickEnvelope",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -960,8 +959,8 @@
       {
         "id": "e-kickEnvelope-envelope-kickPump-a",
         "source": "kickEnvelope",
-        "sourceHandle": "envelope",
         "target": "kickPump",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -971,8 +970,8 @@
       {
         "id": "e-kickEnvelope-envelope-kickBulge-a",
         "source": "kickEnvelope",
-        "sourceHandle": "envelope",
         "target": "kickBulge",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -982,8 +981,8 @@
       {
         "id": "e-audio-air-sparkleDensity-value",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "sparkleDensity",
+        "sourceHandle": "air",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -993,8 +992,8 @@
       {
         "id": "e-audio-presence-noiseFloor-value",
         "source": "audio",
-        "sourceHandle": "presence",
         "target": "noiseFloor",
+        "sourceHandle": "presence",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1004,8 +1003,8 @@
       {
         "id": "e-noiseFloor-result-glowContrast-inLow",
         "source": "noiseFloor",
-        "sourceHandle": "result",
         "target": "glowContrast",
+        "sourceHandle": "result",
         "targetHandle": "inLow",
         "style": {
           "stroke": "#a1a1a1",
@@ -1015,8 +1014,8 @@
       {
         "id": "e-audio-peak-peakFloor-a",
         "source": "audio",
-        "sourceHandle": "peak",
         "target": "peakFloor",
+        "sourceHandle": "peak",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1026,8 +1025,8 @@
       {
         "id": "e-song-audio-loudness-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "loudness",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -1037,8 +1036,8 @@
       {
         "id": "e-loudness-signal-glowGain-value",
         "source": "loudness",
-        "sourceHandle": "signal",
         "target": "glowGain",
+        "sourceHandle": "signal",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1048,8 +1047,8 @@
       {
         "id": "e-glowGain-result-kickPump-c",
         "source": "glowGain",
-        "sourceHandle": "result",
         "target": "kickPump",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1059,8 +1058,8 @@
       {
         "id": "e-kickPump-result-glowContrast-outHigh",
         "source": "kickPump",
-        "sourceHandle": "result",
         "target": "glowContrast",
+        "sourceHandle": "result",
         "targetHandle": "outHigh",
         "style": {
           "stroke": "#a1a1a1",
@@ -1070,8 +1069,8 @@
       {
         "id": "e-loudness-signal-spinRate-a",
         "source": "loudness",
-        "sourceHandle": "signal",
         "target": "spinRate",
+        "sourceHandle": "signal",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1081,8 +1080,8 @@
       {
         "id": "e-spinKnob-value-spinRate-b",
         "source": "spinKnob",
-        "sourceHandle": "value",
         "target": "spinRate",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1092,8 +1091,8 @@
       {
         "id": "e-spinRate-result-spinPhase-rate",
         "source": "spinRate",
-        "sourceHandle": "result",
         "target": "spinPhase",
+        "sourceHandle": "result",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1103,8 +1102,8 @@
       {
         "id": "e-loudness-signal-scopeOpacity-value",
         "source": "loudness",
-        "sourceHandle": "signal",
         "target": "scopeOpacity",
+        "sourceHandle": "signal",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1114,8 +1113,8 @@
       {
         "id": "e-scopeKnob-value-scopeOpacity-outHigh",
         "source": "scopeKnob",
-        "sourceHandle": "value",
         "target": "scopeOpacity",
+        "sourceHandle": "value",
         "targetHandle": "outHigh",
         "style": {
           "stroke": "#a1a1a1",
@@ -1125,8 +1124,8 @@
       {
         "id": "e-wheel-radius-pumpedRadius-a",
         "source": "wheel",
-        "sourceHandle": "radius",
         "target": "pumpedRadius",
+        "sourceHandle": "radius",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1136,8 +1135,8 @@
       {
         "id": "e-kickBulge-result-pumpedRadius-b",
         "source": "kickBulge",
-        "sourceHandle": "result",
         "target": "pumpedRadius",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1147,8 +1146,8 @@
       {
         "id": "e-pumpedRadius-result-twistedRadius-a",
         "source": "pumpedRadius",
-        "sourceHandle": "result",
         "target": "twistedRadius",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1158,8 +1157,8 @@
       {
         "id": "e-twistKnob-value-twistedRadius-b",
         "source": "twistKnob",
-        "sourceHandle": "value",
         "target": "twistedRadius",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1169,8 +1168,8 @@
       {
         "id": "e-wheel-angle-pinwheelAngle-a",
         "source": "wheel",
-        "sourceHandle": "angle",
         "target": "pinwheelAngle",
+        "sourceHandle": "angle",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1180,8 +1179,8 @@
       {
         "id": "e-twistedRadius-result-pinwheelAngle-c",
         "source": "twistedRadius",
-        "sourceHandle": "result",
         "target": "pinwheelAngle",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1191,8 +1190,8 @@
       {
         "id": "e-pinwheelAngle-result-spunAngle-a",
         "source": "pinwheelAngle",
-        "sourceHandle": "result",
         "target": "spunAngle",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1202,8 +1201,8 @@
       {
         "id": "e-spinPhase-value-spunAngle-b",
         "source": "spinPhase",
-        "sourceHandle": "value",
         "target": "spunAngle",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1213,8 +1212,8 @@
       {
         "id": "e-spunAngle-result-fifthsPosition-a",
         "source": "spunAngle",
-        "sourceHandle": "result",
         "target": "fifthsPosition",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1224,8 +1223,8 @@
       {
         "id": "e-peakFloor-result-scopeAmplitude-b",
         "source": "peakFloor",
-        "sourceHandle": "result",
         "target": "scopeAmplitude",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1235,8 +1234,8 @@
       {
         "id": "e-scope-sample-scopeHeight-a",
         "source": "scope",
-        "sourceHandle": "sample",
         "target": "scopeHeight",
+        "sourceHandle": "sample",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1246,8 +1245,8 @@
       {
         "id": "e-scopeAmplitude-result-scopeHeight-b",
         "source": "scopeAmplitude",
-        "sourceHandle": "result",
         "target": "scopeHeight",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1257,8 +1256,8 @@
       {
         "id": "e-uv-y-scopeOffset-a",
         "source": "uv",
-        "sourceHandle": "y",
         "target": "scopeOffset",
+        "sourceHandle": "y",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1268,8 +1267,8 @@
       {
         "id": "e-scopeHeight-result-scopeOffset-b",
         "source": "scopeHeight",
-        "sourceHandle": "result",
         "target": "scopeOffset",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1279,8 +1278,8 @@
       {
         "id": "e-scopeOffset-result-scopeDistance-a",
         "source": "scopeOffset",
-        "sourceHandle": "result",
         "target": "scopeDistance",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1290,8 +1289,8 @@
       {
         "id": "e-scopeDistance-result-scopeLine-value",
         "source": "scopeDistance",
-        "sourceHandle": "result",
         "target": "scopeLine",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1301,8 +1300,8 @@
       {
         "id": "e-fifthsPosition-result-noteSlot-a",
         "source": "fifthsPosition",
-        "sourceHandle": "result",
         "target": "noteSlot",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1312,8 +1311,8 @@
       {
         "id": "e-fifthsPosition-result-slotBlend-input",
         "source": "fifthsPosition",
-        "sourceHandle": "result",
         "target": "slotBlend",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -1323,8 +1322,8 @@
       {
         "id": "e-fifthsPosition-result-scriabinWheel-fac",
         "source": "fifthsPosition",
-        "sourceHandle": "result",
         "target": "scriabinWheel",
+        "sourceHandle": "result",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1334,8 +1333,8 @@
       {
         "id": "e-slotBlend-value-noteGlow-factor",
         "source": "slotBlend",
-        "sourceHandle": "value",
         "target": "noteGlow",
+        "sourceHandle": "value",
         "targetHandle": "factor",
         "style": {
           "stroke": "#a1a1a1",
@@ -1345,8 +1344,8 @@
       {
         "id": "e-thisNoteLevel-level-noteGlow-a",
         "source": "thisNoteLevel",
-        "sourceHandle": "level",
         "target": "noteGlow",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1356,8 +1355,8 @@
       {
         "id": "e-nextFifthLevel-level-noteGlow-b",
         "source": "nextFifthLevel",
-        "sourceHandle": "level",
         "target": "noteGlow",
+        "sourceHandle": "level",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1367,8 +1366,8 @@
       {
         "id": "e-noteGlow-result-glowContrast-value",
         "source": "noteGlow",
-        "sourceHandle": "result",
         "target": "glowContrast",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1378,8 +1377,8 @@
       {
         "id": "e-sparkleDensity-result-hatSparkle-density",
         "source": "sparkleDensity",
-        "sourceHandle": "result",
         "target": "hatSparkle",
+        "sourceHandle": "result",
         "targetHandle": "density",
         "style": {
           "stroke": "#a1a1a1",
@@ -1389,8 +1388,8 @@
       {
         "id": "e-hatSparkle-out-glintDesaturate-a",
         "source": "hatSparkle",
-        "sourceHandle": "out",
         "target": "glintDesaturate",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1400,8 +1399,8 @@
       {
         "id": "e-hueKnob-value-harmonyColor-hue",
         "source": "hueKnob",
-        "sourceHandle": "value",
         "target": "harmonyColor",
+        "sourceHandle": "value",
         "targetHandle": "hue",
         "style": {
           "stroke": "#a1a1a1",
@@ -1411,8 +1410,8 @@
       {
         "id": "e-glintDesaturate-result-harmonyColor-saturation",
         "source": "glintDesaturate",
-        "sourceHandle": "result",
         "target": "harmonyColor",
+        "sourceHandle": "result",
         "targetHandle": "saturation",
         "style": {
           "stroke": "#a1a1a1",
@@ -1422,8 +1421,8 @@
       {
         "id": "e-glowContrast-result-harmonyColor-value",
         "source": "glowContrast",
-        "sourceHandle": "result",
         "target": "harmonyColor",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1433,8 +1432,8 @@
       {
         "id": "e-scriabinWheel-color-harmonyColor-color",
         "source": "scriabinWheel",
-        "sourceHandle": "color",
         "target": "harmonyColor",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1444,8 +1443,8 @@
       {
         "id": "e-scopeOpacity-result-scopeCarve-opacity",
         "source": "scopeOpacity",
-        "sourceHandle": "result",
         "target": "scopeCarve",
+        "sourceHandle": "result",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1455,8 +1454,8 @@
       {
         "id": "e-scopeLine-mask-scopeCarve-mask",
         "source": "scopeLine",
-        "sourceHandle": "mask",
         "target": "scopeCarve",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1466,8 +1465,8 @@
       {
         "id": "e-harmonyColor-color-noteAfterglow-color",
         "source": "harmonyColor",
-        "sourceHandle": "color",
         "target": "noteAfterglow",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1477,8 +1476,8 @@
       {
         "id": "e-noteAfterglow-color-scopeCarve-base",
         "source": "noteAfterglow",
-        "sourceHandle": "color",
         "target": "scopeCarve",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1488,14 +1487,16 @@
       {
         "id": "e-scopeCarve-color-out-color",
         "source": "scopeCarve",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

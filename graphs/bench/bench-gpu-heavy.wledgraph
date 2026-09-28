@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "time",
@@ -1506,8 +1505,8 @@
       {
         "id": "e-time-time-drift-z",
         "source": "time",
-        "sourceHandle": "time",
         "target": "drift",
+        "sourceHandle": "time",
         "targetHandle": "z",
         "style": {
           "stroke": "#a1a1a1",
@@ -1517,8 +1516,8 @@
       {
         "id": "e-drift-vector-l0map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "l0map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -1528,8 +1527,8 @@
       {
         "id": "e-l0map-vector-l0noise-vector",
         "source": "l0map",
-        "sourceHandle": "vector",
         "target": "l0noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1539,8 +1538,8 @@
       {
         "id": "e-l0map-vector-l0voronoi-vector",
         "source": "l0map",
-        "sourceHandle": "vector",
         "target": "l0voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1550,8 +1549,8 @@
       {
         "id": "e-l0map-vector-l0magic-vector",
         "source": "l0map",
-        "sourceHandle": "vector",
         "target": "l0magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1561,8 +1560,8 @@
       {
         "id": "e-l0map-vector-l0brick-vector",
         "source": "l0map",
-        "sourceHandle": "vector",
         "target": "l0brick",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1572,8 +1571,8 @@
       {
         "id": "e-l0map-vector-l0wave-vector",
         "source": "l0map",
-        "sourceHandle": "vector",
         "target": "l0wave",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1583,8 +1582,8 @@
       {
         "id": "e-l0noise-fac-l0ramp-fac",
         "source": "l0noise",
-        "sourceHandle": "fac",
         "target": "l0ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1594,8 +1593,8 @@
       {
         "id": "e-l0ramp-color-l0mixA-color1",
         "source": "l0ramp",
-        "sourceHandle": "color",
         "target": "l0mixA",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1605,8 +1604,8 @@
       {
         "id": "e-l0voronoi-color-l0mixA-color2",
         "source": "l0voronoi",
-        "sourceHandle": "color",
         "target": "l0mixA",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1616,8 +1615,8 @@
       {
         "id": "e-l0mixA-color-l0mixB-color1",
         "source": "l0mixA",
-        "sourceHandle": "color",
         "target": "l0mixB",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1627,8 +1626,8 @@
       {
         "id": "e-l0magic-color-l0mixB-color2",
         "source": "l0magic",
-        "sourceHandle": "color",
         "target": "l0mixB",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1638,8 +1637,8 @@
       {
         "id": "e-l0mixB-color-l0mixC-color1",
         "source": "l0mixB",
-        "sourceHandle": "color",
         "target": "l0mixC",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1649,8 +1648,8 @@
       {
         "id": "e-l0brick-color-l0mixC-color2",
         "source": "l0brick",
-        "sourceHandle": "color",
         "target": "l0mixC",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1660,8 +1659,8 @@
       {
         "id": "e-l0mixC-color-l0mixD-color1",
         "source": "l0mixC",
-        "sourceHandle": "color",
         "target": "l0mixD",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1671,8 +1670,8 @@
       {
         "id": "e-l0wave-color-l0mixD-color2",
         "source": "l0wave",
-        "sourceHandle": "color",
         "target": "l0mixD",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1682,8 +1681,8 @@
       {
         "id": "e-drift-vector-l1map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "l1map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -1693,8 +1692,8 @@
       {
         "id": "e-l1map-vector-l1noise-vector",
         "source": "l1map",
-        "sourceHandle": "vector",
         "target": "l1noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1704,8 +1703,8 @@
       {
         "id": "e-l1map-vector-l1voronoi-vector",
         "source": "l1map",
-        "sourceHandle": "vector",
         "target": "l1voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1715,8 +1714,8 @@
       {
         "id": "e-l1map-vector-l1magic-vector",
         "source": "l1map",
-        "sourceHandle": "vector",
         "target": "l1magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1726,8 +1725,8 @@
       {
         "id": "e-l1map-vector-l1brick-vector",
         "source": "l1map",
-        "sourceHandle": "vector",
         "target": "l1brick",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1737,8 +1736,8 @@
       {
         "id": "e-l1map-vector-l1wave-vector",
         "source": "l1map",
-        "sourceHandle": "vector",
         "target": "l1wave",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1748,8 +1747,8 @@
       {
         "id": "e-l1noise-fac-l1ramp-fac",
         "source": "l1noise",
-        "sourceHandle": "fac",
         "target": "l1ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1759,8 +1758,8 @@
       {
         "id": "e-l1ramp-color-l1mixA-color1",
         "source": "l1ramp",
-        "sourceHandle": "color",
         "target": "l1mixA",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1770,8 +1769,8 @@
       {
         "id": "e-l1voronoi-color-l1mixA-color2",
         "source": "l1voronoi",
-        "sourceHandle": "color",
         "target": "l1mixA",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1781,8 +1780,8 @@
       {
         "id": "e-l1mixA-color-l1mixB-color1",
         "source": "l1mixA",
-        "sourceHandle": "color",
         "target": "l1mixB",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1792,8 +1791,8 @@
       {
         "id": "e-l1magic-color-l1mixB-color2",
         "source": "l1magic",
-        "sourceHandle": "color",
         "target": "l1mixB",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1803,8 +1802,8 @@
       {
         "id": "e-l1mixB-color-l1mixC-color1",
         "source": "l1mixB",
-        "sourceHandle": "color",
         "target": "l1mixC",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1814,8 +1813,8 @@
       {
         "id": "e-l1brick-color-l1mixC-color2",
         "source": "l1brick",
-        "sourceHandle": "color",
         "target": "l1mixC",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1825,8 +1824,8 @@
       {
         "id": "e-l1mixC-color-l1mixD-color1",
         "source": "l1mixC",
-        "sourceHandle": "color",
         "target": "l1mixD",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1836,8 +1835,8 @@
       {
         "id": "e-l1wave-color-l1mixD-color2",
         "source": "l1wave",
-        "sourceHandle": "color",
         "target": "l1mixD",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1847,8 +1846,8 @@
       {
         "id": "e-l0mixD-color-l1stack-color1",
         "source": "l0mixD",
-        "sourceHandle": "color",
         "target": "l1stack",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1858,8 +1857,8 @@
       {
         "id": "e-l1mixD-color-l1stack-color2",
         "source": "l1mixD",
-        "sourceHandle": "color",
         "target": "l1stack",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1869,8 +1868,8 @@
       {
         "id": "e-drift-vector-l2map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "l2map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -1880,8 +1879,8 @@
       {
         "id": "e-l2map-vector-l2noise-vector",
         "source": "l2map",
-        "sourceHandle": "vector",
         "target": "l2noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1891,8 +1890,8 @@
       {
         "id": "e-l2map-vector-l2voronoi-vector",
         "source": "l2map",
-        "sourceHandle": "vector",
         "target": "l2voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1902,8 +1901,8 @@
       {
         "id": "e-l2map-vector-l2magic-vector",
         "source": "l2map",
-        "sourceHandle": "vector",
         "target": "l2magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1913,8 +1912,8 @@
       {
         "id": "e-l2map-vector-l2brick-vector",
         "source": "l2map",
-        "sourceHandle": "vector",
         "target": "l2brick",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1924,8 +1923,8 @@
       {
         "id": "e-l2map-vector-l2wave-vector",
         "source": "l2map",
-        "sourceHandle": "vector",
         "target": "l2wave",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1935,8 +1934,8 @@
       {
         "id": "e-l2noise-fac-l2ramp-fac",
         "source": "l2noise",
-        "sourceHandle": "fac",
         "target": "l2ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1946,8 +1945,8 @@
       {
         "id": "e-l2ramp-color-l2mixA-color1",
         "source": "l2ramp",
-        "sourceHandle": "color",
         "target": "l2mixA",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1957,8 +1956,8 @@
       {
         "id": "e-l2voronoi-color-l2mixA-color2",
         "source": "l2voronoi",
-        "sourceHandle": "color",
         "target": "l2mixA",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1968,8 +1967,8 @@
       {
         "id": "e-l2mixA-color-l2mixB-color1",
         "source": "l2mixA",
-        "sourceHandle": "color",
         "target": "l2mixB",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1979,8 +1978,8 @@
       {
         "id": "e-l2magic-color-l2mixB-color2",
         "source": "l2magic",
-        "sourceHandle": "color",
         "target": "l2mixB",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1990,8 +1989,8 @@
       {
         "id": "e-l2mixB-color-l2mixC-color1",
         "source": "l2mixB",
-        "sourceHandle": "color",
         "target": "l2mixC",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2001,8 +2000,8 @@
       {
         "id": "e-l2brick-color-l2mixC-color2",
         "source": "l2brick",
-        "sourceHandle": "color",
         "target": "l2mixC",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2012,8 +2011,8 @@
       {
         "id": "e-l2mixC-color-l2mixD-color1",
         "source": "l2mixC",
-        "sourceHandle": "color",
         "target": "l2mixD",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2023,8 +2022,8 @@
       {
         "id": "e-l2wave-color-l2mixD-color2",
         "source": "l2wave",
-        "sourceHandle": "color",
         "target": "l2mixD",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2034,8 +2033,8 @@
       {
         "id": "e-l1stack-color-l2stack-color1",
         "source": "l1stack",
-        "sourceHandle": "color",
         "target": "l2stack",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2045,8 +2044,8 @@
       {
         "id": "e-l2mixD-color-l2stack-color2",
         "source": "l2mixD",
-        "sourceHandle": "color",
         "target": "l2stack",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2056,8 +2055,8 @@
       {
         "id": "e-drift-vector-l3map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "l3map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -2067,8 +2066,8 @@
       {
         "id": "e-l3map-vector-l3noise-vector",
         "source": "l3map",
-        "sourceHandle": "vector",
         "target": "l3noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2078,8 +2077,8 @@
       {
         "id": "e-l3map-vector-l3voronoi-vector",
         "source": "l3map",
-        "sourceHandle": "vector",
         "target": "l3voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2089,8 +2088,8 @@
       {
         "id": "e-l3map-vector-l3magic-vector",
         "source": "l3map",
-        "sourceHandle": "vector",
         "target": "l3magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2100,8 +2099,8 @@
       {
         "id": "e-l3map-vector-l3brick-vector",
         "source": "l3map",
-        "sourceHandle": "vector",
         "target": "l3brick",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2111,8 +2110,8 @@
       {
         "id": "e-l3map-vector-l3wave-vector",
         "source": "l3map",
-        "sourceHandle": "vector",
         "target": "l3wave",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2122,8 +2121,8 @@
       {
         "id": "e-l3noise-fac-l3ramp-fac",
         "source": "l3noise",
-        "sourceHandle": "fac",
         "target": "l3ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -2133,8 +2132,8 @@
       {
         "id": "e-l3ramp-color-l3mixA-color1",
         "source": "l3ramp",
-        "sourceHandle": "color",
         "target": "l3mixA",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2144,8 +2143,8 @@
       {
         "id": "e-l3voronoi-color-l3mixA-color2",
         "source": "l3voronoi",
-        "sourceHandle": "color",
         "target": "l3mixA",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2155,8 +2154,8 @@
       {
         "id": "e-l3mixA-color-l3mixB-color1",
         "source": "l3mixA",
-        "sourceHandle": "color",
         "target": "l3mixB",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2166,8 +2165,8 @@
       {
         "id": "e-l3magic-color-l3mixB-color2",
         "source": "l3magic",
-        "sourceHandle": "color",
         "target": "l3mixB",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2177,8 +2176,8 @@
       {
         "id": "e-l3mixB-color-l3mixC-color1",
         "source": "l3mixB",
-        "sourceHandle": "color",
         "target": "l3mixC",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2188,8 +2187,8 @@
       {
         "id": "e-l3brick-color-l3mixC-color2",
         "source": "l3brick",
-        "sourceHandle": "color",
         "target": "l3mixC",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2199,8 +2198,8 @@
       {
         "id": "e-l3mixC-color-l3mixD-color1",
         "source": "l3mixC",
-        "sourceHandle": "color",
         "target": "l3mixD",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2210,8 +2209,8 @@
       {
         "id": "e-l3wave-color-l3mixD-color2",
         "source": "l3wave",
-        "sourceHandle": "color",
         "target": "l3mixD",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2221,8 +2220,8 @@
       {
         "id": "e-l2stack-color-l3stack-color1",
         "source": "l2stack",
-        "sourceHandle": "color",
         "target": "l3stack",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2232,8 +2231,8 @@
       {
         "id": "e-l3mixD-color-l3stack-color2",
         "source": "l3mixD",
-        "sourceHandle": "color",
         "target": "l3stack",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2243,8 +2242,8 @@
       {
         "id": "e-drift-vector-l4map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "l4map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -2254,8 +2253,8 @@
       {
         "id": "e-l4map-vector-l4noise-vector",
         "source": "l4map",
-        "sourceHandle": "vector",
         "target": "l4noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2265,8 +2264,8 @@
       {
         "id": "e-l4map-vector-l4voronoi-vector",
         "source": "l4map",
-        "sourceHandle": "vector",
         "target": "l4voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2276,8 +2275,8 @@
       {
         "id": "e-l4map-vector-l4magic-vector",
         "source": "l4map",
-        "sourceHandle": "vector",
         "target": "l4magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2287,8 +2286,8 @@
       {
         "id": "e-l4map-vector-l4brick-vector",
         "source": "l4map",
-        "sourceHandle": "vector",
         "target": "l4brick",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2298,8 +2297,8 @@
       {
         "id": "e-l4map-vector-l4wave-vector",
         "source": "l4map",
-        "sourceHandle": "vector",
         "target": "l4wave",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2309,8 +2308,8 @@
       {
         "id": "e-l4noise-fac-l4ramp-fac",
         "source": "l4noise",
-        "sourceHandle": "fac",
         "target": "l4ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -2320,8 +2319,8 @@
       {
         "id": "e-l4ramp-color-l4mixA-color1",
         "source": "l4ramp",
-        "sourceHandle": "color",
         "target": "l4mixA",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2331,8 +2330,8 @@
       {
         "id": "e-l4voronoi-color-l4mixA-color2",
         "source": "l4voronoi",
-        "sourceHandle": "color",
         "target": "l4mixA",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2342,8 +2341,8 @@
       {
         "id": "e-l4mixA-color-l4mixB-color1",
         "source": "l4mixA",
-        "sourceHandle": "color",
         "target": "l4mixB",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2353,8 +2352,8 @@
       {
         "id": "e-l4magic-color-l4mixB-color2",
         "source": "l4magic",
-        "sourceHandle": "color",
         "target": "l4mixB",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2364,8 +2363,8 @@
       {
         "id": "e-l4mixB-color-l4mixC-color1",
         "source": "l4mixB",
-        "sourceHandle": "color",
         "target": "l4mixC",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2375,8 +2374,8 @@
       {
         "id": "e-l4brick-color-l4mixC-color2",
         "source": "l4brick",
-        "sourceHandle": "color",
         "target": "l4mixC",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2386,8 +2385,8 @@
       {
         "id": "e-l4mixC-color-l4mixD-color1",
         "source": "l4mixC",
-        "sourceHandle": "color",
         "target": "l4mixD",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2397,8 +2396,8 @@
       {
         "id": "e-l4wave-color-l4mixD-color2",
         "source": "l4wave",
-        "sourceHandle": "color",
         "target": "l4mixD",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2408,8 +2407,8 @@
       {
         "id": "e-l3stack-color-l4stack-color1",
         "source": "l3stack",
-        "sourceHandle": "color",
         "target": "l4stack",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2419,8 +2418,8 @@
       {
         "id": "e-l4mixD-color-l4stack-color2",
         "source": "l4mixD",
-        "sourceHandle": "color",
         "target": "l4stack",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2430,8 +2429,8 @@
       {
         "id": "e-drift-vector-l5map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "l5map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -2441,8 +2440,8 @@
       {
         "id": "e-l5map-vector-l5noise-vector",
         "source": "l5map",
-        "sourceHandle": "vector",
         "target": "l5noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2452,8 +2451,8 @@
       {
         "id": "e-l5map-vector-l5voronoi-vector",
         "source": "l5map",
-        "sourceHandle": "vector",
         "target": "l5voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2463,8 +2462,8 @@
       {
         "id": "e-l5map-vector-l5magic-vector",
         "source": "l5map",
-        "sourceHandle": "vector",
         "target": "l5magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2474,8 +2473,8 @@
       {
         "id": "e-l5map-vector-l5brick-vector",
         "source": "l5map",
-        "sourceHandle": "vector",
         "target": "l5brick",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2485,8 +2484,8 @@
       {
         "id": "e-l5map-vector-l5wave-vector",
         "source": "l5map",
-        "sourceHandle": "vector",
         "target": "l5wave",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -2496,8 +2495,8 @@
       {
         "id": "e-l5noise-fac-l5ramp-fac",
         "source": "l5noise",
-        "sourceHandle": "fac",
         "target": "l5ramp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -2507,8 +2506,8 @@
       {
         "id": "e-l5ramp-color-l5mixA-color1",
         "source": "l5ramp",
-        "sourceHandle": "color",
         "target": "l5mixA",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2518,8 +2517,8 @@
       {
         "id": "e-l5voronoi-color-l5mixA-color2",
         "source": "l5voronoi",
-        "sourceHandle": "color",
         "target": "l5mixA",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2529,8 +2528,8 @@
       {
         "id": "e-l5mixA-color-l5mixB-color1",
         "source": "l5mixA",
-        "sourceHandle": "color",
         "target": "l5mixB",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2540,8 +2539,8 @@
       {
         "id": "e-l5magic-color-l5mixB-color2",
         "source": "l5magic",
-        "sourceHandle": "color",
         "target": "l5mixB",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2551,8 +2550,8 @@
       {
         "id": "e-l5mixB-color-l5mixC-color1",
         "source": "l5mixB",
-        "sourceHandle": "color",
         "target": "l5mixC",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2562,8 +2561,8 @@
       {
         "id": "e-l5brick-color-l5mixC-color2",
         "source": "l5brick",
-        "sourceHandle": "color",
         "target": "l5mixC",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2573,8 +2572,8 @@
       {
         "id": "e-l5mixC-color-l5mixD-color1",
         "source": "l5mixC",
-        "sourceHandle": "color",
         "target": "l5mixD",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2584,8 +2583,8 @@
       {
         "id": "e-l5wave-color-l5mixD-color2",
         "source": "l5wave",
-        "sourceHandle": "color",
         "target": "l5mixD",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2595,8 +2594,8 @@
       {
         "id": "e-l4stack-color-l5stack-color1",
         "source": "l4stack",
-        "sourceHandle": "color",
         "target": "l5stack",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2606,8 +2605,8 @@
       {
         "id": "e-l5mixD-color-l5stack-color2",
         "source": "l5mixD",
-        "sourceHandle": "color",
         "target": "l5stack",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2617,8 +2616,8 @@
       {
         "id": "e-l5stack-color-ceiling-color",
         "source": "l5stack",
-        "sourceHandle": "color",
         "target": "ceiling",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -2628,14 +2627,16 @@
       {
         "id": "e-ceiling-color-out-color",
         "source": "ceiling",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

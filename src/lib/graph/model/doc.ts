@@ -10,11 +10,8 @@ export interface NodeGraph {
   scenes?: Scene[]
 }
 
-/**
- * Bumped whenever nodes or sockets change in a way older saved graphs cannot follow. There are no migrations: a graph
- * saved by an older version is discarded on load, and Settings can wipe everything the app stored.
- */
-export const GRAPH_VERSION = 3
+/** Bumped whenever nodes or sockets change in a way older saved graphs cannot follow; `lib/documents` migrates old files */
+export const GRAPH_VERSION = 4
 
 export type SocketValue = number | number[] | string | boolean | ColorRamp
 

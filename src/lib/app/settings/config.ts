@@ -1,9 +1,8 @@
 import { reactive, watch } from 'vue'
 import { activeDevice, activeDeviceId, devices, resetStoredDevices, restoreDevices, sanitizeDeviceStore, updateActiveDevice, type SavedDevice } from './devices'
 import { EXAMPLE } from '@/lib/shader/example'
-import { GRAPH_VERSION, type NodeGraph } from '@/lib/graph/model/doc'
+import type { NodeGraph } from '@/lib/graph/model/doc'
 import { layoutCount, parseLayout, type Layout } from '@/lib/engine/output/layout'
-import { log } from '@/lib/app/logs'
 import { isTauri } from '@/lib/app/platform'
 import { resetStoredPreferences } from './preferences'
 import type { WireProtocol } from '@/lib/engine/output/output'
@@ -58,11 +57,8 @@ export function sanitize(input: unknown): Partial<AppConfig> {
   if (typeof src.brightness === 'number') out.brightness = clamp(src.brightness, 0, 1)
   if (typeof src.code === 'string') out.code = src.code
   const graph = src.graph as Partial<NodeGraph> | null | undefined
-  if (graph && Array.isArray(graph.nodes) && Array.isArray(graph.edges)) {
-    // no migrations: a graph from an older version is dropped rather than half-understood
-    out.graph = graph.version === GRAPH_VERSION ? (graph as NodeGraph) : null
-    if (!out.graph) log(`A saved graph from an older version (${graph.version ?? 1}) was discarded; this version is ${GRAPH_VERSION}`, 'warn')
-  }
+  // Version judged by the graph session on restore
+  if (graph && Array.isArray(graph.nodes) && Array.isArray(graph.edges)) out.graph = graph as NodeGraph
   if ('layout' in src) {
     out.layout = parseLayout(src.layout)
     if (out.layout) out.ledCount = layoutCount(out.layout)

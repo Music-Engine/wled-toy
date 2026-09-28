@@ -1,13 +1,26 @@
 import { computed, nextTick, ref, toRaw, watch, type Ref } from 'vue'
-import { createDefaultGraph, normalizeDoc, storedDoc, type NodeGraph, type Scene, type StoredEdge, type StoredNode } from '@/lib/graph'
+import {
+  GraphFileError,
+  createDefaultGraph,
+  normalizeDoc,
+  readStoredGraph,
+  storedDoc,
+  type NodeGraph,
+  type Scene,
+  type StoredEdge,
+  type StoredNode,
+} from '@/lib/graph'
 import { cloneJson } from '@/lib/util/json'
 import { createCompileSchedule, type GraphCompiler, type GraphTarget, type Timer } from './compile-schedule'
 import { createHistory } from '@/lib/documents/history'
 import { styleEdges, type LinkEnds, type SocketColor } from '@/lib/documents/edits/links'
+import { migrate } from '@/lib/documents/files/migrate'
+import { log, report } from '@/lib/app/logs'
 
 /** Graph being edited: compile schedule, autosaved working copy, undo history; editor calls `start`/`stop` as it shows and hides */
 export function createGraphSession({ workingCopy, storeEdges, colorOf, target, compiler }: GraphSessionOptions) {
-  const initial = normalizeDoc(workingCopy.graph ?? createDefaultGraph())
+  const readWorkingCopy = createWorkingCopyReader()
+  const initial = readWorkingCopy(workingCopy.graph) ?? normalizeDoc(createDefaultGraph())
   const nodes = ref(initial.nodes) as Ref<StoredNode[]>
   const edges = ref(styleEdges(initial, colorOf)) as Ref<StoredEdge[]>
   const scenes = ref(initial.scenes ?? []) as Ref<Scene[]>
@@ -79,7 +92,8 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target, c
     (graph) => {
       if (!graph || toRaw(graph) === lastSaved) return
       lastSaved = toRaw(graph)
-      replace(normalizeDoc(cloneJson(graph)))
+      const doc = readWorkingCopy(cloneJson(graph))
+      if (doc) replace(doc)
     },
   )
 
@@ -134,6 +148,28 @@ export function createGraphSession({ workingCopy, storeEdges, colorOf, target, c
         restoring = false
       })
     },
+  }
+}
+
+/**
+ * Working copy through the file path's migrate, version check and lint; null, logged, when refused. Lint problems
+ * logged only when they differ from the last set, so synced edits do not repeat them
+ */
+function createWorkingCopyReader() {
+  let loggedProblems = ''
+  return (graph: NodeGraph | null): NodeGraph | null => {
+    if (!graph) return null
+    try {
+      const { doc, problems, migratedFrom } = readStoredGraph(graph, migrate)
+      if (migratedFrom !== undefined) log(`Working copy: migrated from version ${migratedFrom} to ${doc.version}`)
+      if (problems.join('\n') !== loggedProblems) for (const problem of problems) log(`Working copy: ${problem}`, 'warn')
+      loggedProblems = problems.join('\n')
+      return doc
+    } catch (e) {
+      if (!(e instanceof GraphFileError)) throw e
+      report(e, 'Working copy')
+      return null
+    }
   }
 }
 
