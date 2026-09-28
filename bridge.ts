@@ -109,9 +109,12 @@ export function buildSacnPackets(rgb: Buffer, seq: number, universe: number, cid
 
 /** The UDP packets of one frame. `seq` is the per-connection frame counter that `nextSeq` advances; each protocol folds it into its own sequence field. */
 export function buildFramePackets(protocol: Protocol, rgb: Buffer, seq: number, universe: number, cid: Buffer): Buffer[] {
-  return protocol === 'ddp' ? buildDdpPackets(rgb, (seq % 15) + 1)
-    : protocol === 'dnrgb' ? buildDnrgbPackets(rgb)
-      : protocol === 'artnet' ? buildArtnetPackets(rgb, seq, universe)
+  return protocol === 'ddp'
+    ? buildDdpPackets(rgb, (seq % 15) + 1)
+    : protocol === 'dnrgb'
+      ? buildDnrgbPackets(rgb)
+      : protocol === 'artnet'
+        ? buildArtnetPackets(rgb, seq, universe)
         : buildSacnPackets(rgb, seq, universe, cid)
 }
 
@@ -135,7 +138,7 @@ export function parseOsc(packet: Buffer): OscMessage[] {
   if (packet.subarray(0, 8).toString('latin1') === '#bundle\0') {
     const messages: OscMessage[] = []
     // 8 bytes of tag, 8 of time tag, then size-prefixed elements
-    for (let at = 16; at + 4 <= packet.length;) {
+    for (let at = 16; at + 4 <= packet.length; ) {
       const size = packet.readInt32BE(at)
       messages.push(...parseOsc(packet.subarray(at + 4, at + 4 + size)))
       at += 4 + size
@@ -148,11 +151,20 @@ export function parseOsc(packet: Buffer): OscMessage[] {
   const args: (number | string)[] = []
   let at = tags.next
   for (const tag of tags.text.slice(1)) {
-    if (tag === 'i') { args.push(packet.readInt32BE(at)); at += 4 }
-    else if (tag === 'f') { args.push(packet.readFloatBE(at)); at += 4 }
-    else if (tag === 'd') { args.push(packet.readDoubleBE(at)); at += 8 }
-    else if (tag === 's') { const s = readString(at); args.push(s.text); at = s.next }
-    else if (tag === 'T') args.push(1)
+    if (tag === 'i') {
+      args.push(packet.readInt32BE(at))
+      at += 4
+    } else if (tag === 'f') {
+      args.push(packet.readFloatBE(at))
+      at += 4
+    } else if (tag === 'd') {
+      args.push(packet.readDoubleBE(at))
+      at += 8
+    } else if (tag === 's') {
+      const s = readString(at)
+      args.push(s.text)
+      at = s.next
+    } else if (tag === 'T') args.push(1)
     else if (tag === 'F') args.push(0)
     else break
   }

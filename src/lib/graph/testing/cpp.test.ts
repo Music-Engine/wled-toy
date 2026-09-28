@@ -7,10 +7,17 @@ describe.skipIf(!cppCompiler)('runOffline and runUsermod (needs g++ or c++ on PA
   it('feeds the synthetic track to iAudioBands, which Audio Band averages at its eight sample points', () => {
     const frames = 60
     const feed = readUsermodBands(frames)
-    const rendered = runOffline(graph([node('b', 'bandLevel', { low: 0, high: 1 }), node('o', 'output')], [['b.out', 'o.color']]), { leds: 1, frames, feed: feed.map((bands) => ({ bands: [bands] })) })
+    const rendered = runOffline(graph([node('b', 'bandLevel', { low: 0, high: 1 }), node('o', 'output')], [['b.out', 'o.color']]), {
+      leds: 1,
+      frames,
+      feed: feed.map((bands) => ({ bands: [bands] })),
+    })
     // bandLevel(0, 1) samples fft at (i + 0.5) / 8: odd band centers
     const expected = feed.map((bands) => Math.round((bands.filter((_, band) => band % 2 === 1).reduce((a, b) => a + b) / 8) * 255))
-    expect(expected.some((level) => level > 0), 'the track reaches the bands').toBe(true)
+    expect(
+      expected.some((level) => level > 0),
+      'the track reaches the bands',
+    ).toBe(true)
     rendered.forEach(([[r, g, b]], frame) => {
       expect(Math.abs(r - expected[frame]), `frame ${frame}`).toBeLessThanOrEqual(1)
       expect([g, b]).toEqual([r, r])
@@ -31,7 +38,11 @@ describe.skipIf(!cppCompiler)('runOffline and runUsermod (needs g++ or c++ on PA
     ].join('\n')
     const feed = [0.2, 0.4, 0.6].map((level, frame) => ({ bands: [[level, ...new Array(15).fill(0)]], samples: [0, frame / 2] }))
     const rendered = runUsermod(unit, { leds: 3, frames: 3, feed })
-    expect(rendered.map((leds) => leds.map(([r]) => r))).toEqual([[51, 0, 128], [102, 51, 191], [153, 102, 255]])
+    expect(rendered.map((leds) => leds.map(([r]) => r))).toEqual([
+      [51, 0, 128],
+      [102, 51, 191],
+      [153, 102, 255],
+    ])
   }, 60_000)
 
   it('renders one row of LED bytes per frame', () => {
@@ -40,7 +51,9 @@ describe.skipIf(!cppCompiler)('runOffline and runUsermod (needs g++ or c++ on PA
   }, 60_000)
 
   it('throws what the compile reported when it withholds the unit', () => {
-    expect(() => runOffline(graph([node('m', 'midiIn'), node('o', 'output')], [['m.value', 'o.color']]), { leds: 1, frames: 1 })).toThrow('MIDI In reads MIDI, which a usermod has no input for')
+    expect(() => runOffline(graph([node('m', 'midiIn'), node('o', 'output')], [['m.value', 'o.color']]), { leds: 1, frames: 1 })).toThrow(
+      'MIDI In reads MIDI, which a usermod has no input for',
+    )
   })
 
   it('returns no frames for frames: 0 and empty frames for leds: 0', () => {

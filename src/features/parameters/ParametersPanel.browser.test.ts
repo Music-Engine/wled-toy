@@ -22,13 +22,20 @@ function mount() {
   const app = createApp({
     render: () => [
       h('div', { style: 'height: 300px' }, h(VueFlow, { id: 'test-flow', nodes: doc.nodes, nodeTypes: { shader: markRaw(GraphNode) } })),
-      h('div', { style: 'width: 300px' }, h(ParametersPanel, { flowId: 'test-flow', scenes: scenes.value, 'onUpdate:scenes': (next: Scene[]) => (scenes.value = next) })),
+      h(
+        'div',
+        { style: 'width: 300px' },
+        h(ParametersPanel, { flowId: 'test-flow', scenes: scenes.value, 'onUpdate:scenes': (next: Scene[]) => (scenes.value = next) }),
+      ),
     ],
   })
   // the panel's one Nuxt UI icon is decoration; unresolved, it renders as an unknown element and the test does not need it
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   const values = (id: string) => (useVueFlow('test-flow').findNode(id)!.data as GraphNodeData).values
   return { root, values }
 }
@@ -69,7 +76,8 @@ it('a bound MIDI controller moves its knob across the knob range', async () => {
 it('saves the knobs as a scene and recalls it, exactly, after they were moved', async () => {
   const { root, values } = mount()
   await settle()
-  const button = (label: string) => [...root.querySelectorAll<HTMLButtonElement>('.nui-parameters .inspector-section:last-child button')].find((b) => b.textContent?.trim() === label)!
+  const button = (label: string) =>
+    [...root.querySelectorAll<HTMLButtonElement>('.nui-parameters .inspector-section:last-child button')].find((b) => b.textContent?.trim() === label)!
   button('Save Scene').click()
   await nextTick()
   const flow = useVueFlow('test-flow')

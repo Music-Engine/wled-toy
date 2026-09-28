@@ -1,8 +1,17 @@
 // Dyadic fractions, exact in a float and in a GLSL literal's four decimals: negatives, zero, zero divisor or range,
 // and the equal operands step() edges turn on
 export const MATH_INPUTS: [number, number, number][] = [
-  [-2.5, 2, 0.5], [-0.75, -1.5, 0.25], [0, 0.5, 0], [0.375, 0, 1.25], [0.75, 0.25, 0.5],
-  [1.25, 3, -0.75], [3, -2, 2.5], [-1.25, 0.5, 0.5], [0.25, 0.375, 1], [0.5, 0.5, 0.125], [2, 1, 0.25],
+  [-2.5, 2, 0.5],
+  [-0.75, -1.5, 0.25],
+  [0, 0.5, 0],
+  [0.375, 0, 1.25],
+  [0.75, 0.25, 0.5],
+  [1.25, 3, -0.75],
+  [3, -2, 2.5],
+  [-1.25, 0.5, 0.5],
+  [0.25, 0.375, 1],
+  [0.5, 0.5, 0.125],
+  [2, 1, 0.25],
 ]
 
 export const VECTOR_INPUTS: { a: [number, number, number]; b: [number, number, number]; c: [number, number, number]; scale: number }[] = [

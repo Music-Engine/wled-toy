@@ -5,11 +5,4 @@ import { mixNode } from './mix'
 import { vectorMathNode } from './vector-math'
 import { combineXyzNode, separateXyzNode } from './xyz'
 
-export const CONVERTER_NODES: NodeItem[] = [
-  mathNode,
-  vectorMathNode,
-  mixNode,
-  clampNode,
-  combineXyzNode,
-  separateXyzNode,
-]
+export const CONVERTER_NODES: NodeItem[] = [mathNode, vectorMathNode, mixNode, clampNode, combineXyzNode, separateXyzNode]

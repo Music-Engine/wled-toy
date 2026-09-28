@@ -23,9 +23,10 @@ export const DEFAULT_ANALYSIS: AnalysisSettings = DEFAULT_FFT
 export const DEFAULT_AUDIO: AudioSettings = { agc, gate, source: 'file', deviceId: '', channel: 'mono' }
 
 /** Why system audio cannot be captured here, or null when it can: WKWebView, the webview of the macOS desktop app, delivers no audio through getDisplayMedia. */
-export const systemAudioBlocked = (): string | null => (isTauri() && isMac()
-  ? 'System audio capture is not available in the desktop app yet. Route audio through a loopback device such as BlackHole and pick it as the capture device.'
-  : null)
+export const systemAudioBlocked = (): string | null =>
+  isTauri() && isMac()
+    ? 'System audio capture is not available in the desktop app yet. Route audio through a loopback device such as BlackHole and pick it as the capture device.'
+    : null
 
 /** The shader has this many sets of band and history textures. Slot 0 is always the default analysis. */
 export const MAX_ANALYSES = 4

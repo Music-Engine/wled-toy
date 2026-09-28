@@ -14,7 +14,9 @@ function drawPicture(): OffscreenCanvas {
 }
 
 function render(values: object, output: 'color' | 'alpha', { leds = 2, scanY = 0.75, layers = [drawPicture()] } = {}) {
-  const { program, issues } = createGlslCompiler().compile(graph([node('i', 'imageTexture', values as never), node('o', 'output')], [[`i.${output}`, 'o.color']]))
+  const { program, issues } = createGlslCompiler().compile(
+    graph([node('i', 'imageTexture', values as never), node('o', 'output')], [[`i.${output}`, 'o.color']]),
+  )
   expect(issues).toEqual([])
   const canvas = document.createElement('canvas')
   const renderer = new ShaderRenderer(canvas)
@@ -32,7 +34,10 @@ const expectNear = (actual: number[][], expected: number[][]) =>
 
 describe('Image Texture', () => {
   it('Closest shows the pixels of the picture, top row at the top', () => {
-    expectNear(render({ interpolation: 'closest' }, 'color').leds, [[255, 0, 0], [0, 255, 0]])
+    expectNear(render({ interpolation: 'closest' }, 'color').leds, [
+      [255, 0, 0],
+      [0, 255, 0],
+    ])
     expectNear([render({ interpolation: 'closest' }, 'color', { scanY: 0.25 }).leds[0]], [[0, 0, 255]])
   })
 
@@ -59,10 +64,16 @@ describe('Image Texture', () => {
   it('past the edge the picture repeats, mirrors or holds its last pixel', () => {
     // Samples x = 1.25 and 1.75 via the strip shifted into the second tile
     const sampleEdge = (extension: string) => {
-      const { program } = createGlslCompiler().compile(graph(
-        [node('uv', 'uv'), node('m', 'math', { op: 'add', b: 1 }), node('i', 'imageTexture', { interpolation: 'closest', extension }), node('o', 'output')],
-        [['uv.uv', 'm.a'], ['m.result', 'i.vector'], ['i.color', 'o.color']],
-      ))
+      const { program } = createGlslCompiler().compile(
+        graph(
+          [node('uv', 'uv'), node('m', 'math', { op: 'add', b: 1 }), node('i', 'imageTexture', { interpolation: 'closest', extension }), node('o', 'output')],
+          [
+            ['uv.uv', 'm.a'],
+            ['m.result', 'i.vector'],
+            ['i.color', 'o.color'],
+          ],
+        ),
+      )
       const renderer = new ShaderRenderer(document.createElement('canvas'))
       renderer.compile(program!.pixel)
       renderer.setImageLayer(0, drawPicture())
@@ -70,17 +81,40 @@ describe('Image Texture', () => {
       return [0, 1].map((i) => [...colors.subarray(i * 3, i * 3 + 3)].map(toByte))
     }
     // y = 1.75: repeat wraps to top row, mirror reflects to bottom row, extend holds top row's edge
-    expectNear(sampleEdge('repeat'), [[255, 0, 0], [0, 255, 0]])
-    expectNear(sampleEdge('mirror'), [[255, 255, 255], [0, 0, 255]])
-    expectNear(sampleEdge('extend'), [[0, 255, 0], [0, 255, 0]])
+    expectNear(sampleEdge('repeat'), [
+      [255, 0, 0],
+      [0, 255, 0],
+    ])
+    expectNear(sampleEdge('mirror'), [
+      [255, 255, 255],
+      [0, 0, 255],
+    ])
+    expectNear(sampleEdge('extend'), [
+      [0, 255, 0],
+      [0, 255, 0],
+    ])
   })
 
   it('each image of a graph gets a layer; two nodes showing the same image share one', () => {
-    const { program } = createGlslCompiler().compile(graph(
-      [node('a', 'imageTexture', { filename: 'cat.png' }), node('b', 'imageTexture', { filename: 'dog.png' }), node('c', 'imageTexture', { filename: 'cat.png' }),
-        node('m', 'colorMix'), node('n', 'colorMix'), node('o', 'output')],
-      [['a.color', 'm.color1'], ['b.color', 'm.color2'], ['m.color', 'n.color1'], ['c.color', 'n.color2'], ['n.color', 'o.color']],
-    ))
+    const { program } = createGlslCompiler().compile(
+      graph(
+        [
+          node('a', 'imageTexture', { filename: 'cat.png' }),
+          node('b', 'imageTexture', { filename: 'dog.png' }),
+          node('c', 'imageTexture', { filename: 'cat.png' }),
+          node('m', 'colorMix'),
+          node('n', 'colorMix'),
+          node('o', 'output'),
+        ],
+        [
+          ['a.color', 'm.color1'],
+          ['b.color', 'm.color2'],
+          ['m.color', 'n.color1'],
+          ['c.color', 'n.color2'],
+          ['n.color', 'o.color'],
+        ],
+      ),
+    )
     expect(program!.resources.image).toEqual(['cat.png', 'dog.png'])
     const layers = [...program!.pixel.matchAll(/texture\(iImages, vec3\(.*?, (\d)\.0\)\)/g)].map((m) => m[1])
     expect(layers.sort()).toEqual(['0', '0', '1'])

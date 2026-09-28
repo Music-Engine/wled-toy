@@ -66,7 +66,10 @@ export class OnsetDetector {
   private lastFlux = 0
   private rising = false
 
-  constructor(hopRate: number, private readonly sensitivity = 1.5) {
+  constructor(
+    hopRate: number,
+    private readonly sensitivity = 1.5,
+  ) {
     this.recent = new Float32Array(Math.max(8, Math.round(hopRate)))
   }
 

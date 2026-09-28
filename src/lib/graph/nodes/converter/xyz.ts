@@ -1,5 +1,5 @@
-import { defineNode, Float, swizzle, Vec3 } from '@/lib/graph/authoring';
-import { textureVector } from '@/lib/graph/nodes/shared/sockets';
+import { defineNode, Float, swizzle, Vec3 } from '@/lib/graph/authoring'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 export const combineXyzNode = defineNode('combineXYZ', {
   title: 'Combine XYZ',
@@ -12,7 +12,7 @@ export const combineXyzNode = defineNode('combineXYZ', {
   },
   output: { vector: Vec3 },
   body: ({ x, y, z }, ctx) => ({ vector: ctx.declare('vec3', `vec3(${x.expr}, ${y.expr}, ${z.expr})`) }),
-});
+})
 
 export const separateXyzNode = defineNode('separateXYZ', {
   title: 'Separate XYZ',
@@ -21,7 +21,7 @@ export const separateXyzNode = defineNode('separateXYZ', {
   input: { vector: textureVector },
   output: { x: { type: Float, label: 'X' }, y: { type: Float, label: 'Y' }, z: { type: Float, label: 'Z' } },
   body: ({ vector }, ctx) => {
-    const components = ctx.declare('vec3', vector.expr);
-    return { x: swizzle(components, 'x'), y: swizzle(components, 'y'), z: swizzle(components, 'z') };
+    const components = ctx.declare('vec3', vector.expr)
+    return { x: swizzle(components, 'x'), y: swizzle(components, 'y'), z: swizzle(components, 'z') }
   },
-});
+})

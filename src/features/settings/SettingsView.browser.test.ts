@@ -24,7 +24,10 @@ function mount() {
   document.body.append(root)
   const app = createApp({ render: () => [h('button', { id: 'opener', onClick: () => openSettings() }, 'Open preferences'), h(SettingsView)] })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root.querySelector<HTMLButtonElement>('#opener')!
 }
 
@@ -43,7 +46,14 @@ it('stays closed until asked, then moves between sections by click and by arrow 
   await userEvent.click(opener)
   await expect.poll(() => view()).not.toBeNull()
   expect(view()!.getAttribute('role')).toBe('dialog')
-  expect([...view()!.querySelectorAll('[role="tab"]')].map((el) => el.textContent!.trim())).toEqual(['General', 'Appearance', 'Devices', 'Output', 'Shortcuts', 'Data'])
+  expect([...view()!.querySelectorAll('[role="tab"]')].map((el) => el.textContent!.trim())).toEqual([
+    'General',
+    'Appearance',
+    'Devices',
+    'Output',
+    'Shortcuts',
+    'Data',
+  ])
   expect([selectedTab(), heading()]).toEqual(['General', 'General'])
 
   await userEvent.click(tab('Output'))
@@ -156,7 +166,9 @@ it('lists commands with their accelerators, including ones that cannot run here,
   // no handler is bound in this test and the app is in shader mode: both still belong in a reference
   expect(row('file.save')!.querySelector('kbd')!.textContent).toBe(formatAccelerator('Mod+S'))
   expect(row('graph.fitView')!.textContent).toContain('Graph mode')
-  expect([...row('graph.delete')!.querySelectorAll('kbd')].map((el) => el.textContent)).toEqual(['X', 'Backspace', 'Delete'].map((key) => formatAccelerator(key)))
+  expect([...row('graph.delete')!.querySelectorAll('kbd')].map((el) => el.textContent)).toEqual(
+    ['X', 'Backspace', 'Delete'].map((key) => formatAccelerator(key)),
+  )
   expect(view()!.querySelector('table button, table input')).toBeNull()
 
   await userEvent.fill(view()!.querySelector<HTMLInputElement>('input[type="search"]')!, 'side panel')

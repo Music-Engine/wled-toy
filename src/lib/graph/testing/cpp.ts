@@ -54,10 +54,13 @@ export function runUsermod(code: string, { leds, frames, feed = [] }: UsermodOpt
   const input = Array.from({ length: frames }, (_, frame) => toFeedLine(frame, feed[frame] ?? {}))
   const ran = spawnSync(buildOfflineBinary([code, ...USERMOD_MAIN].join('\n')), { input: input.map((line) => line.join(' ')).join('\n'), encoding: 'utf8' })
   if (ran.status !== 0) throw new Error(`The offline unit exited with ${ran.status}: ${ran.stderr}`)
-  return ran.stdout.split('\n').slice(0, -1).map((line) => {
-    const bytes = line.trim().split(' ').map(Number)
-    return Array.from({ length: leds }, (_, i) => bytes.slice(i * 3, i * 3 + 3))
-  })
+  return ran.stdout
+    .split('\n')
+    .slice(0, -1)
+    .map((line) => {
+      const bytes = line.trim().split(' ').map(Number)
+      return Array.from({ length: leds }, (_, i) => bytes.slice(i * 3, i * 3 + 3))
+    })
 }
 
 const SILENT = computeAudioFeatures(null, SAMPLE_RATE)
@@ -68,7 +71,15 @@ function toFeedLine(frame: number, { bands = [], features = SILENT, spectrum = [
   if (slots.some((row) => row.length !== 16)) throw new Error('Each slot of a feed frame holds 16 bands')
   const spectra = Array.from({ length: 1 + AUDIO_EXTRA_SLOTS }, (_, slot) => Array.from(spectrum[slot] ?? []))
   if (spectra.some((row) => row.length > MAX_SPECTRUM_BINS)) throw new Error(`A slot of a feed frame's spectrum holds at most ${MAX_SPECTRUM_BINS} bins`)
-  return [frame / FPS, SAMPLE_RATE, ...slots.flat(), ...Array.from(features), ...spectra.flatMap((row) => [row.length, ...row]), samples.length, ...Array.from(samples)]
+  return [
+    frame / FPS,
+    SAMPLE_RATE,
+    ...slots.flat(),
+    ...Array.from(features),
+    ...spectra.flatMap((row) => [row.length, ...row]),
+    samples.length,
+    ...Array.from(samples),
+  ]
 }
 
 // One binary per unit text per process, so a graph rendered many times builds once

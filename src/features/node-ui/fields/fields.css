@@ -9,9 +9,15 @@
   background: var(--nui-field);
   user-select: none;
 }
-.nui-field:hover { background: var(--nui-field-hover); }
-.nui-field.is-pressed { background: var(--nui-field-pressed); }
-.nui-field.is-invalid { box-shadow: inset 0 0 0 1px var(--nui-error); }
+.nui-field:hover {
+  background: var(--nui-field-hover);
+}
+.nui-field.is-pressed {
+  background: var(--nui-field-pressed);
+}
+.nui-field.is-invalid {
+  box-shadow: inset 0 0 0 1px var(--nui-error);
+}
 
 .nui-range-fill {
   position: absolute;
@@ -29,8 +35,12 @@
   cursor: ew-resize;
   line-height: var(--nui-field-height);
 }
-.nui-range-text .nui-label { color: color-mix(in srgb, var(--nui-text) 72%, transparent); }
-.nui-range-value { font-variant-numeric: tabular-nums; }
+.nui-range-text .nui-label {
+  color: color-mix(in srgb, var(--nui-text) 72%, transparent);
+}
+.nui-range-value {
+  font-variant-numeric: tabular-nums;
+}
 .nui-range-step {
   position: relative;
   display: grid;
@@ -41,10 +51,20 @@
   cursor: pointer;
   opacity: 0;
 }
-.nui-field:hover .nui-range-step { opacity: 0.8; }
-.nui-range-step:hover { background: rgb(255 255 255 / 0.12); }
-.nui-range-step svg { width: var(--nui-glyph-small); height: var(--nui-glyph-small); fill: currentColor; }
-.nui-range-step.is-down svg { transform: rotate(180deg); }
+.nui-field:hover .nui-range-step {
+  opacity: 0.8;
+}
+.nui-range-step:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+.nui-range-step svg {
+  width: var(--nui-glyph-small);
+  height: var(--nui-glyph-small);
+  fill: currentColor;
+}
+.nui-range-step.is-down svg {
+  transform: rotate(180deg);
+}
 
 .nui-input {
   width: 100%;
@@ -60,16 +80,35 @@
 }
 
 /* the label carries the left padding: on the field it would show as a sliver of field color beside an input that has no label */
-.nui-text { cursor: text; }
-.nui-text .nui-label { flex: none; padding: 0 var(--nui-gap) 0 var(--nui-pad); color: var(--nui-text-dim); }
+.nui-text {
+  cursor: text;
+}
+.nui-text .nui-label {
+  flex: none;
+  padding: 0 var(--nui-gap) 0 var(--nui-pad);
+  color: var(--nui-text-dim);
+}
 
 /* Blender stacks a vector's components into one joined column; side by side, three fields in a narrow node squeeze their axis letters to nothing */
-.nui-vector { display: flex; flex-direction: column; gap: 1px; }
-.nui-vector .nui-field { border-radius: 0; }
-.nui-vector .nui-field:first-child { border-radius: var(--nui-radius) var(--nui-radius) 0 0; }
-.nui-vector .nui-field:last-child { border-radius: 0 0 var(--nui-radius) var(--nui-radius); }
+.nui-vector {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.nui-vector .nui-field {
+  border-radius: 0;
+}
+.nui-vector .nui-field:first-child {
+  border-radius: var(--nui-radius) var(--nui-radius) 0 0;
+}
+.nui-vector .nui-field:last-child {
+  border-radius: 0 0 var(--nui-radius) var(--nui-radius);
+}
 
-.nui-dropdown { position: relative; width: 100%; }
+.nui-dropdown {
+  position: relative;
+  width: 100%;
+}
 .nui-dropdown-button {
   display: flex;
   align-items: center;
@@ -83,12 +122,23 @@
   background: var(--nui-button);
   cursor: pointer;
 }
-.nui-dropdown-button:hover { background: var(--nui-field-hover); }
+.nui-dropdown-button:hover {
+  background: var(--nui-field-hover);
+}
 .nui-dropdown.is-open .nui-dropdown-button {
   border-color: transparent;
   background: var(--nui-accent);
 }
-.nui-dropdown-button svg { width: var(--nui-glyph-small); height: var(--nui-glyph-small); flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.nui-dropdown-button svg {
+  width: var(--nui-glyph-small);
+  height: var(--nui-glyph-small);
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 /* Fixed to the window, outside the canvas. It only scrolls when the window is smaller than the whole list. */
 .nui-dropdown-menu {
   position: fixed;
@@ -105,9 +155,20 @@
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.5);
   user-select: none;
 }
-.nui-dropdown-title { padding: 0.25em var(--nui-pad); color: var(--nui-text-dim); }
-.nui-dropdown-columns { display: flex; gap: var(--nui-pad); }
-.nui-dropdown-column { display: flex; flex: none; flex-direction: column; min-width: 8em; }
+.nui-dropdown-title {
+  padding: 0.25em var(--nui-pad);
+  color: var(--nui-text-dim);
+}
+.nui-dropdown-columns {
+  display: flex;
+  gap: var(--nui-pad);
+}
+.nui-dropdown-column {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  min-width: 8em;
+}
 .nui-dropdown-heading {
   margin-bottom: var(--nui-row-gap);
   padding: 0.25em var(--nui-pad);
@@ -120,8 +181,12 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.nui-dropdown-option.is-active { background: var(--nui-field-hover); }
-.nui-dropdown-option.is-selected { background: var(--nui-accent); }
+.nui-dropdown-option.is-active {
+  background: var(--nui-field-hover);
+}
+.nui-dropdown-option.is-selected {
+  background: var(--nui-accent);
+}
 
 .nui-checkbox {
   display: flex;
@@ -139,9 +204,21 @@
   border-radius: calc(var(--nui-radius) - 1px);
   background: var(--nui-field);
 }
-.nui-checkbox:hover .nui-checkbox-box { background: var(--nui-field-hover); }
-.nui-checkbox.is-checked .nui-checkbox-box { background: var(--nui-accent); }
-.nui-checkbox-box svg { width: var(--nui-glyph); height: var(--nui-glyph); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nui-checkbox:hover .nui-checkbox-box {
+  background: var(--nui-field-hover);
+}
+.nui-checkbox.is-checked .nui-checkbox-box {
+  background: var(--nui-accent);
+}
+.nui-checkbox-box svg {
+  width: var(--nui-glyph);
+  height: var(--nui-glyph);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .nui-color {
   display: flex;
@@ -158,7 +235,9 @@
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5);
   cursor: pointer;
 }
-.nui-color-swatch:hover { box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5); }
+.nui-color-swatch:hover {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.5);
+}
 .nui-color-swatch input {
   position: absolute;
   inset: 0;
@@ -168,7 +247,9 @@
   cursor: pointer;
 }
 
-.nui-button-group { display: flex; }
+.nui-button-group {
+  display: flex;
+}
 .nui-button {
   display: grid;
   place-items: center;
@@ -181,13 +262,41 @@
   /* a label that wraps grows out of the fixed-height button and over its neighbors */
   white-space: nowrap;
 }
-.nui-button:first-child { border-radius: var(--nui-radius) 0 0 var(--nui-radius); }
-.nui-button:last-child { border-right: 0; border-radius: 0 var(--nui-radius) var(--nui-radius) 0; }
-.nui-button:hover { background: var(--nui-field-hover); }
-.nui-button:active { background: var(--nui-field-pressed); }
-.nui-button:disabled { opacity: 0.4; cursor: default; }
-.nui-button svg { width: var(--nui-glyph); height: var(--nui-glyph); fill: none; stroke: currentColor; stroke-width: 2.5; }
+.nui-button:first-child {
+  border-radius: var(--nui-radius) 0 0 var(--nui-radius);
+}
+.nui-button:last-child {
+  border-right: 0;
+  border-radius: 0 var(--nui-radius) var(--nui-radius) 0;
+}
+.nui-button:hover {
+  background: var(--nui-field-hover);
+}
+.nui-button:active {
+  background: var(--nui-field-pressed);
+}
+.nui-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.nui-button svg {
+  width: var(--nui-glyph);
+  height: var(--nui-glyph);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+}
 
-.nui-note { color: var(--nui-text-dim); font-size: calc(10em / 12); white-space: normal; }
-.nui-note.is-error { color: var(--nui-error); }
-.nui-inline { display: flex; align-items: center; gap: var(--nui-gap); }
+.nui-note {
+  color: var(--nui-text-dim);
+  font-size: calc(10em / 12);
+  white-space: normal;
+}
+.nui-note.is-error {
+  color: var(--nui-error);
+}
+.nui-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--nui-gap);
+}

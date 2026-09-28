@@ -18,7 +18,11 @@ export const noiseTextureNode = defineNode('noiseTexture', {
   body: ({ vector, scale, detail, roughness, distortion }, ctx) => {
     const point = ctx.declare('vec3', `${vector.expr} * ${scale.expr}`, 'p')
     // As Blender: warp by noise sampled at an offset, decorrelate color channels the same way
-    const warped = ctx.declare('vec3', `${point.expr} + ${distortion.expr} * (vec3(noise3(${point.expr} + 13.5), noise3(${point.expr}), noise3(${point.expr} - 13.5)) * 2.0 - 1.0)`, 'warped')
+    const warped = ctx.declare(
+      'vec3',
+      `${point.expr} + ${distortion.expr} * (vec3(noise3(${point.expr} + 13.5), noise3(${point.expr}), noise3(${point.expr} - 13.5)) * 2.0 - 1.0)`,
+      'warped',
+    )
     const sampleFbm = (at: string) => `noise_fbm(${at}, ${detail.expr}, ${roughness.expr}, 2.0, true)`
     const fac = ctx.declare('float', sampleFbm(warped.expr), 'fac')
     const color = ctx.declare('vec3', `vec3(${fac.expr}, ${sampleFbm(`${warped.expr}.yxz + 27.1`)}, ${sampleFbm(`${warped.expr}.zyx - 41.3`)})`, 'color')

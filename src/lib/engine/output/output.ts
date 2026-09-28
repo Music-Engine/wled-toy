@@ -19,7 +19,16 @@ export interface OutputSettings {
   universe: number
 }
 
-export const DEFAULT_OUTPUT: OutputSettings = { gamma: 1, ceiling: 1, powerBudgetMa: 0, maPerChannel: 20, dithering: 'off', fps: 0, protocol: 'settings', universe: 0 }
+export const DEFAULT_OUTPUT: OutputSettings = {
+  gamma: 1,
+  ceiling: 1,
+  powerBudgetMa: 0,
+  maPerChannel: 20,
+  dithering: 'off',
+  fps: 0,
+  protocol: 'settings',
+  universe: 0,
+}
 
 /** Estimated current of a frame of 0..1 colors, in mA. */
 export function estimateCurrent(colors: Float32Array, maPerChannel: number): number {

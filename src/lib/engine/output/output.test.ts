@@ -25,7 +25,7 @@ describe('LedPostProcess', () => {
     expect(estimateCurrent(white, 20)).toBe(60 * 35)
     const out = rgb(post.process(white, 1, { ...DEFAULT_OUTPUT, powerBudgetMa: 1000 }))
     expect(post.lastCurrentMa).toBeCloseTo(1000, 3)
-    const drawn = out.reduce((a, b) => a + b, 0) / 255 * 20
+    const drawn = (out.reduce((a, b) => a + b, 0) / 255) * 20
     expect(drawn).toBeLessThanOrEqual(1000 * 1.01)
     expect(drawn).toBeGreaterThan(1000 * 0.97)
     expect(out[0] / out[1]).toBeCloseTo(2, 1)

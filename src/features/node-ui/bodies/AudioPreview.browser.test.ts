@@ -16,7 +16,10 @@ it('a long song name is truncated beside the button instead of pushing it onto t
   document.body.append(root)
   const app = createApp({ render: () => h(AudioPreview, { nodeId: 'a', values: {} }) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   await nextTick()
 
   const button = [...root.querySelectorAll('button')].find((b) => b.textContent?.includes('Choose Song'))!

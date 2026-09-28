@@ -2,11 +2,25 @@ import { Bool, Color, defineNode, Enum, Float } from '@/lib/graph/authoring'
 import { BLEND_FUNCTIONS } from '@/lib/graph/nodes/glsl/blend'
 
 export const BLEND_MODES = [
-  { value: 'mix', label: 'Mix', group: 'Mix' }, { value: 'add', label: 'Add', group: 'Lighten' }, { value: 'multiply', label: 'Multiply', group: 'Darken' }, { value: 'screen', label: 'Screen', group: 'Lighten' },
-  { value: 'overlay', label: 'Overlay', group: 'Contrast' }, { value: 'subtract', label: 'Subtract', group: 'Difference' }, { value: 'divide', label: 'Divide', group: 'Difference' }, { value: 'difference', label: 'Difference', group: 'Difference' },
-  { value: 'exclusion', label: 'Exclusion', group: 'Difference' }, { value: 'darken', label: 'Darken', group: 'Darken' }, { value: 'lighten', label: 'Lighten', group: 'Lighten' }, { value: 'dodge', label: 'Dodge', group: 'Lighten' },
-  { value: 'burn', label: 'Burn', group: 'Darken' }, { value: 'hue', label: 'Hue', group: 'Color' }, { value: 'saturation', label: 'Saturation', group: 'Color' }, { value: 'value', label: 'Value', group: 'Color' },
-  { value: 'color', label: 'Color', group: 'Color' }, { value: 'softLight', label: 'Soft Light', group: 'Contrast' }, { value: 'linearLight', label: 'Linear Light', group: 'Contrast' },
+  { value: 'mix', label: 'Mix', group: 'Mix' },
+  { value: 'add', label: 'Add', group: 'Lighten' },
+  { value: 'multiply', label: 'Multiply', group: 'Darken' },
+  { value: 'screen', label: 'Screen', group: 'Lighten' },
+  { value: 'overlay', label: 'Overlay', group: 'Contrast' },
+  { value: 'subtract', label: 'Subtract', group: 'Difference' },
+  { value: 'divide', label: 'Divide', group: 'Difference' },
+  { value: 'difference', label: 'Difference', group: 'Difference' },
+  { value: 'exclusion', label: 'Exclusion', group: 'Difference' },
+  { value: 'darken', label: 'Darken', group: 'Darken' },
+  { value: 'lighten', label: 'Lighten', group: 'Lighten' },
+  { value: 'dodge', label: 'Dodge', group: 'Lighten' },
+  { value: 'burn', label: 'Burn', group: 'Darken' },
+  { value: 'hue', label: 'Hue', group: 'Color' },
+  { value: 'saturation', label: 'Saturation', group: 'Color' },
+  { value: 'value', label: 'Value', group: 'Color' },
+  { value: 'color', label: 'Color', group: 'Color' },
+  { value: 'softLight', label: 'Soft Light', group: 'Contrast' },
+  { value: 'linearLight', label: 'Linear Light', group: 'Contrast' },
 ] as const
 
 export type BlendMode = (typeof BLEND_MODES)[number]['value']

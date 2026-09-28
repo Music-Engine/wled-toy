@@ -18,7 +18,10 @@ it('a collapsed node hides its rows and keeps its links attached', async () => {
   document.body.append(root)
   const app = createApp({ render: () => h(VueFlow, { nodes: doc.nodes, edges: doc.edges, nodeTypes: { shader: markRaw(GraphNode) } }) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   await settle()
 
   const math = root.querySelector<HTMLElement>('[data-id="math"]')!

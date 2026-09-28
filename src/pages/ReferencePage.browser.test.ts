@@ -10,7 +10,9 @@ let unmount: (() => void) | undefined
 afterEach(() => {
   unmount?.()
   workspace.mode = 'shader'
-  setClipboardWriter((text) => { void navigator.clipboard.writeText(text) })
+  setClipboardWriter((text) => {
+    void navigator.clipboard.writeText(text)
+  })
 })
 
 function mount() {
@@ -23,7 +25,11 @@ function mount() {
   app.config.warnHandler = () => undefined
   app.mount(root)
   const removeKeys = installKeyDispatcher()
-  unmount = () => { removeKeys(); app.unmount(); root.remove() }
+  unmount = () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
   return root
 }
 
@@ -53,7 +59,9 @@ it('groups entries under one section header per category that has entries, in ca
   expect(headers.every((h) => h.classList.contains('sticky'))).toBe(true)
 
   const audio = root.querySelector('section[aria-label="Audio"]')!
-  expect([...audio.querySelectorAll<HTMLElement>('[data-entry]')].map((el) => el.dataset.entry)).toEqual(NODES.filter((n) => n.category === 'audio').map((n) => n.name))
+  expect([...audio.querySelectorAll<HTMLElement>('[data-entry]')].map((el) => el.dataset.entry)).toEqual(
+    NODES.filter((n) => n.category === 'audio').map((n) => n.name),
+  )
   expect(categoryOptions(root).some((el) => el.textContent!.includes('Converter'))).toBe(false)
 })
 
@@ -110,7 +118,9 @@ it('search highlights the match in the title, the name and the description', asy
 
 it('an empty result names the query and offers the way out', async () => {
   const root = mount()
-  categoryOptions(root).find((el) => el.textContent!.includes('Color'))!.click()
+  categoryOptions(root)
+    .find((el) => el.textContent!.includes('Color'))!
+    .click()
   const input = search(root)
   input.value = 'fftlog'
   input.dispatchEvent(new Event('input'))
@@ -201,7 +211,9 @@ it('the on this page index lists every visible entry and jumps to the one clicke
 it('the Copy action on a row writes the signature through the injected clipboard writer', async () => {
   const root = mount()
   const written: string[] = []
-  setClipboardWriter((text) => { written.push(text) })
+  setClipboardWriter((text) => {
+    written.push(text)
+  })
 
   const row = root.querySelector<HTMLElement>('[data-entry="bass"]')!
   row.querySelector<HTMLButtonElement>('button')!.click()
@@ -213,7 +225,9 @@ it('the Copy action on a row writes the signature through the injected clipboard
 it('Enter on a focused row copies it, and Cmd/Ctrl+C copies whichever row has focus', async () => {
   const root = mount()
   const written: string[] = []
-  setClipboardWriter((text) => { written.push(text) })
+  setClipboardWriter((text) => {
+    written.push(text)
+  })
 
   const row = root.querySelector<HTMLElement>('[data-entry="bass"]')!
   row.focus()
@@ -236,7 +250,9 @@ it('Enter on a focused row copies it, and Cmd/Ctrl+C copies whichever row has fo
 it('Cmd/Ctrl+C is left alone when nothing reference-specific has focus', async () => {
   const root = mount()
   const written: string[] = []
-  setClipboardWriter((text) => { written.push(text) })
+  setClipboardWriter((text) => {
+    written.push(text)
+  })
   const input = search(root)
   input.focus()
   press(input, 'c', mod)

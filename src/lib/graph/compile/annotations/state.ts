@@ -28,8 +28,14 @@ function collectWantedSlots(ctx: CompileContext): Record<'pixel' | 'global', Wan
   for (const id of ctx.order) {
     const node = ctx.nodes[id]
     const declared = Object.entries(node.shape.state ?? {})
-    if (declared.length > 0) wanted[toTableName(node.pass!)].push({ key: id, kind: node.kind, slots: Object.fromEntries(declared.map(([name, type]) => [name, { type: type.id, dim: type.dim! }])) })
-    for (const output of listExportedOutputs(node, read)) wanted.global.push({ key: `${id}:${output}`, kind: node.kind, slots: { [output]: toExportedSlot(node, output) } })
+    if (declared.length > 0)
+      wanted[toTableName(node.pass!)].push({
+        key: id,
+        kind: node.kind,
+        slots: Object.fromEntries(declared.map(([name, type]) => [name, { type: type.id, dim: type.dim! }])),
+      })
+    for (const output of listExportedOutputs(node, read))
+      wanted.global.push({ key: `${id}:${output}`, kind: node.kind, slots: { [output]: toExportedSlot(node, output) } })
   }
   return wanted
 }
@@ -40,7 +46,8 @@ export function collectCrossPassReads(ctx: CompileContext): Set<string> {
   for (const node of Object.values(ctx.nodes).filter((node) => node.pass === 'pixel')) {
     for (const socket of node.shape.inputs) {
       const linked = findLinkedOutput(ctx, node, socket)
-      if (linked && ctx.nodes[linked.source.id].pass === 'frame' && !findLinkedUniform(ctx, linked.source)) read.add(`${linked.source.id}:${linked.source.output}`)
+      if (linked && ctx.nodes[linked.source.id].pass === 'frame' && !findLinkedUniform(ctx, linked.source))
+        read.add(`${linked.source.id}:${linked.source.output}`)
     }
   }
   return read
@@ -72,7 +79,9 @@ export function isExportable(node: CompiledNode, output: string): boolean {
  */
 function allocateTable(wanted: Wanted[], previous: Record<string, Slots>): Record<string, Slots> {
   const kept = new Set(wanted.filter((entry) => hasSameSlots(previous[entry.key], entry)).map((entry) => entry.key))
-  const taken = new Set(wanted.filter((entry) => kept.has(entry.key)).flatMap((entry) => Object.values(previous[entry.key]).flatMap((slot) => listFloats(slot.offset, slot.dim))))
+  const taken = new Set(
+    wanted.filter((entry) => kept.has(entry.key)).flatMap((entry) => Object.values(previous[entry.key]).flatMap((slot) => listFloats(slot.offset, slot.dim))),
+  )
   const reach = 4 * Math.max(0, ...Object.values(previous).flatMap((slots) => Object.values(slots).map((slot) => Math.floor(slot.offset / 4) + 1)))
   const cursor = { next: Math.max(reach, ...[...taken].map((float) => float + 1)) }
   const table: Record<string, Slots> = {}
@@ -107,10 +116,14 @@ function findFreeStart(reach: number, dim: number, taken: Set<number>): number |
 /** Same kind, slot names and types only: another kind reads the floats differently */
 function hasSameSlots(previous: Slots | undefined, wanted: Wanted): boolean {
   const names = Object.keys(wanted.slots)
-  return previous !== undefined && Object.keys(previous).length === names.length
-    && names.every((name) => previous[name]?.type === wanted.slots[name].type && previous[name].kind === wanted.kind)
+  return (
+    previous !== undefined &&
+    Object.keys(previous).length === names.length &&
+    names.every((name) => previous[name]?.type === wanted.slots[name].type && previous[name].kind === wanted.kind)
+  )
 }
 
-const toOffsets = (slots: Slots | undefined): Record<string, number> => Object.fromEntries(Object.entries(slots ?? {}).map(([name, slot]) => [name, slot.offset]))
+const toOffsets = (slots: Slots | undefined): Record<string, number> =>
+  Object.fromEntries(Object.entries(slots ?? {}).map(([name, slot]) => [name, slot.offset]))
 
 const toTableName = (pass: Pass) => (pass === 'pixel' ? 'pixel' : 'global')

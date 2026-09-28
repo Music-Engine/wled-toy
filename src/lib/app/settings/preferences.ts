@@ -51,7 +51,7 @@ export function sanitizePreferences(input: unknown): Preferences {
   if (!input || typeof input !== 'object') return out
   const src = input as Record<string, unknown>
   const int = (value: unknown, lo: number, hi: number, fallback: number) =>
-    (typeof value === 'number' && Number.isFinite(value) ? clamp(Math.round(value), lo, hi) : fallback)
+    typeof value === 'number' && Number.isFinite(value) ? clamp(Math.round(value), lo, hi) : fallback
   if (typeof src.showLaunchScreen === 'boolean') out.showLaunchScreen = src.showLaunchScreen
   if (src.audioSource === 'file' || src.audioSource === 'device' || src.audioSource === 'loopback') out.audioSource = src.audioSource
   if (src.launchMode === 'shader' || src.launchMode === 'graph' || src.launchMode === 'last') out.launchMode = src.launchMode
@@ -70,7 +70,10 @@ export function sanitizePreferences(input: unknown): Preferences {
 
 export const preferences = reactive<Preferences>(loadStored(STORAGE_KEY, 'your preferences', sanitizePreferences, { ...PREFERENCE_DEFAULTS }))
 
-watch(() => JSON.stringify(preferences), (serialized) => localStorage.setItem(STORAGE_KEY, serialized))
+watch(
+  () => JSON.stringify(preferences),
+  (serialized) => localStorage.setItem(STORAGE_KEY, serialized),
+)
 
 export function resetPreferences() {
   Object.assign(preferences, PREFERENCE_DEFAULTS, { lastMode: preferences.lastMode })
@@ -94,11 +97,15 @@ export function launchPath(path: string): string | null {
 
 /** Keeps the document in step with the appearance preferences; main.css reads the attributes and the variable. */
 export function applyPreferences(root: HTMLElement = document.documentElement): () => void {
-  return watch(() => [preferences.density, preferences.editorFontSize, preferences.reduceMotion] as const, ([density, editorFontSize, reduceMotion]) => {
-    root.dataset.density = density
-    root.style.setProperty('--app-editor-font-size', `${editorFontSize}px`)
-    root.toggleAttribute('data-reduce-motion', reduceMotion)
-  }, { immediate: true })
+  return watch(
+    () => [preferences.density, preferences.editorFontSize, preferences.reduceMotion] as const,
+    ([density, editorFontSize, reduceMotion]) => {
+      root.dataset.density = density
+      root.style.setProperty('--app-editor-font-size', `${editorFontSize}px`)
+      root.toggleAttribute('data-reduce-motion', reduceMotion)
+    },
+    { immediate: true },
+  )
 }
 
 export const launchScreen = reactive({ open: false })

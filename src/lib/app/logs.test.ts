@@ -41,9 +41,6 @@ describe('report', () => {
   it('wraps a thrown value that is not an Error, and never throws on one that cannot be printed', () => {
     report('permission denied', 'Desktop shell')
     report(Object.create(null))
-    expect(lines()).toEqual([
-      'error: Desktop shell: permission denied [app thrown-value]',
-      'error: [object Object] [app thrown-value]',
-    ])
+    expect(lines()).toEqual(['error: Desktop shell: permission denied [app thrown-value]', 'error: [object Object] [app thrown-value]'])
   })
 })

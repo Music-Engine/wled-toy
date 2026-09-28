@@ -38,5 +38,5 @@ const READS = Object.values(FEATURES)
 /** Level of a named range of the mix, in Hz, following its loudest partial */
 function toRangeLevelReader(low: number, high: number) {
   return (analysis: Features, sampleRate: number) =>
-    (analysis.gate ? Math.sqrt(Math.min(1, rangePeak(analysis.spectrum, sampleRate, analysis.spectrum.length * 2, low, high) * analysis.gain)) : 0)
+    analysis.gate ? Math.sqrt(Math.min(1, rangePeak(analysis.spectrum, sampleRate, analysis.spectrum.length * 2, low, high) * analysis.gain)) : 0
 }

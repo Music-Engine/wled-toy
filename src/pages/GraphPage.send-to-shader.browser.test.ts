@@ -17,13 +17,23 @@ function mount(graph: NodeGraph | null) {
   const root = document.createElement('div')
   document.body.append(root)
   // the page binds its commands while it is the active page of a KeepAlive
-  const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(GraphPage))) })
+  const app = createApp({
+    render: () =>
+      h(
+        'div',
+        { style: 'width: 1000px; height: 600px' },
+        h(KeepAlive, null, () => h(GraphPage)),
+      ),
+  })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   app.provide(routerKey, { push: async () => undefined } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
 }
 
 const node = (id: string, kind: string, x: number, y: number) => ({ id, type: GRAPH_NODE_TYPE, position: { x, y }, data: newNodeData(kind) })
@@ -66,7 +76,12 @@ it('Send to Shader Mode says which values it had to fix, and says nothing when t
   expect(logs.value.some((entry) => entry.level === 'warn' && entry.message === graphCodeNotice.value)).toBe(true)
   unmount!()
 
-  mount({ ...createDefaultGraph(), nodes: [node('t', 'time', 0, 0), node('out', 'output', 400, 0)], edges: [{ id: 'e', source: 't', sourceHandle: 'time', target: 'out', targetHandle: 'color' }], scenes: [] })
+  mount({
+    ...createDefaultGraph(),
+    nodes: [node('t', 'time', 0, 0), node('out', 'output', 400, 0)],
+    edges: [{ id: 'e', source: 't', sourceHandle: 'time', target: 'out', targetHandle: 'color' }],
+    scenes: [],
+  })
   await expect.poll(mounted).toBe(2)
   expect(runCommand('graph.sendToShader')).toBe(true)
   expect(graphCodeNotice.value).toBeNull()

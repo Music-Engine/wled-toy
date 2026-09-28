@@ -26,7 +26,9 @@ afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   config.graph = null
   workspace.mode = 'shader'
-  setClipboardWriter((text) => { void navigator.clipboard.writeText(text) })
+  setClipboardWriter((text) => {
+    void navigator.clipboard.writeText(text)
+  })
 })
 
 /** The page as the app shows it, with the app's dispatcher answering keys on window; `ran` collects what each key did. */
@@ -34,7 +36,14 @@ function mount(page: Component, mode: Mode) {
   workspace.mode = mode
   const root = document.createElement('div')
   document.body.append(root)
-  const app = createApp({ render: () => h('div', { style: 'width: 1000px; height: 600px' }, h(KeepAlive, null, () => h(page))) })
+  const app = createApp({
+    render: () =>
+      h(
+        'div',
+        { style: 'width: 1000px; height: 600px' },
+        h(KeepAlive, null, () => h(page)),
+      ),
+  })
   app.provide(graphFileBackendKey, { open: async () => null, save: async () => undefined, saveAs: async () => null })
   app.provide(routerKey, { push: async () => undefined } as unknown as Router)
   // Nuxt UI is not installed here; the page's own buttons render as unknown elements
@@ -42,7 +51,11 @@ function mount(page: Component, mode: Mode) {
   app.mount(root)
   const onKeydown = (e: KeyboardEvent) => void ran.push(dispatchKey(e))
   window.addEventListener('keydown', onKeydown)
-  cleanups.push(() => { window.removeEventListener('keydown', onKeydown); app.unmount(); root.remove() })
+  cleanups.push(() => {
+    window.removeEventListener('keydown', onKeydown)
+    app.unmount()
+    root.remove()
+  })
 }
 
 const dialogOpen = () => !!document.querySelector('[role="dialog"]')
@@ -75,11 +88,33 @@ it('every graph shortcut runs its command on the graph page', async () => {
   await expect.poll(() => document.querySelectorAll('.vue-flow__node').length).toBe(createDefaultGraph().nodes.length)
   const { missed, pressed } = await pressEvery('graph.')
   expect(missed).toEqual([])
-  expect(pressed).toEqual(expect.arrayContaining([
-    'graph.addNode', 'graph.searchNodes', 'graph.copy', 'graph.cut', 'graph.paste', 'graph.undo', 'graph.redo', 'graph.selectAll', 'graph.deselectAll', 'graph.delete',
-    'graph.duplicate', 'graph.grab', 'graph.toggleCollapse', 'graph.hideUnusedSockets', 'graph.mute', 'graph.dissolve', 'graph.linkSelected',
-    'graph.invertSelection', 'graph.selectLinkedFrom', 'graph.selectLinkedTo', 'graph.viewSelected', 'graph.rename', 'graph.findNode',
-  ]))
+  expect(pressed).toEqual(
+    expect.arrayContaining([
+      'graph.addNode',
+      'graph.searchNodes',
+      'graph.copy',
+      'graph.cut',
+      'graph.paste',
+      'graph.undo',
+      'graph.redo',
+      'graph.selectAll',
+      'graph.deselectAll',
+      'graph.delete',
+      'graph.duplicate',
+      'graph.grab',
+      'graph.toggleCollapse',
+      'graph.hideUnusedSockets',
+      'graph.mute',
+      'graph.dissolve',
+      'graph.linkSelected',
+      'graph.invertSelection',
+      'graph.selectLinkedFrom',
+      'graph.selectLinkedTo',
+      'graph.viewSelected',
+      'graph.rename',
+      'graph.findNode',
+    ]),
+  )
 })
 
 it('every shader shortcut runs its command on the shader page', async () => {

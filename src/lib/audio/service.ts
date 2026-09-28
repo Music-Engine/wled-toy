@@ -182,7 +182,7 @@ export class AudioService {
   /** A failed capture leaves the running source connected: the old one goes only once the new stream is there. */
   private async connect(kind: AudioSourceKind, shared?: MediaStream) {
     const context = this.context!
-    const stream = kind === 'file' ? null : shared ?? await captureAudio(kind, this.state.settings.deviceId)
+    const stream = kind === 'file' ? null : (shared ?? (await captureAudio(kind, this.state.settings.deviceId)))
     this.disconnect()
     if (!stream) {
       // a media element can feed only one source node, ever, so both are kept for the life of the context

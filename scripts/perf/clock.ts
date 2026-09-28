@@ -20,8 +20,24 @@ async function main() {
   if (inApp) await mountApp()
   const rows: Record<string, unknown>[] = []
   const show = () => (out.textContent = JSON.stringify(rows, null, 1))
-  for (const fps of [60, 90]) rows.push({ kind: 'interval', fps, idle: await measureIntervalRate(fps), busy4ms: await measureIntervalRate(fps, 4), busy12ms: await measureIntervalRate(fps, 12) }), show()
-  for (const fps of [30, 60, 90, 120]) rows.push({ kind: 'deadline', fps, idle: await measureDeadlineRate(fps), busy4ms: await measureDeadlineRate(fps, 4), busy12ms: await measureDeadlineRate(fps, 12) }), show()
+  for (const fps of [60, 90])
+    rows.push({
+      kind: 'interval',
+      fps,
+      idle: await measureIntervalRate(fps),
+      busy4ms: await measureIntervalRate(fps, 4),
+      busy12ms: await measureIntervalRate(fps, 12),
+    }),
+      show()
+  for (const fps of [30, 60, 90, 120])
+    rows.push({
+      kind: 'deadline',
+      fps,
+      idle: await measureDeadlineRate(fps),
+      busy4ms: await measureDeadlineRate(fps, 4),
+      busy12ms: await measureDeadlineRate(fps, 12),
+    }),
+      show()
   const stream = params.get('stream') === '1'
   const engine = useEngine()
   if (stream && !engine.streaming.value) engine.toggleStream()
@@ -95,7 +111,15 @@ async function measureEngineRate(fps: number, previewFps: number, code: string) 
   gaps.list.sort((a, b) => a - b)
   const readPercentile = (q: number) => +(gaps.list[Math.min(gaps.list.length - 1, Math.floor(q * gaps.list.length))] ?? 0).toFixed(1)
   const { stats } = engine.bridge
-  return { rate: +rate.toFixed(1), ledRenderMs: +(stats.ledRenderMs ?? 0).toFixed(2), sendFps: +stats.sendFps.toFixed(1), dropped: stats.framesDropped, gapP50: readPercentile(0.5), gapP90: readPercentile(0.9), gapMax: readPercentile(1) }
+  return {
+    rate: +rate.toFixed(1),
+    ledRenderMs: +(stats.ledRenderMs ?? 0).toFixed(2),
+    sendFps: +stats.sendFps.toFixed(1),
+    dropped: stats.framesDropped,
+    gapP50: readPercentile(0.5),
+    gapP90: readPercentile(0.9),
+    gapMax: readPercentile(1),
+  }
 }
 
 /** Bridge hears every rendered LED frame, so it times the ticks */
@@ -118,7 +142,9 @@ function startBusyLoop(busyMs: number): () => void {
   const burn = () => {
     frame = requestAnimationFrame(burn)
     const until = performance.now() + busyMs
-    while (performance.now() < until) { /* hold the main thread */ }
+    while (performance.now() < until) {
+      /* hold the main thread */
+    }
   }
   if (busyMs) frame = requestAnimationFrame(burn)
   return () => cancelAnimationFrame(frame)
@@ -126,7 +152,12 @@ function startBusyLoop(busyMs: number): () => void {
 
 const fail = (e: unknown) => {
   out.textContent = String(e)
-  void fetch(receiver, { method: 'POST', mode: 'no-cors', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ label, error: String((e as Error)?.stack ?? e), rows: [] }) })
+  void fetch(receiver, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'content-type': 'text/plain' },
+    body: JSON.stringify({ label, error: String((e as Error)?.stack ?? e), rows: [] }),
+  })
 }
 window.addEventListener('error', (e) => fail(e.error ?? e.message))
 window.addEventListener('unhandledrejection', (e) => fail(e.reason))

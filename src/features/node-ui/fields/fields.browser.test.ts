@@ -66,7 +66,11 @@ describe('RangeField', () => {
 })
 
 describe('DropdownField', () => {
-  const options = [{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }, { value: 'c', label: 'Gamma' }]
+  const options = [
+    { value: 'a', label: 'Alpha' },
+    { value: 'b', label: 'Beta' },
+    { value: 'c', label: 'Gamma' },
+  ]
 
   it('marks the current option and picks another by keyboard', async () => {
     const field = mountField(DropdownField, 'b', { options })
@@ -120,7 +124,14 @@ describe('DropdownField popup', () => {
   })
 
   it('gathers grouped options under one heading per group, in the order groups first appear', async () => {
-    await open([{ value: 'a', label: 'Add', group: 'Functions' }, { value: 's', label: 'Sine', group: 'Trigonometric' }, { value: 'm', label: 'Multiply', group: 'Functions' }], 'a')
+    await open(
+      [
+        { value: 'a', label: 'Add', group: 'Functions' },
+        { value: 's', label: 'Sine', group: 'Trigonometric' },
+        { value: 'm', label: 'Multiply', group: 'Functions' },
+      ],
+      'a',
+    )
     expect([...document.querySelectorAll('.nui-dropdown-heading')].map((el) => el.textContent)).toEqual(['Functions', 'Trigonometric'])
     expect(columnSizes()).toEqual([2, 1])
   })
@@ -156,7 +167,14 @@ describe('DropdownField popup', () => {
 })
 
 describe('GradientEditor', () => {
-  const threeStops = (): ColorRamp => ({ interpolation: 'linear', stops: [{ position: 0, color: [0, 0, 0] }, { position: 0.5, color: [1, 0, 0] }, { position: 1, color: [1, 1, 1] }] })
+  const threeStops = (): ColorRamp => ({
+    interpolation: 'linear',
+    stops: [
+      { position: 0, color: [0, 0, 0] },
+      { position: 0.5, color: [1, 0, 0] },
+      { position: 1, color: [1, 1, 1] },
+    ],
+  })
 
   it('adds a stop midway after the selected one with the color the ramp has there', async () => {
     const field = mountField(GradientEditor, defaultRamp())
@@ -185,6 +203,10 @@ describe('GradientEditor', () => {
     const positions = field.value.value.stops.map((s) => s.position)
     expect(positions).toEqual([...positions].sort((a, b) => a - b))
     expect(positions[1]).toBeGreaterThan(0.5)
-    expect(field.value.value.stops.map((s) => s.color)).toEqual([[1, 0, 0], [0, 0, 0], [1, 1, 1]])
+    expect(field.value.value.stops.map((s) => s.color)).toEqual([
+      [1, 0, 0],
+      [0, 0, 0],
+      [1, 1, 1],
+    ])
   })
 })

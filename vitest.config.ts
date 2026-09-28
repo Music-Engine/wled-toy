@@ -20,7 +20,13 @@ const runUsermod: BrowserCommand<Parameters<CppHarness['runUsermod']>> = async (
   (await cppHarness(project)).runUsermod(code, options)
 
 const TIMING_TESTS = ['src/lib/engine/led-clock.browser.test.ts']
-const GPU_TESTS = ['src/lib/graph/compile/tests/**/*.browser.test.ts', 'src/lib/graph/testing/**/*.browser.test.ts', 'src/lib/engine/render/**/*.browser.test.ts', 'src/lib/engine/runtime.browser.test.ts', 'src/lib/graph/nodes/**/*.browser.test.ts']
+const GPU_TESTS = [
+  'src/lib/graph/compile/tests/**/*.browser.test.ts',
+  'src/lib/graph/testing/**/*.browser.test.ts',
+  'src/lib/engine/render/**/*.browser.test.ts',
+  'src/lib/engine/runtime.browser.test.ts',
+  'src/lib/graph/nodes/**/*.browser.test.ts',
+]
 const BROWSER = {
   enabled: true,
   headless: process.env.BENCH_GPU !== 'headed',
@@ -38,9 +44,23 @@ export default defineConfig({
   // discovered late, these make Vite re-optimize and reload the page in the middle of a browser run
   optimizeDeps: {
     include: [
-      'vue', 'vue-router', '@vue-flow/core', '@vue-flow/background', '@vue-flow/controls', '@vue-flow/minimap', 'reka-ui', '@vueuse/core',
+      'vue',
+      'vue-router',
+      '@vue-flow/core',
+      '@vue-flow/background',
+      '@vue-flow/controls',
+      '@vue-flow/minimap',
+      'reka-ui',
+      '@vueuse/core',
       '@tauri-apps/plugin-opener',
-      '@codemirror/autocomplete', '@codemirror/commands', '@codemirror/language', '@codemirror/lint', '@codemirror/search', '@codemirror/state', '@codemirror/view', '@lezer/highlight',
+      '@codemirror/autocomplete',
+      '@codemirror/commands',
+      '@codemirror/language',
+      '@codemirror/lint',
+      '@codemirror/search',
+      '@codemirror/state',
+      '@codemirror/view',
+      '@lezer/highlight',
     ],
   },
   test: {

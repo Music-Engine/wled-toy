@@ -39,16 +39,22 @@ describe('dissolveLinks', () => {
   const dissolve = (edges: ReturnType<typeof link>[], ids: string[]) => dissolveLinks(edges, new Set(ids), dataOf)
 
   it('feeds each link out of a dissolved node from the first link into it that fits, in input order', () => {
-    expect(dissolve([link('time', 'time', 'math', 'a'), link('uv', 'x', 'math', 'b'), link('math', 'result', 'env', 'signal')], ['math']))
-      .toEqual([link('time', 'time', 'env', 'signal')])
+    expect(dissolve([link('time', 'time', 'math', 'a'), link('uv', 'x', 'math', 'b'), link('math', 'result', 'env', 'signal')], ['math'])).toEqual([
+      link('time', 'time', 'env', 'signal'),
+    ])
     // a spectrum is no number, so the second input feeds it
-    expect(dissolve([link('fft', 'spectrum', 'spectrum', 'spectrum'), link('time', 'time', 'spectrum', 'position'), link('spectrum', 'level', 'env', 'signal')], ['spectrum']))
-      .toEqual([link('time', 'time', 'env', 'signal')])
+    expect(
+      dissolve(
+        [link('fft', 'spectrum', 'spectrum', 'spectrum'), link('time', 'time', 'spectrum', 'position'), link('spectrum', 'level', 'env', 'signal')],
+        ['spectrum'],
+      ),
+    ).toEqual([link('time', 'time', 'env', 'signal')])
   })
 
   it('follows a chain of dissolved nodes, and leaves an input unlinked when nothing fits', () => {
-    expect(dissolve([link('time', 'time', 'math', 'b'), link('math', 'result', 'math2', 'a'), link('math2', 'result', 'env', 'signal')], ['math', 'math2']))
-      .toEqual([link('time', 'time', 'env', 'signal')])
+    expect(
+      dissolve([link('time', 'time', 'math', 'b'), link('math', 'result', 'math2', 'a'), link('math2', 'result', 'env', 'signal')], ['math', 'math2']),
+    ).toEqual([link('time', 'time', 'env', 'signal')])
     expect(dissolve([link('fft', 'spectrum', 'split', 'spectrum'), link('split', 'level', 'env', 'signal')], ['split'])).toEqual([])
   })
 })

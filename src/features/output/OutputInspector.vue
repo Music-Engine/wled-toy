@@ -11,9 +11,9 @@ import { Format } from '@/lib/util/format'
 
 const { stats } = useEngine().bridge
 
-const layout = computed(() => (config.layout
-  ? config.layout.segments.map((s) => (s.kind === 'matrix' ? `matrix ${s.width}x${s.height}` : s.kind)).join(', ')
-  : 'strip'))
+const layout = computed(() =>
+  config.layout ? config.layout.segments.map((s) => (s.kind === 'matrix' ? `matrix ${s.width}x${s.height}` : s.kind)).join(', ') : 'strip',
+)
 
 function setNumber(key: 'fps' | 'universe', min: number, max: number, e: Event) {
   const input = e.target as HTMLInputElement

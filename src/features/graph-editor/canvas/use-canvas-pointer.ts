@@ -6,7 +6,11 @@ import { useLinkDrag, type PendingLink } from './use-link-drag'
 import { useWheelZoom } from './use-wheel-zoom'
 
 /** Everything the pointer does on the canvas beyond Vue Flow's own handling, and where it last was. */
-export function useCanvasPointer(flow: VueFlowStore, el: Ref<HTMLElement | undefined>, offerNodes: (at: { x: number; y: number }, pending: PendingLink) => void) {
+export function useCanvasPointer(
+  flow: VueFlowStore,
+  el: Ref<HTMLElement | undefined>,
+  offerNodes: (at: { x: number; y: number }, pending: PendingLink) => void,
+) {
   const pointer = { x: 0, y: 0, inside: false }
   const links = useLinkDrag(flow, offerNodes)
   const box = useBoxSelect(flow)

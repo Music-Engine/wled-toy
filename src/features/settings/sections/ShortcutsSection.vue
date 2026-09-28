@@ -12,7 +12,12 @@ const groups = computed(() => {
     if (!command.accelerator) continue
     const menu = command.menu.join(' › ')
     const keys = [command.accelerator, ...(command.aliases ?? [])].map((text) => formatAccelerator(text))
-    const row = { id: command.id, title: commandTitle(command), keys, modes: command.modes?.map((mode) => mode[0].toUpperCase() + mode.slice(1)).join(', ') ?? '' }
+    const row = {
+      id: command.id,
+      title: commandTitle(command),
+      keys,
+      modes: command.modes?.map((mode) => mode[0].toUpperCase() + mode.slice(1)).join(', ') ?? '',
+    }
     if (!words.every((word) => `${menu} ${row.title} ${keys.join(' ')}`.toLowerCase().includes(word))) continue
     byMenu.set(menu, [...(byMenu.get(menu) ?? []), row])
   }

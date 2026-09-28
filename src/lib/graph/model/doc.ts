@@ -104,10 +104,18 @@ export const canonical = (doc: NodeGraph) => storedDoc(doc.nodes, doc.edges, doc
 
 export function createDefaultGraph(): NodeGraph {
   const node = (id: string, kind: string, x: number, y: number, values: GraphNodeData['values'] = {}): StoredNode => ({
-    id, type: GRAPH_NODE_TYPE, position: { x, y }, data: { kind, values },
+    id,
+    type: GRAPH_NODE_TYPE,
+    position: { x, y },
+    data: { kind, values },
   })
   const edge = (source: string, sourceHandle: string, target: string, targetHandle: string, stroke: string): StoredEdge => ({
-    id: `e-${source}-${sourceHandle}-${target}-${targetHandle}`, source, sourceHandle, target, targetHandle, style: { stroke, strokeWidth: 2 },
+    id: `e-${source}-${sourceHandle}-${target}-${targetHandle}`,
+    source,
+    sourceHandle,
+    target,
+    targetHandle,
+    style: { stroke, strokeWidth: 2 },
   })
   const grey = '#a1a1a1'
   const yellow = '#c7c729'

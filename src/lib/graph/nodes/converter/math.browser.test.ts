@@ -13,22 +13,34 @@ async function compute(op: MathOpName, values: Record<string, number>): Promise<
 
 describe('Math', () => {
   it('takes the sockets its operation needs, with their names', () => {
-    const listLabels = (op: MathOpName) => mathNode.shape({ op }).inputs.filter((socket) => socket.linkable).map((socket) => socket.label)
+    const listLabels = (op: MathOpName) =>
+      mathNode
+        .shape({ op })
+        .inputs.filter((socket) => socket.linkable)
+        .map((socket) => socket.label)
     expect(listLabels('sine')).toEqual(['Value'])
     expect(listLabels('power')).toEqual(['Base', 'Exponent'])
     expect(listLabels('wrap')).toEqual(['Value', 'Min', 'Max'])
     expect(mathNode.base.inputs.map((socket) => socket.name)).toEqual(['op', 'clamp', 'a', 'b'])
   })
 
-  it.each(Object.keys(MATH_OPS) as MathOpName[])('%s agrees with its op table\'s JavaScript reference', async (op) => {
-    const operation = MATH_OPS[op]
-    for (const [a, b, c] of [[0.3, 0.7, 0.2], [0.9, 0.25, 0.5], [0.5, 0, 0.1]]) {
-      const expected = operation.js(a, b, c)
-      const actual = await compute(op, { a, b, c })
-      // Both sides clamp to 0..1 on the way to a byte
-      expect(Math.abs(actual - toByte(expected)), `${op}(${a}, ${b}, ${c}) C++ ${actual} vs js ${toByte(expected)}`).toBeLessThanOrEqual(1)
-    }
-  }, 30_000)
+  it.each(Object.keys(MATH_OPS) as MathOpName[])(
+    "%s agrees with its op table's JavaScript reference",
+    async (op) => {
+      const operation = MATH_OPS[op]
+      for (const [a, b, c] of [
+        [0.3, 0.7, 0.2],
+        [0.9, 0.25, 0.5],
+        [0.5, 0, 0.1],
+      ]) {
+        const expected = operation.js(a, b, c)
+        const actual = await compute(op, { a, b, c })
+        // Both sides clamp to 0..1 on the way to a byte
+        expect(Math.abs(actual - toByte(expected)), `${op}(${a}, ${b}, ${c}) C++ ${actual} vs js ${toByte(expected)}`).toBeLessThanOrEqual(1)
+      }
+    },
+    30_000,
+  )
 
   it('handles the cases Blender guards: dividing by zero, a negative base, log of a bad base', async () => {
     expect(await compute('divide', { a: 1, b: 0 })).toBe(0)
@@ -41,7 +53,16 @@ describe('Math', () => {
   }, 30_000)
 
   it('goes through vectors per component', async () => {
-    const { leds } = await renderGraph(graph([node('c', 'color', { color: [0.24, 0.5, 0.8] }), node('m', 'math', { op: 'multiply', b: 0.5 }), node('o', 'output')], [['c.color', 'm.a'], ['m.result', 'o.color']]), { leds: 1 })
+    const { leds } = await renderGraph(
+      graph(
+        [node('c', 'color', { color: [0.24, 0.5, 0.8] }), node('m', 'math', { op: 'multiply', b: 0.5 }), node('o', 'output')],
+        [
+          ['c.color', 'm.a'],
+          ['m.result', 'o.color'],
+        ],
+      ),
+      { leds: 1 },
+    )
     expect(leds[0]).toEqual([31, 64, 102])
   })
 

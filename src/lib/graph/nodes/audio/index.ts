@@ -4,14 +4,4 @@ import { audioSignalNode } from './audio-signal'
 import { bandsNode } from './bands'
 import { chromaNode, spectrumNode, waveformNode } from './samplers'
 
-export const AUDIO_NODES: NodeItem[] = [
-  audioSourceNode,
-  fftNode,
-  audioNode,
-  audioSignalNode,
-  bandsNode,
-  bandSplitNode,
-  spectrumNode,
-  waveformNode,
-  chromaNode,
-]
+export const AUDIO_NODES: NodeItem[] = [audioSourceNode, fftNode, audioNode, audioSignalNode, bandsNode, bandSplitNode, spectrumNode, waveformNode, chromaNode]

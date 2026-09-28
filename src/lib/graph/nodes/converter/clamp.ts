@@ -1,6 +1,9 @@
 import { defineNode, Enum, GenType } from '@/lib/graph/authoring'
 
-const TYPES = [{ value: 'minMax', label: 'Min Max' }, { value: 'range', label: 'Range' }] as const
+const TYPES = [
+  { value: 'minMax', label: 'Min Max' },
+  { value: 'range', label: 'Range' },
+] as const
 
 export const clampNode = defineNode('clamp', {
   title: 'Clamp',
@@ -14,8 +17,11 @@ export const clampNode = defineNode('clamp', {
   },
   output: { result: GenType },
   body: ({ type, value, min, max }, ctx) => ({
-    result: ctx.declare(ctx.gen, type === 'range'
-      ? `clamp(${value.expr}, min(${min.expr}, ${max.expr}), max(${min.expr}, ${max.expr}))`
-      : `clamp(${value.expr}, ${min.expr}, ${max.expr})`),
+    result: ctx.declare(
+      ctx.gen,
+      type === 'range'
+        ? `clamp(${value.expr}, min(${min.expr}, ${max.expr}), max(${min.expr}, ${max.expr}))`
+        : `clamp(${value.expr}, ${min.expr}, ${max.expr})`,
+    ),
   }),
 })

@@ -7,8 +7,23 @@ const BANDS = 16
 
 function features(bands: number[], chroma: number[] = []): Features {
   return {
-    bands: Float32Array.from(bands), spectrum: new Float32Array(1024).fill(0.25), waveform: new Float32Array(2048), chroma: Float32Array.from({ length: 12 }, (_, i) => chroma[i] ?? 0),
-    level: 0, gain: 1, rms: 0, peak: 0, gate: true, flux: 0, onset: false, bpm: 120, beatPhase: 0, beat: false, beatConfidence: 0, centroid: 0, flatness: 0,
+    bands: Float32Array.from(bands),
+    spectrum: new Float32Array(1024).fill(0.25),
+    waveform: new Float32Array(2048),
+    chroma: Float32Array.from({ length: 12 }, (_, i) => chroma[i] ?? 0),
+    level: 0,
+    gain: 1,
+    rms: 0,
+    peak: 0,
+    gate: true,
+    flux: 0,
+    onset: false,
+    bpm: 120,
+    beatPhase: 0,
+    beat: false,
+    beatConfidence: 0,
+    centroid: 0,
+    flatness: 0,
   }
 }
 

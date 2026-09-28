@@ -6,7 +6,19 @@ import { cppCompiler, runUsermod } from '@/lib/graph/testing/cpp'
 import { FPS } from '@/lib/graph/testing/offline'
 import { createGlslCompiler, createUsermodCompiler } from '@/lib/graph/compile/compilers'
 
-const KINDS = ['envelope', 'schmittTrigger', 'counter', 'toggle', 'sampleHold', 'clockDivider', 'stepSequencer', 'slewLimiter', 'envelopeFollower', 'peakHold', 'integrator']
+const KINDS = [
+  'envelope',
+  'schmittTrigger',
+  'counter',
+  'toggle',
+  'sampleHold',
+  'clockDivider',
+  'stepSequencer',
+  'slewLimiter',
+  'envelopeFollower',
+  'peakHold',
+  'integrator',
+]
 const FRAMES = 30
 
 /** Nodes driving one input of the kind under test, and the carrying output */
@@ -19,10 +31,16 @@ interface Driver {
 // Frame i at i / 30: thresholds sit half a frame from a sample, so float and double agree
 /** 1 while time <= `duty`, then 0: square wave, one cycle a second */
 const driveGate = (id: string, duty: number): Driver => ({ nodes: [node(id, 'wave', { shape: 'square', duty })], links: [], out: `${id}.value` })
-const driveAfter = (id: string, from: number): Driver =>
-  ({ nodes: [node(`${id}t`, 'time'), node(id, 'math', { op: 'greaterThan', b: from })], links: [[`${id}t.time`, `${id}.a`]], out: `${id}.result` })
-const driveScaled = (id: string, a: Driver, scale: number, offset: number): Driver =>
-  ({ nodes: [...a.nodes, node(id, 'math', { op: 'multiplyAdd', b: scale, c: offset })], links: [...a.links, [a.out, `${id}.a`]], out: `${id}.result` })
+const driveAfter = (id: string, from: number): Driver => ({
+  nodes: [node(`${id}t`, 'time'), node(id, 'math', { op: 'greaterThan', b: from })],
+  links: [[`${id}t.time`, `${id}.a`]],
+  out: `${id}.result`,
+})
+const driveScaled = (id: string, a: Driver, scale: number, offset: number): Driver => ({
+  nodes: [...a.nodes, node(id, 'math', { op: 'multiplyAdd', b: scale, c: offset })],
+  links: [...a.links, [a.out, `${id}.a`]],
+  out: `${id}.result`,
+})
 /** One-frame trigger on frames 3, 9, 15, 21, 27 */
 const TRIGGERS: Driver = { nodes: [node('tr', 'wave', { shape: 'square', frequency: 5, phase: 0.5833, duty: 0.2 })], links: [], out: 'tr.value' }
 const TIME: Driver = { nodes: [node('ti', 'time')], links: [], out: 'ti.time' }
@@ -111,7 +129,11 @@ describe.skipIf(!cppCompiler)('the bodies through the usermod target over 30 fra
     const wobble: Driver = { nodes: [node('w', 'wave', { frequency: 14.3 })], links: [], out: 'w.value' }
     const signal = driveScaled('s', wobble, 0.16, 0.42)
     const late = driveAfter('a', 0.49)
-    const lifted: Driver = { nodes: [...signal.nodes, ...late.nodes, node('l', 'math', { op: 'multiplyAdd', b: 0.4 })], links: [...signal.links, ...late.links, [late.out, 'l.a'], [signal.out, 'l.c']], out: 'l.result' }
+    const lifted: Driver = {
+      nodes: [...signal.nodes, ...late.nodes, node('l', 'math', { op: 'multiplyAdd', b: 0.4 })],
+      links: [...signal.links, ...late.links, [late.out, 'l.a'], [signal.out, 'l.c']],
+      out: 'l.result',
+    }
     const gateOut = renderValues(buildKindGraph('schmittTrigger', 'gate', { low: 0.4, high: 0.6 }, { signal: lifted }))
     expect(gateOut.filter((g, i) => i > 0 && g !== gateOut[i - 1])).toHaveLength(1)
     expect(gateOut[29]).toBe(1)
@@ -147,7 +169,9 @@ describe.skipIf(!cppCompiler)('the bodies through the usermod target over 30 fra
   })
 
   it('integrator accumulates rate times dt, wraps, and resets', () => {
-    const phase = renderValues(buildKindGraph('integrator', 'value', { wrap: true }, { rate: driveScaled('s', driveAfter('a', 0.49), 2.5, 0.5), reset: driveAfter('r', 0.79) }))
+    const phase = renderValues(
+      buildKindGraph('integrator', 'value', { wrap: true }, { rate: driveScaled('s', driveAfter('a', 0.49), 2.5, 0.5), reset: driveAfter('r', 0.79) }),
+    )
     expect(phase[14]).toBeCloseTo(0.25, 2)
     // Rate change w/o a jump: next step is one frame of the new rate
     expect(phase[15] - phase[14]).toBeCloseTo(3 / FPS, 2)
@@ -155,13 +179,16 @@ describe.skipIf(!cppCompiler)('the bodies through the usermod target over 30 fra
     expect(phase[24]).toBeCloseTo(3 / FPS, 2)
   })
 
-  it.each(KINDS)('%s fed from uv.x steps each LED as the kind alone does with that LED\'s uv.x stored', (kind) => {
+  it.each(KINDS)("%s fed from uv.x steps each LED as the kind alone does with that LED's uv.x stored", (kind) => {
     const [input] = listValueInputs(findNodeItem(kind)!.base)
     const leds = 4
     const fed = runUsermod(createUsermodCompiler(leds).compile(feedFromUv(kind)).program!.code, { leds, frames: FRAMES })
     for (let led = 0; led < leds; led++) {
       const stored = renderRed(buildKindGraph(kind, findNodeItem(kind)!.base.outputs[0].name, { [input.name]: (led + 0.5) / leds }))
-      expectSameBytes(fed.map((frame) => frame[led][0]), stored)
+      expectSameBytes(
+        fed.map((frame) => frame[led][0]),
+        stored,
+      )
     }
   })
 })

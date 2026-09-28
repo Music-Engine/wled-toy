@@ -19,7 +19,7 @@ export const inferWidth = (): Annotation => ({
 /** Before the cast to node width */
 function countComponents(ctx: CompileContext, node: CompiledNode, socket: Socket): number {
   const linked = findLinkedOutput(ctx, node, socket)
-  if (linked) return linked.type.id === 'genType' ? ctx.nodes[linked.source.id].width! : linked.type.dim ?? 1
+  if (linked) return linked.type.id === 'genType' ? ctx.nodes[linked.source.id].width! : (linked.type.dim ?? 1)
   if (fallsBackToImplicit(node.values, socket)) return 1
   const stored = readStoredValue(node, socket)
   return Array.isArray(stored) ? stored.length : 1

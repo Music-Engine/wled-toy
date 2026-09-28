@@ -20,8 +20,16 @@ async function writeSnapshot(name: string, doc: NodeGraph) {
   const base = `../__snapshots__/gate/${name}`
   const { pixel = '', frame = null, lineNodes, ...rest } = shader.program ?? {}
   // `line: node`, target lines left out
-  const lines = lineNodes && Object.fromEntries(Object.entries(lineNodes).map(([pass, nodes]) => [pass, Object.fromEntries(nodes.flatMap((node, line) => (node ? [[line, node]] : [])))]))
-  const summary = { glsl: { ...rest, lineNodes: lines, frame: frame && { texels: frame.texels, probes: frame.probes }, issues: shader.issues, slots: shader.slots }, usermod: { issues: unit.issues }, standalone: { issues: standalone.issues } }
+  const lines =
+    lineNodes &&
+    Object.fromEntries(
+      Object.entries(lineNodes).map(([pass, nodes]) => [pass, Object.fromEntries(nodes.flatMap((node, line) => (node ? [[line, node]] : [])))]),
+    )
+  const summary = {
+    glsl: { ...rest, lineNodes: lines, frame: frame && { texels: frame.texels, probes: frame.probes }, issues: shader.issues, slots: shader.slots },
+    usermod: { issues: unit.issues },
+    standalone: { issues: standalone.issues },
+  }
   await expect(pixel).toMatchFileSnapshot(`${base}.pixel.glsl`)
   await expect(frame?.code ?? '').toMatchFileSnapshot(`${base}.frame.glsl`)
   await expect(unit.program?.code ?? '').toMatchFileSnapshot(`${base}.cpp`)

@@ -11,10 +11,12 @@ describe('serializeGraphFile / readGraphFile', () => {
   })
 
   it('keeps a muted, a renamed and a socket-hiding node through save and load', () => {
-    const flagged = normalizeDoc(graph([
-      { ...node('uv', 'uv'), data: { kind: 'uv', values: {}, muted: true, label: 'Coordinates', hideUnused: true } },
-      node('out', 'output'),
-    ], [['uv.x', 'out.color']]))
+    const flagged = normalizeDoc(
+      graph(
+        [{ ...node('uv', 'uv'), data: { kind: 'uv', values: {}, muted: true, label: 'Coordinates', hideUnused: true } }, node('out', 'output')],
+        [['uv.x', 'out.color']],
+      ),
+    )
     const { doc: loaded, problems } = readGraphFile(serializeGraphFile(flagged))
     expect(loaded).toEqual(flagged)
     expect(problems).toEqual([])
@@ -46,7 +48,12 @@ describe('readGraphFile', () => {
   it('reports what a hand-written file gets wrong and the parser would otherwise swallow', () => {
     const raw = graph(
       [node('uv', 'uv'), node('time', 'time'), node('m', 'math', { op: 'add', nope: 1 }), node('out', 'output')],
-      [['uv.x', 'm.a'], ['time.time', 'm.a'], ['uv.what', 'm.b'], ['m.result', 'out.color']],
+      [
+        ['uv.x', 'm.a'],
+        ['time.time', 'm.a'],
+        ['uv.what', 'm.b'],
+        ['m.result', 'out.color'],
+      ],
     )
     const { doc, problems } = readGraphFile(serializeGraphFile(raw))
     expect(doc.edges.map((e) => e.source)).toEqual(['time', 'uv', 'm'])

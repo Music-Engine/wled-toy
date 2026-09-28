@@ -4,7 +4,11 @@ export type DocumentErrorCode = 'file-gone' | 'permission-denied' | 'bad-recent-
 export class DocumentError extends Error {
   override readonly name = 'DocumentError'
 
-  constructor(readonly code: DocumentErrorCode, message: string, override readonly cause?: unknown) {
+  constructor(
+    readonly code: DocumentErrorCode,
+    message: string,
+    override readonly cause?: unknown,
+  ) {
     super(message)
   }
 }

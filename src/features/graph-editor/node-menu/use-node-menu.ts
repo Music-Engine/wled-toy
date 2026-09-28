@@ -16,7 +16,8 @@ export function useNodeMenu<T>(props: NodeMenuProps<T>, open: Ref<boolean>, focu
   function directoryRows(items: MenuItem<T>[], path: string[], depth: number, rows: ListRow<T>[]): ListRow<T>[] {
     for (const item of items) {
       if (item.type === 'separator') rows.push({ kind: 'separator' })
-      else if (item.type === 'node') rows.push({ kind: 'node', node: item.node, preset: item.preset, entry: props.describe(item.node, item.preset), path, depth, index: 0 })
+      else if (item.type === 'node')
+        rows.push({ kind: 'node', node: item.node, preset: item.preset, entry: props.describe(item.node, item.preset), path, depth, index: 0 })
       else {
         rows.push({ kind: 'directory', title: item.title, description: item.description, depth })
         directoryRows(item.items, [...path, item.title], depth + 1, rows)
@@ -71,7 +72,16 @@ export function useNodeMenu<T>(props: NodeMenuProps<T>, open: Ref<boolean>, focu
   })
 
   return {
-    query, activeDirectory, highlighted, hovered, directory, rows, nodeRows, preview, showPreview, style,
+    query,
+    activeDirectory,
+    highlighted,
+    hovered,
+    directory,
+    rows,
+    nodeRows,
+    preview,
+    showPreview,
+    style,
     /** Keyboard navigation: the next or previous node row, which also drops the hover preview. */
     step(delta: 1 | -1) {
       hovered.value = null

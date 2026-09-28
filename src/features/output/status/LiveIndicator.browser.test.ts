@@ -13,7 +13,10 @@ function mount() {
   document.body.append(root)
   const app = createApp({ render: () => h(LiveIndicator) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root.querySelector<HTMLElement>('.live')!
 }
 

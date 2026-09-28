@@ -1,5 +1,22 @@
-.nui-parameters .nui-field { flex: 1; }
-.nui-parameters-learn { flex: none; min-width: 4.5em; border-right: 0; border-radius: var(--nui-radius); }
-.nui-scene-recall { flex: none; border-right: 0; border-radius: var(--nui-radius); }
-.nui-scene-recall.is-active { background: var(--nui-accent); }
-.nui-scene-save { flex: none; border-right: 0; border-radius: var(--nui-radius); }
+.nui-parameters .nui-field {
+  flex: 1;
+}
+.nui-parameters-learn {
+  flex: none;
+  min-width: 4.5em;
+  border-right: 0;
+  border-radius: var(--nui-radius);
+}
+.nui-scene-recall {
+  flex: none;
+  border-right: 0;
+  border-radius: var(--nui-radius);
+}
+.nui-scene-recall.is-active {
+  background: var(--nui-accent);
+}
+.nui-scene-save {
+  flex: none;
+  border-right: 0;
+  border-radius: var(--nui-radius);
+}

@@ -17,7 +17,10 @@ let depth = 0
 const carriesFiles = (e: DragEvent) => !!e.dataTransfer?.types.includes('Files')
 
 function showHint(e: DragEvent) {
-  hint.value = dragHint([...e.dataTransfer!.items].filter((item) => item.kind === 'file').map((item) => item.type), workspace.mode)
+  hint.value = dragHint(
+    [...e.dataTransfer!.items].filter((item) => item.kind === 'file').map((item) => item.type),
+    workspace.mode,
+  )
 }
 
 function onDragEnter(e: DragEvent) {

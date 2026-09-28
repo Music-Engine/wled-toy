@@ -27,9 +27,25 @@ export const brickTextureNode = defineNode('brickTexture', {
     rowHeight: { type: Float, default: 0.25, props: amount },
   },
   output: { fac: Float, color: Color },
-  body: (input, ctx) => ctx.call('brick_texture', [
-    fmt(input.offset), String(input.offsetFrequency), fmt(input.squash), String(input.squashFrequency),
-    input.scale.expr, input.mortarSize.expr, input.mortarSmooth.expr, input.bias.expr, input.brickWidth.expr, input.rowHeight.expr,
-    input.vector.expr, input.color1.expr, input.color2.expr, input.mortar.expr,
-  ], { fac: 'float', color: 'vec3' }),
+  body: (input, ctx) =>
+    ctx.call(
+      'brick_texture',
+      [
+        fmt(input.offset),
+        String(input.offsetFrequency),
+        fmt(input.squash),
+        String(input.squashFrequency),
+        input.scale.expr,
+        input.mortarSize.expr,
+        input.mortarSmooth.expr,
+        input.bias.expr,
+        input.brickWidth.expr,
+        input.rowHeight.expr,
+        input.vector.expr,
+        input.color1.expr,
+        input.color2.expr,
+        input.mortar.expr,
+      ],
+      { fac: 'float', color: 'vec3' },
+    ),
 })

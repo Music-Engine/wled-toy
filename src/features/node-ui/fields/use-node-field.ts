@@ -11,7 +11,12 @@ export interface NumberFieldProps {
  * A number edited in place: dragged sideways to scrub, or clicked to type, committed on Enter or blur. The value is
  * rounded and clamped before it is emitted; typed junk is refused and reported as invalid until the next good value.
  */
-export function useNodeField(props: NumberFieldProps, emitValue: (value: number) => void, emitInvalid: (invalid: boolean) => void, input: Ref<HTMLInputElement | undefined>) {
+export function useNodeField(
+  props: NumberFieldProps,
+  emitValue: (value: number) => void,
+  emitInvalid: (invalid: boolean) => void,
+  input: Ref<HTMLInputElement | undefined>,
+) {
   const editing = ref(false)
   const pressed = ref(false)
   const text = ref('')

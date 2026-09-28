@@ -75,7 +75,11 @@ describe('the whole registry', () => {
   it('graph redo answers Ctrl+Y on Windows and Linux, and Cmd+Y stays free on macOS', async () => {
     const realNavigator = navigator
     try {
-      for (const [platform, aliases] of [['MacIntel', undefined], ['Win32', ['Mod+Y']], ['Linux x86_64', ['Mod+Y']]] as const) {
+      for (const [platform, aliases] of [
+        ['MacIntel', undefined],
+        ['Win32', ['Mod+Y']],
+        ['Linux x86_64', ['Mod+Y']],
+      ] as const) {
         vi.stubGlobal('navigator', { platform })
         const { getCommand } = await load()
         expect(getCommand('graph.redo')!.aliases, platform).toEqual(aliases)
@@ -100,7 +104,9 @@ describe('log, problems, dock-hide and reference commands', () => {
   it('log.copyLine copies the context row, log.copyAll copies what is shown, log.clear empties it', async () => {
     const { getCommand, isEnabled, log, logContext, logs, runCommand, setClipboardWriter } = await load()
     const written: string[] = []
-    setClipboardWriter((text) => { written.push(text) })
+    setClipboardWriter((text) => {
+      written.push(text)
+    })
 
     expect(isEnabled(getCommand('log.copyLine')!)).toBe(false)
     expect(isEnabled(getCommand('log.copyAll')!)).toBe(false)
@@ -122,10 +128,12 @@ describe('log, problems, dock-hide and reference commands', () => {
     expect(logs.value).toEqual([])
   })
 
-  it('problems.copyMessage copies the row set by a right-click, and problems.goto\'s title tracks what kind of problem it is', async () => {
+  it("problems.copyMessage copies the row set by a right-click, and problems.goto's title tracks what kind of problem it is", async () => {
     const { commandTitle, contextProblem, getCommand, isEnabled, registerHandlers, runCommand, setClipboardWriter } = await load()
     const written: string[] = []
-    setClipboardWriter((text) => { written.push(text) })
+    setClipboardWriter((text) => {
+      written.push(text)
+    })
 
     expect(isEnabled(getCommand('problems.copyMessage')!)).toBe(false)
     contextProblem.value = { message: 'bad thing', line: 12 }
@@ -156,7 +164,10 @@ describe('log, problems, dock-hide and reference commands', () => {
 
   it('Cmd+A selects all in both editors; adding is Shift+A in a graph and Cmd+Shift+A in a shader', async () => {
     const { getCommand } = await load()
-    const keys = (id: string) => { const { accelerator, aliases, textKey, modes } = getCommand(id)!; return { accelerator, aliases, textKey, modes } }
+    const keys = (id: string) => {
+      const { accelerator, aliases, textKey, modes } = getCommand(id)!
+      return { accelerator, aliases, textKey, modes }
+    }
     expect(keys('graph.addNode')).toEqual({ accelerator: 'Shift+A', aliases: undefined, textKey: undefined, modes: ['graph'] })
     expect(keys('graph.selectAll')).toEqual({ accelerator: 'Mod+A', aliases: undefined, textKey: true, modes: ['graph'] })
     expect(keys('graph.deselectAll')).toEqual({ accelerator: 'Alt+A', aliases: ['Escape'], textKey: undefined, modes: ['graph'] })
@@ -176,9 +187,19 @@ describe('log, problems, dock-hide and reference commands', () => {
     const { getCommand, isChecked, runCommand, workspace } = await load()
     Object.assign(workspace, { dockVisible: true, bottomVisible: false, stripVisible: true })
     runCommand('view.maximize')
-    expect([workspace.dockVisible, workspace.bottomVisible, workspace.stripVisible, isChecked(getCommand('view.maximize')!)]).toEqual([false, false, false, true])
+    expect([workspace.dockVisible, workspace.bottomVisible, workspace.stripVisible, isChecked(getCommand('view.maximize')!)]).toEqual([
+      false,
+      false,
+      false,
+      true,
+    ])
     runCommand('view.maximize')
-    expect([workspace.dockVisible, workspace.bottomVisible, workspace.stripVisible, isChecked(getCommand('view.maximize')!)]).toEqual([true, false, true, false])
+    expect([workspace.dockVisible, workspace.bottomVisible, workspace.stripVisible, isChecked(getCommand('view.maximize')!)]).toEqual([
+      true,
+      false,
+      true,
+      false,
+    ])
   })
 
   it('view.hideDock and view.hideBottom force their panel closed, unlike the toggle commands', async () => {
@@ -225,4 +246,3 @@ describe('log, problems, dock-hide and reference commands', () => {
     expect(isEnabled(command)).toBe(false)
   })
 })
-

@@ -7,7 +7,11 @@ let unmount: (() => void) | undefined
 afterEach(() => unmount?.())
 
 function mount(initial: string | null) {
-  const files = ref<FileListing[]>([{ id: 'builtin', name: 'Built-in image', fixed: true }, { id: 'cat.png', name: 'cat.png' }, { id: 'dog.png', name: 'Dog' }])
+  const files = ref<FileListing[]>([
+    { id: 'builtin', name: 'Built-in image', fixed: true },
+    { id: 'cat.png', name: 'cat.png' },
+    { id: 'dog.png', name: 'Dog' },
+  ])
   const selected = ref(initial)
   const events: unknown[][] = []
   const root = document.createElement('div')
@@ -15,16 +19,24 @@ function mount(initial: string | null) {
   root.style.cssText = 'width: 260px'
   document.body.append(root)
   const app = createApp({
-    render: () => h(FileSelector, {
-      modelValue: selected.value, files: files.value, label: 'Image', accept: 'image/*', linkable: true,
-      'onUpdate:modelValue': (id: string | null) => (selected.value = id),
-      onRename: (id: string, name: string) => events.push(['rename', id, name]),
-      onLink: (url: string) => events.push(['link', url]),
-      onUpload: (file: File) => events.push(['upload', file.name]),
-    }),
+    render: () =>
+      h(FileSelector, {
+        modelValue: selected.value,
+        files: files.value,
+        label: 'Image',
+        accept: 'image/*',
+        linkable: true,
+        'onUpdate:modelValue': (id: string | null) => (selected.value = id),
+        onRename: (id: string, name: string) => events.push(['rename', id, name]),
+        onLink: (url: string) => events.push(['link', url]),
+        onUpload: (file: File) => events.push(['upload', file.name]),
+      }),
   })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   const button = (label: string) => root.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)!
   return { root, selected, events, button }
 }

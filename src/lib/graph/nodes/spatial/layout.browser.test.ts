@@ -21,7 +21,18 @@ describe('LED layout', () => {
   })
 
   it('the LED Layout node gives position, index fraction and segment', () => {
-    const layout: Layout = { segments: [{ kind: 'strip', count: 2, from: [0, 0.2], to: [1, 0.2] }, { kind: 'points', points: [[0.5, 0.5, 1], [0.25, 0.75, 0.5]] }] }
+    const layout: Layout = {
+      segments: [
+        { kind: 'strip', count: 2, from: [0, 0.2], to: [1, 0.2] },
+        {
+          kind: 'points',
+          points: [
+            [0.5, 0.5, 1],
+            [0.25, 0.75, 0.5],
+          ],
+        },
+      ],
+    }
     const tickOutput = (output: string) => tickGraph(graph([node('l', 'ledLayout'), node('o', 'output')], [[`l.${output}`, 'o.color']]), { leds: 4, layout })[0]
     expect(tickOutput('position')[2]).toEqual([128, 128, 255])
     expect(tickOutput('position')[3]).toEqual([64, 191, 128])

@@ -63,7 +63,7 @@ function layOut() {
   box.top = (h - box.height) / 2
   const spacing = Math.min(...props.layout.segments.map((segment) => pitch(segment, box.width, box.height)))
   box.radius = Math.max(dpr, Math.min(spacing * 0.36, 12 * dpr))
-  blur.value = Math.round(Math.max(2, Math.min(spacing, box.radius * 4) * 0.55 / dpr))
+  blur.value = Math.round(Math.max(2, (Math.min(spacing, box.radius * 4) * 0.55) / dpr))
 }
 
 /** Draws the engine's latest LED frame (4 header bytes, then RGB triplets) with every LED where the layout puts it, unless it is the one already drawn. */
@@ -96,8 +96,8 @@ function draw() {
 function pitch(segment: Segment, width: number, height: number): number {
   if (segment.kind === 'matrix') return Math.min(width / segment.width, height / segment.height)
   if (segment.kind === 'strip') return Math.hypot((segment.to[0] - segment.from[0]) * width, (segment.to[1] - segment.from[1]) * height) / segment.count
-  if (segment.kind === 'ring') return 2 * Math.PI * segment.radius * Math.min(width, height) / segment.count
-  return Math.sqrt(width * height / segment.points.length)
+  if (segment.kind === 'ring') return (2 * Math.PI * segment.radius * Math.min(width, height)) / segment.count
+  return Math.sqrt((width * height) / segment.points.length)
 }
 </script>
 

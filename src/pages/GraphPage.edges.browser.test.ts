@@ -68,9 +68,16 @@ it('adding and removing a link on a 344-node graph settles, without re-rendering
   const app = createApp({ render: () => h('div', { style: 'width: 1200px; height: 800px' }, h(KeepAlive, null, [h(GraphPage)])) })
   app.provide(graphFileBackendKey, backend)
   app.config.warnHandler = () => undefined
-  app.mixin({ updated() { updates++ } })
+  app.mixin({
+    updated() {
+      updates++
+    },
+  })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   await settle()
   expect(document.querySelectorAll('.vue-flow__node')).toHaveLength(doc.nodes.length)
 

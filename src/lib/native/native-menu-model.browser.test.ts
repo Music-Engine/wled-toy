@@ -16,8 +16,17 @@ describe('the menu model', () => {
 
     expect(fake.outline(fake.state.appMenu!)).toEqual(['WLEDtoy >', 'File >', 'Edit >', 'View >', 'Window >', 'Help >'])
     expect(fake.outline(fake.submenu('WLEDtoy'))).toEqual([
-      'About WLEDtoy', '<Separator>', 'Preferences... [CmdOrCtrl+,]', '<Separator>', '<Services>', '<Separator>',
-      '<Hide>', '<HideOthers>', '<ShowAll>', '<Separator>', 'Quit WLEDtoy [CmdOrCtrl+Q]',
+      'About WLEDtoy',
+      '<Separator>',
+      'Preferences... [CmdOrCtrl+,]',
+      '<Separator>',
+      '<Services>',
+      '<Separator>',
+      '<Hide>',
+      '<HideOthers>',
+      '<ShowAll>',
+      '<Separator>',
+      'Quit WLEDtoy [CmdOrCtrl+Q]',
     ])
     expect(fake.outline(fake.submenu('Window'))).toEqual(['<Minimize>', '<Maximize>', '<Separator>', '<CloseWindow>'])
     expect(fake.state.windowsMenu).toBe(fake.submenu('Window'))
@@ -30,14 +39,28 @@ describe('the menu model', () => {
     await createNativeMenu(fake.api).sync()
 
     expect(fake.outline(fake.submenu('File'))).toEqual([
-      'New Graph [CmdOrCtrl+N]', 'Open... [CmdOrCtrl+O]', 'Open Recent >', 'Save [CmdOrCtrl+S]', 'Save As... [CmdOrCtrl+Shift+S]', 'Revert [CmdOrCtrl+Alt+R]', 'Export >',
-      '<Separator>', 'Set Audio >', 'Set Image >',
-      '<Separator>', 'Import Config... [CmdOrCtrl+Alt+O]', 'Export Config... [CmdOrCtrl+Alt+S]',
+      'New Graph [CmdOrCtrl+N]',
+      'Open... [CmdOrCtrl+O]',
+      'Open Recent >',
+      'Save [CmdOrCtrl+S]',
+      'Save As... [CmdOrCtrl+Shift+S]',
+      'Revert [CmdOrCtrl+Alt+R]',
+      'Export >',
+      '<Separator>',
+      'Set Audio >',
+      'Set Image >',
+      '<Separator>',
+      'Import Config... [CmdOrCtrl+Alt+O]',
+      'Export Config... [CmdOrCtrl+Alt+S]',
     ])
     expect(fake.outline(fake.submenu('File', 'Open Recent'))).toEqual(['No Recent Files [CmdOrCtrl+Shift+O]'])
     expect(fake.find('file.recent.none')!.options.enabled).toBe(false)
     expect(fake.outline(fake.submenu('File', 'Set Audio'))).toEqual([
-      'From File... [CmdOrCtrl+Alt+U]', 'Use Built-in Track [CmdOrCtrl+Alt+Shift+U]', '<Separator>', 'Microphone [CmdOrCtrl+Alt+Y]', 'System Audio (not available in the desktop app) [CmdOrCtrl+Alt+Shift+Y]',
+      'From File... [CmdOrCtrl+Alt+U]',
+      'Use Built-in Track [CmdOrCtrl+Alt+Shift+U]',
+      '<Separator>',
+      'Microphone [CmdOrCtrl+Alt+Y]',
+      'System Audio (not available in the desktop app) [CmdOrCtrl+Alt+Shift+Y]',
     ])
     // WKWebView delivers no audio through getDisplayMedia
     expect(fake.find('audio.system')!.options.enabled).toBe(false)
@@ -53,7 +76,15 @@ describe('the menu model', () => {
       workspace.mode = mode
       const fake = fakeMenuApi()
       await createNativeMenu(fake.api).sync()
-      expect(fake.outline(fake.submenu('Edit'))).toEqual(['Undo [CmdOrCtrl+Z]', 'Redo [CmdOrCtrl+Shift+Z]', '<Separator>', '<Cut>', '<Copy>', '<Paste>', 'Select All [CmdOrCtrl+A]'])
+      expect(fake.outline(fake.submenu('Edit'))).toEqual([
+        'Undo [CmdOrCtrl+Z]',
+        'Redo [CmdOrCtrl+Shift+Z]',
+        '<Separator>',
+        '<Cut>',
+        '<Copy>',
+        '<Paste>',
+        'Select All [CmdOrCtrl+A]',
+      ])
       // the predefined one would take the key and tell the page nothing
       expect(fake.built('Predefined').map((node) => node.options.item)).not.toContain('SelectAll')
     }
@@ -84,7 +115,19 @@ describe('the menu model', () => {
     workspace.mode = 'graph'
     const graph = fakeMenuApi()
     await createNativeMenu(graph.api).sync()
-    for (const id of ['graph.addNode', 'graph.selectAll', 'graph.deselectAll', 'graph.searchNodes', 'graph.copy', 'graph.cut', 'graph.paste', 'graph.delete', 'graph.fitView', 'help.reference', 'help.about']) {
+    for (const id of [
+      'graph.addNode',
+      'graph.selectAll',
+      'graph.deselectAll',
+      'graph.searchNodes',
+      'graph.copy',
+      'graph.cut',
+      'graph.paste',
+      'graph.delete',
+      'graph.fitView',
+      'help.reference',
+      'help.about',
+    ]) {
       expect([id, graph.find(id)!.options.accelerator]).toEqual([id, undefined])
     }
     workspace.mode = 'shader'
@@ -94,4 +137,3 @@ describe('the menu model', () => {
     expect(shader.find('output.toggleStream')!.options.accelerator).toBe('CmdOrCtrl+Shift+Enter')
   })
 })
-

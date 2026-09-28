@@ -10,11 +10,14 @@ import { workspace } from '@/lib/app/workspace'
 
 const { stats } = useEngine().bridge
 
-const bridge = computed(() => ({
-  connected: { dot: 'bg-success', label: 'Bridge online' },
-  connecting: { dot: 'bg-warning', label: 'Bridge connecting' },
-  disconnected: { dot: 'bg-error', label: 'Bridge offline' },
-}[stats.status]))
+const bridge = computed(
+  () =>
+    ({
+      connected: { dot: 'bg-success', label: 'Bridge online' },
+      connecting: { dot: 'bg-warning', label: 'Bridge connecting' },
+      disconnected: { dot: 'bg-error', label: 'Bridge offline' },
+    })[stats.status],
+)
 
 const lastLog = computed(() => logs.value[logs.value.length - 1])
 </script>

@@ -8,7 +8,12 @@ interface Timing {
 export function summarizeTimes(values: number[]): Timing {
   const sorted = [...values].sort((a, b) => a - b)
   const readQuantile = (q: number) => sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] ?? 0
-  return { median: roundToMillis(readQuantile(0.5)), p95: roundToMillis(readQuantile(0.95)), max: roundToMillis(sorted[sorted.length - 1] ?? 0), samples: sorted.length }
+  return {
+    median: roundToMillis(readQuantile(0.5)),
+    p95: roundToMillis(readQuantile(0.95)),
+    max: roundToMillis(sorted[sorted.length - 1] ?? 0),
+    samples: sorted.length,
+  }
 }
 
 /**

@@ -3,8 +3,15 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import '@/features/node-ui/node.css'
 import './fields.css'
 
-interface Option { value: string; label: string; group?: string }
-interface Column { heading: string; items: { option: Option; index: number }[] }
+interface Option {
+  value: string
+  label: string
+  group?: string
+}
+interface Column {
+  heading: string
+  items: { option: Option; index: number }[]
+}
 
 const props = defineProps<{ modelValue: string; options: readonly Option[]; label?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -96,7 +103,10 @@ watch(open, async (isOpen) => {
   place.value = null
   if (!isOpen) return
   typed = ''
-  active.value = Math.max(0, props.options.findIndex((o) => o.value === props.modelValue))
+  active.value = Math.max(
+    0,
+    props.options.findIndex((o) => o.value === props.modelValue),
+  )
   await nextTick()
   if (!root.value || !menu.value) return
   const button = root.value.getBoundingClientRect()

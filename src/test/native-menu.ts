@@ -49,17 +49,32 @@ export function fakeMenuApi() {
     created.push(node)
     return {
       node,
-      close: async () => { node.closed = true },
-      setText: async (text: string) => { calls.push(`setText ${node.options.id} ${text}`); node.options.text = text },
-      setEnabled: async (enabled: boolean) => { calls.push(`setEnabled ${node.options.id} ${enabled}`); node.options.enabled = enabled },
-      setChecked: async (checked: boolean) => { calls.push(`setChecked ${node.options.id} ${checked}`); node.options.checked = checked },
+      close: async () => {
+        node.closed = true
+      },
+      setText: async (text: string) => {
+        calls.push(`setText ${node.options.id} ${text}`)
+        node.options.text = text
+      },
+      setEnabled: async (enabled: boolean) => {
+        calls.push(`setEnabled ${node.options.id} ${enabled}`)
+        node.options.enabled = enabled
+      },
+      setChecked: async (checked: boolean) => {
+        calls.push(`setChecked ${node.options.id} ${checked}`)
+        node.options.checked = checked
+      },
       setAsAppMenu: async () => {
         const replaced = state.appMenu
         state.appMenu = node
         return replaced ? { close: async () => undefined } : null
       },
-      setAsWindowsMenuForNSApp: async () => { state.windowsMenu = node },
-      setAsHelpMenuForNSApp: async () => { state.helpMenu = node },
+      setAsWindowsMenuForNSApp: async () => {
+        state.windowsMenu = node
+      },
+      setAsHelpMenuForNSApp: async () => {
+        state.helpMenu = node
+      },
     }
   }
   // a submenu gets the handles `new` returned; the fake keeps the nodes behind them
@@ -73,9 +88,19 @@ export function fakeMenuApi() {
   }
   const find = (id: string, from: FakeNode[] = state.appMenu?.options.items ?? []): FakeNode | undefined =>
     from.flatMap((node) => (node.options.id === id ? [node] : node.options.items ? [find(id, node.options.items)] : [])).find(Boolean)
-  const submenu = (...path: string[]) => path.reduce<FakeNode | undefined>((menu, text) => menu?.options.items?.find((node) => node.kind === 'Submenu' && node.options.text === text), state.appMenu ?? undefined)
-  const outline = (menu: FakeNode | undefined) => menu?.options.items?.map((node) =>
-    (node.kind === 'Predefined' ? `<${node.options.item}>` : node.kind === 'Submenu' ? `${node.options.text} >` : `${node.options.text}${node.options.accelerator ? ` [${node.options.accelerator}]` : ''}`))
+  const submenu = (...path: string[]) =>
+    path.reduce<FakeNode | undefined>(
+      (menu, text) => menu?.options.items?.find((node) => node.kind === 'Submenu' && node.options.text === text),
+      state.appMenu ?? undefined,
+    )
+  const outline = (menu: FakeNode | undefined) =>
+    menu?.options.items?.map((node) =>
+      node.kind === 'Predefined'
+        ? `<${node.options.item}>`
+        : node.kind === 'Submenu'
+          ? `${node.options.text} >`
+          : `${node.options.text}${node.options.accelerator ? ` [${node.options.accelerator}]` : ''}`,
+    )
   /** What the system does on a click: a check item flips its own mark before the action runs. */
   const click = (id: string) => {
     const node = find(id)!

@@ -41,7 +41,10 @@ function lintValues(node: StoredNode, shape: NodeShape): string[] {
   const problems: string[] = []
   for (const [name, value] of Object.entries(node.data.values ?? {})) {
     const socket = shape.inputs.find((input) => input.name === name)
-    if (!socket) problems.push(`${node.id}: "${name}" is not an input of ${node.data.kind} with these values (inputs: ${shape.inputs.map((socket) => socket.name).join(', ')})`)
+    if (!socket)
+      problems.push(
+        `${node.id}: "${name}" is not an input of ${node.data.kind} with these values (inputs: ${shape.inputs.map((socket) => socket.name).join(', ')})`,
+      )
     else if (!socket.type.check(value)) problems.push(`${node.id}.${name}: ${JSON.stringify(value)} is not a valid ${socket.type.label}`)
   }
   return problems

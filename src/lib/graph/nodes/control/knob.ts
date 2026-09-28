@@ -3,7 +3,8 @@ import { clampBetween } from '@/lib/util/math'
 
 export const knobNode = defineNode('knob', {
   title: 'Knob',
-  description: 'A parameter you turn by hand, listed in the Parameters panel under its label. Changing it never recompiles the shader. Bind a MIDI controller to it with Learn.',
+  description:
+    'A parameter you turn by hand, listed in the Parameters panel under its label. Changing it never recompiles the shader. Bind a MIDI controller to it with Learn.',
   category: 'input',
   input: {
     label: { type: Text, label: 'Name', default: 'Knob', linkable: false },

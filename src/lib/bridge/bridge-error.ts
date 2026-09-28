@@ -4,7 +4,11 @@ export type BridgeErrorCode = 'link-failed'
 export class BridgeError extends Error {
   override readonly name = 'BridgeError'
 
-  constructor(readonly code: BridgeErrorCode, message: string, override readonly cause?: unknown) {
+  constructor(
+    readonly code: BridgeErrorCode,
+    message: string,
+    override readonly cause?: unknown,
+  ) {
     super(message)
   }
 }

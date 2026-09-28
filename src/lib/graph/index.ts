@@ -1,4 +1,14 @@
-export { createSlotTable, createGlslCompiler, FRAME_SOURCE_STRING, type CompileResult, type GlslProgram, type GraphIssue, type ProgramUniform, type Slots, type SlotTable } from './compile/compilers'
+export {
+  createSlotTable,
+  createGlslCompiler,
+  FRAME_SOURCE_STRING,
+  type CompileResult,
+  type GlslProgram,
+  type GraphIssue,
+  type ProgramUniform,
+  type Slots,
+  type SlotTable,
+} from './compile/compilers'
 export { canCast, isImplicit, type DataType, type EnumOption } from './define/types'
 export { type NodeItem, type Socket } from './define/shape'
 export { GRAPH_FS, describeNodeItem } from './menu/fs'

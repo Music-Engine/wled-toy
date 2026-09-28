@@ -6,13 +6,37 @@ import type { Result } from './result'
 export function formatSummaryTable(results: Result[]): string {
   const sumFrameTotal = (result: Result) => result.frame.audioAnalysis.median + result.frame.feed.median + result.frame.tick['strip-300'].median
   const sorted = [...results].sort((a, b) => sumFrameTotal(b) - sumFrameTotal(a))
-  const header = ['graph', 'nodes', 'GLSL lines', 'global texels', 'compile', 'GL compile', 'analysis', 'feed', 'feed (batched)', 'tick 300', 'tick 300 (batched)', 'tick 4096', 'preview', 'frame total']
+  const header = [
+    'graph',
+    'nodes',
+    'GLSL lines',
+    'global texels',
+    'compile',
+    'GL compile',
+    'analysis',
+    'feed',
+    'feed (batched)',
+    'tick 300',
+    'tick 300 (batched)',
+    'tick 4096',
+    'preview',
+    'frame total',
+  ]
   const rows = sorted.map((result) => [
-    result.graph, String(result.nodes), String(result.glslLines), String(result.globalTexels),
-    result.compile.compile.median.toFixed(2), result.compile.shaderCompileWall.median.toFixed(1),
-    result.frame.audioAnalysis.median.toFixed(2), result.frame.feed.median.toFixed(3), result.frameBatched.feed.toFixed(3),
-    result.frame.tick['strip-300'].median.toFixed(2), result.frameBatched.tick['strip-300'].toFixed(3), result.frame.tick['matrix-64x64'].median.toFixed(2),
-    result.frame.renderPreview.median.toFixed(2), sumFrameTotal(result).toFixed(2),
+    result.graph,
+    String(result.nodes),
+    String(result.glslLines),
+    String(result.globalTexels),
+    result.compile.compile.median.toFixed(2),
+    result.compile.shaderCompileWall.median.toFixed(1),
+    result.frame.audioAnalysis.median.toFixed(2),
+    result.frame.feed.median.toFixed(3),
+    result.frameBatched.feed.toFixed(3),
+    result.frame.tick['strip-300'].median.toFixed(2),
+    result.frameBatched.tick['strip-300'].toFixed(3),
+    result.frame.tick['matrix-64x64'].median.toFixed(2),
+    result.frame.renderPreview.median.toFixed(2),
+    sumFrameTotal(result).toFixed(2),
   ])
   const table = [header, header.map(() => '---'), ...rows].map((cells) => `| ${cells.join(' | ')} |`).join('\n')
   return [

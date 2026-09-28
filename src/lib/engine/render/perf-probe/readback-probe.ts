@@ -15,11 +15,16 @@ export class ReadbackProbe {
   private floats = new Float32Array(0)
   private readonly uniforms: Record<string, WebGLUniformLocation | null>
 
-  constructor(private readonly gl: WebGL2RenderingContext, code: string) {
+  constructor(
+    private readonly gl: WebGL2RenderingContext,
+    code: string,
+  ) {
     bindProbeTriangle(gl)
     this.floatTargets = !!gl.getExtension('EXT_color_buffer_float')
     this.program = linkProbeProgram(gl, PRELUDE + code)
-    this.uniforms = Object.fromEntries(['iResolution', 'iTime', 'iFrame', 'iLedCount', 'iScanY', 'iTimeDelta', 'iLayoutCount'].map((name) => [name, gl.getUniformLocation(this.program, name)]))
+    this.uniforms = Object.fromEntries(
+      ['iResolution', 'iTime', 'iFrame', 'iLedCount', 'iScanY', 'iTimeDelta', 'iLayoutCount'].map((name) => [name, gl.getUniformLocation(this.program, name)]),
+    )
     this.texture = gl.createTexture()
     this.framebuffer = gl.createFramebuffer()
     this.packBuffers = [gl.createBuffer(), gl.createBuffer()]

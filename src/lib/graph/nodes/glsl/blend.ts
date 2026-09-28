@@ -13,33 +13,66 @@ const hsv = [rgbToHsvChunk, hsvToRgbChunk]
  * only the one function it calls, instead of a switch over all of them.
  */
 export const BLEND_FUNCTIONS: Record<string, { fn: string; chunk: GlslChunk }> = {
-  mix: { fn: 'node_mix_blend', chunk: { id: 'blend-mix', requires: [], source: /* glsl */ `
+  mix: {
+    fn: 'node_mix_blend',
+    chunk: {
+      id: 'blend-mix',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_blend(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, col2, t);
 }
-` } },
-  add: { fn: 'node_mix_add', chunk: { id: 'blend-add', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  add: {
+    fn: 'node_mix_add',
+    chunk: {
+      id: 'blend-add',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_add(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, col1 + col2, t);
 }
-` } },
-  multiply: { fn: 'node_mix_mul', chunk: { id: 'blend-multiply', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  multiply: {
+    fn: 'node_mix_mul',
+    chunk: {
+      id: 'blend-multiply',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_mul(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, col1 * col2, t);
 }
-` } },
-  screen: { fn: 'node_mix_screen', chunk: { id: 'blend-screen', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  screen: {
+    fn: 'node_mix_screen',
+    chunk: {
+      id: 'blend-screen',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_screen(float t, vec3 col1, vec3 col2)
 {
   float tm = 1.0 - t;
 
   return vec3(1.0) - (vec3(tm) + t * (vec3(1.0) - col2)) * (vec3(1.0) - col1);
 }
-` } },
-  overlay: { fn: 'node_mix_overlay', chunk: { id: 'blend-overlay', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  overlay: {
+    fn: 'node_mix_overlay',
+    chunk: {
+      id: 'blend-overlay',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_overlay(float t, vec3 col1, vec3 col2)
 {
   float tm = 1.0 - t;
@@ -69,14 +102,28 @@ vec3 node_mix_overlay(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  subtract: { fn: 'node_mix_sub', chunk: { id: 'blend-subtract', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  subtract: {
+    fn: 'node_mix_sub',
+    chunk: {
+      id: 'blend-subtract',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_sub(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, col1 - col2, t);
 }
-` } },
-  divide: { fn: 'node_mix_div', chunk: { id: 'blend-divide', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  divide: {
+    fn: 'node_mix_div',
+    chunk: {
+      id: 'blend-divide',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_div(float t, vec3 col1, vec3 col2)
 {
   float tm = 1.0 - t;
@@ -95,32 +142,67 @@ vec3 node_mix_div(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  difference: { fn: 'node_mix_diff', chunk: { id: 'blend-difference', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  difference: {
+    fn: 'node_mix_diff',
+    chunk: {
+      id: 'blend-difference',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_diff(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, abs(col1 - col2), t);
 }
-` } },
-  exclusion: { fn: 'node_mix_exclusion', chunk: { id: 'blend-exclusion', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  exclusion: {
+    fn: 'node_mix_exclusion',
+    chunk: {
+      id: 'blend-exclusion',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_exclusion(float t, vec3 col1, vec3 col2)
 {
   return max(mix(col1, col1 + col2 - 2.0 * col1 * col2, t), 0.0);
 }
-` } },
-  darken: { fn: 'node_mix_dark', chunk: { id: 'blend-darken', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  darken: {
+    fn: 'node_mix_dark',
+    chunk: {
+      id: 'blend-darken',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_dark(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, min(col1, col2), t);
 }
-` } },
-  lighten: { fn: 'node_mix_light', chunk: { id: 'blend-lighten', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  lighten: {
+    fn: 'node_mix_light',
+    chunk: {
+      id: 'blend-lighten',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_light(float t, vec3 col1, vec3 col2)
 {
   return mix(col1, max(col1, col2), t);
 }
-` } },
-  dodge: { fn: 'node_mix_dodge', chunk: { id: 'blend-dodge', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  dodge: {
+    fn: 'node_mix_dodge',
+    chunk: {
+      id: 'blend-dodge',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_dodge(float t, vec3 col1, vec3 col2)
 {
   vec3 outcol = col1;
@@ -164,8 +246,15 @@ vec3 node_mix_dodge(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  burn: { fn: 'node_mix_burn', chunk: { id: 'blend-burn', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  burn: {
+    fn: 'node_mix_burn',
+    chunk: {
+      id: 'blend-burn',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_burn(float t, vec3 col1, vec3 col2)
 {
   float tmp, tm = 1.0 - t;
@@ -216,8 +305,15 @@ vec3 node_mix_burn(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  hue: { fn: 'node_mix_hue', chunk: { id: 'blend-hue', requires: hsv, source: /* glsl */ `
+`,
+    },
+  },
+  hue: {
+    fn: 'node_mix_hue',
+    chunk: {
+      id: 'blend-hue',
+      requires: hsv,
+      source: /* glsl */ `
 vec3 node_mix_hue(float t, vec3 col1, vec3 col2)
 {
   vec3 outcol = col1;
@@ -233,8 +329,15 @@ vec3 node_mix_hue(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  saturation: { fn: 'node_mix_sat', chunk: { id: 'blend-saturation', requires: hsv, source: /* glsl */ `
+`,
+    },
+  },
+  saturation: {
+    fn: 'node_mix_sat',
+    chunk: {
+      id: 'blend-saturation',
+      requires: hsv,
+      source: /* glsl */ `
 vec3 node_mix_sat(float t, vec3 col1, vec3 col2)
 {
   float tm = 1.0 - t;
@@ -252,8 +355,15 @@ vec3 node_mix_sat(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  value: { fn: 'node_mix_val', chunk: { id: 'blend-value', requires: hsv, source: /* glsl */ `
+`,
+    },
+  },
+  value: {
+    fn: 'node_mix_val',
+    chunk: {
+      id: 'blend-value',
+      requires: hsv,
+      source: /* glsl */ `
 vec3 node_mix_val(float t, vec3 col1, vec3 col2)
 {
   float tm = 1.0 - t;
@@ -265,8 +375,15 @@ vec3 node_mix_val(float t, vec3 col1, vec3 col2)
 
   return hsv_to_rgb(hsv);
 }
-` } },
-  color: { fn: 'node_mix_color', chunk: { id: 'blend-color', requires: hsv, source: /* glsl */ `
+`,
+    },
+  },
+  color: {
+    fn: 'node_mix_color',
+    chunk: {
+      id: 'blend-color',
+      requires: hsv,
+      source: /* glsl */ `
 vec3 node_mix_color(float t, vec3 col1, vec3 col2)
 {
   vec3 outcol = col1;
@@ -283,8 +400,15 @@ vec3 node_mix_color(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
-  softLight: { fn: 'node_mix_soft', chunk: { id: 'blend-soft-light', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  softLight: {
+    fn: 'node_mix_soft',
+    chunk: {
+      id: 'blend-soft-light',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_soft(float t, vec3 col1, vec3 col2)
 {
   float tm = 1.0 - t;
@@ -294,8 +418,15 @@ vec3 node_mix_soft(float t, vec3 col1, vec3 col2)
 
   return tm * col1 + t * ((one - col1) * col2 * col1 + col1 * scr);
 }
-` } },
-  linearLight: { fn: 'node_mix_linear', chunk: { id: 'blend-linear-light', requires: [], source: /* glsl */ `
+`,
+    },
+  },
+  linearLight: {
+    fn: 'node_mix_linear',
+    chunk: {
+      id: 'blend-linear-light',
+      requires: [],
+      source: /* glsl */ `
 vec3 node_mix_linear(float t, vec3 col1, vec3 col2)
 {
   vec3 outcol = col1;
@@ -323,5 +454,7 @@ vec3 node_mix_linear(float t, vec3 col1, vec3 col2)
 
   return outcol;
 }
-` } },
+`,
+    },
+  },
 }

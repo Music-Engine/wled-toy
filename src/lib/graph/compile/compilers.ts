@@ -23,26 +23,33 @@ export { toGlslForm } from './targets/glsl-form'
 export type { UsermodProgram } from './targets/usermod'
 
 /** Engine's compiler; standalone = one pixel shader needing no host, for export and shader mode */
-export const createGlslCompiler = ({ hooks, standalone }: { hooks?: Partial<Record<Stage, Hook>>; standalone?: boolean } = {}) => createCompiler({
-  version: GRAPH_VERSION,
-  target: createGlslTarget({ standalone }),
-  annotations: [resolveResources(), inferWidth(), choosePass(), allocateState()],
-  checks: [checkLinkTypes(), checkControlCapacity(), checkProbePass(), checkExportableOutputs(), checkBufferAllowance(12)],
-  optimize: [],
-  hooks,
-})
+export const createGlslCompiler = ({ hooks, standalone }: { hooks?: Partial<Record<Stage, Hook>>; standalone?: boolean } = {}) =>
+  createCompiler({
+    version: GRAPH_VERSION,
+    target: createGlslTarget({ standalone }),
+    annotations: [resolveResources(), inferWidth(), choosePass(), allocateState()],
+    checks: [checkLinkTypes(), checkControlCapacity(), checkProbePass(), checkExportableOutputs(), checkBufferAllowance(12)],
+    optimize: [],
+    hooks,
+  })
 
 /**
  * WLED usermod driving `leds` LEDs; an effect has five sliders (speed, intensity, custom 1 to 3). W/o `checkInputs`
  * probes, MIDI, OSC and every knob stay, for a build that only checks the bodies
  */
-export const createUsermodCompiler = (leds: number, { sliders = 5, checkInputs = true } = {}) => createCompiler({
-  version: GRAPH_VERSION,
-  target: createUsermodTarget({ leds }),
-  annotations: [resolveResources(), inferWidth(), choosePass(), allocateState(), markCppParity()],
-  checks: [
-    checkLinkTypes(), checkControlCapacity(), checkProbePass(), checkExportableOutputs(), checkBufferAllowance(12),
-    ...(checkInputs ? [checkUsermodInputs({ sliders })] : []), requireCppParity(),
-  ],
-  optimize: [],
-})
+export const createUsermodCompiler = (leds: number, { sliders = 5, checkInputs = true } = {}) =>
+  createCompiler({
+    version: GRAPH_VERSION,
+    target: createUsermodTarget({ leds }),
+    annotations: [resolveResources(), inferWidth(), choosePass(), allocateState(), markCppParity()],
+    checks: [
+      checkLinkTypes(),
+      checkControlCapacity(),
+      checkProbePass(),
+      checkExportableOutputs(),
+      checkBufferAllowance(12),
+      ...(checkInputs ? [checkUsermodInputs({ sliders })] : []),
+      requireCppParity(),
+    ],
+    optimize: [],
+  })

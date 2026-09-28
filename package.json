@@ -7,6 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
+    "format": "biome format --write .",
+    "format:check": "biome ci --formatter-enabled=true --linter-enabled=false .",
     "test": "vitest run --project unit && pnpm test:browser",
     "test:unit": "vitest run --project unit",
     "test:browser": "vitest run --project browser && vitest run --project browser-gpu && vitest run --project browser-timing",
@@ -17,7 +19,20 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "keywords": ["wled", "playground", "shader", "node-graph", "audio-reactive", "led", "visualizer", "editor", "vue", "vite", "tauri", "music-engine"],
+  "keywords": [
+    "wled",
+    "playground",
+    "shader",
+    "node-graph",
+    "audio-reactive",
+    "led",
+    "visualizer",
+    "editor",
+    "vue",
+    "vite",
+    "tauri",
+    "music-engine"
+  ],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@12.3.4",
@@ -54,6 +69,7 @@
     "ws": "^8.21.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.14",
     "@tauri-apps/cli": "^2.11.5",
     "@types/node": "^26.5.1",
     "@types/ws": "^8.18.1",

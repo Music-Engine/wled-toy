@@ -62,15 +62,18 @@ export function createDocumentSession<T>({ mode, ...storeOptions }: DocumentSess
   const prompt = shallowRef<DocumentPrompt | null>(null)
 
   // a native menu or a closing window can ask while a question is still up; the question on screen stays, the new one counts as cancelled
-  const ask = (kind: DocumentPrompt['kind']) => (prompt.value ? Promise.resolve<PromptChoice>('cancel') : new Promise<PromptChoice>((resolve) => {
-    prompt.value = {
-      kind,
-      answer(choice) {
-        prompt.value = null
-        resolve(choice)
-      },
-    }
-  }))
+  const ask = (kind: DocumentPrompt['kind']) =>
+    prompt.value
+      ? Promise.resolve<PromptChoice>('cancel')
+      : new Promise<PromptChoice>((resolve) => {
+          prompt.value = {
+            kind,
+            answer(choice) {
+              prompt.value = null
+              resolve(choice)
+            },
+          }
+        })
 
   async function attempt(what: string, action: () => unknown) {
     try {
@@ -105,58 +108,69 @@ export function createDocumentSession<T>({ mode, ...storeOptions }: DocumentSess
     error,
     prompt,
     snapshot: storeOptions.getSnapshot,
-    newDocument: () => attempt(`New ${mode[0].toUpperCase()}${mode.slice(1)}`, async () => {
-      if (!(await unsavedWorkSettled())) return
-      store.newDocument()
-      log(`New ${mode}`)
-    }),
-    open: () => attempt('Open', async () => {
-      if ((await unsavedWorkSettled()) && (await wentThrough(store.open))) log(`Opened ${name.value}`)
-    }),
-    openFile: (file) => attempt('Open', async () => {
-      if (!(await unsavedWorkSettled())) return
-      store.openText(file.name, file.text)
-      log(`Opened ${name.value}`)
-    }),
-    openRecent: (recent) => attempt('Open Recent', async () => {
-      if (!(await unsavedWorkSettled())) return
-      await store.openRecent(recent)
-      log(`Opened ${name.value}`)
-    }),
-    save: () => attempt('Save', async () => {
-      if (await wentThrough(store.save)) log(`Saved ${name.value}`)
-    }),
-    saveAs: () => attempt('Save As', async () => {
-      if (await wentThrough(store.saveAs)) log(`Saved ${name.value}`)
-    }),
-    revert: () => attempt('Revert', async () => {
-      if (!store.dirty.value || (await ask('revert')) !== 'discard') return
-      store.revert()
-      log(`Reverted ${name.value} to its last save`)
-    }),
+    newDocument: () =>
+      attempt(`New ${mode[0].toUpperCase()}${mode.slice(1)}`, async () => {
+        if (!(await unsavedWorkSettled())) return
+        store.newDocument()
+        log(`New ${mode}`)
+      }),
+    open: () =>
+      attempt('Open', async () => {
+        if ((await unsavedWorkSettled()) && (await wentThrough(store.open))) log(`Opened ${name.value}`)
+      }),
+    openFile: (file) =>
+      attempt('Open', async () => {
+        if (!(await unsavedWorkSettled())) return
+        store.openText(file.name, file.text)
+        log(`Opened ${name.value}`)
+      }),
+    openRecent: (recent) =>
+      attempt('Open Recent', async () => {
+        if (!(await unsavedWorkSettled())) return
+        await store.openRecent(recent)
+        log(`Opened ${name.value}`)
+      }),
+    save: () =>
+      attempt('Save', async () => {
+        if (await wentThrough(store.save)) log(`Saved ${name.value}`)
+      }),
+    saveAs: () =>
+      attempt('Save As', async () => {
+        if (await wentThrough(store.saveAs)) log(`Saved ${name.value}`)
+      }),
+    revert: () =>
+      attempt('Revert', async () => {
+        if (!store.dirty.value || (await ask('revert')) !== 'discard') return
+        store.revert()
+        log(`Reverted ${name.value} to its last save`)
+      }),
     async settleBeforeClose() {
       if (!preferences.confirmClose) return true
       let settled = false
-      await attempt('Save', async () => { settled = await unsavedWorkSettled() })
+      await attempt('Save', async () => {
+        settled = await unsavedWorkSettled()
+      })
       return settled
     },
   }
 
   if (store.hasRecovery.value) {
-    void ask('recovery').then((choice) => attempt('Recover', () => {
-      if (choice !== 'recover') {
-        store.newDocument()
-        return
-      }
-      try {
-        store.recoverFromAutosave()
-        log(`Recovered the unsaved ${mode} of the last session`)
-      } catch (e) {
-        // a copy this version cannot read would otherwise be offered again on every launch
-        store.discardRecovery()
-        throw e
-      }
-    }))
+    void ask('recovery').then((choice) =>
+      attempt('Recover', () => {
+        if (choice !== 'recover') {
+          store.newDocument()
+          return
+        }
+        try {
+          store.recoverFromAutosave()
+          log(`Recovered the unsaved ${mode} of the last session`)
+        } catch (e) {
+          // a copy this version cannot read would otherwise be offered again on every launch
+          store.discardRecovery()
+          throw e
+        }
+      }),
+    )
   }
 
   const onBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -188,14 +202,16 @@ registerCommands([
       const recent = store?.canReopenRecent ? store.recentFiles.value : []
       // the placeholder row keeps the submenu and its key in place while there is nothing to reopen
       if (!recent.length) {
-        return [{
-          id: 'file.recent.none',
-          title: store && !store.canReopenRecent ? 'Not Available in This Browser' : 'No Recent Files',
-          menu: ['File', 'Open Recent'],
-          group: 'document',
-          accelerator: 'Mod+Shift+O',
-          enabled: () => false,
-        }]
+        return [
+          {
+            id: 'file.recent.none',
+            title: store && !store.canReopenRecent ? 'Not Available in This Browser' : 'No Recent Files',
+            menu: ['File', 'Open Recent'],
+            group: 'document',
+            accelerator: 'Mod+Shift+O',
+            enabled: () => false,
+          },
+        ]
       }
       return recent.map((file, index) => ({
         id: `file.recent.${recentId(file)}`,

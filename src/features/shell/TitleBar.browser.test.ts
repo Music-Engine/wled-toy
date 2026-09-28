@@ -27,7 +27,10 @@ function mount() {
   // Nuxt UI is not installed here: its wrappers render as unknown elements that still show their default slot
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root.querySelector<HTMLElement>('header')!
 }
 
@@ -48,7 +51,9 @@ it('holds the menus, the mode tabs and the layout toggles; playback and devices 
 })
 
 it('the selected tab follows the mode, and a tab runs its mode command', async () => {
-  const toGraph = vi.fn(() => { workspace.mode = 'graph' })
+  const toGraph = vi.fn(() => {
+    workspace.mode = 'graph'
+  })
   const release = registerHandlers({ 'mode.graph': toGraph })
   const bar = mount()
   const [shader, graph, reference] = bar.querySelectorAll<HTMLButtonElement>('.mode-tabs [role="tab"]')

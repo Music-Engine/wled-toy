@@ -7,7 +7,8 @@ export interface Value {
 }
 
 /** Component count of a numeric type; undefined for matrices, samplers and void. */
-export const componentCount = (type: GlslType): number | undefined => ({ float: 1, int: 1, vec2: 2, vec3: 3, vec4: 4 } as Partial<Record<GlslType, number>>)[type]
+export const componentCount = (type: GlslType): number | undefined =>
+  (({ float: 1, int: 1, vec2: 2, vec3: 3, vec4: 4 }) as Partial<Record<GlslType, number>>)[type]
 export const vectorType = (dim: number): GlslType => (['float', 'vec2', 'vec3', 'vec4'] as const)[dim - 1] ?? 'vec3'
 
 export function fmt(v: number): string {
@@ -25,8 +26,12 @@ export function vectorLiteral(components: number[]): Value {
 /** Component access such as `.xy` or `.r`; throws on components the value does not have. */
 export function swizzle(value: Value, components: string): Value {
   const dim = componentCount(value.type)
-  const valid = dim !== undefined && dim > 1 && components.length >= 1 && components.length <= 4
-    && ['xyzw', 'rgba'].some((set) => [...components].every((c) => set.slice(0, dim).includes(c)))
+  const valid =
+    dim !== undefined &&
+    dim > 1 &&
+    components.length >= 1 &&
+    components.length <= 4 &&
+    ['xyzw', 'rgba'].some((set) => [...components].every((c) => set.slice(0, dim).includes(c)))
   if (!valid) throw new Error(`Invalid swizzle .${components} on ${value.type}`)
   const target = /^[\w.]+$/.test(value.expr) ? value.expr : `(${value.expr})`
   return { expr: `${target}.${components}`, type: vectorType(components.length) }

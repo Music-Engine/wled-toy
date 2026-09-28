@@ -30,9 +30,7 @@ export function findOutputSocket(data: GraphNodeData | undefined, handle: string
 
 /** First socket of `shape` (menu: a kind's base shape) that links to a dragged socket of `type` */
 export function findCompatibleSocket(shape: NodeShape, type: DataType<any>, need: 'in' | 'out'): Socket | OutputSocket | undefined {
-  return need === 'in'
-    ? listLinkable(shape).find((socket) => canCast(type, socket.type))
-    : shape.outputs.find((socket) => canCast(socket.type, type))
+  return need === 'in' ? listLinkable(shape).find((socket) => canCast(type, socket.type)) : shape.outputs.find((socket) => canCast(socket.type, type))
 }
 
 /** Inputs a number or vector links into */

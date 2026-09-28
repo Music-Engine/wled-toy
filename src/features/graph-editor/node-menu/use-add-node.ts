@@ -20,9 +20,12 @@ export function useAddNode(flow: VueFlowStore, session: GraphEditSession, canvas
     return filterFs(GRAPH_FS, (item) => !!findCompatibleSocket(item.base, pending.type, need))
   })
 
-  watch(() => menu.open, (open) => {
-    if (!open) menu.pending = null
-  })
+  watch(
+    () => menu.open,
+    (open) => {
+      if (!open) menu.pending = null
+    },
+  )
 
   /** At a screen point, or centered as a search palette w/o one */
   function openMenu(at: { x: number; y: number } | null, pending: PendingLink | null = null) {
@@ -44,9 +47,14 @@ export function useAddNode(flow: VueFlowStore, session: GraphEditSession, canvas
 
     const socket = pending && findCompatibleSocket(item.base, pending.type, pending.handleType === 'source' ? 'in' : 'out')
     if (pending && socket) {
-      nextTick(() => connectLink(flow, pending.handleType === 'source'
-        ? { source: pending.nodeId, sourceHandle: pending.handleId, target: id, targetHandle: socket.name }
-        : { source: id, sourceHandle: socket.name, target: pending.nodeId, targetHandle: pending.handleId }))
+      nextTick(() =>
+        connectLink(
+          flow,
+          pending.handleType === 'source'
+            ? { source: pending.nodeId, sourceHandle: pending.handleId, target: id, targetHandle: socket.name }
+            : { source: id, sourceHandle: socket.name, target: pending.nodeId, targetHandle: pending.handleId },
+        ),
+      )
     }
     return id
   }

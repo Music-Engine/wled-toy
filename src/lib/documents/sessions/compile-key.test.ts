@@ -14,22 +14,27 @@ describe('compileKey', () => {
   const base = toKey(createDefaultGraph())
 
   it('ignores what the compiler does not read', () => {
-    expect(toKey(editDefaultGraph((doc) => {
-      for (const n of doc.nodes) n.position = { x: n.position.x + 40, y: n.position.y - 7 }
-      doc.nodes[0].data.collapsed = true
-      doc.nodes[0].data.hideUnused = true
-      doc.nodes[0].data.label = 'Renamed'
-      doc.edges[0].style = { stroke: '#fff' }
-      doc.edges[0].id = 'renamed'
-    }))).toBe(base)
+    expect(
+      toKey(
+        editDefaultGraph((doc) => {
+          for (const n of doc.nodes) n.position = { x: n.position.x + 40, y: n.position.y - 7 }
+          doc.nodes[0].data.collapsed = true
+          doc.nodes[0].data.hideUnused = true
+          doc.nodes[0].data.label = 'Renamed'
+          doc.edges[0].style = { stroke: '#fff' }
+          doc.edges[0].id = 'renamed'
+        }),
+      ),
+    ).toBe(base)
   })
 
   it('changes with a value', () => {
     expect(toKey(editDefaultGraph((doc) => (doc.nodes.find((n) => n.id === 'speed')!.data.values.b = 0.3)))).not.toBe(base)
   })
 
-  it('ignores a Knob\'s value, which reaches the program as a uniform, but not its range', () => {
-    const withKnobValues = (values: Record<string, number>) => editDefaultGraph((doc) => doc.nodes.push({ id: 'k', type: 'shader', position: { x: 0, y: 0 }, data: { kind: 'knob', values } }))
+  it("ignores a Knob's value, which reaches the program as a uniform, but not its range", () => {
+    const withKnobValues = (values: Record<string, number>) =>
+      editDefaultGraph((doc) => doc.nodes.push({ id: 'k', type: 'shader', position: { x: 0, y: 0 }, data: { kind: 'knob', values } }))
     expect(toKey(withKnobValues({ value: 0.9 }))).toBe(toKey(withKnobValues({ value: 0.1 })))
     expect(toKey(withKnobValues({ value: 0.1, max: 2 }))).not.toBe(toKey(withKnobValues({ value: 0.1 })))
   })

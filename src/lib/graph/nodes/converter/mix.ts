@@ -1,6 +1,9 @@
 import { Bool, defineNode, Enum, GenType } from '@/lib/graph/authoring'
 
-const MODES = [{ value: 'mix', label: 'Mix' }, { value: 'switch', label: 'Switch' }] as const
+const MODES = [
+  { value: 'mix', label: 'Mix' },
+  { value: 'switch', label: 'Switch' },
+] as const
 
 export const mixNode = defineNode('mix', {
   title: 'Mix',

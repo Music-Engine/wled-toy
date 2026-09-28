@@ -1,20 +1,52 @@
-.glsl-comment { color: #7c8594; font-style: italic; }
-.glsl-keyword { color: #c792ea; }
-.glsl-type { color: #82aaff; }
-.glsl-number { color: #f78c6c; }
+.glsl-comment {
+  color: #7c8594;
+  font-style: italic;
+}
+.glsl-keyword {
+  color: #c792ea;
+}
+.glsl-type {
+  color: #82aaff;
+}
+.glsl-number {
+  color: #f78c6c;
+}
 .glsl-meta,
-.glsl-operator { color: #89ddff; }
-.glsl-builtin { color: #ffcb6b; }
-.glsl-api { color: var(--ui-primary); font-weight: 600; }
-.glsl-uniform { color: #f07178; }
+.glsl-operator {
+  color: #89ddff;
+}
+.glsl-builtin {
+  color: #ffcb6b;
+}
+.glsl-api {
+  color: var(--ui-primary);
+  font-weight: 600;
+}
+.glsl-uniform {
+  color: #f07178;
+}
 
 :root:not(.dark) {
-  .glsl-comment { color: #6b7280; }
-  .glsl-keyword { color: #8b3fd1; }
-  .glsl-type { color: #2f5fd0; }
-  .glsl-number { color: #c2410c; }
+  .glsl-comment {
+    color: #6b7280;
+  }
+  .glsl-keyword {
+    color: #8b3fd1;
+  }
+  .glsl-type {
+    color: #2f5fd0;
+  }
+  .glsl-number {
+    color: #c2410c;
+  }
   .glsl-meta,
-  .glsl-operator { color: #0e7490; }
-  .glsl-builtin { color: #a16207; }
-  .glsl-uniform { color: #be123c; }
+  .glsl-operator {
+    color: #0e7490;
+  }
+  .glsl-builtin {
+    color: #a16207;
+  }
+  .glsl-uniform {
+    color: #be123c;
+  }
 }

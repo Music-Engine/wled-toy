@@ -20,7 +20,8 @@ export class GlobalPass {
     if (this.pass) this.gl.deleteProgram(this.pass.program)
     this.pass = pass
     if (pass) (this.state ??= new GlobalState(this.gl)).reserve(texels)
-    this.probeSource = pass && this.state && pass.probeTexels.length > 0 ? { framebuffer: this.state.latestFramebuffer, texels: pass.probeTexels, out: pass.probes } : null
+    this.probeSource =
+      pass && this.state && pass.probeTexels.length > 0 ? { framebuffer: this.state.latestFramebuffer, texels: pass.probeTexels, out: pass.probes } : null
   }
 
   drawPass<P>(bind: BindInputs<P>, params: P) {

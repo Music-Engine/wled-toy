@@ -13,7 +13,9 @@ it('gives the copies fresh ids and points the copied links at them', () => {
   const [a, b] = pasted.nodes
   expect(a.id).toMatch(/^math-\w+-0$/)
   expect(b.id).toMatch(/^time-\w+-1$/)
-  expect(pasted.edges).toEqual([{ id: expect.stringMatching(/^e-\w+-0$/), source: b.id, sourceHandle: 'time', target: a.id, targetHandle: 'a', style: { stroke: '#fff' } }])
+  expect(pasted.edges).toEqual([
+    { id: expect.stringMatching(/^e-\w+-0$/), source: b.id, sourceHandle: 'time', target: a.id, targetHandle: 'a', style: { stroke: '#fff' } },
+  ])
 })
 
 it('keeps positions and deep-copies the data', () => {
@@ -38,5 +40,7 @@ it('drops links with an end outside the pasted nodes and remaps the ones inside'
   ]
   const pasted = remapPasted(nodes, [...outside, ...edges])
   const [a, b] = pasted.nodes
-  expect(pasted.edges).toEqual([{ id: expect.stringMatching(/^e-\w+-0$/), source: b.id, sourceHandle: 'time', target: a.id, targetHandle: 'a', style: { stroke: '#fff' } }])
+  expect(pasted.edges).toEqual([
+    { id: expect.stringMatching(/^e-\w+-0$/), source: b.id, sourceHandle: 'time', target: a.id, targetHandle: 'a', style: { stroke: '#fff' } },
+  ])
 })

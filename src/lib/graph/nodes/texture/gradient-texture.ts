@@ -3,8 +3,13 @@ import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 import { gradientTextureChunk } from './chunks/gradient-texture-chunk'
 
 const TYPES = [
-  { value: 'linear', label: 'Linear' }, { value: 'quadratic', label: 'Quadratic' }, { value: 'easing', label: 'Easing' }, { value: 'diagonal', label: 'Diagonal' },
-  { value: 'radial', label: 'Radial' }, { value: 'spherical', label: 'Spherical' }, { value: 'quadraticSphere', label: 'Quadratic Sphere' },
+  { value: 'linear', label: 'Linear' },
+  { value: 'quadratic', label: 'Quadratic' },
+  { value: 'easing', label: 'Easing' },
+  { value: 'diagonal', label: 'Diagonal' },
+  { value: 'radial', label: 'Radial' },
+  { value: 'spherical', label: 'Spherical' },
+  { value: 'quadraticSphere', label: 'Quadratic Sphere' },
 ] as const
 
 export const gradientTextureNode = defineNode('gradientTexture', {

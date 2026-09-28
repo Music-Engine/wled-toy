@@ -40,7 +40,10 @@ export class Agc {
 export class SilenceGate {
   private quietFor = Infinity
 
-  constructor(private readonly thresholdDb: number, private readonly hold: number) {}
+  constructor(
+    private readonly thresholdDb: number,
+    private readonly hold: number,
+  ) {}
 
   open(level: number, dt: number): boolean {
     this.quietFor = toDb(level) >= this.thresholdDb ? 0 : this.quietFor + dt

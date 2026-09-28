@@ -9,7 +9,10 @@ it('downloads the text under the name with the MIME type, and releases the URL',
   const anchor = { href: '', download: '', click: vi.fn() }
   vi.stubGlobal('document', { createElement: () => anchor })
   vi.stubGlobal('URL', {
-    createObjectURL: (blob: Blob) => { blobs.push(blob); return 'blob:fake' },
+    createObjectURL: (blob: Blob) => {
+      blobs.push(blob)
+      return 'blob:fake'
+    },
     revokeObjectURL: (url: string) => void revoked.push(url),
   })
 

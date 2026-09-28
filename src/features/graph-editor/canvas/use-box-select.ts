@@ -44,8 +44,5 @@ export function useBoxSelect(flow: VueFlowStore) {
 
 /** Selects exactly these nodes and, as a box selection does, every link that touches one of them. */
 export function selectNodes(flow: VueFlowStore, ids: Set<string>) {
-  flow.addSelectedElements([
-    ...flow.getNodes.value.filter((n) => ids.has(n.id)),
-    ...flow.edges.value.filter((e) => ids.has(e.source) || ids.has(e.target)),
-  ])
+  flow.addSelectedElements([...flow.getNodes.value.filter((n) => ids.has(n.id)), ...flow.edges.value.filter((e) => ids.has(e.source) || ids.has(e.target))])
 }

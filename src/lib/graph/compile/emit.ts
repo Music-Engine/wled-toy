@@ -33,7 +33,14 @@ export interface Spelling {
 }
 
 /** Stream or stored value as is; linkable cast to socket type, or node width when generic */
-function readBodyInput(ctx: CompileContext, spelling: Spelling, values: Map<string, Record<string, Value>>, node: CompiledNode, socket: Socket, isOnePass: boolean): unknown {
+function readBodyInput(
+  ctx: CompileContext,
+  spelling: Spelling,
+  values: Map<string, Record<string, Value>>,
+  node: CompiledNode,
+  socket: Socket,
+  isOnePass: boolean,
+): unknown {
   if (socket.type.kind === 'stream') return node.streams![socket.name]
   if (!socket.linkable) return readStoredValue(node, socket)
   const form = spelling.toForm(socket.type)
@@ -42,7 +49,14 @@ function readBodyInput(ctx: CompileContext, spelling: Spelling, values: Map<stri
 }
 
 /** Link to a missing or stream output reads as unlinked (`checkLinkTypes` refuses the stream); uniform outputs read the uniform wherever linked */
-function readLinkedValue(ctx: CompileContext, spelling: Spelling, values: Map<string, Record<string, Value>>, node: CompiledNode, socket: Socket, isOnePass: boolean): Value | undefined {
+function readLinkedValue(
+  ctx: CompileContext,
+  spelling: Spelling,
+  values: Map<string, Record<string, Value>>,
+  node: CompiledNode,
+  socket: Socket,
+  isOnePass: boolean,
+): Value | undefined {
   const source = node.links[socket.name]
   const from = source && ctx.nodes[source.id]
   const out = from && from.shape.outputs.find((output) => output.name === source.output)
@@ -72,7 +86,9 @@ function createNodeContext(ctx: CompileContext, code: PassCode, spelling: Spelli
   const variable = (suffix?: string) => (suffix ? `${base}_${suffix}` : base)
   const emit = (text: string) => code.lines.push({ text, node: nodeId })
   return {
-    nodeId, variable, emit,
+    nodeId,
+    variable,
+    emit,
     resolved: resolved?.data ?? {},
     gen: vectorType(node.width!),
     state: toStateSlots(spelling, node),
@@ -82,7 +98,9 @@ function createNodeContext(ctx: CompileContext, code: PassCode, spelling: Spelli
     },
     call: (name, args, outs) => {
       const results = Object.entries(outs).map(([out, type]) => [out, { expr: variable(out), type }] as const)
-      emit(`${results.map(([, value]) => `${value.type} ${value.expr};`).join(' ')} ${name}(${[...args, ...results.map(([, value]) => value.expr)].join(', ')});`)
+      emit(
+        `${results.map(([, value]) => `${value.type} ${value.expr};`).join(' ')} ${name}(${[...args, ...results.map(([, value]) => value.expr)].join(', ')});`,
+      )
       return Object.fromEntries(results) as never
     },
     include: (chunk) => code.includes.push({ chunk, node: nodeId }),
@@ -95,12 +113,15 @@ function createNodeContext(ctx: CompileContext, code: PassCode, spelling: Spelli
  * per pixel, which the usermod target rewrites into its per-LED array
  */
 function toStateSlots(spelling: Spelling, node: CompiledNode): Record<string, Value> {
-  return Object.fromEntries(Object.entries(node.state ?? {}).map(([name, offset]) => {
-    const dim = node.shape.state![name].dim!
-    const first = offset % 4
-    const expr = node.pass === 'pixel' ? `outState${Math.floor(offset / 4) + 1}.${'xyzw'.slice(first, first + dim)}` : spelling.toGlobalSlot(offset, dim, 'frame')
-    return [name, { expr, type: vectorType(dim) }]
-  }))
+  return Object.fromEntries(
+    Object.entries(node.state ?? {}).map(([name, offset]) => {
+      const dim = node.shape.state![name].dim!
+      const first = offset % 4
+      const expr =
+        node.pass === 'pixel' ? `outState${Math.floor(offset / 4) + 1}.${'xyzw'.slice(first, first + dim)}` : spelling.toGlobalSlot(offset, dim, 'frame')
+      return [name, { expr, type: vectorType(dim) }]
+    }),
+  )
 }
 
 /** Exported value cast to the declared output type, the type `state` sized its slot by */

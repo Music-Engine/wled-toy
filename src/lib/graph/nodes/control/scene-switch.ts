@@ -2,7 +2,8 @@ import { defineNode, Float } from '@/lib/graph/authoring'
 
 export const sceneSwitchNode = defineNode('sceneSwitch', {
   title: 'Scene Switch',
-  description: 'Recalls a saved scene when Index changes: 0 is the first scene in the Parameters panel. Drive it from a Counter to step scenes on the beat, or from MIDI In to pick them from a controller.',
+  description:
+    'Recalls a saved scene when Index changes: 0 is the first scene in the Parameters panel. Drive it from a Counter to step scenes on the beat, or from MIDI In to pick them from a controller.',
   category: 'input',
   // Unread; acts on the knobs, so it's a sink
   isOutput: true,

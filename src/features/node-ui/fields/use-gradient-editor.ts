@@ -21,7 +21,10 @@ export function useGradientEditor(ramp: () => ColorRamp, emit: (next: ColorRamp)
 
   function updateCurrent(patch: Partial<RampStop>) {
     const stop = { ...current.value, ...patch }
-    commit(stops.value.map((s) => (s === current.value ? stop : s)), stop)
+    commit(
+      stops.value.map((s) => (s === current.value ? stop : s)),
+      stop,
+    )
   }
 
   function addStop(position?: number) {

@@ -7,8 +7,16 @@ import { createGlslCompiler, createUsermodCompiler } from '@/lib/graph/compile/c
 function summed(knobs: number, sources: { id: string; kind: string }[] = []) {
   const outputs = [...Array.from({ length: knobs }, (_, i) => `k${i}.value`), ...sources.map(({ id }) => `${id}.value`)]
   const adds = outputs.slice(1).map((_, i) => node(`add${i}`, 'math', { op: 'add' }))
-  const links = outputs.slice(1).flatMap((output, i): [string, string][] => [[i === 0 ? outputs[0] : `add${i - 1}.result`, `add${i}.a`], [output, `add${i}.b`]])
-  const nodes = [...Array.from({ length: knobs }, (_, i) => node(`k${i}`, 'knob', { value: 0.25 })), ...sources.map(({ id, kind }) => node(id, kind)), ...adds, node('o', 'output')]
+  const links = outputs.slice(1).flatMap((output, i): [string, string][] => [
+    [i === 0 ? outputs[0] : `add${i - 1}.result`, `add${i}.a`],
+    [output, `add${i}.b`],
+  ])
+  const nodes = [
+    ...Array.from({ length: knobs }, (_, i) => node(`k${i}`, 'knob', { value: 0.25 })),
+    ...sources.map(({ id, kind }) => node(id, kind)),
+    ...adds,
+    node('o', 'output'),
+  ]
   return graph(nodes, [...links, [adds.length ? `add${adds.length - 1}.result` : outputs[0], 'o.color']])
 }
 
@@ -24,14 +32,37 @@ describe('knob, MIDI In and OSC In read uniforms the host writes', () => {
 
   it('numbers every output of OSC In and MIDI In in topo order, read in the pass of their reader', () => {
     const doc = graph(
-      [node('k', 'knob'), node('s', 'oscIn', { address: '/x' }), node('m', 'midiIn', { kind: 'note', number: 60 }), node('a', 'math', { op: 'add' }), node('b', 'math', { op: 'add' }), node('o', 'output')],
-      [['k.value', 'a.a'], ['s.third', 'a.b'], ['a.result', 'b.a'], ['m.gate', 'b.b'], ['b.result', 'o.color']],
+      [
+        node('k', 'knob'),
+        node('s', 'oscIn', { address: '/x' }),
+        node('m', 'midiIn', { kind: 'note', number: 60 }),
+        node('a', 'math', { op: 'add' }),
+        node('b', 'math', { op: 'add' }),
+        node('o', 'output'),
+      ],
+      [
+        ['k.value', 'a.a'],
+        ['s.third', 'a.b'],
+        ['a.result', 'b.a'],
+        ['m.gate', 'b.b'],
+        ['b.result', 'o.color'],
+      ],
     )
     const { program } = createGlslCompiler().compile(doc)
-    expect(program!.uniforms.map(({ node: id, output, offset }) => `${id}.${output}@${offset}`)).toEqual(['k.value@0', 's.value@1', 's.second@2', 's.third@3', 'm.value@4', 'm.gate@5'])
+    expect(program!.uniforms.map(({ node: id, output, offset }) => `${id}.${output}@${offset}`)).toEqual([
+      'k.value@0',
+      's.value@1',
+      's.second@2',
+      's.third@3',
+      'm.value@4',
+      'm.gate@5',
+    ])
     expect(program!.uniforms.slice(1)).toMatchObject([
-      { kind: 'osc', address: '/x', argument: 0 }, { kind: 'osc', argument: 1 }, { kind: 'osc', argument: 2 },
-      { kind: 'midi', message: 'note', channel: 0, number: 60, gate: false }, { kind: 'midi', gate: true },
+      { kind: 'osc', address: '/x', argument: 0 },
+      { kind: 'osc', argument: 1 },
+      { kind: 'osc', argument: 2 },
+      { kind: 'midi', message: 'note', channel: 0, number: 60, gate: false },
+      { kind: 'midi', gate: true },
     ])
     expect(program!.frame).toBeNull()
     expect(program!.pixel).toContain('iControl[0].x + iControl[0].w')
@@ -58,16 +89,21 @@ describe('viewer and scene switch are probes', () => {
 
 describe('the usermod compiler', () => {
   it('reports the viewer, the OSC node, the MIDI node and a knob past the sliders, each by name, and returns no program', () => {
-    const doc = summed(3, [{ id: 's', kind: 'oscIn' }, { id: 'm', kind: 'midiIn' }])
+    const doc = summed(3, [
+      { id: 's', kind: 'oscIn' },
+      { id: 'm', kind: 'midiIn' },
+    ])
     doc.nodes.push(node('v', 'viewer'))
     const { program, issues } = createUsermodCompiler(8, { sliders: 2 }).compile(doc)
     expect(program).toBeNull()
-    expect(issues).toEqual(expect.arrayContaining([
-      { nodeId: 'v', message: 'Viewer is read back by the host, which a usermod does not do' },
-      { nodeId: 's', message: 'OSC In reads OSC, which a usermod has no input for' },
-      { nodeId: 'm', message: 'MIDI In reads MIDI, which a usermod has no input for' },
-      { nodeId: 'k2', message: 'Knob has no slider left; the effect has 2' },
-    ]))
+    expect(issues).toEqual(
+      expect.arrayContaining([
+        { nodeId: 'v', message: 'Viewer is read back by the host, which a usermod does not do' },
+        { nodeId: 's', message: 'OSC In reads OSC, which a usermod has no input for' },
+        { nodeId: 'm', message: 'MIDI In reads MIDI, which a usermod has no input for' },
+        { nodeId: 'k2', message: 'Knob has no slider left; the effect has 2' },
+      ]),
+    )
     expect(issues).toHaveLength(4)
   })
 

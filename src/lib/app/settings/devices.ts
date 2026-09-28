@@ -76,20 +76,18 @@ function sanitizeDevice(input: unknown, fallback: SavedDevice): SavedDevice | nu
 export function validateHost(text: string): string | null {
   if (!text) return null
   if (/^[a-z]+:\/\//i.test(text)) return 'Leave out http:// and anything after the host name.'
-  return /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i.test(text) ? null : 'Enter a host name such as wled.local or an IP address such as 192.168.1.50, without a port or a path.'
+  return /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i.test(text)
+    ? null
+    : 'Enter a host name such as wled.local or an IP address such as 192.168.1.50, without a port or a path.'
 }
 
 /** Field-by-field validation like config's own sanitize(); an empty or invalid list falls back to one device built from the legacy fields. */
 export function sanitizeDeviceStore(input: unknown): DeviceStore {
   const src = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>
   const rawList = Array.isArray(src.devices) ? src.devices : []
-  const devices = rawList
-    .map((raw) => sanitizeDevice(raw, defaultDevice()))
-    .filter((d): d is SavedDevice => d !== null)
+  const devices = rawList.map((raw) => sanitizeDevice(raw, defaultDevice())).filter((d): d is SavedDevice => d !== null)
   if (devices.length === 0) devices.push(legacyDevice())
-  const activeDeviceId = typeof src.activeDeviceId === 'string' && devices.some((d) => d.id === src.activeDeviceId)
-    ? src.activeDeviceId
-    : devices[0].id
+  const activeDeviceId = typeof src.activeDeviceId === 'string' && devices.some((d) => d.id === src.activeDeviceId) ? src.activeDeviceId : devices[0].id
   return { devices, activeDeviceId }
 }
 
@@ -97,12 +95,16 @@ const store = reactive<DeviceStore>(loadStored(STORAGE_KEY, 'your saved devices'
 
 let lastSerialized: string | null = localStorage.getItem(STORAGE_KEY)
 
-watch(store, () => {
-  const serialized = JSON.stringify(store)
-  if (serialized === lastSerialized) return
-  lastSerialized = serialized
-  localStorage.setItem(STORAGE_KEY, serialized)
-}, { deep: true })
+watch(
+  store,
+  () => {
+    const serialized = JSON.stringify(store)
+    if (serialized === lastSerialized) return
+    lastSerialized = serialized
+    localStorage.setItem(STORAGE_KEY, serialized)
+  },
+  { deep: true },
+)
 
 export const devices = computed(() => store.devices)
 export const activeDeviceId = computed(() => store.activeDeviceId)

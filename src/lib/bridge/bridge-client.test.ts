@@ -61,7 +61,10 @@ it('whatever the transport: connecting until it opens, config on open, frame ids
 
   expect(bridge.sendFrame(new Uint8Array([0, 0, 0, 0, 9, 8, 7]))).toBe(true)
   expect(bridge.sendFrame(new Uint8Array(4 + 3))).toBe(true)
-  expect(link.frames.map((frame) => [...frame.subarray(0, 5)])).toEqual([[1, 0, 0, 0, 9], [2, 0, 0, 0, 0]])
+  expect(link.frames.map((frame) => [...frame.subarray(0, 5)])).toEqual([
+    [1, 0, 0, 0, 9],
+    [2, 0, 0, 0, 0],
+  ])
 
   link.congested = true
   expect(bridge.sendFrame(new Uint8Array(4 + 3))).toBe(false)
@@ -73,7 +76,15 @@ it('whatever the transport: connecting until it opens, config on open, frame ids
   link.handlers.onMessage({ type: 'device', name: 'Shelf', version: '0.15.0', ledCount: 60 })
   link.handlers.onMessage({ type: 'ping', ms: 12, fps: 40 })
   vi.advanceTimersByTime(1000)
-  expect(bridge.stats).toMatchObject({ framesSent: 2, framesDropped: 2, udpMs: 0.25, rttMs: 5, deviceMs: 12, deviceFps: 40, device: { name: 'Shelf', ledCount: 60 } })
+  expect(bridge.stats).toMatchObject({
+    framesSent: 2,
+    framesDropped: 2,
+    udpMs: 0.25,
+    rttMs: 5,
+    deviceMs: 12,
+    deviceFps: 40,
+    device: { name: 'Shelf', ledCount: 60 },
+  })
   expect(bridge.stats.kbps).toBeCloseTo(8, 0)
 
   link.open = false

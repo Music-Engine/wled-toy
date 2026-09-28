@@ -16,7 +16,10 @@ export function timeLoading(name: string, text: string) {
   expect(problems, `${name}: structural problems`).toEqual([])
   const compileTimes = timeRepeats(() => createGlslCompiler().compile(doc))
   const { program, slots: table, issues } = createGlslCompiler().compile(doc)
-  expect(issues.map((issue) => `${issue.nodeId}: ${issue.message}`), `${name}: graph issues`).toEqual([])
+  expect(
+    issues.map((issue) => `${issue.nodeId}: ${issue.message}`),
+    `${name}: graph issues`,
+  ).toEqual([])
   return { doc, readTimes, compileTimes, program: program!, table }
 }
 
@@ -41,13 +44,22 @@ export function timeShaderCompile(program: GlslProgram, table: SlotTable) {
 export function timeFrames(name: string, program: GlslProgram, targets: Targets) {
   const track = synthesizeTrack(Math.ceil(FRAMES / FPS) + 1)
   const slots = openSlots(program, SAMPLE_RATE)
-  const times = { analysis: [] as number[], perHop: [] as number[], feed: [] as number[], renderPreview: [] as number[], tick: Object.fromEntries(TARGETS.map((target) => [target.name, [] as number[]])) }
+  const times = {
+    analysis: [] as number[],
+    perHop: [] as number[],
+    feed: [] as number[],
+    renderPreview: [] as number[],
+    tick: Object.fromEntries(TARGETS.map((target) => [target.name, [] as number[]])),
+  }
   let heapStart = 0
   for (let frame = 0; frame < WARMUP + FRAMES; frame++) {
     if (frame === WARMUP) heapStart = readHeapUsed() ?? 0
     const time = frame / FPS
     const t0 = performance.now()
-    const { analyses: [features], hops } = feedSlots(slots, track, time, SAMPLE_RATE)
+    const {
+      analyses: [features],
+      hops,
+    } = feedSlots(slots, track, time, SAMPLE_RATE)
     const analysisMs = performance.now() - t0
     const feedMs = feedTargets(targets, slots, features)
     const previewMs = timePreview(targets, time, frame)
@@ -68,8 +80,21 @@ export function timeBatches(program: GlslProgram, targets: Targets, slots: Slot[
   return {
     calls: BATCH,
     set: timeBatch(BATCH, () => knob && first.runtime.set(knob, 0.5)),
-    feed: timeBatch(BATCH, () => first.renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures), null)),
-    tick: Object.fromEntries(TARGETS.map((target, i) => [target.name, timeBatch(BATCH, () => { targets.leds[i].runtime.tick({ time: 0, dt: 1 / FPS, frame: 0, ledCount: target.leds, scanY: 0.5 }) })])),
+    feed: timeBatch(BATCH, () =>
+      first.renderer.setAudio(
+        slots[0].textures,
+        slots.slice(1).map((slot) => slot.textures),
+        null,
+      ),
+    ),
+    tick: Object.fromEntries(
+      TARGETS.map((target, i) => [
+        target.name,
+        timeBatch(BATCH, () => {
+          targets.leds[i].runtime.tick({ time: 0, dt: 1 / FPS, frame: 0, ledCount: target.leds, scanY: 0.5 })
+        }),
+      ]),
+    ),
   }
 }
 

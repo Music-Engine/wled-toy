@@ -11,7 +11,9 @@ describe('compositing', () => {
   it('Layer Mix: a mask of 0 shows the base, a mask of 1 at full opacity shows the layer, and the two multiply', async () => {
     expect((await renderOne('layerMix', 'color', { ...layers, mask: 0 }))[0]).toEqual([51, 102, 153])
     expect((await renderOne('layerMix', 'color', { ...layers, mask: 1, opacity: 1 }))[0]).toEqual([255, 0, 0])
-    expect((await renderOne('layerMix', 'color', { ...layers, mask: 0.5, opacity: 0.5 }))[0]).toEqual((await renderOne('layerMix', 'color', { ...layers, mask: 0.25, opacity: 1 }))[0])
+    expect((await renderOne('layerMix', 'color', { ...layers, mask: 0.5, opacity: 0.5 }))[0]).toEqual(
+      (await renderOne('layerMix', 'color', { ...layers, mask: 0.25, opacity: 1 }))[0],
+    )
   }, 30_000)
 
   it('Layer Mix uses the blend modes of Color Mix', async () => {
@@ -37,10 +39,19 @@ describe('compositing', () => {
     expect(heat[0][0]).toBeLessThan(12)
     // Last LED sits half a cell before 1: almost the final white
     expect(Math.min(...heat[63])).toBeGreaterThan(240)
-    const renderAt = async (position: number) => (await renderGraph(graph(
-      [node('v', 'value', { value: position }), node('p', 'gradientPalette', { palette: 'party' }), node('o', 'output')],
-      [['v.value', 'p.position'], ['p.color', 'o.color']],
-    ), { leds: 1 })).leds[0]
+    const renderAt = async (position: number) =>
+      (
+        await renderGraph(
+          graph(
+            [node('v', 'value', { value: position }), node('p', 'gradientPalette', { palette: 'party' }), node('o', 'output')],
+            [
+              ['v.value', 'p.position'],
+              ['p.color', 'o.color'],
+            ],
+          ),
+          { leds: 1 },
+        )
+      ).leds[0]
     expect(await renderAt(1.25)).toEqual(await renderAt(0.25))
     expect(await renderAt(0)).toEqual([85, 0, 171])
   }, 30_000)

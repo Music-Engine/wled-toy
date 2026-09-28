@@ -24,21 +24,19 @@ const item = computed(() => kind.value?.shape(props.data.values))
 const toSocketShape = (type: DataType<any>) => (type.kind === 'stream' ? 'diamond' : 'circle')
 const NO_LINKS: ReadonlySet<string> = new Set()
 // the page computes this once per edge change; without it (a node mounted on its own) fall back to the edge array
-const connected = computed<ReadonlySet<string>>(() => connectedHandles
-  ? connectedHandles.value.get(props.id) ?? NO_LINKS
-  : new Set(edges.value.flatMap((e) => [
-    ...(e.target === props.id ? [e.targetHandle!] : []),
-    ...(e.source === props.id ? [outputHandle(e.sourceHandle!)] : []),
-  ])))
+const connected = computed<ReadonlySet<string>>(() =>
+  connectedHandles
+    ? (connectedHandles.value.get(props.id) ?? NO_LINKS)
+    : new Set(
+        edges.value.flatMap((e) => [...(e.target === props.id ? [e.targetHandle!] : []), ...(e.source === props.id ? [outputHandle(e.sourceHandle!)] : [])]),
+      ),
+)
 
 const invalidFields = reactive(new Set<string>())
 // the page rebuilds its issue map on every compile; reading this node's entry first keeps a node without issues
 // from re-rendering, because undefined is unchanged and the computed below is never invalidated
 const issues = computed(() => graphIssues?.value.get(props.id))
-const warnings = computed(() => [
-  ...(issues.value ?? []),
-  ...[...invalidFields].map((field) => `${field} is not a number; the last valid value is used`),
-])
+const warnings = computed(() => [...(issues.value ?? []), ...[...invalidFields].map((field) => `${field} is not a number; the last valid value is used`)])
 
 interface Row {
   socket: NodeSocket
@@ -50,19 +48,31 @@ interface Row {
   widgetProps: Record<string, unknown>
 }
 
-const rows = computed<Row[]>(() => (item.value?.inputs ?? []).map((socket) => {
-  const isConnected = socket.linkable && connected.value.has(socket.name)
-  const stored = props.data.values[socket.name]
-  // a stream socket has nothing to edit; unlinked, it says what it listens to instead
-  const implicit = socket.type.kind === 'stream' ? unlinkedStream(socket.type) : stored === undefined && isImplicit(socket.default) ? socket.default.label : ''
-  const value = stored ?? socket.default
-  const handler = isConnected || implicit ? undefined : handlerFor(socket, value)
-  return {
-    socket, implicit, handler,
-    connected: isConnected,
-    widgetProps: { ...socket.type.props, ...(typeof socket.props === 'function' ? socket.props(props.data.values) : socket.props), modelValue: value, ...(handler?.layout === 'inline' && { label: socket.label }) },
-  }
-}).filter((row) => !props.data.hideUnused || !row.socket.linkable || row.connected))
+const rows = computed<Row[]>(() =>
+  (item.value?.inputs ?? [])
+    .map((socket) => {
+      const isConnected = socket.linkable && connected.value.has(socket.name)
+      const stored = props.data.values[socket.name]
+      // a stream socket has nothing to edit; unlinked, it says what it listens to instead
+      const implicit =
+        socket.type.kind === 'stream' ? unlinkedStream(socket.type) : stored === undefined && isImplicit(socket.default) ? socket.default.label : ''
+      const value = stored ?? socket.default
+      const handler = isConnected || implicit ? undefined : handlerFor(socket, value)
+      return {
+        socket,
+        implicit,
+        handler,
+        connected: isConnected,
+        widgetProps: {
+          ...socket.type.props,
+          ...(typeof socket.props === 'function' ? socket.props(props.data.values) : socket.props),
+          modelValue: value,
+          ...(handler?.layout === 'inline' && { label: socket.label }),
+        },
+      }
+    })
+    .filter((row) => !props.data.hideUnused || !row.socket.linkable || row.connected),
+)
 
 const outputs = computed(() => (item.value?.outputs ?? []).filter((out) => !props.data.hideUnused || connected.value.has(outputHandle(out.name))))
 

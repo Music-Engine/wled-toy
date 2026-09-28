@@ -3,11 +3,25 @@ import { Color, defineNode, Enum, Float, Reference, findResourceIndex } from '@/
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 import { colorChunk } from './chunks/image-texture-chunk'
 
-const INTERPOLATIONS = [{ value: 'linear', label: 'Linear' }, { value: 'closest', label: 'Closest' }] as const
-const EXTENSIONS = [{ value: 'repeat', label: 'Repeat' }, { value: 'extend', label: 'Extend' }, { value: 'mirror', label: 'Mirror' }] as const
-const COLOR_SPACES = [{ value: 'linear', label: 'Linear' }, { value: 'srgb', label: 'sRGB' }, { value: 'nonColor', label: 'Non-Color' }] as const
+const INTERPOLATIONS = [
+  { value: 'linear', label: 'Linear' },
+  { value: 'closest', label: 'Closest' },
+] as const
+const EXTENSIONS = [
+  { value: 'repeat', label: 'Repeat' },
+  { value: 'extend', label: 'Extend' },
+  { value: 'mirror', label: 'Mirror' },
+] as const
+const COLOR_SPACES = [
+  { value: 'linear', label: 'Linear' },
+  { value: 'srgb', label: 'sRGB' },
+  { value: 'nonColor', label: 'Non-Color' },
+] as const
 const ALPHA_MODES = [
-  { value: 'straight', label: 'Straight' }, { value: 'premultiplied', label: 'Premultiplied' }, { value: 'channelPacked', label: 'Channel Packed' }, { value: 'none', label: 'None' },
+  { value: 'straight', label: 'Straight' },
+  { value: 'premultiplied', label: 'Premultiplied' },
+  { value: 'channelPacked', label: 'Channel Packed' },
+  { value: 'none', label: 'None' },
 ] as const
 
 export const imageTextureNode = defineNode('imageTexture', {
@@ -34,12 +48,20 @@ export const imageTextureNode = defineNode('imageTexture', {
   body: ({ interpolation, extension, colorSpace, alphaMode, vector }, ctx) => {
     const layer = ctx.resolved.layer as number
     const point = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr
-    const wrapped = ctx.declare('vec2', extension === 'repeat' ? `fract(${point})` : extension === 'mirror' ? `1.0 - abs(mod(${point}, 2.0) - 1.0)` : `clamp(${point}, 0.0, 1.0)`, 'st').expr
+    const wrapped = ctx.declare(
+      'vec2',
+      extension === 'repeat' ? `fract(${point})` : extension === 'mirror' ? `1.0 - abs(mod(${point}, 2.0) - 1.0)` : `clamp(${point}, 0.0, 1.0)`,
+      'st',
+    ).expr
     // Images store top row first; shader y points up
     const flipped = `vec2(${wrapped}.x, 1.0 - ${wrapped}.y)`
-    const texel = ctx.declare('vec4', interpolation === 'closest'
-      ? `texelFetch(iImages, ivec3(min(ivec2(${flipped} * ${IMAGE_LAYER_SIZE}.0), ivec2(${IMAGE_LAYER_SIZE - 1})), ${layer}), 0)`
-      : `texture(iImages, vec3(${flipped}, ${layer}.0))`, 'texel').expr
+    const texel = ctx.declare(
+      'vec4',
+      interpolation === 'closest'
+        ? `texelFetch(iImages, ivec3(min(ivec2(${flipped} * ${IMAGE_LAYER_SIZE}.0), ivec2(${IMAGE_LAYER_SIZE - 1})), ${layer}), 0)`
+        : `texture(iImages, vec3(${flipped}, ${layer}.0))`,
+      'texel',
+    ).expr
     // Premultiplied stores color * alpha; graph works in straight color
     const rgb = alphaMode === 'premultiplied' ? `${texel}.rgb / max(${texel}.a, 0.0001)` : `${texel}.rgb`
     return {

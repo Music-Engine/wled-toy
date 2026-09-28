@@ -2,7 +2,8 @@ import { Bool, defineNode, Float } from '@/lib/graph/authoring'
 
 export const rangeSelectNode = defineNode('rangeSelect', {
   title: 'Range Select',
-  description: 'A mask that is 1 from From to To and 0 outside, with Softness as the width of the edges. Use positions (0 to 1) or, fed the LED index, LED numbers.',
+  description:
+    'A mask that is 1 from From to To and 0 outside, with Softness as the width of the edges. Use positions (0 to 1) or, fed the LED index, LED numbers.',
   category: 'math',
   input: {
     invert: { type: Bool, default: false, linkable: false },

@@ -50,7 +50,9 @@ export function clearLogs() {
 // where the registry's log.* commands can read and act on them from outside the component
 export const logFilter = ref<'all' | 'warn' | 'error'>('all')
 export const logContext = ref<LogEntry | null>(null)
-export const shownLogs = computed(() => logs.value.filter((entry) => logFilter.value === 'all' || entry.level === 'error' || (logFilter.value === 'warn' && entry.level === 'warn')))
+export const shownLogs = computed(() =>
+  logs.value.filter((entry) => logFilter.value === 'all' || entry.level === 'error' || (logFilter.value === 'warn' && entry.level === 'warn')),
+)
 
 export const logTimeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 const formatLogEntry = (entry: LogEntry) => `${logTimeFormat.format(entry.time)} ${entry.level} ${entry.message}`

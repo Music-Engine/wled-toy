@@ -43,7 +43,11 @@ export function compileStandaloneGlsl(doc: NodeGraph): { code: string; notice: s
   const { program, issues } = createGlslCompiler({ standalone: true }).compile(doc)
   if (!program) throw new Error(issues.at(-1)?.message ?? 'The graph did not compile')
   // Only what the live compile lacks describes the difference
-  const live = new Set(createGlslCompiler().compile(doc).issues.map((issue) => issue.message))
+  const live = new Set(
+    createGlslCompiler()
+      .compile(doc)
+      .issues.map((issue) => issue.message),
+  )
   for (const issue of issues.filter((issue) => live.has(issue.message))) log(issue.message, 'warn')
   const lost = issues.filter((issue) => !live.has(issue.message))
   const notice = lost.length > 0 ? `This code differs from the running graph: ${lost.map((issue) => issue.message).join('; ')}.` : null

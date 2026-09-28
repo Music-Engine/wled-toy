@@ -26,7 +26,14 @@ function runTicks(doc: ReturnType<typeof graph>, frames: number, fps: number, kn
 }
 
 describe('Trails', () => {
-  const doc = () => graph([node('k', 'knob'), node('t', 'trails', { decay: 1 }), node('o', 'output')], [['k.value', 't.color'], ['t.color', 'o.color']])
+  const doc = () =>
+    graph(
+      [node('k', 'knob'), node('t', 'trails', { decay: 1 }), node('o', 'output')],
+      [
+        ['k.value', 't.color'],
+        ['t.color', 'o.color'],
+      ],
+    )
 
   it.each([30, 60])('a one-frame flash has faded to about 37% a second later, at %i fps', (fps) => {
     const frames = runTicks(doc(), fps + 1, fps, (frame) => (frame === 0 ? 1 : 0))
@@ -38,7 +45,15 @@ describe('Trails', () => {
 
   it('starts from black after a recompile', () => {
     const renderer = new ShaderRenderer(document.createElement('canvas'))
-    const { program, slots } = createGlslCompiler().compile(graph([node('k', 'knob', { value: 0 }), node('t', 'trails', { decay: 5 }), node('o', 'output')], [['k.value', 't.color'], ['t.color', 'o.color']]))
+    const { program, slots } = createGlslCompiler().compile(
+      graph(
+        [node('k', 'knob', { value: 0 }), node('t', 'trails', { decay: 5 }), node('o', 'output')],
+        [
+          ['k.value', 't.color'],
+          ['t.color', 'o.color'],
+        ],
+      ),
+    )
     const runtime = new Runtime(renderer)
     runtime.load(program!, slots)
     const tickWithKnob = (value: number) => {
@@ -56,9 +71,27 @@ describe('Strip Blur', () => {
   it('spreads one lit LED evenly to both sides and never adds light', () => {
     // LED 4 of 9 lit on the first frame only: knob gates a Compare-free mask from the LED index
     const doc = graph(
-      [node('k', 'knob'), node('i', 'ledLayout'), node('d', 'math', { op: 'subtract', b: 4 }), node('a', 'math', { op: 'absolute' }), node('s', 'math', { op: 'greaterThan', b: 0.5 }), node('inv', 'math', { op: 'subtract', a: 1 }),
-        node('gate', 'math', { op: 'multiply' }), node('b', 'stripBlur', { spread: 1, decay: 1000 }), node('o', 'output')],
-      [['i.index', 'd.a'], ['d.result', 'a.a'], ['a.result', 's.a'], ['s.result', 'inv.b'], ['inv.result', 'gate.a'], ['k.value', 'gate.b'], ['gate.result', 'b.color'], ['b.color', 'o.color']],
+      [
+        node('k', 'knob'),
+        node('i', 'ledLayout'),
+        node('d', 'math', { op: 'subtract', b: 4 }),
+        node('a', 'math', { op: 'absolute' }),
+        node('s', 'math', { op: 'greaterThan', b: 0.5 }),
+        node('inv', 'math', { op: 'subtract', a: 1 }),
+        node('gate', 'math', { op: 'multiply' }),
+        node('b', 'stripBlur', { spread: 1, decay: 1000 }),
+        node('o', 'output'),
+      ],
+      [
+        ['i.index', 'd.a'],
+        ['d.result', 'a.a'],
+        ['a.result', 's.a'],
+        ['s.result', 'inv.b'],
+        ['inv.result', 'gate.a'],
+        ['k.value', 'gate.b'],
+        ['gate.result', 'b.color'],
+        ['b.color', 'o.color'],
+      ],
     )
     const frames = runTicks(doc, 4, 30, (frame) => (frame === 0 ? 1 : 0), 9)
     expect(frames[0]).toEqual([0, 0, 0, 0, 255, 0, 0, 0, 0])
@@ -72,11 +105,31 @@ describe('Strip Blur', () => {
 describe('Previous Frame', () => {
   it('with an offset of -1 the picture walks one LED along the wire per frame', () => {
     const doc = graph(
-      [node('k', 'knob'), node('i', 'ledLayout'), node('s', 'math', { op: 'greaterThan', b: 0.5 }), node('inv', 'math', { op: 'subtract', a: 1 }), node('gate', 'math', { op: 'multiply' }),
-        node('p', 'previousFrame', { offset: -1 }), node('m', 'math', { op: 'maximum' }), node('o', 'output')],
-      [['i.index', 's.a'], ['s.result', 'inv.b'], ['inv.result', 'gate.a'], ['k.value', 'gate.b'], ['gate.result', 'm.a'], ['p.color', 'm.b'], ['m.result', 'o.color']],
+      [
+        node('k', 'knob'),
+        node('i', 'ledLayout'),
+        node('s', 'math', { op: 'greaterThan', b: 0.5 }),
+        node('inv', 'math', { op: 'subtract', a: 1 }),
+        node('gate', 'math', { op: 'multiply' }),
+        node('p', 'previousFrame', { offset: -1 }),
+        node('m', 'math', { op: 'maximum' }),
+        node('o', 'output'),
+      ],
+      [
+        ['i.index', 's.a'],
+        ['s.result', 'inv.b'],
+        ['inv.result', 'gate.a'],
+        ['k.value', 'gate.b'],
+        ['gate.result', 'm.a'],
+        ['p.color', 'm.b'],
+        ['m.result', 'o.color'],
+      ],
     )
     const frames = runTicks(doc, 3, 30, (frame) => (frame === 0 ? 1 : 0), 4)
-    expect(frames).toEqual([[255, 0, 0, 0], [255, 255, 0, 0], [255, 255, 255, 0]])
+    expect(frames).toEqual([
+      [255, 0, 0, 0],
+      [255, 255, 0, 0],
+      [255, 255, 255, 0],
+    ])
   })
 })

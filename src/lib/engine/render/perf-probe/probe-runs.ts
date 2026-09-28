@@ -3,7 +3,18 @@ import { layoutPositions } from '@/lib/engine/output/layout'
 import { PRELUDE } from '@/lib/shader/prelude'
 import { ShaderRenderer } from '@/lib/engine/render/renderer'
 import { bindProbeTriangle, linkProbeProgram, ReadbackProbe } from './readback-probe'
-import { compilePixelPass, createProbeContext, FRAMES, graphText, PREVIEW_SIZES, roundToMicros, summarize, timeBatched, timeFrames, timePreview } from './probe-tools'
+import {
+  compilePixelPass,
+  createProbeContext,
+  FRAMES,
+  graphText,
+  PREVIEW_SIZES,
+  roundToMicros,
+  summarize,
+  timeBatched,
+  timeFrames,
+  timePreview,
+} from './probe-tools'
 
 const TARGETS = [
   { name: 'strip-60', leds: 60, layout: null },
@@ -33,7 +44,8 @@ export async function measureReadback(name: string): Promise<unknown[]> {
 
 // Own loop per mode: interleaved, one mode's queued draw is paid for by the next one's wait
 function measureTarget(probe: ReadbackProbe, real: ShaderRenderer, target: (typeof TARGETS)[number]) {
-  if (target.layout) real.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: target.layout, height: target.layout, serpentine: false, origin: 'top-left' }] }))
+  if (target.layout)
+    real.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: target.layout, height: target.layout, serpentine: false, origin: 'top-left' }] }))
   const none = timeFrames(FRAMES, (frame) => probe.drawOnly(target.leds, frame))
   const sync = timeFrames(FRAMES, (frame) => probe.drawAndReadSync(target.leds, frame))
   probe.lateReads = 0
@@ -60,8 +72,16 @@ async function measurePacedReadback(probe: ReadbackProbe, name: string, leds: nu
   const sync = await timePaced((frame) => probe.drawAndReadSync(leds, frame))
   const pbo = await timePaced((frame) => probe.drawAndReadAsync(leds, frame))
   return {
-    graph: name, target: `paced-16ms-${leds}`, leds, drawOnly: summarize([]), syncReadback: summarize(sync), pboAsync: summarize(pbo), rendererRenderLeds: summarize([]),
-    stallMs: roundToMicros(summarize(sync).median - summarize(pbo).median), pboOverheadMs: 0, pboLateReads: `${probe.lateReads}/${probe.reads}`,
+    graph: name,
+    target: `paced-16ms-${leds}`,
+    leds,
+    drawOnly: summarize([]),
+    syncReadback: summarize(sync),
+    pboAsync: summarize(pbo),
+    rendererRenderLeds: summarize([]),
+    stallMs: roundToMicros(summarize(sync).median - summarize(pbo).median),
+    pboOverheadMs: 0,
+    pboLateReads: `${probe.lateReads}/${probe.reads}`,
   }
 }
 
@@ -95,10 +115,12 @@ export function measureShowcase(name: string) {
 }
 
 function measurePreviews(code: string, sizes: readonly (readonly [number, number])[]): Record<string, unknown> {
-  return Object.fromEntries(sizes.map((size) => {
-    const { size: key, preview } = timePreview(code, size)
-    return [key, preview]
-  }))
+  return Object.fromEntries(
+    sizes.map((size) => {
+      const { size: key, preview } = timePreview(code, size)
+      return [key, preview]
+    }),
+  )
 }
 
 /** Link and first draw, five fresh contexts each */
@@ -137,9 +159,17 @@ void main() { color = vec4(texelFetch(source, ivec2(gl_FragCoord.xy), 0).rgb, 1.
   const program = linkProbeProgram(gl, presentSource)
   gl.useProgram(program)
   const calls = 200000
-  const getUniformLocationUs = roundToMicros(timeBatched(calls, () => { gl.getUniformLocation(program, 'source') }) * 1000)
+  const getUniformLocationUs = roundToMicros(
+    timeBatched(calls, () => {
+      gl.getUniformLocation(program, 'source')
+    }) * 1000,
+  )
   const cached = gl.getUniformLocation(program, 'source')
-  const uniform1iUs = roundToMicros(timeBatched(calls, () => { gl.uniform1i(cached, 7) }) * 1000)
+  const uniform1iUs = roundToMicros(
+    timeBatched(calls, () => {
+      gl.uniform1i(cached, 7)
+    }) * 1000,
+  )
   canvas.remove()
   return { getUniformLocationUs, uniform1iUs, batchCalls: calls }
 }
@@ -148,11 +178,13 @@ void main() { color = vec4(texelFetch(source, ivec2(gl_FragCoord.xy), 0).rgb, 1.
 export function measureFeedback(name: string) {
   const code = compilePixelPass(graphText[name])
   const sizes = PREVIEW_SIZES.filter(([width]) => width === 480 || width === 1920)
-  const perTarget = Object.fromEntries(sizes.map((size) => {
-    const { size: key, ...timings } = timePreview(code, size, (renderer) => ({
-      leds4096: summarize(timeFrames(60, (frame) => renderer.renderLeds({ time: frame / 60, dt: 1 / 60, frame, ledCount: 4096, scanY: 0.5 }))),
-    }))
-    return [key, timings]
-  }))
+  const perTarget = Object.fromEntries(
+    sizes.map((size) => {
+      const { size: key, ...timings } = timePreview(code, size, (renderer) => ({
+        leds4096: summarize(timeFrames(60, (frame) => renderer.renderLeds({ time: frame / 60, dt: 1 / 60, frame, ledCount: 4096, scanY: 0.5 }))),
+      }))
+      return [key, timings]
+    }),
+  )
   return { usesFeedback: usesFeedback(code), perTarget }
 }

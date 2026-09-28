@@ -20,12 +20,21 @@ afterEach(async () => {
 
 function mount() {
   const page = { render: () => null }
-  const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: page }, { path: '/graph', component: page }] })
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: page },
+      { path: '/graph', component: page },
+    ],
+  })
   const root = document.createElement('div')
   document.body.append(root)
   const app = createApp({ render: () => h(LaunchScreen) }).use(router)
   app.mount(root)
-  cleanups.push(() => { app.unmount(); root.remove() })
+  cleanups.push(() => {
+    app.unmount()
+    root.remove()
+  })
   return router
 }
 
@@ -43,7 +52,9 @@ it('stays away until it is opened, names the app and its version, and offers new
   expect([...screen()!.querySelectorAll('h3')].map((el) => el.textContent)).toEqual(['New', 'Open', 'Recent Files', 'Examples'])
   expect([action('new-shader'), action('new-graph'), action('open')].map((el) => el.textContent!.trim())).toEqual(['Shader', 'Graph', 'Open...'])
   expect(screen()!.textContent).toContain('No recent files')
-  expect([...screen()!.querySelectorAll<HTMLElement>('[data-example]')].map((el) => el.dataset.example)).toEqual(EXAMPLES.slice(0, 5).map((example) => example.name))
+  expect([...screen()!.querySelectorAll<HTMLElement>('[data-example]')].map((el) => el.dataset.example)).toEqual(
+    EXAMPLES.slice(0, 5).map((example) => example.name),
+  )
   expect(screen()!.querySelector('img')).toBeNull()
 })
 
@@ -78,7 +89,9 @@ it('Open... goes to graph mode, runs file.open once the page has bound it, and d
 
 it('an example loads into the shader and dismisses', async () => {
   const before = config.code
-  cleanups.push(() => { config.code = before })
+  cleanups.push(() => {
+    config.code = before
+  })
   const router = mount()
   await router.push('/graph')
   launchScreen.open = true
@@ -89,11 +102,16 @@ it('an example loads into the shader and dismisses', async () => {
 })
 
 it('lists at most eight recent files, newest first, from what the graph document stored', async () => {
-  localStorage.setItem('wledtoy:graph:recent', JSON.stringify(Array.from({ length: 10 }, (_, i) => ({ name: `show-${i}.wledgraph`, openedAt: new Date(0).toISOString() }))))
+  localStorage.setItem(
+    'wledtoy:graph:recent',
+    JSON.stringify(Array.from({ length: 10 }, (_, i) => ({ name: `show-${i}.wledgraph`, openedAt: new Date(0).toISOString() }))),
+  )
   mount()
   launchScreen.open = true
   await expect.poll(() => screen()).not.toBeNull()
-  expect([...screen()!.querySelectorAll<HTMLElement>('[data-recent]')].map((el) => el.dataset.recent)).toEqual(Array.from({ length: 8 }, (_, i) => `show-${i}.wledgraph`))
+  expect([...screen()!.querySelectorAll<HTMLElement>('[data-recent]')].map((el) => el.dataset.recent)).toEqual(
+    Array.from({ length: 8 }, (_, i) => `show-${i}.wledgraph`),
+  )
   expect(screen()!.textContent).not.toContain('No recent files')
 })
 

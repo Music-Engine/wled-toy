@@ -1,10 +1,25 @@
 <script setup lang="ts">
 import type { Directive } from 'vue'
 import './node.css'
-defineProps<{ title: string; color: string; collapsed: boolean; selected?: boolean; warnings?: string[]; source?: boolean; wide?: boolean; muted?: boolean; renaming?: boolean }>()
+defineProps<{
+  title: string
+  color: string
+  collapsed: boolean
+  selected?: boolean
+  warnings?: string[]
+  source?: boolean
+  wide?: boolean
+  muted?: boolean
+  renaming?: boolean
+}>()
 /** `rename` carries the typed title, or null when the edit was cancelled. */
 const emit = defineEmits<{ toggle: []; rename: [title: string | null] }>()
-const vSelectAll: Directive<HTMLInputElement> = { mounted: (el) => { el.focus(); el.select() } }
+const vSelectAll: Directive<HTMLInputElement> = {
+  mounted: (el) => {
+    el.focus()
+    el.select()
+  },
+}
 const commit = (e: Event) => emit('rename', (e.target as HTMLInputElement).value)
 </script>
 

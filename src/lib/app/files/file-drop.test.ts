@@ -14,7 +14,9 @@ describe('classifyFile', () => {
   })
 
   it('takes the extension when the browser gives no type, whatever its case', () => {
-    expect(['a.mp3', 'a.wav', 'a.ogg', 'a.oga', 'a.opus', 'a.flac', 'a.m4a', 'a.aac', 'a.webm'].map((name) => classifyFile(file(name)))).toEqual(Array(9).fill('audio'))
+    expect(['a.mp3', 'a.wav', 'a.ogg', 'a.oga', 'a.opus', 'a.flac', 'a.m4a', 'a.aac', 'a.webm'].map((name) => classifyFile(file(name)))).toEqual(
+      Array(9).fill('audio'),
+    )
     expect(['a.png', 'a.jpg', 'a.jpeg', 'a.webp', 'a.gif', 'a.bmp', 'a.svg'].map((name) => classifyFile(file(name)))).toEqual(Array(7).fill('image'))
     expect(['a.glsl', 'a.frag', 'a.fs'].map((name) => classifyFile(file(name)))).toEqual(['shader', 'shader', 'shader'])
     expect(classifyFile(file('Aurora.WLEDGRAPH'))).toBe('graph')
@@ -38,7 +40,13 @@ describe('classifyFile', () => {
 describe('planDrop', () => {
   it('runs settings and media first and documents last, the graph after the shader', () => {
     const plan = planDrop([file('a.wledgraph'), file('b.glsl'), file('c.png'), file('d.mp3'), file('e.json')])
-    expect(plan.steps.map((step) => [step.kind, step.file.name])).toEqual([['config', 'e.json'], ['audio', 'd.mp3'], ['image', 'c.png'], ['shader', 'b.glsl'], ['graph', 'a.wledgraph']])
+    expect(plan.steps.map((step) => [step.kind, step.file.name])).toEqual([
+      ['config', 'e.json'],
+      ['audio', 'd.mp3'],
+      ['image', 'c.png'],
+      ['shader', 'b.glsl'],
+      ['graph', 'a.wledgraph'],
+    ])
     expect(plan.skipped).toEqual([])
     expect(plan.unknown).toEqual([])
   })
@@ -108,13 +116,31 @@ describe('applyDrop', () => {
   const at = { x: 10, y: 20 }
   const targets = (mode: Mode, overrides: Partial<DropTargets> = {}): DropTargets => ({
     mode: () => mode,
-    openPage: async (page) => ({ openFile: async (opened) => { calls.push(['openFile', page, opened]) } }),
-    imageDrop: async () => (...args) => { calls.push(['addNode', ...args]) },
-    useImage: async (image) => { calls.push(['useImage', image.name]) },
+    openPage: async (page) => ({
+      openFile: async (opened) => {
+        calls.push(['openFile', page, opened])
+      },
+    }),
+    imageDrop:
+      async () =>
+      (...args) => {
+        calls.push(['addNode', ...args])
+      },
+    useImage: async (image) => {
+      calls.push(['useImage', image.name])
+    },
     addImage: async (_, name) => ({ id: 'img-1', name }),
-    useSong: async (song) => { calls.push(['useSong', song.name]); return true },
-    playFromFile: async () => { calls.push(['playFromFile']) },
-    importData: (raw) => { calls.push(['importData', raw]); return { fps: 60 } },
+    useSong: async (song) => {
+      calls.push(['useSong', song.name])
+      return true
+    },
+    playFromFile: async () => {
+      calls.push(['playFromFile'])
+    },
+    importData: (raw) => {
+      calls.push(['importData', raw])
+      return { fps: 60 }
+    },
     ...overrides,
   })
   const drop = (files: File[], dropTargets: DropTargets) => applyDrop(planDrop(files), at, dropTargets)
@@ -127,7 +153,16 @@ describe('applyDrop', () => {
 
   it('sends each kind of file to its operation and closes the launch screen', async () => {
     const settings = { app: 'wledtoy', fps: 60 }
-    await drop([new File(['void main(){}'], 'a.glsl'), new File(['{}'], 'b.wledgraph'), new File([''], 'c.mp3'), new File([''], 'd.png'), new File([JSON.stringify(settings)], 'e.json')], targets('shader'))
+    await drop(
+      [
+        new File(['void main(){}'], 'a.glsl'),
+        new File(['{}'], 'b.wledgraph'),
+        new File([''], 'c.mp3'),
+        new File([''], 'd.png'),
+        new File([JSON.stringify(settings)], 'e.json'),
+      ],
+      targets('shader'),
+    )
     expect(calls).toEqual([
       ['importData', settings],
       ['useSong', 'c.mp3'],
@@ -158,7 +193,11 @@ describe('applyDrop', () => {
   it('reports a failed open and still runs the steps after it', async () => {
     const openPage: DropTargets['openPage'] = async (page) => {
       if (page === 'shader') throw new Error('route refused')
-      return { openFile: async (opened) => { calls.push(['openFile', page, opened.name]) } }
+      return {
+        openFile: async (opened) => {
+          calls.push(['openFile', page, opened.name])
+        },
+      }
     }
     await expect(drop([new File([''], 'a.glsl'), new File([''], 'b.wledgraph')], targets('shader', { openPage }))).resolves.toBeUndefined()
     expect(logs.value.map((entry) => [entry.level, entry.message])).toEqual([['error', 'a.glsl could not be used: route refused']])

@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import {
-  DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle,
-  ListboxContent, ListboxFilter, ListboxItem, ListboxRoot, VisuallyHidden,
+  DialogContent,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+  ListboxContent,
+  ListboxFilter,
+  ListboxItem,
+  ListboxRoot,
+  VisuallyHidden,
 } from 'reka-ui'
 
 const props = defineProps<{ nodes: { id: string; title: string }[] }>()
@@ -17,7 +26,9 @@ const rows = computed(() => {
   return props.nodes.filter((node) => words.every((word) => `${node.title} ${node.id}`.toLowerCase().includes(word)))
 })
 
-watch(open, () => { query.value = '' })
+watch(open, () => {
+  query.value = ''
+})
 watch(rows, () => void nextTick(() => list.value?.highlightFirstItem()))
 
 function select(id: string) {

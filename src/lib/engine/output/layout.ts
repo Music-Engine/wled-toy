@@ -12,7 +12,7 @@ export interface Layout {
 }
 
 export const segmentCount = (segment: Segment) =>
-  (segment.kind === 'matrix' ? segment.width * segment.height : segment.kind === 'points' ? segment.points.length : segment.count)
+  segment.kind === 'matrix' ? segment.width * segment.height : segment.kind === 'points' ? segment.points.length : segment.count
 
 export const layoutCount = (layout: Layout) => layout.segments.reduce((sum, segment) => sum + segmentCount(segment), 0)
 
@@ -58,9 +58,14 @@ function isSegment(raw: unknown): raw is Segment {
   const s = raw as Record<string, unknown> | null
   if (!s) return false
   if (s.kind === 'strip') return isCount(s.count) && isPair(s.from) && isPair(s.to)
-  if (s.kind === 'ring') return isCount(s.count) && isPair(s.center) && Number.isFinite(s.radius) && Number.isFinite(s.startAngle) && typeof s.clockwise === 'boolean'
-  if (s.kind === 'matrix') return isCount(s.width) && isCount(s.height) && typeof s.serpentine === 'boolean' && (s.origin === 'top-left' || s.origin === 'bottom-left')
-  if (s.kind === 'points') return Array.isArray(s.points) && s.points.length > 0 && s.points.every((p) => Array.isArray(p) && p.length >= 2 && p.length <= 3 && p.every(Number.isFinite))
+  if (s.kind === 'ring')
+    return isCount(s.count) && isPair(s.center) && Number.isFinite(s.radius) && Number.isFinite(s.startAngle) && typeof s.clockwise === 'boolean'
+  if (s.kind === 'matrix')
+    return isCount(s.width) && isCount(s.height) && typeof s.serpentine === 'boolean' && (s.origin === 'top-left' || s.origin === 'bottom-left')
+  if (s.kind === 'points')
+    return (
+      Array.isArray(s.points) && s.points.length > 0 && s.points.every((p) => Array.isArray(p) && p.length >= 2 && p.length <= 3 && p.every(Number.isFinite))
+    )
   return false
 }
 

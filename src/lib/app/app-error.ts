@@ -4,7 +4,11 @@ export type AppErrorCode = 'thrown-value' | 'storage-reset'
 export class AppError extends Error {
   override readonly name = 'AppError'
 
-  constructor(readonly code: AppErrorCode, message: string, override readonly cause?: unknown) {
+  constructor(
+    readonly code: AppErrorCode,
+    message: string,
+    override readonly cause?: unknown,
+  ) {
     super(message)
   }
 }

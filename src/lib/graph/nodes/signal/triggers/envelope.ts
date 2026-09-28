@@ -1,13 +1,17 @@
 import { defineNode, Enum, Float } from '@/lib/graph/authoring'
 import { seconds } from '@/lib/graph/nodes/shared/sockets'
 
-const MODES = [{ value: 'adsr', label: 'ADSR (follows the gate)' }, { value: 'ad', label: 'AD (one shot)' }] as const
+const MODES = [
+  { value: 'adsr', label: 'ADSR (follows the gate)' },
+  { value: 'ad', label: 'AD (one shot)' },
+] as const
 // Stage slot values
 const [IDLE, ATTACK, DECAY, SUSTAIN, RELEASE] = [0, 1, 2, 3, 4]
 
 export const envelopeNode = defineNode('envelope', {
   title: 'Envelope',
-  description: 'Shapes a gate into attack, decay, sustain and release. AD fires a full attack and decay on every trigger and ignores how long the gate stays up.',
+  description:
+    'Shapes a gate into attack, decay, sustain and release. AD fires a full attack and decay on every trigger and ignores how long the gate stays up.',
   category: 'signal',
   input: {
     mode: { type: Enum(MODES), label: '', linkable: false, props: { label: 'Mode' } },

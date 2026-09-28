@@ -23,7 +23,10 @@ it('Share Audio... asks the browser for the picker inside the click itself', asy
   document.body.append(root)
   const app = createApp({ render: () => h(ShareAudioPrompt) })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   expect(prompt()).toBeNull()
 
   const microphone = await navigator.mediaDevices.getUserMedia({ audio: true })

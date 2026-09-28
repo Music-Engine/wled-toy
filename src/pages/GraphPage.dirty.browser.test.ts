@@ -16,7 +16,9 @@ const FLOW_ID = 'wledtoy-graph'
 const files: Record<string, string> = {}
 const backend = {
   open: async () => null,
-  save: async (handle: { name: string }, text: string) => { files[handle.name] = text },
+  save: async (handle: { name: string }, text: string) => {
+    files[handle.name] = text
+  },
   saveAs: async (text: string, suggestedName: string) => {
     files[suggestedName] = text
     return { handle: { name: suggestedName }, text }
@@ -32,7 +34,10 @@ function mount() {
   app.provide(graphFileBackendKey, backend)
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
 }
 
 const dirty = () => !!activeGraphDocument.value?.store.dirty.value

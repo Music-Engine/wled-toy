@@ -14,21 +14,31 @@ beforeEach(() => {
 
 it('writes where the knobs start at once, knobs the scene does not know included', () => {
   fades.start({ a: 0, b: 1 }, scene({ a: 2 }), 1, write, 1000)
-  expect(writes).toEqual([['a', 0], ['b', 1]])
+  expect(writes).toEqual([
+    ['a', 0],
+    ['b', 1],
+  ])
 })
 
 it('writes the knobs part of the way as the clock advances', () => {
   fades.start({ a: 0 }, scene({ a: 2 }), 2, write, 1000)
   fades.advance(1500)
   fades.advance(2000)
-  expect(writes).toEqual([['a', 0], ['a', 0.5], ['a', 1]])
+  expect(writes).toEqual([
+    ['a', 0],
+    ['a', 0.5],
+    ['a', 1],
+  ])
 })
 
 it('ends on the scene exactly and then writes nothing more', () => {
   fades.start({ a: 0.1 }, scene({ a: 0.3 }), 0.5, write, 0)
   fades.advance(700)
   fades.advance(800)
-  expect(writes).toEqual([['a', 0.1], ['a', 0.3]])
+  expect(writes).toEqual([
+    ['a', 0.1],
+    ['a', 0.3],
+  ])
 })
 
 it('a zero-second fade lands on the scene at once', () => {
@@ -43,8 +53,14 @@ it('a new start takes over from the fade before it, which writes nothing more', 
   fades.advance(500)
   fades.start({ a: 0.5 }, scene({ a: 0 }), 1, write, 500)
   fades.advance(1000)
-  expect(first).toEqual([['a', 0], ['a', 0.5]])
-  expect(writes).toEqual([['a', 0.5], ['a', 0.25]])
+  expect(first).toEqual([
+    ['a', 0],
+    ['a', 0.5],
+  ])
+  expect(writes).toEqual([
+    ['a', 0.5],
+    ['a', 0.25],
+  ])
 })
 
 it('advancing with no fade running writes nothing', () => {

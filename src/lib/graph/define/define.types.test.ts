@@ -7,7 +7,13 @@ import type { Value } from './value'
 
 const input = {
   amount: Float,
-  mode: { type: Enum([{ value: 'add', label: 'Add' }, { value: 'multiply', label: 'Multiply' }]), connectable: false as const },
+  mode: {
+    type: Enum([
+      { value: 'add', label: 'Add' },
+      { value: 'multiply', label: 'Multiply' },
+    ]),
+    connectable: false as const,
+  },
   audio: AudioStream,
   mixed: GenType,
   position: Vec3,

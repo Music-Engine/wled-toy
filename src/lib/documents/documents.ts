@@ -76,7 +76,10 @@ export function createDocumentStore<T>(options: DocumentStoreOptions<T>): Docume
   }
 
   function addRecentFile({ name, path }: FileHandle) {
-    const next = [{ name, openedAt: new Date().toISOString(), ...(path ? { path } : {}) }, ...recentFiles.value.filter((f) => recentId(f) !== (path ?? name))].slice(0, RECENT_FILES_LIMIT)
+    const next = [
+      { name, openedAt: new Date().toISOString(), ...(path ? { path } : {}) },
+      ...recentFiles.value.filter((f) => recentId(f) !== (path ?? name)),
+    ].slice(0, RECENT_FILES_LIMIT)
     recentFiles.value = next
     localStorage.setItem(recentKey(kind), JSON.stringify(next))
   }

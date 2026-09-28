@@ -34,7 +34,8 @@ const shell = (id: string) => nodeEl(id).querySelector('.nui-node')!.classList
 const linked = (source: string, target: string) => flow.edges.value.some((e) => e.source === source && e.target === target)
 // a change becomes one undo step once it has paused
 const settle = () => new Promise((resolve) => setTimeout(resolve, 450))
-const pointer = (type: string, x: number, y: number) => document.querySelector('.vue-flow')!.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, bubbles: true }))
+const pointer = (type: string, x: number, y: number) =>
+  document.querySelector('.vue-flow')!.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, bubbles: true }))
 
 it('G moves the selection with the pointer; Escape puts it back and records nothing, a click drops it as one undo step', async () => {
   await select('mix')
@@ -111,7 +112,7 @@ it('M mutes the selected nodes and dims them, and unmutes them leaving no flag b
   expect(JSON.stringify(data('lift'))).not.toContain('muted')
 })
 
-it('Cmd+X, as a key or as the native Cut item\'s cut event, dissolves the selection and joins what fed it to what it fed', async () => {
+it("Cmd+X, as a key or as the native Cut item's cut event, dissolves the selection and joins what fed it to what it fed", async () => {
   await select('speed')
   expect(press('Mod+X').defaultPrevented).toBe(true)
   await expect.poll(() => flow.findNode('speed')).toBeUndefined()

@@ -5,10 +5,32 @@ import { CPP } from '@/lib/graph/compile/targets/usermod'
 
 // Texture reads, derivatives, samplers and prelude helpers cpp/*.h leaves out; pinned by tests/cpp-parity.test.ts
 export const GLSL_ONLY = [
-  'texture', 'texelFetch', 'textureSize', 'textureLod', 'textureGrad', 'dFdx', 'dFdy', 'fwidth',
-  'iAudio', 'iImage', 'iImages', 'iPrevFrame',
-  'previousFrame', 'waveform', 'historyRow', 'chromaAt', 'chroma', 'image', 'imageScroll', 'imagePixelate', 'imageMirror', 'imageZoom', 'imageLuma',
-  'audioWave', 'audioChroma', 'audioChromaAt',
+  'texture',
+  'texelFetch',
+  'textureSize',
+  'textureLod',
+  'textureGrad',
+  'dFdx',
+  'dFdy',
+  'fwidth',
+  'iAudio',
+  'iImage',
+  'iImages',
+  'iPrevFrame',
+  'previousFrame',
+  'waveform',
+  'historyRow',
+  'chromaAt',
+  'chroma',
+  'image',
+  'imageScroll',
+  'imagePixelate',
+  'imageMirror',
+  'imageZoom',
+  'imageLuma',
+  'audioWave',
+  'audioChroma',
+  'audioChromaAt',
 ]
 
 // Sampler counts wherever named, function only where called, so a local sharing a function's name passes
@@ -37,7 +59,10 @@ function bucketTextsByNode(passes: PassCode[]): Map<string, string[]> {
     lines.forEach((line) => pushTo(texts, line.node, line.text))
     includes.forEach(({ chunk, node }) => pushTo(chunks, node, chunk))
   }
-  for (const [node, included] of chunks) orderChunks(included).filter((chunk) => !chunk.inPrelude).forEach((chunk) => pushTo(texts, node, chunk.source))
+  for (const [node, included] of chunks)
+    orderChunks(included)
+      .filter((chunk) => !chunk.inPrelude)
+      .forEach((chunk) => pushTo(texts, node, chunk.source))
   return texts
 }
 

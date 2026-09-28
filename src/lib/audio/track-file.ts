@@ -26,7 +26,10 @@ export function probeDuration(blob: Blob): Promise<number> {
 export async function checkTrackFile(file: { blob: Blob; name: string }, probe = probeDuration): Promise<TrackCheck> {
   // a file dropped in from the desktop app or an odd server often has no type, so the extension counts too
   if (!file.blob.type.startsWith('audio/') && !EXTENSIONS.includes(extension(file.name))) {
-    return { ok: false, reason: `${file.name} is not an audio file (${file.blob.type || 'unknown type'}). Use ${EXTENSIONS.slice(0, 6).join(', ')} or another format this system plays.` }
+    return {
+      ok: false,
+      reason: `${file.name} is not an audio file (${file.blob.type || 'unknown type'}). Use ${EXTENSIONS.slice(0, 6).join(', ')} or another format this system plays.`,
+    }
   }
   if (file.blob.size === 0) return { ok: false, reason: `${file.name} is empty.` }
   try {

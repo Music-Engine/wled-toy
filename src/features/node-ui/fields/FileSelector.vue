@@ -44,7 +44,8 @@ function onUpload(event: Event) {
 }
 
 function commitName() {
-  if (selected.value && !selected.value.fixed && draftName.value.trim() && draftName.value !== selected.value.name) emit('rename', selected.value.id, draftName.value)
+  if (selected.value && !selected.value.fixed && draftName.value.trim() && draftName.value !== selected.value.name)
+    emit('rename', selected.value.id, draftName.value)
   else draftName.value = selected.value?.name ?? ''
 }
 

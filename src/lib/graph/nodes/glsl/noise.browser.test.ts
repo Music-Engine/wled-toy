@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { graph, node, renderGraph } from '@/lib/graph/testing'
 
-const renderFactors = async (values: object, location: [number, number, number]) => (await renderGraph(graph(
-  [node('m', 'mapping', { location }), node('n', 'noiseTexture', { scale: 5, ...values }), node('o', 'output')],
-  [['m.vector', 'n.vector'], ['n.fac', 'o.color']],
-), { leds: 16 })).leds.map((led) => led[0])
+const renderFactors = async (values: object, location: [number, number, number]) =>
+  (
+    await renderGraph(
+      graph(
+        [node('m', 'mapping', { location }), node('n', 'noiseTexture', { scale: 5, ...values }), node('o', 'output')],
+        [
+          ['m.vector', 'n.vector'],
+          ['n.fac', 'o.color'],
+        ],
+      ),
+      { leds: 16 },
+    )
+  ).leds.map((led) => led[0])
 
 const isVaried = (leds: number[]) => new Set(leds).size > 4
 

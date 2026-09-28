@@ -57,7 +57,9 @@ export class AnalysisSlots {
 
   /** The analyses besides the default one, in slot order; extra ones beyond the limit are ignored. False when nothing changed. */
   want(extra: AnalysisSettings[]): boolean {
-    const wanted = [DEFAULT_ANALYSIS, ...extra].slice(0, MAX_ANALYSES).map((a) => ({ ...a, bands: Math.max(12, Math.round(a.bands)), hop: Math.min(a.hop, a.windowSize) }))
+    const wanted = [DEFAULT_ANALYSIS, ...extra]
+      .slice(0, MAX_ANALYSES)
+      .map((a) => ({ ...a, bands: Math.max(12, Math.round(a.bands)), hop: Math.min(a.hop, a.windowSize) }))
     if (sameJson(wanted, this.wanted)) return false
     this.wanted = wanted
     return true
@@ -67,24 +69,30 @@ export class AnalysisSlots {
   rebuild({ agc, gate }: Pick<AudioSettings, 'agc' | 'gate'>, sampleRate: number) {
     const kept = this.analyses
     this.analyses = this.wanted.map((settings) => {
-      const same = kept.find((a) => sameJson(a.settings, settings) && sameJson([a.analyzer.config.agc, a.analyzer.config.gate], [agc, gate])
-        && a.analyzer.config.sampleRate === sampleRate)
-      return same ?? {
-        settings,
-        analyzer: new Analyzer({ ...settings, agc, gate, sampleRate }),
-        textures: new AudioTextures(settings.bands, sampleRate),
-        features: null,
-        hop: new Float32Array(settings.hop),
-        filled: 0,
-        pending: { onset: false, beat: false },
-      }
+      const same = kept.find(
+        (a) =>
+          sameJson(a.settings, settings) &&
+          sameJson([a.analyzer.config.agc, a.analyzer.config.gate], [agc, gate]) &&
+          a.analyzer.config.sampleRate === sampleRate,
+      )
+      return (
+        same ?? {
+          settings,
+          analyzer: new Analyzer({ ...settings, agc, gate, sampleRate }),
+          textures: new AudioTextures(settings.bands, sampleRate),
+          features: null,
+          hop: new Float32Array(settings.hop),
+          filled: 0,
+          pending: { onset: false, beat: false },
+        }
+      )
     })
   }
 
   /** Adds a worklet block to every analysis and analyzes each hop it completes. */
   feed(data: Float32Array) {
     for (const analysis of this.analyses) {
-      for (let offset = 0; offset < data.length;) {
+      for (let offset = 0; offset < data.length; ) {
         const take = Math.min(data.length - offset, analysis.hop.length - analysis.filled)
         analysis.hop.set(data.subarray(offset, offset + take), analysis.filled)
         analysis.filled += take

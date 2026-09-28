@@ -16,6 +16,7 @@ function findLinkIssue(ctx: CompileContext, node: CompiledNode, socket: Socket):
   if (socket.type.kind === 'stream' && (!from || !canCast(from.type, socket.type))) {
     return [{ nodeId: node.id, message: `${socket.label} needs ${socket.type.label}, not ${from?.type.label ?? 'a missing output'}` }]
   }
-  if (socket.type.kind !== 'stream' && from && from.type.kind !== 'value') return [{ nodeId: node.id, message: `${socket.label} needs a number or a color, not ${from.type.label}` }]
+  if (socket.type.kind !== 'stream' && from && from.type.kind !== 'value')
+    return [{ nodeId: node.id, message: `${socket.label} needs a number or a color, not ${from.type.label}` }]
   return []
 }

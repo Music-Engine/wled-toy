@@ -10,8 +10,12 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
   const registry = await importOriginal<typeof import('@/lib/graph/registry')>()
   const { defineNode, Float } = await import('@/lib/graph/authoring')
   const accumulator = defineNode('accumulator', {
-    title: 'Accumulator', description: 'test', category: 'signal',
-    input: { rate: { type: Float, default: 0.7 } }, output: { value: Float }, state: { value: Float },
+    title: 'Accumulator',
+    description: 'test',
+    category: 'signal',
+    input: { rate: { type: Float, default: 0.7 } },
+    output: { value: Float },
+    state: { value: Float },
     body: ({ rate }, ctx) => {
       ctx.emit(`${ctx.state.value.expr} += ${rate.expr} * iTimeDelta;`)
       return { value: ctx.state.value }
@@ -20,7 +24,9 @@ vi.mock('@/lib/graph/registry', async (importOriginal) => {
   const findNodeItem = (kind: string) => (kind === 'accumulator' ? accumulator : registry.findNodeItem(kind))
   const readStoredShape = (data: { kind: string; values: Record<string, unknown> } | undefined) => data && findNodeItem(data.kind)?.shape(data.values)
   return {
-    ...registry, findNodeItem, readStoredShape,
+    ...registry,
+    findNodeItem,
+    readStoredShape,
     findInputSocket: (data: never, handle: string) => readStoredShape(data)?.inputs.find((s) => s.linkable && s.name === handle),
     findOutputSocket: (data: never, handle: string) => readStoredShape(data)?.outputs.find((s) => s.name === handle),
   }
@@ -31,7 +37,11 @@ const ALONE = graph([node('t', 'accumulator'), node('o', 'output')], [['t.value'
 /** Same 0.7 from uv.x times 0, so it runs in the pixel pass */
 const FED = graph(
   [node('u', 'uv'), node('r', 'math', { op: 'multiplyAdd', b: 0, c: 0.7 }), node('t', 'accumulator'), node('o', 'output')],
-  [['u.x', 'r.a'], ['r.result', 't.rate'], ['t.value', 'o.color']],
+  [
+    ['u.x', 'r.a'],
+    ['r.result', 't.rate'],
+    ['t.value', 'o.color'],
+  ],
 )
 // Uneven steps, so a pass ignoring dt drifts apart
 const DT = Array.from({ length: 60 }, (_, i) => 1 / 60 + (i % 5) * 0.001)

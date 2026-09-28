@@ -25,11 +25,15 @@ describe.runIf(BENCH)('graph benchmarks', () => {
     expect(selected).not.toEqual([])
   })
 
-  it.each(selected)('%s', async (name, text) => {
-    const result = runBenchmark(name, text)
-    results.push(result)
-    await commands.writeFile(`.work/bench/${name}.json`, JSON.stringify(result, null, 1))
-  }, 900_000)
+  it.each(selected)(
+    '%s',
+    async (name, text) => {
+      const result = runBenchmark(name, text)
+      results.push(result)
+      await commands.writeFile(`.work/bench/${name}.json`, JSON.stringify(result, null, 1))
+    },
+    900_000,
+  )
 
   it('writes the summary', async () => {
     expect(results.length).toBeGreaterThan(0)

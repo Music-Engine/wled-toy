@@ -16,7 +16,9 @@ interface NodeCommandTargets {
 /** The handlers of Blender's node editor keys, for the graph editor's command scope. */
 export function nodeCommands({ flow, session, grab, renaming, findOpen }: NodeCommandTargets): Record<string, () => unknown> {
   return {
-    'graph.duplicate': async () => { if (await duplicateSelection(flow, session)) grab.start() },
+    'graph.duplicate': async () => {
+      if (await duplicateSelection(flow, session)) grab.start()
+    },
     'graph.grab': grab.start,
     'graph.toggleCollapse': () => toggleShared(flow, 'collapsed'),
     'graph.hideUnusedSockets': () => toggleShared(flow, 'hideUnused'),
@@ -29,7 +31,11 @@ export function nodeCommands({ flow, session, grab, renaming, findOpen }: NodeCo
       const nodes = flow.getSelectedNodes.value.map((n) => n.id)
       if (nodes.length) flow.fitView({ nodes, padding: 0.2, maxZoom: 1.2, duration: 300 })
     },
-    'graph.rename': () => { renaming.value = flow.getSelectedNodes.value[0]?.id ?? null },
-    'graph.findNode': () => { findOpen.value = true },
+    'graph.rename': () => {
+      renaming.value = flow.getSelectedNodes.value[0]?.id ?? null
+    },
+    'graph.findNode': () => {
+      findOpen.value = true
+    },
   }
 }

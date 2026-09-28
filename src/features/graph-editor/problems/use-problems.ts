@@ -9,11 +9,7 @@ export function useProblems(session: GraphEditSession, documentError: Ref<string
   const compileIssues = computed(() => traceGlslErrors(session.compileError.value, session.compiledLineNodes.value))
 
   const problems = computed<GraphIssue[]>(() => {
-    return [
-      ...(documentError.value ? [{ nodeId: null, message: documentError.value }] : []),
-      ...session.generated.value.issues,
-      ...compileIssues.value,
-    ]
+    return [...(documentError.value ? [{ nodeId: null, message: documentError.value }] : []), ...session.generated.value.issues, ...compileIssues.value]
   })
 
   const nodeIssues = computed(() => {
@@ -30,6 +26,9 @@ export function useProblems(session: GraphEditSession, documentError: Ref<string
 
 function traceGlslErrors(error: string | null, lines: GraphEditSession['compiledLineNodes']['value']): GraphIssue[] {
   if (!error) return []
-  const found = parseGlslErrors(error).map(({ source, line, message }) => ({ nodeId: (source === FRAME_SOURCE_STRING ? lines.frame : lines.pixel)[line] ?? null, message: `GLSL: ${message}` }))
+  const found = parseGlslErrors(error).map(({ source, line, message }) => ({
+    nodeId: (source === FRAME_SOURCE_STRING ? lines.frame : lines.pixel)[line] ?? null,
+    message: `GLSL: ${message}`,
+  }))
   return found.length ? found : [{ nodeId: null, message: `GLSL: ${error.trim().split('\n')[0]}` }]
 }

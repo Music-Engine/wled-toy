@@ -5,8 +5,12 @@ function fakeLocalStorage(initial: Record<string, string> = {}) {
   const store = new Map(Object.entries(initial))
   return {
     getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => { store.set(key, value) },
-    removeItem: (key: string) => { store.delete(key) },
+    setItem: (key: string, value: string) => {
+      store.set(key, value)
+    },
+    removeItem: (key: string) => {
+      store.delete(key)
+    },
   }
 }
 

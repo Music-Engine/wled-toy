@@ -12,7 +12,11 @@ export class FeedbackPasses {
   private readsPrevFrame = false
   private stateLayers = 0
 
-  constructor(private readonly gl: WebGL2RenderingContext, private readonly floatTargets: boolean, private readonly drawPass: DrawPass) {}
+  constructor(
+    private readonly gl: WebGL2RenderingContext,
+    private readonly floatTargets: boolean,
+    private readonly drawPass: DrawPass,
+  ) {}
 
   get isActive() {
     return this.readsPrevFrame || this.stateLayers > 0

@@ -5,7 +5,8 @@ export type MathType = 'float' | 'vec2' | 'vec3' | 'vec4'
 // GLSL for each helper, written once for every vector width: `T` is the type
 const HELPERS: Record<string, { requires?: string[]; source: (T: MathType) => string }> = {
   zero: {
-    source: (T) => (T === 'float' ? 'float node_zero(float x) { return x == 0.0 ? 1.0 : 0.0; }' : `${T} node_zero(${T} x) { return ${T}(equal(x, ${T}(0.0))); }`),
+    source: (T) =>
+      T === 'float' ? 'float node_zero(float x) { return x == 0.0 ? 1.0 : 0.0; }' : `${T} node_zero(${T} x) { return ${T}(equal(x, ${T}(0.0))); }`,
   },
   // dividing by zero gives 0, as in Blender; the divisor is nudged first so no infinity is ever computed
   divide: { requires: ['zero'], source: (T) => `${T} node_divide(${T} a, ${T} b) { ${T} z = node_zero(b); return mix(a / (b + z), ${T}(0.0), z); }` },
@@ -29,13 +30,30 @@ const HELPERS: Record<string, { requires?: string[]; source: (T: MathType) => st
 }`,
   },
   sqrt: { source: (T) => `${T} node_sqrt(${T} a) { return sqrt(max(a, ${T}(0.0))); }` },
-  inversesqrt: { source: (T) => `${T} node_inversesqrt(${T} a) { ${T} bad = ${T}(1.0) - step(${T}(0.0000001), a); return mix(inversesqrt(max(a, ${T}(0.0000001))), ${T}(0.0), bad); }` },
+  inversesqrt: {
+    source: (T) =>
+      `${T} node_inversesqrt(${T} a) { ${T} bad = ${T}(1.0) - step(${T}(0.0000001), a); return mix(inversesqrt(max(a, ${T}(0.0000001))), ${T}(0.0), bad); }`,
+  },
   // C's fmod: the remainder keeps the sign of the dividend; a zero divisor gives 0
-  modulo: { requires: ['zero'], source: (T) => `${T} node_modulo(${T} a, ${T} b) { ${T} z = node_zero(b); return mix(a - b * trunc(a / (b + z)), ${T}(0.0), z); }` },
-  floored_modulo: { requires: ['zero'], source: (T) => `${T} node_floored_modulo(${T} a, ${T} b) { ${T} z = node_zero(b); return mix(a - b * floor(a / (b + z)), ${T}(0.0), z); }` },
-  wrap: { requires: ['zero'], source: (T) => `${T} node_wrap(${T} a, ${T} lo, ${T} hi) { ${T} range = hi - lo; ${T} z = node_zero(range); return mix(a - range * floor((a - lo) / (range + z)), lo, z); }` },
+  modulo: {
+    requires: ['zero'],
+    source: (T) => `${T} node_modulo(${T} a, ${T} b) { ${T} z = node_zero(b); return mix(a - b * trunc(a / (b + z)), ${T}(0.0), z); }`,
+  },
+  floored_modulo: {
+    requires: ['zero'],
+    source: (T) => `${T} node_floored_modulo(${T} a, ${T} b) { ${T} z = node_zero(b); return mix(a - b * floor(a / (b + z)), ${T}(0.0), z); }`,
+  },
+  wrap: {
+    requires: ['zero'],
+    source: (T) =>
+      `${T} node_wrap(${T} a, ${T} lo, ${T} hi) { ${T} range = hi - lo; ${T} z = node_zero(range); return mix(a - range * floor((a - lo) / (range + z)), lo, z); }`,
+  },
   snap: { requires: ['divide'], source: (T) => `${T} node_snap(${T} a, ${T} increment) { return floor(node_divide(a, increment)) * increment; }` },
-  pingpong: { requires: ['zero'], source: (T) => `${T} node_pingpong(${T} a, ${T} scale) { ${T} z = node_zero(scale); return mix(abs(fract((a - scale) / (scale * 2.0 + z)) * scale * 2.0 - scale), ${T}(0.0), z); }` },
+  pingpong: {
+    requires: ['zero'],
+    source: (T) =>
+      `${T} node_pingpong(${T} a, ${T} scale) { ${T} z = node_zero(scale); return mix(abs(fract((a - scale) / (scale * 2.0 + z)) * scale * 2.0 - scale), ${T}(0.0), z); }`,
+  },
   compare: { source: (T) => `${T} node_compare(${T} a, ${T} b, ${T} epsilon) { return step(abs(a - b), epsilon); }` },
   smoothmin: {
     requires: ['zero'],

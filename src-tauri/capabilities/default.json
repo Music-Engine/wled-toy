@@ -17,7 +17,13 @@
     "dialog:allow-open",
     "dialog:allow-save",
     { "identifier": "opener:allow-open-url", "allow": [{ "url": "https://github.com/*" }] },
-    { "identifier": "fs:allow-read-text-file", "allow": [{ "path": "$HOME/**/*.wledgraph" }, { "path": "$HOME/**/*.glsl" }, { "path": "$HOME/**/*.frag" }, { "path": "$HOME/**/*.fs" }] },
-    { "identifier": "fs:allow-write-text-file", "allow": [{ "path": "$HOME/**/*.wledgraph" }, { "path": "$HOME/**/*.glsl" }, { "path": "$HOME/**/*.frag" }, { "path": "$HOME/**/*.fs" }] }
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{ "path": "$HOME/**/*.wledgraph" }, { "path": "$HOME/**/*.glsl" }, { "path": "$HOME/**/*.frag" }, { "path": "$HOME/**/*.fs" }]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [{ "path": "$HOME/**/*.wledgraph" }, { "path": "$HOME/**/*.glsl" }, { "path": "$HOME/**/*.frag" }, { "path": "$HOME/**/*.fs" }]
+    }
   ]
 }

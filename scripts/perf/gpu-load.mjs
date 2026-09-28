@@ -1,6 +1,9 @@
 import { chromium } from 'playwright'
 const [url, seconds, configPath] = [process.argv[2], Number(process.argv[3] ?? 60), process.argv[4] ?? '/src/lib/app/settings/config.ts']
-const browser = await chromium.launch({ headless: true, args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] })
+const browser = await chromium.launch({
+  headless: true,
+  args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'],
+})
 const page = await browser.newPage({ viewport: { width: 1600, height: 1000 } })
 await page.goto(url)
 await page.waitForTimeout(4000)

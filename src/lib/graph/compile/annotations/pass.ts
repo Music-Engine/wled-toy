@@ -11,7 +11,7 @@ export const choosePass = (): Annotation => ({
     const forced = collectForcedPixel(ctx)
     const frame = new Set(ctx.order.filter((id) => !forced.has(id) && needsFrame(ctx.nodes[id])))
     // Upstream nodes joining can give their other readers a frame input, so repeat until stable
-    for (let size = -1; size !== frame.size;) {
+    for (let size = -1; size !== frame.size; ) {
       size = frame.size
       for (const id of ctx.order) {
         if (!forced.has(id) && Object.values(ctx.nodes[id].links).some((source) => frame.has(source.id))) frame.add(id)

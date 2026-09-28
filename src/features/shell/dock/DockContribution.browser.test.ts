@@ -18,14 +18,21 @@ afterEach(() => {
   workspace.mode = 'shader'
 })
 
-const page = (name: string, tabs: TabId[], problems: Problem[]) => defineComponent({
-  name,
-  render: () => h('div', { class: `page-${name}` }, tabs.map((tab) =>
-    h(DockContribution, { tab }, () => [
-      h('input', { class: `from-${name}`, 'data-tab': tab }),
-      tab === 'problems' ? h(ProblemsList, { problems }) : null,
-    ]))),
-})
+const page = (name: string, tabs: TabId[], problems: Problem[]) =>
+  defineComponent({
+    name,
+    render: () =>
+      h(
+        'div',
+        { class: `page-${name}` },
+        tabs.map((tab) =>
+          h(DockContribution, { tab }, () => [
+            h('input', { class: `from-${name}`, 'data-tab': tab }),
+            tab === 'problems' ? h(ProblemsList, { problems }) : null,
+          ]),
+        ),
+      ),
+  })
 
 const pages: Record<Mode, Component> = {
   shader: page('shader', ['problems'], [{ message: 'one' }]),
@@ -37,16 +44,23 @@ function mount() {
   const root = document.createElement('div')
   document.body.append(root)
   const app = createApp({
-    render: () => h('div', [
-      h('main', h(KeepAlive, () => h(pages[workspace.mode]))),
-      h(DockTabs, { dock: 'right' }),
-      h(DockTabs, { dock: 'bottom' }),
-    ]),
+    render: () =>
+      h('div', [
+        h(
+          'main',
+          h(KeepAlive, () => h(pages[workspace.mode])),
+        ),
+        h(DockTabs, { dock: 'right' }),
+        h(DockTabs, { dock: 'bottom' }),
+      ]),
   })
   // Nuxt UI is not installed here: UContextMenu renders as an unknown element that still shows its default slot
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   return root
 }
 
@@ -149,7 +163,10 @@ it('a bound MIDI controller still moves its knob while the Parameters tab is hid
   })
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   moveTab('log', 'right')
   selectTab('log')
   await new Promise((resolve) => setTimeout(resolve, 100))

@@ -27,7 +27,15 @@ describe('sockets', () => {
 
 describe('normalizeDoc', () => {
   it('keeps the newest link per input and stamps the version', () => {
-    const doc = normalizeDoc(graph([node('m', 'math', { b: 2 })], [['x.out', 'm.a'], ['y.out', 'm.a']]))
+    const doc = normalizeDoc(
+      graph(
+        [node('m', 'math', { b: 2 })],
+        [
+          ['x.out', 'm.a'],
+          ['y.out', 'm.a'],
+        ],
+      ),
+    )
     expect(doc.edges.map((e) => e.source)).toEqual(['y'])
     expect(doc.version).toBe(GRAPH_VERSION)
   })
@@ -38,7 +46,8 @@ describe('socket names', () => {
     const vague = flattenFs(GRAPH_FS.items).flatMap(({ node: item }) =>
       [...item.base.inputs.filter((s) => s.linkable), ...item.base.outputs]
         .filter((s) => [...GLSL_TYPES, 'genType', 'out', 'result'].includes(s.label) || /^[a-z]?$/.test(s.label))
-        .map((s) => `${item.id}.${s.name}`))
+        .map((s) => `${item.id}.${s.name}`),
+    )
     expect(vague).toEqual([])
   })
 })
@@ -57,12 +66,21 @@ const readFailure = (doc: NodeGraph) => {
 
 describe('createGlslCompiler', () => {
   it('widens generic sockets to the widest linked type', () => {
-    const doc = graph([node('u', 'uv'), node('c', 'combineColor'), node('m', 'math', { op: 'add', b: 0.5 }), node('o', 'output')], [['u.x', 'c.a'], ['c.color', 'm.a'], ['m.result', 'o.color']])
+    const doc = graph(
+      [node('u', 'uv'), node('c', 'combineColor'), node('m', 'math', { op: 'add', b: 0.5 }), node('o', 'output')],
+      [
+        ['u.x', 'c.a'],
+        ['c.color', 'm.a'],
+        ['m.result', 'o.color'],
+      ],
+    )
     expect(readCode(doc)).toMatch(/vec3 n_m = n_c \+ vec3\(0\.5\);/)
   })
 
   it('clamps math when asked', () => {
-    expect(readCode(graph([node('m', 'math', { op: 'add', clamp: true }), node('o', 'output')], [['m.result', 'o.color']]))).toContain('float n_m = clamp(0.5 + 0.5, 0.0, 1.0);')
+    expect(readCode(graph([node('m', 'math', { op: 'add', clamp: true }), node('o', 'output')], [['m.result', 'o.color']]))).toContain(
+      'float n_m = clamp(0.5 + 0.5, 0.0, 1.0);',
+    )
   })
 
   it('an invalid stored value is an error on its node that names the socket and the value', () => {
@@ -72,18 +90,45 @@ describe('createGlslCompiler', () => {
   })
 
   it('reports an uncastable link on the node that receives it', () => {
-    const failure = readFailure(graph([node('c', 'color'), node('t', 'texture'), node('o', 'output')], [['c.color', 't.texture'], ['t.out', 'o.color']]))
+    const failure = readFailure(
+      graph(
+        [node('c', 'color'), node('t', 'texture'), node('o', 'output')],
+        [
+          ['c.color', 't.texture'],
+          ['t.out', 'o.color'],
+        ],
+      ),
+    )
     expect(failure?.nodeId).toBe('t')
     expect(failure?.message).toMatch(/Cannot cast vec3 to sampler2D/)
   })
 
   it('reports loops and a missing output', () => {
-    expect(readFailure(graph([node('a', 'math'), node('b', 'math'), node('o', 'output')], [['a.result', 'b.a'], ['b.result', 'a.a'], ['a.result', 'o.color']]))?.message).toMatch(/loop/)
+    expect(
+      readFailure(
+        graph(
+          [node('a', 'math'), node('b', 'math'), node('o', 'output')],
+          [
+            ['a.result', 'b.a'],
+            ['b.result', 'a.a'],
+            ['a.result', 'o.color'],
+          ],
+        ),
+      )?.message,
+    ).toMatch(/loop/)
     expect(readFailure(graph([]))?.message).toMatch(/Output node/)
   })
 
   it('maps every emitted line to the node that produced it', () => {
-    const { pixel, lineNodes } = createGlslCompiler().compile(graph([node('u', 'uv'), node('m', 'math'), node('o', 'output')], [['u.x', 'm.a'], ['m.result', 'o.color']])).program!
+    const { pixel, lineNodes } = createGlslCompiler().compile(
+      graph(
+        [node('u', 'uv'), node('m', 'math'), node('o', 'output')],
+        [
+          ['u.x', 'm.a'],
+          ['m.result', 'o.color'],
+        ],
+      ),
+    ).program!
     const lines = pixel.split('\n')
     expect(lineNodes.pixel[lines.findIndex((l) => l.includes('n_m =')) + 1]).toBe('m')
     expect(lineNodes.pixel[lines.findIndex((l) => l.includes('c = vec4(vec3')) + 1]).toBe('o')
@@ -95,11 +140,29 @@ describe('mute', () => {
 
   it('a muted node between a source and a sink hands the sink the source, through a chain of muted nodes too', () => {
     const direct = readCode(graph([node('v', 'value'), node('o', 'output')], [['v.value', 'o.color']]))
-    expect(readCode(graph([node('v', 'value'), muteNode('m', 'math'), node('o', 'output')], [['v.value', 'm.a'], ['m.result', 'o.color']]))).toBe(direct)
-    expect(readCode(graph(
-      [node('v', 'value'), muteNode('m', 'math'), muteNode('n', 'math'), node('o', 'output')],
-      [['v.value', 'm.b'], ['m.result', 'n.a'], ['n.result', 'o.color']],
-    ))).toBe(direct)
+    expect(
+      readCode(
+        graph(
+          [node('v', 'value'), muteNode('m', 'math'), node('o', 'output')],
+          [
+            ['v.value', 'm.a'],
+            ['m.result', 'o.color'],
+          ],
+        ),
+      ),
+    ).toBe(direct)
+    expect(
+      readCode(
+        graph(
+          [node('v', 'value'), muteNode('m', 'math'), muteNode('n', 'math'), node('o', 'output')],
+          [
+            ['v.value', 'm.b'],
+            ['m.result', 'n.a'],
+            ['n.result', 'o.color'],
+          ],
+        ),
+      ),
+    ).toBe(direct)
   })
 
   it('a muted node with no input to pass leaves the sink on its fallback', () => {
@@ -113,16 +176,35 @@ describe('mute', () => {
   })
 
   it('a loop of muted nodes is still a loop', () => {
-    const doc = graph([muteNode('a', 'math'), muteNode('b', 'math'), node('o', 'output')], [['a.result', 'b.a'], ['b.result', 'a.a'], ['a.result', 'o.color']])
+    const doc = graph(
+      [muteNode('a', 'math'), muteNode('b', 'math'), node('o', 'output')],
+      [
+        ['a.result', 'b.a'],
+        ['b.result', 'a.a'],
+        ['a.result', 'o.color'],
+      ],
+    )
     expect(readFailure(doc)?.message).toMatch(/loop/)
   })
 })
 
 describe('streams', () => {
   it('a stream linked into a number socket is a graph error on the receiving node', () => {
-    expect(readFailure(graph([node('f', 'fft'), node('o', 'output')], [['f.spectrum', 'o.color']]))).toEqual({ nodeId: 'o', message: 'Color needs a number or a color, not Spectrum' })
-    expect(readFailure(graph([node('f', 'fft'), node('i', 'integrator'), node('o', 'output')], [['f.spectrum', 'i.rate'], ['i.value', 'o.color']])))
-      .toEqual({ nodeId: 'i', message: 'Rate needs a number or a color, not Spectrum' })
+    expect(readFailure(graph([node('f', 'fft'), node('o', 'output')], [['f.spectrum', 'o.color']]))).toEqual({
+      nodeId: 'o',
+      message: 'Color needs a number or a color, not Spectrum',
+    })
+    expect(
+      readFailure(
+        graph(
+          [node('f', 'fft'), node('i', 'integrator'), node('o', 'output')],
+          [
+            ['f.spectrum', 'i.rate'],
+            ['i.value', 'o.color'],
+          ],
+        ),
+      ),
+    ).toEqual({ nodeId: 'i', message: 'Rate needs a number or a color, not Spectrum' })
   })
 
   it('a link to an output the source lacks reads as unlinked', () => {
@@ -136,7 +218,13 @@ describe('resolve', () => {
     const spectrum = findNodeItem('spectrum')!.base
     spectrum.resolve = () => ({ data: { spectrum: { slot: 3 } } })
     try {
-      const doc = graph([node('f', 'fft', { fmin: 100 }), node('s', 'spectrum'), node('o', 'output')], [['f.spectrum', 's.spectrum'], ['s.level', 'o.color']])
+      const doc = graph(
+        [node('f', 'fft', { fmin: 100 }), node('s', 'spectrum'), node('o', 'output')],
+        [
+          ['f.spectrum', 's.spectrum'],
+          ['s.level', 'o.color'],
+        ],
+      )
       expect(readCode(doc)).toContain('historyAt(1, ')
     } finally {
       delete spectrum.resolve

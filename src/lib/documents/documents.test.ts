@@ -13,8 +13,12 @@ function fakeLocalStorage() {
   const store = new Map<string, string>()
   return {
     getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => { store.set(key, value) },
-    removeItem: (key: string) => { store.delete(key) },
+    setItem: (key: string, value: string) => {
+      store.set(key, value)
+    },
+    removeItem: (key: string) => {
+      store.delete(key)
+    },
   }
 }
 
@@ -51,12 +55,23 @@ describe('createDocumentStore', () => {
     const saved: string[] = []
     const backend: FileBackend = {
       open: async () => null,
-      save: async (_handle, text) => { saved.push(text) },
-      saveAs: async (text, name) => { saved.push(text); return { handle: { name }, text } },
+      save: async (_handle, text) => {
+        saved.push(text)
+      },
+      saveAs: async (text, name) => {
+        saved.push(text)
+        return { handle: { name }, text }
+      },
     }
-    const store = createDocumentStore(docOptions({
-      backend, getSnapshot: () => ({ text: state.text }), onLoad: (d) => { state.text = d.text },
-    }))
+    const store = createDocumentStore(
+      docOptions({
+        backend,
+        getSnapshot: () => ({ text: state.text }),
+        onLoad: (d) => {
+          state.text = d.text
+        },
+      }),
+    )
 
     expect(store.dirty.value).toBe(false)
     state.text = 'b'
@@ -81,9 +96,15 @@ describe('createDocumentStore', () => {
 
   it('newDocument loads a fresh doc, clears the file handle, and starts clean', () => {
     const state = reactive<Doc>({ text: 'loaded' })
-    const store = createDocumentStore(docOptions({
-      createNew: () => ({ text: 'fresh' }), getSnapshot: () => ({ text: state.text }), onLoad: (d) => { state.text = d.text },
-    }))
+    const store = createDocumentStore(
+      docOptions({
+        createNew: () => ({ text: 'fresh' }),
+        getSnapshot: () => ({ text: state.text }),
+        onLoad: (d) => {
+          state.text = d.text
+        },
+      }),
+    )
     store.newDocument()
     expect(state.text).toBe('fresh')
     expect(store.fileName.value).toBeNull()
@@ -95,16 +116,30 @@ describe('createDocumentStore', () => {
     const calls: string[] = []
     const backend: FileBackend = {
       open: async () => null,
-      save: async () => { calls.push('save') },
-      saveAs: async (text, name) => { calls.push(`saveAs ${name}`); return { handle: { name: 'chosen.test' }, text } },
-      reopen: async () => { throw new DocumentError('file-gone', 'it is gone') },
+      save: async () => {
+        calls.push('save')
+      },
+      saveAs: async (text, name) => {
+        calls.push(`saveAs ${name}`)
+        return { handle: { name: 'chosen.test' }, text }
+      },
+      reopen: async () => {
+        throw new DocumentError('file-gone', 'it is gone')
+      },
     }
-    const store = createDocumentStore(docOptions({
-      backend,
-      getSnapshot: () => ({ text: state.text }),
-      onLoad: (d) => { state.text = d.text },
-      parse: (text) => { if (text === 'broken') throw new Error('unreadable'); return { text } },
-    }))
+    const store = createDocumentStore(
+      docOptions({
+        backend,
+        getSnapshot: () => ({ text: state.text }),
+        onLoad: (d) => {
+          state.text = d.text
+        },
+        parse: (text) => {
+          if (text === 'broken') throw new Error('unreadable')
+          return { text }
+        },
+      }),
+    )
 
     store.openText('dropped.test', 'from a drop')
     expect(state.text).toBe('from a drop')
@@ -132,7 +167,11 @@ describe('createDocumentStore', () => {
     const state = reactive({ text: 'unsaved work' })
     const makeOptions = (onLoad: (d: Doc) => void) => docOptions({ getSnapshot: () => ({ text: state.text }), onLoad })
 
-    const first = createDocumentStore(makeOptions((d) => { state.text = d.text }))
+    const first = createDocumentStore(
+      makeOptions((d) => {
+        state.text = d.text
+      }),
+    )
     expect(first.hasRecovery.value).toBe(false)
 
     state.text = 'changed while editing'
@@ -232,11 +271,15 @@ describe('open recent', () => {
 
   it('a file that fails to parse is not loaded and does not become the current file', async () => {
     const loaded: Doc[] = []
-    const store = createDocumentStore(docOptions({
-      backend: reopeningBackend({ 'first.test': 'one' }),
-      parse: () => { throw new Error('unreadable') },
-      onLoad: (d) => loaded.push(d),
-    }))
+    const store = createDocumentStore(
+      docOptions({
+        backend: reopeningBackend({ 'first.test': 'one' }),
+        parse: () => {
+          throw new Error('unreadable')
+        },
+        onLoad: (d) => loaded.push(d),
+      }),
+    )
     await expect(store.openRecent('first.test')).rejects.toThrow('unreadable')
     expect(loaded).toEqual([])
     expect(store.fileName.value).toBeNull()
@@ -254,30 +297,46 @@ function fakeTauriFiles(disk: Record<string, string>) {
   const dialogs: Array<{ kind: 'open' | 'save'; defaultPath?: string; filter: FileFilter }> = []
   const state = { pick: null as string | null }
   const files: TauriFiles = {
-    pickOpen: async (filter) => { dialogs.push({ kind: 'open', filter }); return state.pick },
-    pickSave: async (defaultPath, filter) => { dialogs.push({ kind: 'save', defaultPath, filter }); return state.pick },
+    pickOpen: async (filter) => {
+      dialogs.push({ kind: 'open', filter })
+      return state.pick
+    },
+    pickSave: async (defaultPath, filter) => {
+      dialogs.push({ kind: 'save', defaultPath, filter })
+      return state.pick
+    },
     readTextFile: async (path) => {
       if (!(path in disk)) throw new Error(`forbidden path: ${path}`)
       return disk[path]
     },
-    writeTextFile: async (path, text) => { disk[path] = text },
+    writeTextFile: async (path, text) => {
+      disk[path] = text
+    },
   }
   return { state, dialogs, load: async () => files }
 }
-
 
 describe('recent files of the Tauri backend', () => {
   it('the recent list keeps the path, tells two files of one name apart, and reopens by path in a later session', async () => {
     const disk = { '/a/show.test': 'from a', '/b/show.test': 'from b' }
     const fake = fakeTauriFiles(disk)
     const state = reactive<Doc>({ text: '' })
-    const options = docOptions({ backend: createTauriBackend(fake.load), getSnapshot: () => ({ text: state.text }), onLoad: (d) => { state.text = d.text } })
+    const options = docOptions({
+      backend: createTauriBackend(fake.load),
+      getSnapshot: () => ({ text: state.text }),
+      onLoad: (d) => {
+        state.text = d.text
+      },
+    })
     const store = createDocumentStore(options)
     for (const path of ['/a/show.test', '/b/show.test', '/a/show.test']) {
       fake.state.pick = path
       await store.open()
     }
-    expect(store.recentFiles.value.map(({ name, path }) => ({ name, path }))).toEqual([{ name: 'show.test', path: '/a/show.test' }, { name: 'show.test', path: '/b/show.test' }])
+    expect(store.recentFiles.value.map(({ name, path }) => ({ name, path }))).toEqual([
+      { name: 'show.test', path: '/a/show.test' },
+      { name: 'show.test', path: '/b/show.test' },
+    ])
 
     const later = createDocumentStore(options)
     expect(later.canReopenRecent).toBe(true)

@@ -1,6 +1,17 @@
 import { vi } from 'vitest'
 import { effectScope, reactive, shallowRef, watch } from 'vue'
-import { createDefaultGraph, createSlotTable, createGlslCompiler, type DataType, type GlslProgram, type NodeGraph, type ProgramUniform, type SlotTable, type SocketValue, type StoredEdge } from '@/lib/graph'
+import {
+  createDefaultGraph,
+  createSlotTable,
+  createGlslCompiler,
+  type DataType,
+  type GlslProgram,
+  type NodeGraph,
+  type ProgramUniform,
+  type SlotTable,
+  type SocketValue,
+  type StoredEdge,
+} from '@/lib/graph'
 import { createGraphSession, type GraphEditSession } from './graph-session'
 
 /** Session over a mocked target, compiles counted, Vue Flow's store following its edges */
@@ -34,5 +45,7 @@ export function buildKnobGraph(): NodeGraph {
 
 /** As a knob edits: new data object on the same node */
 export function setValue(session: GraphEditSession, id: string, values: Record<string, SocketValue>) {
-  session.nodes.value = session.nodes.value.map((stored) => (stored.id === id ? { ...stored, data: { ...stored.data, values: { ...stored.data.values, ...values } } } : stored))
+  session.nodes.value = session.nodes.value.map((stored) =>
+    stored.id === id ? { ...stored, data: { ...stored.data, values: { ...stored.data.values, ...values } } } : stored,
+  )
 }

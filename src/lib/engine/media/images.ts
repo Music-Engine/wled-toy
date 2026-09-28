@@ -21,11 +21,13 @@ function store<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBR
     request.onupgradeneeded = () => request.result.createObjectStore('images', { keyPath: 'id' })
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
-  }).then((db) => new Promise<T>((resolve, reject) => {
-    const request = run(db.transaction('images', mode).objectStore('images'))
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  }).finally(() => db.close()))
+  }).then((db) =>
+    new Promise<T>((resolve, reject) => {
+      const request = run(db.transaction('images', mode).objectStore('images'))
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    }).finally(() => db.close()),
+  )
 }
 
 /**
@@ -70,7 +72,9 @@ export class ImageLibrary {
     const image = this.get(id)
     if (!image?.blob || !name.trim()) return
     image.name = name.trim()
-    await store('readwrite', (s) => s.put({ id, name: image.name, blob: image.blob })).catch((cause) => report(new EngineError('media-store', `The new name of ${image.name} could not be kept`, cause)))
+    await store('readwrite', (s) => s.put({ id, name: image.name, blob: image.blob })).catch((cause) =>
+      report(new EngineError('media-store', `The new name of ${image.name} could not be kept`, cause)),
+    )
   }
 
   async remove(id: string) {
@@ -78,6 +82,8 @@ export class ImageLibrary {
     if (index < 0) return
     URL.revokeObjectURL(this.images[index].url)
     this.images.splice(index, 1)
-    await store('readwrite', (s) => s.delete(id)).catch((cause) => report(new EngineError('media-store', `${id} could not be removed for good and may come back`, cause)))
+    await store('readwrite', (s) => s.delete(id)).catch((cause) =>
+      report(new EngineError('media-store', `${id} could not be removed for good and may come back`, cause)),
+    )
   }
 }

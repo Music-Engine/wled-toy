@@ -13,7 +13,11 @@ export function defineNode<const I extends Record<string, InputDef>, const O ext
   const base = toShape(id, options({}))
   const { description, category, presets } = options({})
   return {
-    id, description, category, base, presets,
+    id,
+    description,
+    category,
+    base,
+    presets,
     title: base.title,
     shape: typeof definition === 'function' ? (values) => toShape(id, options(values)) : () => base,
   }

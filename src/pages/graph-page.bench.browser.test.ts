@@ -36,8 +36,7 @@ const files = {
 const graphText = Object.fromEntries(Object.entries(files).map(([path, text]) => [path.split('/').pop()!.replace('.wledgraph', ''), text]))
 
 const only = import.meta.env.VITE_BENCH_UI_ONLY as string | undefined
-const CASES = ['spectral-aurora', 'bench-kitchen-sink', 'bench-control-chain', 'bench-wide']
-  .filter((name) => !only || only.split(',').includes(name))
+const CASES = ['spectral-aurora', 'bench-kitchen-sink', 'bench-control-chain', 'bench-wide'].filter((name) => !only || only.split(',').includes(name))
 
 const counters = {
   updates: 0,
@@ -183,7 +182,11 @@ async function measure(name: string): Promise<CaseResult> {
   })
   app.provide(graphFileBackendKey, backend)
   app.config.warnHandler = () => undefined
-  app.mixin({ updated() { counters.updates++ } })
+  app.mixin({
+    updated() {
+      counters.updates++
+    },
+  })
 
   reset()
   const mountStart = performance.now()

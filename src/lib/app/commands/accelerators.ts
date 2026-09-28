@@ -19,14 +19,21 @@ const keyName = (key: string) => (key === 'numpaddecimal' ? 'Numpad .' : key.len
 /** `⌃⌥⇧⌘K` on macOS, `Ctrl+Alt+Shift+K` elsewhere. */
 export function formatAccelerator(text: string, mac = isMac()): string {
   const { mod, ctrl, shift, alt, key } = parseAccelerator(text)
-  if (mac) return `${ctrl ? '⌃' : ''}${alt ? '⌥' : ''}${shift ? '⇧' : ''}${mod ? '⌘' : ''}${({ enter: '↩', backspace: '⌫', delete: '⌦', home: '↖' } as Record<string, string>)[key] ?? keyName(key)}`
+  if (mac)
+    return `${ctrl ? '⌃' : ''}${alt ? '⌥' : ''}${shift ? '⇧' : ''}${mod ? '⌘' : ''}${({ enter: '↩', backspace: '⌫', delete: '⌦', home: '↖' } as Record<string, string>)[key] ?? keyName(key)}`
   return [...(mod || ctrl ? ['Ctrl'] : []), ...(alt ? ['Alt'] : []), ...(shift ? ['Shift'] : []), keyName(key)].join('+')
 }
 
 /** The accelerator as the key names `UKbd` and the `kbds` props of Nuxt UI take. */
 export function acceleratorKbds(text: string): string[] {
   const { mod, ctrl, shift, alt, key } = parseAccelerator(text)
-  return [...(mod ? ['meta'] : []), ...(ctrl ? ['ctrl'] : []), ...(alt ? ['alt'] : []), ...(shift ? ['shift'] : []), key === 'numpaddecimal' ? keyName(key) : key]
+  return [
+    ...(mod ? ['meta'] : []),
+    ...(ctrl ? ['ctrl'] : []),
+    ...(alt ? ['alt'] : []),
+    ...(shift ? ['shift'] : []),
+    key === 'numpaddecimal' ? keyName(key) : key,
+  ]
 }
 
 type KeyLike = Pick<KeyboardEvent, 'key' | 'code' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>

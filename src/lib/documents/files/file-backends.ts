@@ -64,16 +64,20 @@ function handleStore<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) =
     request.onupgradeneeded = () => request.result.createObjectStore('handles')
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
-  }).then((db) => new Promise<T>((resolve, reject) => {
-    const request = run(db.transaction('handles', mode).objectStore('handles'))
-    request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
-  }).finally(() => db.close()))
+  }).then((db) =>
+    new Promise<T>((resolve, reject) => {
+      const request = run(db.transaction('handles', mode).objectStore('handles'))
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    }).finally(() => db.close()),
+  )
 }
 
 // without IndexedDB (a private window) the file still opens and saves, so this is reported rather than thrown
-const rememberHandle = (handle: FileSystemFileHandle) => handleStore('readwrite', (store) => store.put(handle, handle.name))
-  .catch((cause) => report(new DocumentError('handle-not-kept', `${handle.name} will not be offered under Open Recent: the browser could not keep it`, cause)))
+const rememberHandle = (handle: FileSystemFileHandle) =>
+  handleStore('readwrite', (store) => store.put(handle, handle.name)).catch((cause) =>
+    report(new DocumentError('handle-not-kept', `${handle.name} will not be offered under Open Recent: the browser could not keep it`, cause)),
+  )
 
 /** Reads and writes real files on disk, with the OS's own open/save dialogs. */
 export function createFileSystemAccessBackend(kind: FileKind = GRAPH_FILES): FileBackend<FsAccessHandle> {
@@ -85,7 +89,8 @@ export function createFileSystemAccessBackend(kind: FileKind = GRAPH_FILES): Fil
       if (!handle) throw new DocumentError('file-gone', 'the browser no longer remembers it')
       // a handle from an earlier session has lost its permission; asking again needs the click that ran the command
       const permission = (await handle.queryPermission?.({ mode: 'read' })) ?? 'granted'
-      if (permission !== 'granted' && (await handle.requestPermission?.({ mode: 'read' })) !== 'granted') throw new DocumentError('permission-denied', 'reading it was not allowed')
+      if (permission !== 'granted' && (await handle.requestPermission?.({ mode: 'read' })) !== 'granted')
+        throw new DocumentError('permission-denied', 'reading it was not allowed')
       try {
         return { handle: { name: handle.name, handle }, text: await (await handle.getFile()).text() }
       } catch (cause) {
@@ -153,9 +158,7 @@ export function createDownloadBackend(kind: FileKind = GRAPH_FILES): FileBackend
 
 /** The File System Access API when the browser has it, the download/upload fallback otherwise. */
 export function createBrowserBackend(kind: FileKind = GRAPH_FILES): FileBackend {
-  return typeof window !== 'undefined' && typeof window.showOpenFilePicker === 'function'
-    ? createFileSystemAccessBackend(kind)
-    : createDownloadBackend(kind)
+  return typeof window !== 'undefined' && typeof window.showOpenFilePicker === 'function' ? createFileSystemAccessBackend(kind) : createDownloadBackend(kind)
 }
 
 interface TauriHandle extends FileHandle {

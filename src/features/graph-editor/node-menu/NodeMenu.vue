@@ -15,8 +15,11 @@ const emit = defineEmits<{ select: [node: T, preset?: MenuPreset] }>()
 
 const search = ref<HTMLInputElement>()
 const list = ref<HTMLElement>()
-const { query, activeDirectory, highlighted, hovered, directory, rows, nodeRows, preview, showPreview, style, step, moveDirectory } =
-  useNodeMenu(props, open, () => search.value?.focus())
+const { query, activeDirectory, highlighted, hovered, directory, rows, nodeRows, preview, showPreview, style, step, moveDirectory } = useNodeMenu(
+  props,
+  open,
+  () => search.value?.focus(),
+)
 
 watch(highlighted, async () => {
   await nextTick()

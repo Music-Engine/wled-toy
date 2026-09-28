@@ -10,7 +10,9 @@ it('an untouched Output node asks for nothing: Settings stay in charge', () => {
 })
 
 it('the Output node carries its wire settings out of the compiler, and its color input still compiles', () => {
-  const { program } = compile(graph([node('o', 'output', { protocol: 'artnet', universe: 3, fps: 50, gamma: 2.2, powerBudgetMa: 2000, dithering: 'temporal', color: [0, 1, 0] })]))
+  const { program } = compile(
+    graph([node('o', 'output', { protocol: 'artnet', universe: 3, fps: 50, gamma: 2.2, powerBudgetMa: 2000, dithering: 'temporal', color: [0, 1, 0] })]),
+  )
   expect(program!.output).toEqual({ ...DEFAULT_OUTPUT, protocol: 'artnet', universe: 3, fps: 50, gamma: 2.2, powerBudgetMa: 2000, dithering: 'temporal' })
   expect(program!.pixel).toContain('c = vec4(vec3(0.0, 1.0, 0.0), 1.0);')
 })
