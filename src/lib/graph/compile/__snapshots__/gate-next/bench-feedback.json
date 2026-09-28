@@ -28,6 +28,40 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "31": "sparkle",
+        "32": "sparkColor",
+        "33": "spark",
+        "34": "scan",
+        "35": "scanColor",
+        "36": "seed",
+        "37": "trails",
+        "38": "blur",
+        "39": "blur",
+        "40": "blur",
+        "41": "prev1",
+        "42": "prev2",
+        "43": "echo",
+        "44": "stack",
+        "45": "trails2",
+        "46": "lift",
+        "47": "out"
+      },
+      "frame": {
+        "81": "pal",
+        "82": "pal",
+        "83": "pal",
+        "84": "pal",
+        "85": "pal",
+        "86": "pal",
+        "87": "pal",
+        "88": "pal",
+        "89": "pal",
+        "90": "liftColor",
+        "91": "liftColor"
+      }
+    },
     "frame": {
       "texels": 2,
       "probes": []
@@ -39,13 +73,15 @@
         "pal:color": {
           "color": {
             "type": "color",
-            "offset": 0
+            "offset": 0,
+            "kind": "gradientPalette"
           }
         },
         "liftColor:color": {
           "color": {
             "type": "color",
-            "offset": 4
+            "offset": 4,
+            "kind": "combineColor"
           }
         }
       }

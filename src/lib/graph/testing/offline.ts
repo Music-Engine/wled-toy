@@ -121,11 +121,13 @@ export function offlineAudio(frames: number, resources: Record<string, unknown[]
     const fed = slots[0].fed
     const taken = feedSlots(slots, track, frame / FPS).analyses
     analyses.push(structuredClone(taken))
-    const { textures } = slots[0]
     return {
       bands: slots.map((slot) => headerBands(slot.textures)),
       features: audioFeatures(taken[0], SAMPLE_RATE),
-      spectrum: Array.from(textures.spectrum.subarray(0, AUDIO_BINS), (byte) => byte / 255),
+      spectrum: slots.map(({ textures }) => {
+        textures.fillBins()
+        return Array.from(textures.bins.subarray(0, textures.binCount))
+      }),
       samples: track.subarray(fed, slots[0].fed),
     }
   })

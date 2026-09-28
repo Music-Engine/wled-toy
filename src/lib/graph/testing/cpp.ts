@@ -5,6 +5,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { audioFeatures } from '@/lib/audio/features'
+import { MAX_SPECTRUM_BINS } from '@/lib/audio/textures'
 import { buildProgram, offlineUnit } from '@/lib/graph/compile/compile'
 import type { NodeGraph } from '@/lib/graph/model/doc'
 import { AUDIO_EXTRA_SLOTS } from '@/lib/shader/prelude'
@@ -55,8 +56,8 @@ export interface AudioFrame {
   bands?: ArrayLike<number>[]
   /** iAudioFeatures, in the order of AUDIO_FEATURES; silence at 120 BPM when absent. */
   features?: ArrayLike<number>
-  /** iAudioSpectrum, 512 levels from 0 to 1; silent when absent. */
-  spectrum?: ArrayLike<number>
+  /** Per slot from 0, the row of iAudioSpectra: the analysis's bins as levels 0 to 1; a slot without a row has none. */
+  spectrum?: ArrayLike<number>[]
   /** The samples since the previous frame, -1 to 1, pushed onto iAudioWave. */
   samples?: ArrayLike<number>
 }
@@ -67,7 +68,7 @@ export interface AudioFrame {
  * new compiler until cut-over.
  */
 export function runUsermod(code: string, { leds, frames, feed = [] }: UsermodOptions): number[][][] {
-  const input = Array.from({ length: frames }, (_, frame) => feedLine(frame, feed[frame] ?? {}))
+  const input = Array.from({ length: frames }, (_, frame) => toFeedLine(frame, feed[frame] ?? {}))
   return renderUnit([code, ...USERMOD_MAIN].join('\n'), input, leds)
 }
 
@@ -82,12 +83,13 @@ function renderUnit(unit: string, input: number[][], leds: number): number[][][]
 
 const SILENT = audioFeatures(null, SAMPLE_RATE)
 
-/** One stdin line of USERMOD_MAIN: the time, the sample rate, 16 bands per slot, the features, the spectrum, then the sample count and the samples. */
-function feedLine(frame: number, { bands = [], features = SILENT, spectrum = new Array(512).fill(0), samples = [] }: AudioFrame): number[] {
+/** One stdin line of USERMOD_MAIN: the time, the sample rate, 16 bands per slot, the features, each slot's bin count and bins, then the sample count and the samples. */
+function toFeedLine(frame: number, { bands = [], features = SILENT, spectrum = [], samples = [] }: AudioFrame): number[] {
   const slots = Array.from({ length: 1 + AUDIO_EXTRA_SLOTS }, (_, slot) => Array.from(bands[slot] ?? new Array(16).fill(0)))
   if (slots.some((row) => row.length !== 16)) throw new Error('Each slot of a feed frame holds 16 bands')
-  if (spectrum.length !== 512) throw new Error('A feed frame\'s spectrum holds 512 levels')
-  return [frame / FPS, SAMPLE_RATE, ...slots.flat(), ...Array.from(features), ...Array.from(spectrum), samples.length, ...Array.from(samples)]
+  const spectra = Array.from({ length: 1 + AUDIO_EXTRA_SLOTS }, (_, slot) => Array.from(spectrum[slot] ?? []))
+  if (spectra.some((row) => row.length > MAX_SPECTRUM_BINS)) throw new Error(`A slot of a feed frame's spectrum holds at most ${MAX_SPECTRUM_BINS} bins`)
+  return [frame / FPS, SAMPLE_RATE, ...slots.flat(), ...Array.from(features), ...spectra.flatMap((row) => [row.length, ...row]), samples.length, ...Array.from(samples)]
 }
 
 // the host's side of a usermod: each line fills the header's audio arrays, pushes one history row per slot and the new
@@ -116,7 +118,10 @@ const USERMOD_MAIN = [
   '    if (!host::read(iAudioBands, audioBands)) return 1;',
   '    for (float* bands : iAudioBandsExtra) if (!host::read(bands, audioBands)) return 1;',
   '    for (vec4& features : iAudioFeatures) if (!host::read(features.c, 4)) return 1;',
-  '    if (!host::read(iAudioSpectrum, audioSpectrumBins)) return 1;',
+  '    for (int slot = 0; slot <= audioExtraSlots; slot++) {',
+  '      if (std::scanf("%d", &iAudioSpectrumBins[slot]) != 1 || iAudioSpectrumBins[slot] > audioSpectrumBins) return 1;',
+  '      if (!host::read(iAudioSpectra[slot], iAudioSpectrumBins[slot])) return 1;',
+  '    }',
   '    if (std::scanf("%d", &samples) != 1) return 1;',
   '    for (int i = 0; i < samples; i++, iAudioHeads.y = float((int(iAudioHeads.y) + 1) % audioWaveSamples)) {',
   '      if (!host::read(&iAudioWave[int(iAudioHeads.y)], 1)) return 1;',

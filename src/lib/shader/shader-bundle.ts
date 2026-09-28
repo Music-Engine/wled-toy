@@ -1,4 +1,4 @@
-import { AUDIO_BINS, HISTORY_ROWS, WAVE_ROWS, WAVE_WIDTH } from '@/lib/audio/textures'
+import { AUDIO_BINS, HISTORY_ROWS, MAX_SPECTRUM_BINS, WAVE_ROWS, WAVE_WIDTH } from '@/lib/audio/textures'
 import { AUDIO_EXTRA_SLOTS, CONTROL_VECTORS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from './prelude'
 
 /** What a host has to feed each uniform of the prelude; the header of a bundle quotes the ones it declares. */
@@ -16,6 +16,8 @@ export const UNIFORM_CONTRACT: Record<string, string> = {
   iAudioBandsExtra: `${AUDIO_EXTRA_SLOTS} more textures shaped like iAudioBands, for analyses with other settings (slots 1 to ${AUDIO_EXTRA_SLOTS}). Every element needs a texture unit of its own.`,
   iAudioHistoryExtra: `${AUDIO_EXTRA_SLOTS} more textures shaped like iAudioHistory, one per extra analysis. Every element needs a texture unit of its own.`,
   iAudioHistoryHeadExtra: 'the newest row of each iAudioHistoryExtra texture.',
+  iAudioSpectra: `R32F texture, ${MAX_SPECTRUM_BINS} x ${AUDIO_EXTRA_SLOTS + 1}, nearest filtering: each analysis's linear spectrum as levels 0 to 1, a row per slot from 0, lowest frequency first.`,
+  iAudioSpectrumBins: `${AUDIO_EXTRA_SLOTS + 1} floats: how many bins of each row of iAudioSpectra hold the spectrum, half the analysis's window.`,
   iAudioWave: `R8 texture, ${WAVE_WIDTH} x ${WAVE_ROWS}, repeating in y: the most recent samples as a ring in row-major order, 128 is silence.`,
   iAudioHeads: '(newest row of iAudioHistory, index of the next sample to be written to iAudioWave, sample rate in Hz).',
   iAudioFeatures: "4 vec4 of the default analysis's features for this frame, four to a vector: level, rms, peak, gate, onset, beat, beat phase, BPM, brightness, noisiness, then the sub, kick, low mid, vocal, presence and air levels. Onset and beat are 1 when the analysis raised them since the previous frame.",

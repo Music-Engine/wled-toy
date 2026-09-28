@@ -48,379 +48,735 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "230": "map",
+        "231": "map",
+        "232": "map",
+        "233": "noise",
+        "234": "noise",
+        "235": "noise",
+        "236": "noise",
+        "237": "ramp",
+        "238": "ramp",
+        "239": "ramp",
+        "240": "ramp",
+        "241": "voronoi",
+        "242": "voronoi",
+        "243": "voronoi",
+        "244": "voronoi",
+        "245": "voronoi",
+        "246": "voronoi",
+        "247": "voronoi",
+        "248": "voronoi",
+        "249": "voronoi",
+        "250": "voronoi",
+        "251": "voronoi",
+        "252": "voronoi",
+        "253": "tex",
+        "254": "spec0",
+        "255": "specColor",
+        "256": "kw0_0",
+        "257": "kw0_1",
+        "258": "kw0_2",
+        "259": "kw0_3",
+        "260": "kw0_4",
+        "261": "kw0_5",
+        "262": "kw0_6",
+        "263": "kw0_7",
+        "264": "kw0_8",
+        "265": "kw0_9",
+        "266": "kw0_10",
+        "267": "kw0_11",
+        "268": "kw0_12",
+        "269": "kw0_13",
+        "270": "kw0_14",
+        "271": "kw1_0",
+        "272": "kw1_1",
+        "273": "kw1_2",
+        "274": "kw1_3",
+        "275": "kw1_4",
+        "276": "kw1_5",
+        "277": "kw1_6",
+        "278": "kw1_7",
+        "279": "kw1_8",
+        "280": "kw1_9",
+        "281": "kw1_10",
+        "282": "kw1_11",
+        "283": "kw1_12",
+        "284": "kw1_13",
+        "285": "kw1_14",
+        "286": "kwsum0_0",
+        "287": "kw2_0",
+        "288": "kw2_1",
+        "289": "kw2_2",
+        "290": "kw2_3",
+        "291": "kw2_4",
+        "292": "kw2_5",
+        "293": "kw2_6",
+        "294": "kw2_7",
+        "295": "kw2_8",
+        "296": "kw2_9",
+        "297": "kw2_10",
+        "298": "kw2_11",
+        "299": "kw2_12",
+        "300": "kw2_13",
+        "301": "kw2_14",
+        "302": "kw3_0",
+        "303": "kw3_1",
+        "304": "kw3_2",
+        "305": "kw3_3",
+        "306": "kw3_4",
+        "307": "kw3_5",
+        "308": "kw3_6",
+        "309": "kw3_7",
+        "310": "kw3_8",
+        "311": "kw3_9",
+        "312": "kw3_10",
+        "313": "kw3_11",
+        "314": "kw3_12",
+        "315": "kw3_13",
+        "316": "kw3_14",
+        "317": "kwsum0_2",
+        "318": "kwsum1_0",
+        "319": "layer",
+        "320": "lift",
+        "321": "lift",
+        "322": "trails",
+        "323": "blur",
+        "324": "blur",
+        "325": "blur",
+        "326": "ceiling",
+        "327": "ceiling",
+        "328": "out"
+      },
+      "frame": {
+        "81": "kc0s0",
+        "82": "kc0s0",
+        "83": "kc0s1",
+        "84": "kc0s2",
+        "85": "kc0s3",
+        "86": "kc0s3",
+        "87": "kc0s3",
+        "88": "kc0s4",
+        "89": "kc0s4",
+        "90": "kc0s4",
+        "91": "kc0s4",
+        "92": "kc0s5",
+        "93": "kc0s6",
+        "94": "kc0s6",
+        "95": "kc0s7",
+        "96": "kc0s8",
+        "97": "kc0s8",
+        "98": "kc0s8",
+        "99": "kc0s9",
+        "100": "kc0s9",
+        "101": "kc0s9",
+        "102": "kc0s9",
+        "103": "kc0s9",
+        "104": "kc0s9",
+        "105": "kc0s9",
+        "106": "kc0s10",
+        "107": "kc0s10",
+        "108": "kc0s10",
+        "109": "kc0s10",
+        "110": "kc0s10",
+        "111": "kc0s10",
+        "112": "kc0s10",
+        "113": "kc0s11",
+        "114": "kc0s11",
+        "115": "kc0s11",
+        "116": "kc0s11",
+        "117": "kc1s0",
+        "118": "kc1s1",
+        "119": "kc1s2",
+        "120": "kc1s2",
+        "121": "kc1s2",
+        "122": "kc1s3",
+        "123": "kc1s3",
+        "124": "kc1s3",
+        "125": "kc1s3",
+        "126": "kc1s4",
+        "127": "kc1s5",
+        "128": "kc1s5",
+        "129": "kc1s6",
+        "130": "kc1s7",
+        "131": "kc1s7",
+        "132": "kc1s7",
+        "133": "kc1s8",
+        "134": "kc1s8",
+        "135": "kc1s8",
+        "136": "kc1s8",
+        "137": "kc1s8",
+        "138": "kc1s8",
+        "139": "kc1s8",
+        "140": "kc1s9",
+        "141": "kc1s9",
+        "142": "kc1s9",
+        "143": "kc1s9",
+        "144": "kc1s9",
+        "145": "kc1s9",
+        "146": "kc1s9",
+        "147": "kc1s10",
+        "148": "kc1s10",
+        "149": "kc1s10",
+        "150": "kc1s10",
+        "151": "kc1s11",
+        "152": "kc1s11",
+        "153": "kc1s11",
+        "154": "kc1s11",
+        "155": "kc1s11",
+        "156": "kc1s11",
+        "157": "kc1s11",
+        "158": "kc1s11",
+        "159": "ksum0_0",
+        "160": "kc2s0",
+        "161": "kc2s1",
+        "162": "kc2s1",
+        "163": "kc2s1",
+        "164": "kc2s2",
+        "165": "kc2s2",
+        "166": "kc2s2",
+        "167": "kc2s2",
+        "168": "kc2s3",
+        "169": "kc2s4",
+        "170": "kc2s4",
+        "171": "kc2s5",
+        "172": "kc2s6",
+        "173": "kc2s6",
+        "174": "kc2s6",
+        "175": "kc2s7",
+        "176": "kc2s7",
+        "177": "kc2s7",
+        "178": "kc2s7",
+        "179": "kc2s7",
+        "180": "kc2s7",
+        "181": "kc2s7",
+        "182": "kc2s8",
+        "183": "kc2s8",
+        "184": "kc2s8",
+        "185": "kc2s8",
+        "186": "kc2s8",
+        "187": "kc2s8",
+        "188": "kc2s8",
+        "189": "kc2s9",
+        "190": "kc2s9",
+        "191": "kc2s9",
+        "192": "kc2s9",
+        "193": "kc2s10",
+        "194": "kc2s10",
+        "195": "kc2s10",
+        "196": "kc2s10",
+        "197": "kc2s10",
+        "198": "kc2s10",
+        "199": "kc2s10",
+        "200": "kc2s10",
+        "201": "kc2s11",
+        "202": "kc2s11",
+        "203": "kc2s11",
+        "204": "kc3s0",
+        "205": "kc3s0",
+        "206": "kc3s0",
+        "207": "kc3s1",
+        "208": "kc3s1",
+        "209": "kc3s1",
+        "210": "kc3s1",
+        "211": "kc3s2",
+        "212": "kc3s3",
+        "213": "kc3s3",
+        "214": "kc3s4",
+        "215": "kc3s5",
+        "216": "kc3s5",
+        "217": "kc3s5",
+        "218": "kc3s6",
+        "219": "kc3s6",
+        "220": "kc3s6",
+        "221": "kc3s6",
+        "222": "kc3s6",
+        "223": "kc3s6",
+        "224": "kc3s6",
+        "225": "kc3s7",
+        "226": "kc3s7",
+        "227": "kc3s7",
+        "228": "kc3s7",
+        "229": "kc3s7",
+        "230": "kc3s7",
+        "231": "kc3s7",
+        "232": "kc3s8",
+        "233": "kc3s8",
+        "234": "kc3s8",
+        "235": "kc3s8",
+        "236": "kc3s9",
+        "237": "kc3s9",
+        "238": "kc3s9",
+        "239": "kc3s9",
+        "240": "kc3s9",
+        "241": "kc3s9",
+        "242": "kc3s9",
+        "243": "kc3s9",
+        "244": "kc3s10",
+        "245": "kc3s10",
+        "246": "kc3s10",
+        "247": "kc3s11",
+        "248": "kc3s11",
+        "249": "kc3s11",
+        "250": "kc3s11",
+        "251": "kc3s11",
+        "252": "kc3s11",
+        "253": "kc3s11",
+        "254": "kc3s11",
+        "255": "kc3s11",
+        "256": "kc3s11",
+        "257": "ksum0_2",
+        "258": "ksum1_0",
+        "259": "split1",
+        "260": "gainMix",
+        "261": "gainMix",
+        "262": "drift",
+        "263": "drift"
+      }
+    },
     "frame": {
       "texels": 19,
       "probes": []
     },
-    "issues": [
-      {
-        "nodeId": "split1",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      }
-    ],
+    "issues": [],
     "slots": {
       "pixel": {},
       "global": {
         "kc0s0": {
           "value": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "envelopeFollower"
           }
         },
         "kc0s1": {
           "value": {
             "type": "float",
-            "offset": 1
+            "offset": 1,
+            "kind": "slewLimiter"
           }
         },
         "kc0s4": {
           "value": {
             "type": "float",
-            "offset": 2
+            "offset": 2,
+            "kind": "peakHold"
           },
           "held": {
             "type": "float",
-            "offset": 3
+            "offset": 3,
+            "kind": "peakHold"
           }
         },
         "kc0s7": {
           "on": {
             "type": "float",
-            "offset": 4
+            "offset": 4,
+            "kind": "schmittTrigger"
           }
         },
         "kc0s8": {
           "held": {
             "type": "float",
-            "offset": 5
+            "offset": 5,
+            "kind": "sampleHold"
           },
           "high": {
             "type": "float",
-            "offset": 6
+            "offset": 6,
+            "kind": "sampleHold"
           }
         },
         "kc0s9": {
           "count": {
             "type": "float",
-            "offset": 7
+            "offset": 7,
+            "kind": "counter"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 8
+            "offset": 8,
+            "kind": "counter"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 9
+            "offset": 9,
+            "kind": "counter"
           }
         },
         "kc0s10": {
           "index": {
             "type": "float",
-            "offset": 10
+            "offset": 10,
+            "kind": "stepSequencer"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 11
+            "offset": 11,
+            "kind": "stepSequencer"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 12
+            "offset": 12,
+            "kind": "stepSequencer"
           }
         },
         "kc0s11": {
           "value": {
             "type": "float",
-            "offset": 13
+            "offset": 13,
+            "kind": "integrator"
           },
           "high": {
             "type": "float",
-            "offset": 14
+            "offset": 14,
+            "kind": "integrator"
           }
         },
         "kc1s0": {
           "value": {
             "type": "float",
-            "offset": 15
+            "offset": 15,
+            "kind": "slewLimiter"
           }
         },
         "kc1s3": {
           "value": {
             "type": "float",
-            "offset": 16
+            "offset": 16,
+            "kind": "peakHold"
           },
           "held": {
             "type": "float",
-            "offset": 17
+            "offset": 17,
+            "kind": "peakHold"
           }
         },
         "kc1s6": {
           "on": {
             "type": "float",
-            "offset": 18
+            "offset": 18,
+            "kind": "schmittTrigger"
           }
         },
         "kc1s7": {
           "held": {
             "type": "float",
-            "offset": 19
+            "offset": 19,
+            "kind": "sampleHold"
           },
           "high": {
             "type": "float",
-            "offset": 20
+            "offset": 20,
+            "kind": "sampleHold"
           }
         },
         "kc1s8": {
           "count": {
             "type": "float",
-            "offset": 21
+            "offset": 21,
+            "kind": "counter"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 22
+            "offset": 22,
+            "kind": "counter"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 23
+            "offset": 23,
+            "kind": "counter"
           }
         },
         "kc1s9": {
           "index": {
             "type": "float",
-            "offset": 24
+            "offset": 24,
+            "kind": "stepSequencer"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 25
+            "offset": 25,
+            "kind": "stepSequencer"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 26
+            "offset": 26,
+            "kind": "stepSequencer"
           }
         },
         "kc1s10": {
           "value": {
             "type": "float",
-            "offset": 27
+            "offset": 27,
+            "kind": "integrator"
           },
           "high": {
             "type": "float",
-            "offset": 28
+            "offset": 28,
+            "kind": "integrator"
           }
         },
         "kc1s11": {
           "count": {
             "type": "float",
-            "offset": 29
+            "offset": 29,
+            "kind": "clockDivider"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 30
+            "offset": 30,
+            "kind": "clockDivider"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 31
+            "offset": 31,
+            "kind": "clockDivider"
           }
         },
         "kc2s2": {
           "value": {
             "type": "float",
-            "offset": 32
+            "offset": 32,
+            "kind": "peakHold"
           },
           "held": {
             "type": "float",
-            "offset": 33
+            "offset": 33,
+            "kind": "peakHold"
           }
         },
         "kc2s5": {
           "on": {
             "type": "float",
-            "offset": 34
+            "offset": 34,
+            "kind": "schmittTrigger"
           }
         },
         "kc2s6": {
           "held": {
             "type": "float",
-            "offset": 35
+            "offset": 35,
+            "kind": "sampleHold"
           },
           "high": {
             "type": "float",
-            "offset": 36
+            "offset": 36,
+            "kind": "sampleHold"
           }
         },
         "kc2s7": {
           "count": {
             "type": "float",
-            "offset": 37
+            "offset": 37,
+            "kind": "counter"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 38
+            "offset": 38,
+            "kind": "counter"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 39
+            "offset": 39,
+            "kind": "counter"
           }
         },
         "kc2s8": {
           "index": {
             "type": "float",
-            "offset": 40
+            "offset": 40,
+            "kind": "stepSequencer"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 41
+            "offset": 41,
+            "kind": "stepSequencer"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 42
+            "offset": 42,
+            "kind": "stepSequencer"
           }
         },
         "kc2s9": {
           "value": {
             "type": "float",
-            "offset": 43
+            "offset": 43,
+            "kind": "integrator"
           },
           "high": {
             "type": "float",
-            "offset": 44
+            "offset": 44,
+            "kind": "integrator"
           }
         },
         "kc2s10": {
           "count": {
             "type": "float",
-            "offset": 45
+            "offset": 45,
+            "kind": "clockDivider"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 46
+            "offset": 46,
+            "kind": "clockDivider"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 47
+            "offset": 47,
+            "kind": "clockDivider"
           }
         },
         "kc2s11": {
           "on": {
             "type": "float",
-            "offset": 48
+            "offset": 48,
+            "kind": "toggle"
           },
           "high": {
             "type": "float",
-            "offset": 49
+            "offset": 49,
+            "kind": "toggle"
           }
         },
         "kc3s1": {
           "value": {
             "type": "float",
-            "offset": 50
+            "offset": 50,
+            "kind": "peakHold"
           },
           "held": {
             "type": "float",
-            "offset": 51
+            "offset": 51,
+            "kind": "peakHold"
           }
         },
         "kc3s4": {
           "on": {
             "type": "float",
-            "offset": 52
+            "offset": 52,
+            "kind": "schmittTrigger"
           }
         },
         "kc3s5": {
           "held": {
             "type": "float",
-            "offset": 53
+            "offset": 53,
+            "kind": "sampleHold"
           },
           "high": {
             "type": "float",
-            "offset": 54
+            "offset": 54,
+            "kind": "sampleHold"
           }
         },
         "kc3s6": {
           "count": {
             "type": "float",
-            "offset": 55
+            "offset": 55,
+            "kind": "counter"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 56
+            "offset": 56,
+            "kind": "counter"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 57
+            "offset": 57,
+            "kind": "counter"
           }
         },
         "kc3s7": {
           "index": {
             "type": "float",
-            "offset": 58
+            "offset": 58,
+            "kind": "stepSequencer"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 59
+            "offset": 59,
+            "kind": "stepSequencer"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 60
+            "offset": 60,
+            "kind": "stepSequencer"
           }
         },
         "kc3s8": {
           "value": {
             "type": "float",
-            "offset": 61
+            "offset": 61,
+            "kind": "integrator"
           },
           "high": {
             "type": "float",
-            "offset": 62
+            "offset": 62,
+            "kind": "integrator"
           }
         },
         "kc3s9": {
           "count": {
             "type": "float",
-            "offset": 63
+            "offset": 63,
+            "kind": "clockDivider"
           },
           "triggerHigh": {
             "type": "float",
-            "offset": 64
+            "offset": 64,
+            "kind": "clockDivider"
           },
           "resetHigh": {
             "type": "float",
-            "offset": 65
+            "offset": 65,
+            "kind": "clockDivider"
           }
         },
         "kc3s10": {
           "on": {
             "type": "float",
-            "offset": 66
+            "offset": 66,
+            "kind": "toggle"
           },
           "high": {
             "type": "float",
-            "offset": 67
+            "offset": 67,
+            "kind": "toggle"
           }
         },
         "kc3s11": {
           "stage": {
             "type": "float",
-            "offset": 68
+            "offset": 68,
+            "kind": "envelope"
           },
           "level": {
             "type": "float",
-            "offset": 69
+            "offset": 69,
+            "kind": "envelope"
           },
           "high": {
             "type": "float",
-            "offset": 70
+            "offset": 70,
+            "kind": "envelope"
           }
         },
         "gainMix:result": {
           "result": {
             "type": "float",
-            "offset": 71
+            "offset": 71,
+            "kind": "math"
           }
         },
         "drift:vector": {
           "vector": {
             "type": "vec3",
-            "offset": 72
+            "offset": 72,
+            "kind": "combineXYZ"
           }
         }
       }
@@ -428,10 +784,6 @@
   },
   "usermod": {
     "issues": [
-      {
-        "nodeId": "split1",
-        "message": "Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings"
-      },
       {
         "nodeId": "spec0",
         "message": "Spectrum samples a texture or takes a derivative, which C++ has no pixels for"

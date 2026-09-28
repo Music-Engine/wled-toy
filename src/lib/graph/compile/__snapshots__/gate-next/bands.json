@@ -13,6 +13,22 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "81": "n",
+        "82": "n",
+        "83": "n",
+        "84": "n",
+        "85": "n",
+        "86": "n",
+        "87": "n",
+        "88": "n",
+        "89": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,7 +40,8 @@
         "n:band1": {
           "band1": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "bands"
           }
         }
       }

@@ -3,7 +3,7 @@ import { GRAPH_VERSION, type NodeGraph } from '@/lib/graph/model/doc'
 import { graph, node } from '@/lib/graph/testing'
 import { bufferAllowance } from '@/lib/graph/compile/next/checks/buffer-allowance'
 import { createCompiler } from '@/lib/graph/compile/next/create-compiler'
-import { glslCompiler } from '@/lib/graph/compile/next/compilers'
+import { createGlslCompiler } from '@/lib/graph/compile/next/compilers'
 import { pass } from '@/lib/graph/compile/next/annotations/pass'
 import { resources } from '@/lib/graph/compile/next/annotations/resources'
 import { state } from '@/lib/graph/compile/next/annotations/state'
@@ -50,14 +50,14 @@ function chain(kinds: string[], ids = kinds.map((_, i) => 'abcdefgh'[i])): NodeG
 }
 
 const FIVE = ['stateFloat', 'stateColor', 'stateColor', 'stateFloat', 'stateColor']
-const pixelOffsets = (slots: ReturnType<ReturnType<typeof glslCompiler>['compile']>['slots']) =>
+const pixelOffsets = (slots: ReturnType<ReturnType<typeof createGlslCompiler>['compile']>['slots']) =>
   Object.fromEntries(Object.entries(slots.pixel).map(([id, entry]) => [id, Object.values(entry).map((slot) => slot.offset)]))
 
 describe('createCompiler', () => {
   it('refuses a doc of another version with one issue and no program', () => {
     const doc = { ...graph([node('o', 'output')]), version: GRAPH_VERSION + 1 }
-    expect(glslCompiler().compile(doc)).toMatchObject({ program: null, issues: [{ nodeId: null, message: `This graph is version ${GRAPH_VERSION + 1}; the compiler reads version ${GRAPH_VERSION}` }] })
-    expect(glslCompiler().compile(doc).issues).toHaveLength(1)
+    expect(createGlslCompiler().compile(doc)).toMatchObject({ program: null, issues: [{ nodeId: null, message: `This graph is version ${GRAPH_VERSION + 1}; the compiler reads version ${GRAPH_VERSION}` }] })
+    expect(createGlslCompiler().compile(doc).issues).toHaveLength(1)
   })
 
   it('throws when an annotation is listed before one it reads, naming both', () => {
@@ -102,30 +102,38 @@ describe('pass', () => {
 
 describe('state', () => {
   it('numbers pixel floats in topo order, moving a vector that would straddle two layers to the next one', () => {
-    expect(pixelOffsets(glslCompiler().compile(chain(FIVE)).slots)).toEqual({ a: [0], b: [1], c: [4], d: [7], e: [8] })
+    expect(pixelOffsets(createGlslCompiler().compile(chain(FIVE)).slots)).toEqual({ a: [0], b: [1], c: [4], d: [7], e: [8] })
   })
 
-  it('reuses the previous offsets of a node with the same id and slot types, and appends a new node after the last used slot', () => {
-    const { slots } = glslCompiler().compile(chain(['stateFloat', 'stateColor', 'stateFloat'], ['a', 'b', 'c']))
-    const edited = glslCompiler().compile(chain(['stateFloat', 'stateFloat', 'stateColor'], ['x', 'a', 'b']), { slots })
+  it('reuses the previous offsets of a node with the same id and slot types, and gives a new node the first free floats', () => {
+    const { slots } = createGlslCompiler().compile(chain(['stateFloat', 'stateColor', 'stateFloat'], ['a', 'b', 'c']))
+    const edited = createGlslCompiler().compile(chain(['stateFloat', 'stateFloat', 'stateColor'], ['x', 'a', 'b']), { slots })
     expect(pixelOffsets(edited.slots)).toEqual({ x: [4], a: [0], b: [1] })
   })
 
   it('moves a node whose slot types changed under the same id', () => {
-    const { slots } = glslCompiler().compile(chain(['stateFloat', 'stateColor'], ['a', 'b']))
-    expect(pixelOffsets(glslCompiler().compile(chain(['stateColor', 'stateColor'], ['a', 'b']), { slots }).slots)).toEqual({ a: [4], b: [1] })
+    const { slots } = createGlslCompiler().compile(chain(['stateFloat', 'stateColor'], ['a', 'b']))
+    expect(pixelOffsets(createGlslCompiler().compile(chain(['stateColor', 'stateColor'], ['a', 'b']), { slots }).slots)).toEqual({ a: [4], b: [1] })
+  })
+
+  it('gives floats a changed or deleted node freed to the next node that fits them, and stays in the reach when it can', () => {
+    const { slots } = createGlslCompiler().compile(chain(['stateColor', 'stateFloat'], ['a', 'b']))
+    const rekinded = createGlslCompiler().compile(chain(['stateFloat', 'stateFloat'], ['a', 'b']), { slots })
+    expect(pixelOffsets(rekinded.slots)).toEqual({ a: [0], b: [3] })
+    const added = createGlslCompiler().compile(chain(['stateFloat', 'stateFloat', 'stateColor'], ['a', 'b', 'c']), { slots: rekinded.slots })
+    expect(pixelOffsets(added.slots)).toEqual({ a: [0], b: [3], c: [4] })
   })
 
   it('reports the node that crosses 12 pixel floats and returns no program', () => {
-    const { program, issues } = glslCompiler().compile(chain([...FIVE, 'stateColor']))
+    const { program, issues } = createGlslCompiler().compile(chain([...FIVE, 'stateColor']))
     expect(program).toBeNull()
     expect(issues).toEqual([{ nodeId: 'f', message: 'Too many pixel state values reach the shader; it keeps 12' }])
   })
 
   it('keeps a frame node\'s state in global state beside the outputs the pixel pass reads, and lists a probe', () => {
     const doc = graph([node('a', 'stateFloat'), node('p', 'probed'), node('o', 'output')], [['a.value', 'p.value'], ['p.value', 'o.color']])
-    const { program, slots } = glslCompiler().compile(doc)
-    expect(slots.global).toEqual({ 'a': { value: { type: 'float', offset: 0 } }, 'p:value': { value: { type: 'float', offset: 1 } } })
+    const { program, slots } = createGlslCompiler().compile(doc)
+    expect(slots.global).toEqual({ 'a': { value: { type: 'float', offset: 0, kind: 'stateFloat' } }, 'p:value': { value: { type: 'float', offset: 1, kind: 'probed' } } })
     expect(program).toMatchObject({ probes: { p: 1 }, frame: { texels: 1, probes: [0] } })
     expect(program!.frame!.code).toContain('  globalState[0].x += 0.5;')
     expect(program!.pixel).toContain('c = vec4(vec3(texelFetch(iGlobal, ivec2(0, 0), 0).y), 1.0);')

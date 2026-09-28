@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest'
 import { commands } from 'vitest/browser'
 import { layoutPositions } from '@/lib/engine/output/layout'
 import { ShaderRenderer } from '@/lib/engine/render/renderer'
-import { generateGlsl } from './compile'
-import { FrameRunner } from '@/lib/graph/compile/js/frame'
+import { Runtime } from '@/lib/engine/runtime'
+import { createGlslCompiler } from '@/lib/graph/compile/next/compilers'
 import { readGraphFile } from '@/lib/graph/model/file'
 import { FPS, SAMPLE_RATE, feedSlots, openSlots, synthTrack } from '@/lib/graph/testing/offline'
 
@@ -85,7 +85,7 @@ function previewCanvas(): HTMLCanvasElement {
   return canvas
 }
 
-function benchmark(name: string, text: string) {
+function runBenchmark(name: string, text: string) {
   const readTimes: number[] = []
   for (let i = 0; i < WARMUP + COMPILES; i++) {
     const t0 = performance.now()
@@ -95,41 +95,45 @@ function benchmark(name: string, text: string) {
   const { doc, problems } = readGraphFile(text)
   expect(problems, `${name}: structural problems`).toEqual([])
 
-  const generateTimes: number[] = []
-  let shader = generateGlsl(doc)
+  const compileTimes: number[] = []
+  let compiled = createGlslCompiler().compile(doc)
   for (let i = 0; i < WARMUP + COMPILES; i++) {
     const t0 = performance.now()
-    shader = generateGlsl(doc)
-    if (i >= WARMUP) generateTimes.push(performance.now() - t0)
+    compiled = createGlslCompiler().compile(doc)
+    if (i >= WARMUP) compileTimes.push(performance.now() - t0)
   }
-  expect(shader.error, `${name}: graph error at node "${shader.errorNode}"`).toBeNull()
-  expect(shader.issues.map((issue) => `${issue.nodeId}: ${issue.message}`), `${name}: graph issues`).toEqual([])
+  const { program, slots: table } = compiled
+  expect(compiled.issues.map((issue) => `${issue.nodeId}: ${issue.message}`), `${name}: graph issues`).toEqual([])
+  const code = `${program!.frame?.code ?? ''}${program!.pixel}`
 
   const glCompile: number[] = []
   const glWall: number[] = []
   const firstDraw: number[] = []
   for (let i = 0; i < 3; i++) {
-    const probe = new ShaderRenderer(document.createElement('canvas'))
+    const renderer = new ShaderRenderer(document.createElement('canvas'))
+    const probe = new Runtime(renderer)
     const t0 = performance.now()
-    const reported = probe.compile(shader.code)
+    const reported = probe.load(program!, table)!
     glWall.push(performance.now() - t0)
     glCompile.push(reported)
     // some drivers only finish the compile when the program is first used, so the first draw is timed on its own
     const t1 = performance.now()
-    probe.renderLeds({ time: 0, dt: 1 / FPS, frame: 0, ledCount: 60, scanY: 0.5 })
+    probe.tick({ time: 0, dt: 1 / FPS, frame: 0, ledCount: 60, scanY: 0.5 })
     firstDraw.push(performance.now() - t1)
-    probe.dispose()
+    renderer.dispose()
   }
 
-  const renderers = TARGETS.map((target) => {
+  const runtimes = TARGETS.map((target) => {
     const renderer = new ShaderRenderer(document.createElement('canvas'))
-    renderer.compile(shader.code)
+    const runtime = new Runtime(renderer)
+    runtime.load(program!, table)
     if (target.layout) renderer.setLayout(layoutPositions({ segments: [{ kind: 'matrix', width: target.layout, height: target.layout, serpentine: false, origin: 'top-left' }] }))
-    return renderer
+    return { renderer, runtime }
   })
   const canvas = previewCanvas()
-  const preview = new ShaderRenderer(canvas)
-  preview.compile(shader.code)
+  const previewRenderer = new ShaderRenderer(canvas)
+  const preview = new Runtime(previewRenderer)
+  preview.load(program!, table)
   const previewGl = canvas.getContext('webgl2')
   const previewPixel = new Uint8Array(4)
   // gl.finish() alone returns before SwiftShader has drawn; a one-pixel readback is a sync point that cannot be deferred
@@ -138,20 +142,17 @@ function benchmark(name: string, text: string) {
     previewGl?.finish()
   }
 
-  const runner = new FrameRunner()
-  runner.load(shader.frame)
   const track = synthTrack(Math.ceil(FRAMES / FPS) + 1)
-  const slots = openSlots(shader.frame, SAMPLE_RATE)
+  const slots = openSlots(program!, SAMPLE_RATE)
+  const extraTextures = slots.slice(1).map((slot) => slot.textures)
 
   const analysis: number[] = []
   const perHop: number[] = []
-  const step: number[] = []
-  const setControls: number[] = []
-  const setAudio: number[] = []
+  const feed: number[] = []
   const renderPreview: number[] = []
-  const renderLeds: Record<string, number[]> = Object.fromEntries(TARGETS.map((t) => [t.name, []]))
+  const tick: Record<string, number[]> = Object.fromEntries(TARGETS.map((t) => [t.name, []]))
 
-  const primary = renderers[0]
+  const primary = runtimes[0].runtime
   let heapStart = 0
   for (let frame = 0; frame < WARMUP + FRAMES; frame++) {
     const measured = frame >= WARMUP
@@ -163,26 +164,17 @@ function benchmark(name: string, text: string) {
     const analysisMs = performance.now() - t0
     const f = analyses[0]
 
-    const t1 = performance.now()
-    const controls = runner.step({ time, dt: 1 / FPS, frameIndex: frame, midi: undefined, osc: undefined, audio: f ? { analyses, sampleRate: SAMPLE_RATE } : undefined })
-    const stepMs = performance.now() - t1
-
-    const t2 = performance.now()
-    primary.setControls(controls)
-    const setControlsMs = performance.now() - t2
-
     const t3 = performance.now()
-    if (f) primary.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))
-    const setAudioMs = performance.now() - t3
+    if (f) primary.feed(slots[0].textures, extraTextures, f)
+    const feedMs = performance.now() - t3
 
-    for (const other of [...renderers.slice(1), preview]) {
-      other.setControls(controls)
-      if (f) other.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))
+    for (const other of [...runtimes.slice(1).map((r) => r.runtime), preview]) {
+      if (f) other.feed(slots[0].textures, extraTextures, f)
     }
 
     const t4 = performance.now()
-    preview.renderPreview({ time, dt: 1 / FPS, frame, ledCount: 60, scanY: 0.5 })
-    // renderPreview draws to the canvas and never reads back, so nothing would be waited on without this
+    preview.preview({ time, dt: 1 / FPS, frame, ledCount: 60, scanY: 0.5 }, 0)
+    // the preview draws to the canvas and never reads back, so nothing would be waited on without this
     finishPreview()
     const previewMs = performance.now() - t4
 
@@ -190,35 +182,31 @@ function benchmark(name: string, text: string) {
     TARGETS.forEach((target, i) => {
       if (measured && frame >= WARMUP + TARGET_FRAMES && i > 0) return
       const t5 = performance.now()
-      const leds = renderers[i].renderLeds({ ...params, ledCount: target.leds })
+      const leds = runtimes[i].runtime.tick({ ...params, ledCount: target.leds })
       const ms = performance.now() - t5
-      if (measured) renderLeds[target.name].push(ms)
+      if (measured) tick[target.name].push(ms)
       if (frame === WARMUP) expect(leds.some(Number.isNaN), `${name}: NaN in the LED colors at ${target.name}`).toBe(false)
     })
 
     if (measured) {
       analysis.push(analysisMs)
       perHop.push(hops > 0 ? analysisMs / hops : 0)
-      step.push(stepMs)
-      setControls.push(setControlsMs)
-      setAudio.push(setAudioMs)
+      feed.push(feedMs)
       renderPreview.push(previewMs)
     }
   }
   const heapEnd = heapUsed()
 
   // the stages whose per-frame numbers sit under the 0.1 ms clock quantum, measured again over a batch
-  const lastControls = runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, midi: undefined, osc: undefined, audio: undefined })
-  const batchedStep = batched(BATCH, () => { runner.step({ time: FRAMES / FPS, dt: 1 / FPS, frameIndex: FRAMES, midi: undefined, osc: undefined, audio: undefined }) })
-  const batchedSetControls = batched(BATCH, () => primary.setControls(lastControls))
-  const extraTextures = slots.slice(1).map((slot) => slot.textures)
-  const batchedSetAudio = batched(BATCH, () => primary.setAudio(slots[0].textures, extraTextures))
-  const batchedRenderLeds = Object.fromEntries(TARGETS.map((t, i) => [t.name, batched(BATCH, () => { renderers[i].renderLeds({ time: 0, dt: 1 / FPS, frame: 0, ledCount: t.leds, scanY: 0.5 }) })]))
+  const [knob] = program!.uniforms
+  const batchedSet = batched(BATCH, () => knob && primary.set(knob, 0.5))
+  const batchedFeed = batched(BATCH, () => primary.feed(slots[0].textures, extraTextures, null))
+  const batchedTick = Object.fromEntries(TARGETS.map((t, i) => [t.name, batched(BATCH, () => { runtimes[i].runtime.tick({ time: 0, dt: 1 / FPS, frame: 0, ledCount: t.leds, scanY: 0.5 }) })]))
 
-  for (const renderer of [...renderers, preview]) renderer.dispose()
+  for (const { renderer } of runtimes) renderer.dispose()
+  previewRenderer.dispose()
   canvas.remove()
 
-  const lines = shader.code.split('\n').length
   return {
     graph: name,
     webglRenderer: rendererString(),
@@ -227,17 +215,16 @@ function benchmark(name: string, text: string) {
     fps: FPS,
     nodes: doc.nodes.length,
     edges: doc.edges.length,
-    glslChars: shader.code.length,
-    glslLines: lines,
-    controlSteps: shader.frame.steps.length,
-    controlExports: shader.frame.exports.length,
-    controlUniformFloats: shader.frame.exports.reduce((sum, e) => sum + e.dim, 0),
+    glslChars: code.length,
+    glslLines: code.split('\n').length,
+    globalTexels: program!.frame?.texels ?? 0,
+    uniforms: program!.uniforms.length,
     analysisSlots: slots.length,
     previewPixels: [canvas.width, canvas.height],
-    usesFeedback: /\b(iPrevFrame|previousFrame)\b/.test(shader.code),
+    usesFeedback: /\b(iPrevFrame|previousFrame)\b/.test(program!.pixel),
     compile: {
       readGraphFile: timing(readTimes),
-      generateGlsl: timing(generateTimes),
+      compile: timing(compileTimes),
       shaderCompileReported: timing(glCompile),
       shaderCompileWall: timing(glWall),
       firstRenderAfterCompile: timing(firstDraw),
@@ -245,19 +232,16 @@ function benchmark(name: string, text: string) {
     frame: {
       audioAnalysis: timing(analysis),
       audioAnalysisPerHop: timing(perHop),
-      runnerStep: timing(step),
-      setControls: timing(setControls),
-      setAudio: timing(setAudio),
+      feed: timing(feed),
       renderPreview: timing(renderPreview),
-      renderLeds: Object.fromEntries(TARGETS.map((t) => [t.name, timing(renderLeds[t.name])])),
+      tick: Object.fromEntries(TARGETS.map((t) => [t.name, timing(tick[t.name])])),
     },
     // one call's cost from a batch of BATCH, for the stages the 0.1 ms clock quantum cannot resolve one at a time
     frameBatched: {
       calls: BATCH,
-      runnerStep: batchedStep,
-      setControls: batchedSetControls,
-      setAudio: batchedSetAudio,
-      renderLeds: batchedRenderLeds,
+      set: batchedSet,
+      feed: batchedFeed,
+      tick: batchedTick,
     },
     heap: heapStart && heapEnd
       ? { startBytes: heapStart, endBytes: heapEnd, growthBytes: heapEnd - heapStart, bytesPerFrame: Math.round((heapEnd - heapStart) / FRAMES) }
@@ -265,19 +249,18 @@ function benchmark(name: string, text: string) {
   }
 }
 
-type Result = ReturnType<typeof benchmark>
+type Result = ReturnType<typeof runBenchmark>
 
-function summaryTable(results: Result[]): string {
-  const total = (r: Result) => r.frame.audioAnalysis.median + r.frame.runnerStep.median + r.frame.setControls.median + r.frame.setAudio.median + r.frame.renderLeds['strip-300'].median
-  const sorted = [...results].sort((a, b) => total(b) - total(a))
-  const header = ['graph', 'nodes', 'GLSL lines', 'ctrl steps', 'generateGlsl', 'GL compile', 'analysis', 'step', 'step (batched)', 'setAudio', 'setAudio (batched)', 'LEDs 300', 'LEDs 4096', 'preview', 'frame total']
+function formatSummaryTable(results: Result[]): string {
+  const sumFrameTotal = (r: Result) => r.frame.audioAnalysis.median + r.frame.feed.median + r.frame.tick['strip-300'].median
+  const sorted = [...results].sort((a, b) => sumFrameTotal(b) - sumFrameTotal(a))
+  const header = ['graph', 'nodes', 'GLSL lines', 'global texels', 'compile', 'GL compile', 'analysis', 'feed', 'feed (batched)', 'tick 300', 'tick 300 (batched)', 'tick 4096', 'preview', 'frame total']
   const rows = sorted.map((r) => [
-    r.graph, String(r.nodes), String(r.glslLines), String(r.controlSteps),
-    r.compile.generateGlsl.median.toFixed(2), r.compile.shaderCompileWall.median.toFixed(1),
-    r.frame.audioAnalysis.median.toFixed(2), r.frame.runnerStep.median.toFixed(3), r.frameBatched.runnerStep.toFixed(3),
-    r.frame.setAudio.median.toFixed(3), r.frameBatched.setAudio.toFixed(3),
-    r.frame.renderLeds['strip-300'].median.toFixed(2), r.frame.renderLeds['matrix-64x64'].median.toFixed(2),
-    r.frame.renderPreview.median.toFixed(2), total(r).toFixed(2),
+    r.graph, String(r.nodes), String(r.glslLines), String(r.globalTexels),
+    r.compile.compile.median.toFixed(2), r.compile.shaderCompileWall.median.toFixed(1),
+    r.frame.audioAnalysis.median.toFixed(2), r.frame.feed.median.toFixed(3), r.frameBatched.feed.toFixed(3),
+    r.frame.tick['strip-300'].median.toFixed(2), r.frameBatched.tick['strip-300'].toFixed(3), r.frame.tick['matrix-64x64'].median.toFixed(2),
+    r.frame.renderPreview.median.toFixed(2), sumFrameTotal(r).toFixed(2),
   ])
   const table = [header, header.map(() => '---'), ...rows].map((cells) => `| ${cells.join(' | ')} |`).join('\n')
   return [
@@ -285,7 +268,7 @@ function summaryTable(results: Result[]): string {
     '',
     `WebGL renderer: \`${results[0]?.webglRenderer ?? 'unknown'}\``,
     '',
-    `All figures are medians in ms. ${FRAMES} frames per graph at ${FPS} fps, ${TARGET_FRAMES} of them at the LED targets other than strip 60. Sorted by frame total (analysis + step + setControls + setAudio + LEDs 300).`,
+    `All figures are medians in ms. ${FRAMES} frames per graph at ${FPS} fps, ${TARGET_FRAMES} of them at the LED targets other than strip 60. A tick is the frame pass, the LED pass and the probe readback. Sorted by frame total (analysis + feed + tick 300).`,
     '',
     table,
     '',
@@ -303,13 +286,13 @@ describe.runIf(BENCH)('graph benchmarks', () => {
   })
 
   it.each(selected)('%s', async (name, text) => {
-    const result = benchmark(name, text)
+    const result = runBenchmark(name, text)
     results.push(result)
     await commands.writeFile(`.work/bench/${name}.json`, JSON.stringify(result, null, 1))
   }, 900_000)
 
   it('writes the summary', async () => {
     expect(results.length).toBeGreaterThan(0)
-    await commands.writeFile('.work/bench/summary.md', summaryTable(results))
+    await commands.writeFile('.work/bench/summary.md', formatSummaryTable(results))
   })
 })

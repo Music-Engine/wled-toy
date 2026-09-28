@@ -14,7 +14,7 @@ import { dockHost } from '@/lib/app/workspace'
 import { createBrowserBackend } from '@/lib/documents/files/file-backends'
 import { createGraphSession } from '@/lib/documents/sessions/graph-session'
 import { useEngine } from '@/lib/engine/engine'
-import { describeNodeItem, generateGlsl, storedShape, type NodeItem } from '@/lib/graph'
+import { describeNodeItem, generateGlsl, createGlslCompiler, storedShape, type NodeItem } from '@/lib/graph'
 import { createGraphDocument, graphFileBackendKey, type GraphSession } from '@/lib/graph/model/document'
 import { frozenNotice } from '@/lib/shader/shader-export'
 import type { MenuPreset } from '@/lib/shader/menu-fs'
@@ -43,12 +43,11 @@ const session = createGraphSession({
   storeEdges: () => flow.edges.value,
   colorOf: socketColor,
   target: {
-    plan(shader) {
-      engine.setControlPlan(shader.frame)
-      engine.setOutput(shader.output)
-    },
-    compile: (code) => (engine.compile(code, 'graph') ? null : engine.compileError.value),
+    readSlots: () => engine.readSlots(),
+    load: (program, slots) => (engine.load(program, slots) ? null : engine.compileError.value),
+    set: (uniform, value) => engine.set(uniform, value),
   },
+  compiler: createGlslCompiler(),
 })
 
 // The file is what Save wrote last; config.graph stays the working copy that every edit lands in. A loaded file replaces
@@ -97,7 +96,7 @@ function showFound(id: string) {
 
 // shader mode and a pasted shader have no control plan feeding iControl, so the knob values are written into the code
 function standaloneGlsl() {
-  const shader = generateGlsl(session.snapshot(), { standalone: true, controls: (nodeId, output) => engine.controlOutput(nodeId, output) })
+  const shader = generateGlsl(session.snapshot(), { standalone: true, controls: (nodeId, output) => engine.readControlOutput(nodeId, output) })
   const notice = frozenNotice(shader.frozen)
   if (notice) log(notice, 'warn')
   return { code: shader.code, notice }
@@ -132,7 +131,7 @@ const copyGlsl = () => copyText(standaloneGlsl().code)
       <ProblemsList :problems="problems" @reveal="focusNode" />
     </DockContribution>
     <DockContribution tab="glsl">
-      <GlslCode :code="session.generated.value.code" class="block px-2.5 py-2 text-[12.5px] leading-relaxed" />
+      <GlslCode :code="session.generated.value.program?.pixel ?? ''" class="block px-2.5 py-2 text-[12.5px] leading-relaxed" />
     </DockContribution>
     <Teleport :to="dockHost('glsl', 'actions')">
       <button type="button" class="app-button" @click="copyGlsl">Copy</button>

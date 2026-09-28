@@ -28,6 +28,12 @@ describe('compileKey', () => {
     expect(key(edited((doc) => (doc.nodes.find((n) => n.id === 'speed')!.data.values.b = 0.3)))).not.toBe(base)
   })
 
+  it('ignores a Knob\'s value, which reaches the program as a uniform, but not its range', () => {
+    const withKnobValues = (values: Record<string, number>) => edited((doc) => doc.nodes.push({ id: 'k', type: 'shader', position: { x: 0, y: 0 }, data: { kind: 'knob', values } }))
+    expect(key(withKnobValues({ value: 0.9 }))).toBe(key(withKnobValues({ value: 0.1 })))
+    expect(key(withKnobValues({ value: 0.1, max: 2 }))).not.toBe(key(withKnobValues({ value: 0.1 })))
+  })
+
   it('changes with a kind', () => {
     expect(key(edited((doc) => (doc.nodes.find((n) => n.id === 'bass')!.data.kind = 'knob')))).not.toBe(base)
   })

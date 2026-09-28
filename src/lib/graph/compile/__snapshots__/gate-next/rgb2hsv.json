@@ -13,6 +13,15 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "91": "n",
+        "92": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,7 +33,8 @@
         "n:hsv": {
           "hsv": {
             "type": "vec3",
-            "offset": 0
+            "offset": 0,
+            "kind": "rgb2hsv"
           }
         }
       }

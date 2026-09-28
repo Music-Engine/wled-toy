@@ -15,6 +15,15 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n",
+        "46": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": [
@@ -28,7 +37,8 @@
         "n:scene": {
           "scene": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "sceneSwitch"
           }
         }
       }

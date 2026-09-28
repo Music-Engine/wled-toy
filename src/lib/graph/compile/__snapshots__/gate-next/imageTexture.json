@@ -17,6 +17,17 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "22": "n",
+        "23": "n",
+        "24": "n",
+        "25": "n",
+        "26": "n",
+        "27": "o"
+      },
+      "frame": {}
+    },
     "frame": null,
     "issues": [],
     "slots": {

@@ -52,7 +52,7 @@ async function engineRate(fps: number, previewFps: number, code: string, seconds
   else engine.canvas.remove()
   preferences.previewFps = previewFps < 0 ? 60 : previewFps
   config.fps = fps
-  expect(engine.compile(code, 'shader')).toBe(true)
+  expect(engine.compile(code)).toBe(true)
   let ticks = 0
   const durations: number[] = []
   let last = performance.now()

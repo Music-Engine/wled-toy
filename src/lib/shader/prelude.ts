@@ -14,7 +14,7 @@ const perSlot = (call: (sampler: (name: string) => string, head: string) => stri
 ].join('\n')
 
 /**
- * The Audio node's features, the band levels of each slot and the default spectrum's peak in a range: part of the prelude, and pasted on their own into a
+ * The Audio node's features, the band levels of each slot and each slot's spectrum peak in a range: part of the prelude, and pasted on their own into a
  * graph's frame pass that reads them, since that pass has the uniforms but not the rest of the prelude.
  */
 export const AUDIO_READS = `// the Audio node's outputs for the default analysis, in the order of AUDIO_FEATURES, four to a vector
@@ -35,14 +35,14 @@ float bandsPeak(int slot, int band, int count) {
   for (int k = from; k < to; k++) peak = max(peak, bandsAt(slot, (float(k) + 0.5) / float(total)));
   return peak;
 }
-// the loudest bin of the default analysis's spectrum between lo and hi Hz, as the Band Split node reads it; the texture's
-// bins are coarser than the analysis's, so an edge of the range can take in the rest of its bin
-float spectrumPeak(float lo, float hi) {
-  int bins = textureSize(iAudio, 0).x;
-  float hz = iAudioHeads.z * 0.5 / float(bins);
-  int last = min(bins - 1, int(max(lo, hi) / hz));
+// the loudest bin of an analysis's own spectrum between lo and hi Hz, as the Band Split node reads it: the bins either
+// side of the range included, as the frame body it replaced took them
+float spectrumPeak(int slot, float lo, float hi) {
+  int bins = int(iAudioSpectrumBins[slot]);
+  float hz = iAudioHeads.z / (2.0 * float(bins));
+  int last = min(bins - 1, int(ceil(max(lo, hi) / hz)));
   float peak = 0.0;
-  for (int i = int(min(lo, hi) / hz); i <= last; i++) peak = max(peak, texelFetch(iAudio, ivec2(i, 0), 0).r);
+  for (int i = max(1, int(min(lo, hi) / hz)); i <= last; i++) peak = max(peak, texelFetch(iAudioSpectra, ivec2(i, slot), 0).r);
   return peak;
 }
 `
@@ -69,6 +69,9 @@ uniform sampler2D iAudioHistory;
 uniform sampler2D iAudioBandsExtra[${AUDIO_EXTRA_SLOTS}];
 uniform sampler2D iAudioHistoryExtra[${AUDIO_EXTRA_SLOTS}];
 uniform float iAudioHistoryHeadExtra[${AUDIO_EXTRA_SLOTS}];
+// each analysis's own linear spectrum, a row per slot from 0, as levels 0 to 1; iAudioSpectrumBins says how many bins each row holds
+uniform highp sampler2D iAudioSpectra;
+uniform float iAudioSpectrumBins[${AUDIO_EXTRA_SLOTS + 1}];
 // recent samples, a ring in row-major order; iAudioHeads.y is the next sample to be written, .z the sample rate
 uniform sampler2D iAudioWave;
 uniform vec3 iAudioHeads;

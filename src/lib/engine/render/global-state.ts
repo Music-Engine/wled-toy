@@ -32,6 +32,11 @@ export class GlobalState {
     this.width = width
   }
 
+  /** The framebuffer of the copy holding the latest values. */
+  get latestFramebuffer(): WebGLFramebuffer {
+    return this.copies[this.latest].framebuffer
+  }
+
   /** Binds the copy that does not hold the latest values for the frame pass to draw into. */
   bindTarget() {
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.copies[1 - this.latest].framebuffer)
@@ -58,6 +63,34 @@ export class GlobalState {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   }
 
+  /** Zeroes each of `floats` in both copies, four floats to a texel, so a frame pass that does not draw a texel leaves it at 0. */
+  clear(floats: readonly number[]) {
+    const { gl } = this
+    gl.enable(gl.SCISSOR_TEST)
+    for (const { framebuffer } of this.copies) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
+      for (const float of floats) {
+        const component = float % 4
+        gl.colorMask(component === 0, component === 1, component === 2, component === 3)
+        gl.scissor(Math.floor(float / 4), 0, 1, 1)
+        gl.clearBufferfv(gl.COLOR, 0, ZERO)
+      }
+    }
+    gl.colorMask(true, true, true, true)
+    gl.disable(gl.SCISSOR_TEST)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+
+  /** Zeroes every texel of both copies. */
+  clearAll() {
+    const { gl } = this
+    for (const { framebuffer } of this.copies) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
+      gl.clearBufferfv(gl.COLOR, 0, ZERO)
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+
   private createCopy(width: number) {
     const { gl } = this
     const texture = gl.createTexture()
@@ -74,3 +107,5 @@ export class GlobalState {
     return { texture, framebuffer }
   }
 }
+
+const ZERO = new Float32Array(4)

@@ -87,8 +87,8 @@ function play(doc: NodeGraph, track: Float32Array): Run {
       renderer.setControls(controls)
       if (f) renderer.setAudio(slots[0].textures, slots.slice(1).map((slot) => slot.textures))
     }
-    run.strip.push(strip.renderLeds({ time, dt: 1 / FPS, frame, ledCount: STRIP_LEDS, scanY: 0.5 }))
-    run.matrix.push(matrix.renderLeds({ time, dt: 1 / FPS, frame, ledCount: MATRIX_SIDE * MATRIX_SIDE, scanY: 0.5 }))
+    run.strip.push(strip.renderLeds({ time, dt: 1 / FPS, frame, ledCount: STRIP_LEDS, scanY: 0.5 }).slice())
+    run.matrix.push(matrix.renderLeds({ time, dt: 1 / FPS, frame, ledCount: MATRIX_SIDE * MATRIX_SIDE, scanY: 0.5 }).slice())
   }
   strip.dispose()
   matrix.dispose()

@@ -105,8 +105,7 @@ export const bandSplitNode = defineNode('bandSplit', {
   frameOnlyInOldPipeline: true,
   body: ({ spectrum, low, high }, ctx) => {
     ctx.include(audioReadsChunk)
-    if ((spectrum?.slot ?? 0) > 0) ctx.issue('Band Split reads the default analysis on the GPU; the audio textures carry no spectrum for an FFT with other settings')
-    return { level: ctx.declare('float', `spectrumPeak(${low.expr}, ${high.expr})`) }
+    return { level: ctx.declare('float', `spectrumPeak(${spectrum?.slot ?? 0}, ${low.expr}, ${high.expr})`) }
   },
   frame: ({ spectrum, low, high }, info) => {
     const f = analysis(info, spectrum?.slot)

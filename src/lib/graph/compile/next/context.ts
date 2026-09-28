@@ -62,8 +62,8 @@ export interface SlotTable {
   global: Record<string, Slots>
 }
 
-/** Slot name to its type id and first float. */
-export type Slots = Record<string, { type: string; offset: number }>
+/** Slot name to its type id, its first float and the kind of the node it belongs to. */
+export type Slots = Record<string, { type: string; offset: number; kind: string }>
 
 export const emptySlots = (): SlotTable => ({ pixel: {}, global: {} })
 

@@ -6,7 +6,7 @@ import { cppCompiler, runUsermod } from '@/lib/graph/testing/cpp'
 import { FPS } from '@/lib/graph/testing/offline'
 import { generateGlsl } from '@/lib/graph/compile/compile'
 import { FrameRunner } from '@/lib/graph/compile/js/frame'
-import { glslCompiler, usermodCompiler } from '@/lib/graph/compile/next/compilers'
+import { createGlslCompiler, createUsermodCompiler } from '@/lib/graph/compile/next/compilers'
 
 const KINDS = ['envelope', 'schmittTrigger', 'counter', 'toggle', 'sampleHold', 'clockDivider', 'stepSequencer', 'slewLimiter', 'envelopeFollower', 'peakHold', 'integrator']
 const FRAMES = 30
@@ -42,7 +42,7 @@ function kindGraph(kind: string, output: string, values: Record<string, SocketVa
 
 /** The red byte of the one LED on each of 30 frames, through the usermod target. */
 function rendered(doc: NodeGraph): number[] {
-  const { program, issues } = usermodCompiler(1).compile(doc)
+  const { program, issues } = createUsermodCompiler(1).compile(doc)
   expect(issues).toEqual([])
   return runUsermod(program!.code, { leds: 1, frames: FRAMES }).map(([[red]]) => red)
 }
@@ -82,11 +82,11 @@ function fedFromUv(kind: string): NodeGraph {
 describe('each stateful signal kind has a body the new compiler places by what feeds it', () => {
   // the state annotation puts a node's slots in global state in the frame pass and in pixel state in the pixel pass
   it.each(KINDS)('%s alone runs in the frame pass; fed from uv.x, in the pixel pass', (kind) => {
-    const framePass = glslCompiler().compile(alone(nodeItem(kind)!))
+    const framePass = createGlslCompiler().compile(alone(nodeItem(kind)!))
     expect(framePass.program!.frame).not.toBeNull()
     expect(Object.keys(framePass.slots.global)).toContain('n')
     expect(framePass.slots.pixel).toEqual({})
-    const pixelPass = glslCompiler().compile(fedFromUv(kind))
+    const pixelPass = createGlslCompiler().compile(fedFromUv(kind))
     expect(pixelPass.program!.frame).toBeNull()
     expect(Object.keys(pixelPass.slots.pixel)).toEqual(['n'])
   })
@@ -179,7 +179,7 @@ describe.skipIf(!cppCompiler)('the bodies through the usermod target reproduce t
     const [input] = valueInputs(nodeItem(kind)!.base)
     const leds = 4
     const expected = Array.from({ length: leds }, (_, led) => perFrame(kind, { [input.name]: (led + 0.5) / leds }))
-    const bytes = runUsermod(usermodCompiler(leds).compile(fedFromUv(kind)).program!.code, { leds, frames: FRAMES })
+    const bytes = runUsermod(createUsermodCompiler(leds).compile(fedFromUv(kind)).program!.code, { leds, frames: FRAMES })
     expectSameBytes(bytes.flatMap((frame) => frame.map(([red]) => red)), Array.from({ length: FRAMES }, (_, frame) => expected.map((values) => toByte(values[frame]))).flat())
   })
 })

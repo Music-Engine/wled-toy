@@ -37,11 +37,14 @@ inline float bandsPeak(int slot, int band, int count) {
   for (int k = from; k < (to > from ? to : from + 1); k++) peak = max(peak, bandsAt(slot, (float(k) + 0.5f) / float(audioBands)));
   return peak;
 }
-inline float spectrumPeak(float lo, float hi) {
-  float hz = iAudioHeads.z * 0.5f / float(audioSpectrumBins);
-  int last = int(max(lo, hi) / hz);
+inline float spectrumPeak(int slot, float lo, float hi) {
+  if (slot < 0 || slot > audioExtraSlots) return 0.0f;
+  int bins = iAudioSpectrumBins[slot];
+  float hz = iAudioHeads.z / (2.0f * float(bins));
+  int first = int(min(lo, hi) / hz);
+  int last = int(ceil(max(lo, hi) / hz));
   float peak = 0.0f;
-  for (int i = int(min(lo, hi) / hz); i <= (last < audioSpectrumBins - 1 ? last : audioSpectrumBins - 1); i++) peak = max(peak, iAudioSpectrum[i]);
+  for (int i = first > 1 ? first : 1; i <= (last < bins - 1 ? last : bins - 1); i++) peak = max(peak, iAudioSpectra[slot][i]);
   return peak;
 }
 inline float historyAt(int slot, float x, float age) {

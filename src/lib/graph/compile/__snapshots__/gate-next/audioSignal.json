@@ -13,6 +13,17 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "81": "n",
+        "82": "n",
+        "83": "n",
+        "84": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,13 +35,15 @@
         "n": {
           "value": {
             "type": "float",
-            "offset": 0
+            "offset": 0,
+            "kind": "audioSignal"
           }
         },
         "n:signal": {
           "signal": {
             "type": "float",
-            "offset": 1
+            "offset": 1,
+            "kind": "audioSignal"
           }
         }
       }

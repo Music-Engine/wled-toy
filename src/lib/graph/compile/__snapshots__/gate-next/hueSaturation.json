@@ -13,6 +13,16 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "137": "n",
+        "138": "n",
+        "139": "n"
+      }
+    },
     "frame": {
       "texels": 1,
       "probes": []
@@ -24,7 +34,8 @@
         "n:color": {
           "color": {
             "type": "color",
-            "offset": 0
+            "offset": 0,
+            "kind": "hueSaturation"
           }
         }
       }

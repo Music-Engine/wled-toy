@@ -13,6 +13,12 @@
       "maPerChannel": 20,
       "dithering": "off"
     },
+    "lineNodes": {
+      "pixel": {
+        "4": "out"
+      },
+      "frame": {}
+    },
     "frame": null,
     "issues": [],
     "slots": {

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { FrameSource } from './frame-pass'
 import { ShaderRenderer, type FrameParams } from './renderer'
 
-// adds `step` to r of every texel below `texels`, and keeps the width of global state in g
+// adds `step` to r of every texel below `texels`, and keeps the width the frame pass draws in g
 const counter = (texels: number, step: string): FrameSource => ({
   code: `#version 300 es
 precision highp float;
@@ -68,7 +68,7 @@ describe.skipIf(!floatTargets)('global state (needs EXT_color_buffer_float)', ()
 
     renderer.compile(READER, counter(17, '1.0'))
     tick()
-    expect(Array.from(renderer.readProbes()!)).toEqual([4, 32, 0, 0, 4, 32, 0, 0, 1, 32, 0, 0])
+    expect(Array.from(renderer.readProbes()!)).toEqual([4, 17, 0, 0, 4, 17, 0, 0, 1, 17, 0, 0])
     expect(gl.getError()).toBe(gl.NO_ERROR)
     renderer.dispose()
   })
@@ -155,8 +155,8 @@ it('a program without a frame pass creates no texture, no framebuffer and no ext
     renderer.compile(READER, counter(16, '1.0'))
     frames()
     frames()
-    // the two copies, a frame pass draw per tick, and a readback per probe texel
-    expect(calls).toEqual({ createTexture: 2, createFramebuffer: 2, drawArrays: 6, readPixels: 6 })
+    // the two copies and the float row the probes come back in, a frame pass draw per tick, and the probes riding the LED readback
+    expect(calls).toEqual({ createTexture: 3, createFramebuffer: 3, drawArrays: 6, readPixels: 2 })
   }
   expect(gl.getError()).toBe(gl.NO_ERROR)
   renderer.dispose()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import RangeField from '@/features/node-ui/fields/RangeField.vue'
 // the knob and scene rows are drawn with the node look, and this panel can be open before any node has rendered
@@ -70,25 +70,21 @@ function recall(scene: Scene, seconds = fadeSeconds.value) {
   engine.fades.start(from, scene, seconds, (id, value) => set(id, { value }), performance.now())
 }
 
-// a Scene Switch node asks for a scene by index; act when the index it puts out changes
-let lastRequested = -1
+// a Scene Switch node asks for a scene by index; the fades read its probe on the LED tick and recall when the index changes
 const sceneSwitch = computed(() => {
   const node = nodes.value.find((n) => (n.data as GraphNodeData).kind === 'sceneSwitch')
   return node ? { id: node.id, fade: Number((node.data as GraphNodeData).values.fade ?? 0.5) } : null
 })
-const switchPoll = setInterval(() => {
-  const sw = sceneSwitch.value
-  if (!sw) return
-  const requested = engine.controlOutput(sw.id, 'scene')
-  if (typeof requested !== 'number' || requested === lastRequested) return
-  lastRequested = requested
-  const scene = scenes.value[requested % Math.max(1, scenes.value.length)]
-  if (scene) recall(scene, sw.fade)
-}, 1000 / 30)
+watch(() => sceneSwitch.value?.id, (nodeId) => engine.fades.followSwitch(nodeId ? { nodeId, recall: recallRequestedScene } : null), { immediate: true })
+
+function recallRequestedScene(index: number) {
+  const scene = scenes.value[index % Math.max(1, scenes.value.length)]
+  if (scene && sceneSwitch.value) recall(scene, sceneSwitch.value.fade)
+}
 
 onBeforeUnmount(() => {
   unbind()
-  clearInterval(switchPoll)
+  engine.fades.followSwitch(null)
 })
 </script>
 
