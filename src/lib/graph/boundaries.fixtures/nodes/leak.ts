@@ -1,1 +1,1 @@
-export { glsl } from '@/lib/graph/compile/glsl/glsl'
+export { createGlslTarget } from '@/lib/graph/compile/targets/glsl'

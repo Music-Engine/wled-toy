@@ -11,5 +11,4 @@ export const fromCenterNode = defineNode('fromCenter', {
   },
   output: { distance: Float },
   body: ({ position, center }, ctx) => ({ distance: ctx.declare('float', `abs(${position.expr} - ${center.expr}) / max(max(${center.expr}, 1.0 - ${center.expr}), 0.0001)`) }),
-  frame: ({ position, center }) => ({ distance: Math.abs(position - center) / Math.max(center, 1 - center, 0.0001) }),
 })

@@ -15,8 +15,8 @@ export {
   Vec2,
   Vec3,
   Vec4,
-  enumIndex,
+  toEnumIndex,
 } from './define/socket-types'
-export type { DataType, EnumOption, ImplicitDefault } from './define/types'
-export { resourceIndex, type FrameInfo, type FrameValue, type GlslChunk, type NodeContext, type ResolveResult, type Resources } from './define/context'
+export type { DataType, EnumOption } from './define/types'
+export { findResourceIndex, type GlslChunk, type NodeContext } from './define/context'
 export { floatLiteral, fmt, swizzle, vectorLiteral, type Value } from './define/value'

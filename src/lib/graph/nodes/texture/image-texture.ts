@@ -1,5 +1,5 @@
 import { IMAGE_LAYERS, IMAGE_LAYER_SIZE } from '@/lib/shader/prelude'
-import { Color, defineNode, Enum, Float, Reference, resourceIndex } from '@/lib/graph/authoring'
+import { Color, defineNode, Enum, Float, Reference, findResourceIndex } from '@/lib/graph/authoring'
 import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 import { colorChunk } from './chunks/image-texture-chunk'
 
@@ -16,7 +16,7 @@ export const imageTextureNode = defineNode('imageTexture', {
   category: 'image',
   includes: [colorChunk],
   input: {
-    // the library id of the image; the node's file selector edits it, so no widget. Empty is the built-in image.
+    // Image library id, edited by the node's file selector; empty = built-in image
     filename: { type: Reference, label: '', default: '', linkable: false },
     interpolation: { type: Enum(INTERPOLATIONS), label: 'Interpolation', linkable: false, props: { label: 'Interpolation' } },
     extension: { type: Enum(EXTENSIONS), label: 'Extension', linkable: false, props: { label: 'Extension' } },
@@ -27,21 +27,20 @@ export const imageTextureNode = defineNode('imageTexture', {
   output: { color: Color, alpha: Float },
   resolve: ({ filename }, resources) => {
     const requires = [{ kind: 'image', config: filename }]
-    const layer = resourceIndex(resources, 'image', filename)
+    const layer = findResourceIndex(resources, 'image', filename)
     if (layer < IMAGE_LAYERS) return { requires, data: { layer } }
     return { requires, data: { layer: 0 }, issues: [`A graph can show ${IMAGE_LAYERS} different images; this one shows the first instead`] }
   },
   body: ({ interpolation, extension, colorSpace, alphaMode, vector }, ctx) => {
     const layer = ctx.resolved.layer as number
-    ctx.require('glsl')
-    const p = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr
-    const st = ctx.declare('vec2', extension === 'repeat' ? `fract(${p})` : extension === 'mirror' ? `1.0 - abs(mod(${p}, 2.0) - 1.0)` : `clamp(${p}, 0.0, 1.0)`, 'st').expr
-    // images are stored top row first, the shader's y points up
-    const flipped = `vec2(${st}.x, 1.0 - ${st}.y)`
+    const point = ctx.declare('vec2', `${vector.expr}.xy`, 'p').expr
+    const wrapped = ctx.declare('vec2', extension === 'repeat' ? `fract(${point})` : extension === 'mirror' ? `1.0 - abs(mod(${point}, 2.0) - 1.0)` : `clamp(${point}, 0.0, 1.0)`, 'st').expr
+    // Images store top row first; shader y points up
+    const flipped = `vec2(${wrapped}.x, 1.0 - ${wrapped}.y)`
     const texel = ctx.declare('vec4', interpolation === 'closest'
       ? `texelFetch(iImages, ivec3(min(ivec2(${flipped} * ${IMAGE_LAYER_SIZE}.0), ivec2(${IMAGE_LAYER_SIZE - 1})), ${layer}), 0)`
       : `texture(iImages, vec3(${flipped}, ${layer}.0))`, 'texel').expr
-    // a premultiplied file stores color times alpha; the graph works with straight color
+    // Premultiplied stores color * alpha; graph works in straight color
     const rgb = alphaMode === 'premultiplied' ? `${texel}.rgb / max(${texel}.a, 0.0001)` : `${texel}.rgb`
     return {
       color: ctx.declare('vec3', colorSpace === 'srgb' ? `color_srgb_to_scene_linear(${rgb})` : rgb),

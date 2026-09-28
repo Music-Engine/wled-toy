@@ -9,7 +9,7 @@ import { connectedHandlesKey, graphIssuesKey, outputHandle, renamingNodeKey } fr
 import { socketColor, unlinkedStream } from './sockets'
 import { useNodeCollapse } from './use-node-collapse'
 import './node.css'
-import { isImplicit, nodeItem, placement, type DataType, type GraphNodeData, type Socket as NodeSocket, type SocketValue } from '@/lib/graph'
+import { isImplicit, findNodeItem, type DataType, type GraphNodeData, type Socket as NodeSocket, type SocketValue } from '@/lib/graph'
 
 const props = defineProps<NodeProps<GraphNodeData>>()
 const { edges, updateNodeData } = useVueFlow()
@@ -17,13 +17,11 @@ const graphIssues = inject(graphIssuesKey, null)
 const connectedHandles = inject(connectedHandlesKey, null)
 const renaming = inject(renamingNodeKey, null)
 
-const kind = computed(() => nodeItem(props.data.kind))
+const kind = computed(() => findNodeItem(props.data.kind))
 // the node's sockets and code follow its values (a Math node changes with its operation)
 const item = computed(() => kind.value?.shape(props.data.values))
-// per-frame sockets are diamonds, like Blender's per-object (not per-point) fields
-const shape = computed(() => (item.value && placement(item.value) === 'frame' ? 'diamond' : 'circle'))
-// so are streams: they are settled before a single pixel is drawn
-const storedShape = (type: DataType<any>) => (shape.value === 'diamond' || type.kind === 'stream' ? 'diamond' : 'circle')
+// streams are diamonds, like Blender's per-object (not per-point) fields: they are settled before a single pixel is drawn
+const toSocketShape = (type: DataType<any>) => (type.kind === 'stream' ? 'diamond' : 'circle')
 const NO_LINKS: ReadonlySet<string> = new Set()
 // the page computes this once per edge change; without it (a node mounted on its own) fall back to the edge array
 const connected = computed<ReadonlySet<string>>(() => connectedHandles
@@ -105,22 +103,22 @@ function markInvalid(socket: NodeSocket, invalid: boolean) {
     @rename="rename"
   >
     <template #folded-in>
-      <Socket v-for="{ socket } in rows.filter((r) => r.socket.linkable)" :id="socket.name" :key="socket.name" side="in" :color="socketColor(socket.type)" :shape="storedShape(socket.type)" />
+      <Socket v-for="{ socket } in rows.filter((r) => r.socket.linkable)" :id="socket.name" :key="socket.name" side="in" :color="socketColor(socket.type)" :shape="toSocketShape(socket.type)" />
     </template>
     <template #folded-out>
-      <Socket v-for="out in outputs" :id="out.name" :key="out.name" side="out" :color="socketColor(out.type)" :shape="storedShape(out.type)" />
+      <Socket v-for="out in outputs" :id="out.name" :key="out.name" side="out" :color="socketColor(out.type)" :shape="toSocketShape(out.type)" />
     </template>
 
     <component :is="nodeBodies[data.kind]" v-if="nodeBodies[data.kind]" :node-id="id" :values="data.values" @update="updateNodeData<GraphNodeData>(id, { values: { ...data.values, ...$event } })" />
 
     <div v-for="out in outputs" :key="out.name" class="nui-row is-output">
       <span class="nui-label">{{ out.label }}</span>
-      <Socket :id="out.name" side="out" :color="socketColor(out.type)" :shape="storedShape(out.type)" />
+      <Socket :id="out.name" side="out" :color="socketColor(out.type)" :shape="toSocketShape(out.type)" />
     </div>
 
     <template v-for="row in rows" :key="row.socket.name">
       <div v-if="row.socket.linkable || row.socket.label || row.handler?.layout === 'inline'" class="nui-row">
-        <Socket v-if="row.socket.linkable" :id="row.socket.name" side="in" :color="socketColor(row.socket.type)" :shape="storedShape(row.socket.type)" />
+        <Socket v-if="row.socket.linkable" :id="row.socket.name" side="in" :color="socketColor(row.socket.type)" :shape="toSocketShape(row.socket.type)" />
         <component
           :is="row.handler.component"
           v-if="row.handler?.layout === 'inline'"

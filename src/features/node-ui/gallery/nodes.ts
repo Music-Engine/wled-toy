@@ -1,7 +1,7 @@
-import { allItems, GRAPH_NODE_TYPE, newNodeData, type EnumOption, type GraphNodeData, type NodeItem, type StoredNode } from '@/lib/graph'
+import { listItems, GRAPH_NODE_TYPE, newNodeData, type EnumOption, type GraphNodeData, type NodeItem, type StoredNode } from '@/lib/graph'
 
 /** Every registered kind in every socket arrangement it has, each expanded and collapsed. Positions are left to the gallery. */
-export const galleryNodes = (): StoredNode[] => allItems().flatMap((item) => galleryVariants(item).flatMap(({ label, values }) => {
+export const galleryNodes = (): StoredNode[] => listItems().flatMap((item) => galleryVariants(item).flatMap(({ label, values }) => {
   const id = label ? `${item.id}:${label}` : item.id
   return [
     { id, type: GRAPH_NODE_TYPE, position: { x: 0, y: 0 }, data: newNodeData(item.id, values) },

@@ -1,19 +1,19 @@
 import { linkProgram } from './gl-program'
 import { UNIFORMS, type UniformLocations } from './renderer-shaders'
 
-/** A program's frame pass as a whole fragment shader that writes one texel of global state per fragment. */
+/** Whole fragment shader writing one global state texel per fragment */
 export interface FrameSource {
   code: string
-  /** Texels of global state the pass needs, four slots each. */
+  /** Four slots each */
   texels: number
-  /** The texel of each probe, in the order the host reads them back. */
+  /** Texel per probe, in readback order */
   probes: readonly number[]
 }
 
-/** A linked frame pass, and the array its probes are read back into, made here so no tick allocates. */
+/** Linked frame pass w/ its probe readback array, made here so no tick allocates */
 export class FramePass {
   readonly program: WebGLProgram
-  /** Texels the pass draws; global state past them is left as it is. */
+  /** Global state past these is left as is */
   readonly texels: number
   readonly uniforms: UniformLocations
   readonly probeTexels: readonly number[]
@@ -23,7 +23,7 @@ export class FramePass {
     const program = linkProgram(gl, source.code)
     this.program = program
     this.texels = source.texels
-    this.uniforms = Object.fromEntries(UNIFORMS.map((n) => [n, gl.getUniformLocation(program, n)]))
+    this.uniforms = Object.fromEntries(UNIFORMS.map((name) => [name, gl.getUniformLocation(program, name)]))
     this.probeTexels = source.probes
     this.probes = new Float32Array(source.probes.length * 4)
   }

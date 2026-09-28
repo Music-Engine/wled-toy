@@ -1,75 +1,63 @@
 import { NODES, type GlslType, type Param, type ShaderNode } from '@/lib/shader/catalog'
 import { Color, defineNode, Float, GenType, Int, Sampler2D, Vec2, Vec3, Vec4, type DataType, type InputDef, type NodeItem } from '@/lib/graph/authoring'
+import { REPLACED_FUNCTIONS } from './catalog-replaced'
 
-const paramType = (param: Pick<Param, 'type' | 'isColor'>) => (param.isColor ? Color : graphType(param.type))
+// Time node covers iTime and iFrame
+export const CATALOG_UNIFORMS: NodeItem[] = NODES.filter((node) => node.kind === 'uniform' && node.name !== 'iTime' && node.name !== 'iFrame').map(defineUniformItem)
 
-// these have a graph node of their own (ported from the three.js shader editor), which wins
-const replaced = [
-  'brightnessContrast', 'checkerboard', 'noise', 'image', 'hsv2rgb', 'rgb2hsv', 'gammaCorrect', 'clamp', 'remap', 'random',
-  'tile', 'polar', 'mirror', 'fromCenter', 'rotate2d',
-  // Math has every one of these as an operation
-  'sin', 'cos', 'abs', 'floor', 'fract', 'mod', 'min', 'max', 'pow', 'exp', 'sqrt', 'atan', 'step', 'saturate',
-  // Vector Math, Wave, Mapping + Image Texture, Palette presets, Hue/Saturation/Value, the noise textures and Time
-  'length', 'distance', 'dot', 'normalize', 'mix',
-  'sawWave', 'triangleWave', 'squareWave', 'sineWave', 'easeInOut', 'bounce', 'pulse',
-  'imageScroll', 'imagePixelate', 'imageMirror', 'imageZoom', 'imageLuma',
-  'rainbow', 'heatColor', 'hueShift', 'saturation', 'hash', 'fbm', 'voronoi',
-  // the Audio node and its samplers cover these
-  'fft', 'fftLog', 'waveform', 'band', 'bass', 'mid', 'treble', 'energy', 'beat',
-]
+export const CATALOG_FUNCTIONS: NodeItem[] = NODES.filter((node) => node.kind === 'function' && !REPLACED_FUNCTIONS.includes(node.name)).map(defineFunctionItem)
 
-// the Time node covers iTime and iFrame on both sides
-export const CATALOG_UNIFORMS: NodeItem[] = NODES.filter((node) => node.kind === 'uniform' && node.name !== 'iTime' && node.name !== 'iFrame').map(uniformItem)
-
-export const CATALOG_FUNCTIONS: NodeItem[] = NODES.filter((node) => node.kind === 'function' && !replaced.includes(node.name)).map(functionItem)
-
-function functionItem(fn: ShaderNode): NodeItem {
-  return defineNode(fn.name, {
-    title: fn.title,
-    description: fn.doc,
-    category: fn.category,
-    signature: fn.signature,
-    input: Object.fromEntries(fn.params.map((param) => [param.name, inputDef(param)])),
-    output: { out: { type: paramType(fn.output), label: fn.output.label } },
-    // the shader library is part of the prelude, which only the pixel pass is drawn with
+function defineFunctionItem(shaderFunction: ShaderNode): NodeItem {
+  return defineNode(shaderFunction.name, {
+    title: shaderFunction.title,
+    description: shaderFunction.doc,
+    category: shaderFunction.category,
+    signature: shaderFunction.signature,
+    input: Object.fromEntries(shaderFunction.params.map((param) => [param.name, toInputDef(param)])),
+    output: { out: { type: toParamType(shaderFunction.output), label: shaderFunction.output.label } },
+    // Shader library lives in the prelude, which only the pixel pass has
     varies: 'pixel',
     body: (input, ctx) => {
-      // a function that takes a sampler samples it, and only GLSL has textures
-      if (fn.params.some((param) => param.type === 'sampler2D')) ctx.require('glsl')
-      const args = fn.params.map((param) => input[param.name].expr)
-      return { out: ctx.declare(fn.returns === 'genType' ? ctx.gen : fn.returns, `${fn.name}(${args.join(', ')})`) }
+      const args = shaderFunction.params.map((param) => input[param.name].expr)
+      return { out: ctx.declare(shaderFunction.returns === 'genType' ? ctx.gen : shaderFunction.returns, `${shaderFunction.name}(${args.join(', ')})`) }
     },
   })
 }
 
-function uniformItem(uniform: ShaderNode): NodeItem {
+function defineUniformItem(uniform: ShaderNode): NodeItem {
   return defineNode(uniform.name, {
     title: uniform.title,
     description: uniform.doc,
     category: uniform.category,
     signature: uniform.signature,
     input: {},
-    output: { out: { type: graphType(uniform.returns), label: uniform.output.label } },
+    output: { out: { type: toGraphType(uniform.returns), label: uniform.output.label } },
+    // Frame pass can't hand on a sampler, so readers run per pixel
+    ...(uniform.returns === 'sampler2D' && { varies: 'pixel' as const }),
     body: () => ({ out: { expr: uniform.name, type: uniform.returns } }),
   })
 }
 
-function inputDef(param: Param): InputDef {
+function toInputDef(param: Param): InputDef {
   const range = param.min === undefined ? undefined : { min: param.min, max: param.max }
-  return { type: paramType(param), label: param.label, default: unlinkedDefault(param), props: range }
+  return { type: toParamType(param), label: param.label, default: toUnlinkedDefault(param), props: range }
 }
 
-function unlinkedDefault(param: Param): unknown {
-  // a default that is not a literal is GLSL the socket evaluates to while unlinked, e.g. `uv.x` or `iTime`
+function toUnlinkedDefault(param: Param): unknown {
+  // Non-literal default = GLSL the unlinked socket reads, e.g. `uv.x`, `iTime`
   if (typeof param.default === 'string') return { expr: param.default, label: param.default }
-  // a texture with nothing linked samples the loaded image
+  // Unlinked texture samples the loaded image
   if (param.default === undefined && param.type === 'sampler2D') return { expr: 'iImage', label: 'image' }
   return param.default
 }
 
-/** Every GLSL type the catalog uses has a graph type of the same id. */
-function graphType(glsl: GlslType): DataType<any, any, any> {
+/** Every catalog GLSL type has a graph type of the same id */
+function toGraphType(glsl: GlslType): DataType<any, any> {
   const type = [Float, Int, Vec2, Vec3, Vec4, Sampler2D, GenType].find((t) => t.id === glsl)
   if (!type) throw new Error(`No graph type for GLSL type ${glsl}`)
   return type
+}
+
+function toParamType(param: Pick<Param, 'type' | 'isColor'>): DataType<any, any> {
+  return param.isColor ? Color : toGraphType(param.type)
 }

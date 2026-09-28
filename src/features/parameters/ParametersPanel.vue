@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import RangeField from '@/features/node-ui/fields/RangeField.vue'
-// the knob and scene rows are drawn with the node look, and this panel can be open before any node has rendered
+// Rows use the node look, and the panel can open before any node has rendered
 import '@/features/node-ui/node.css'
 import '@/features/node-ui/fields/fields.css'
 import './parameters.css'
@@ -40,7 +40,7 @@ function set(id: string, patch: Record<string, SocketValue>) {
   if (node) updateNodeData<GraphNodeData>(id, { values: { ...(node.data as GraphNodeData).values, ...patch } })
 }
 
-// the knob waiting for a controller to be moved, if any
+// Knob waiting for a controller to move
 const learning = ref<string | null>(null)
 
 async function learn(id: string) {
@@ -52,7 +52,7 @@ async function learn(id: string) {
   if (midi.state.enabled) learning.value = id
 }
 
-// a bound controller writes into the node, so the panel, the node and the saved graph all show where the hardware is
+// Bound controller writes into the node, so panel, node and saved graph all show the hardware's position
 const unbind = bindKnobs(midi, { knobs: () => knobs.value, learning, set })
 
 const fadeSeconds = ref(0.5)
@@ -70,7 +70,7 @@ function recall(scene: Scene, seconds = fadeSeconds.value) {
   engine.fades.start(from, scene, seconds, (id, value) => set(id, { value }), performance.now())
 }
 
-// a Scene Switch node asks for a scene by index; the fades read its probe on the LED tick and recall when the index changes
+// Scene Switch asks for a scene by index; fades read its probe each LED tick, recall on change
 const sceneSwitch = computed(() => {
   const node = nodes.value.find((n) => (n.data as GraphNodeData).kind === 'sceneSwitch')
   return node ? { id: node.id, fade: Number((node.data as GraphNodeData).values.fade ?? 0.5) } : null

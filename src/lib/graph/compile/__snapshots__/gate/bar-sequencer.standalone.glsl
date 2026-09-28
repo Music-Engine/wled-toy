@@ -117,29 +117,80 @@ vec3 node_mix_add(float t, vec3 col1, vec3 col2)
 
 void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   c = vec4(0.0, 0.0, 0.0, 1.0);
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
+  vec4 state[9];
+  for (int i = 0; i < 9; i++) state[i] = vec4(0.0);
+  float n_snareBand = spectrumPeak(1, 2500.0, 4500.0);
+  state[0].x = state[0].x > 0.5 ? float(n_snareBand > 0.13) : float(n_snareBand >= 0.24);
+  if (state[0].x >= 0.5 && state[0].w < 0.5) state[0].y = 1.0;
+  state[0].w = float(state[0].x >= 0.5);
+  float n_snareFlash_stage = state[0].y;
+  if (n_snareFlash_stage == 1.0) state[0].z = min(1.0, state[0].z + (0.01 <= 0.0 ? 1.0 : iTimeDelta / 0.01));
+  if (n_snareFlash_stage == 1.0 && state[0].z >= 1.0) state[0].y = 2.0;
+  if (n_snareFlash_stage == 2.0) state[0].z = max(0.0, state[0].z - (0.25 <= 0.0 ? 1.0 : iTimeDelta / 0.25));
+  if (n_snareFlash_stage == 2.0 && state[0].z <= 0.0) state[0].y = 0.0;
+  if (n_snareFlash_stage == 3.0) state[0].z = 0.0;
+  if (n_snareFlash_stage == 4.0) state[0].z = max(0.0, state[0].z - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_snareFlash_stage == 4.0 && state[0].z <= 0.0) state[0].y = 0.0;
   vec2 n_panels_scaled = uv * vec2(8.0, 3.0);
   vec2 n_panels = fract(n_panels_scaled);
   vec2 n_panels_cell = floor(n_panels_scaled);
   float n_panelIndex = dot(vec3(n_panels_cell, 0.0), vec3(1.0, 1.0, 0.0));
-  // Toggle "State" runs per frame; frozen at 0.5 when this code was taken
-  float n_panelPhase = n_panelIndex + 0.5;
+  float n_snareSide_flip = float(state[0].x >= 0.5 && state[1].y < 0.5);
+  state[1].y = float(state[0].x >= 0.5);
+  if (n_snareSide_flip > 0.5) state[1].x = 1.0 - state[1].x;
+  float n_panelPhase = n_panelIndex + state[1].x;
   float n_panelSelect = node_pingpong(n_panelPhase, 1.0);
-  vec3 n_snareLayer = clamp(node_mix_blend(clamp(0.5 * n_panelSelect, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(0.02, 0.7, 0.85)), 0.0, 1.0);
-  // Peak Hold "Peak" runs per frame; frozen at 0.5 when this code was taken
-  // Slew Limiter "Value" runs per frame; frozen at 0.5 when this code was taken
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_dropHue = 0.5 * 0.185 + 0.5;
-  float n_heatShift = 0.5 * 0.2 + n_dropHue;
-  // Step Sequencer "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_rigRotate_a = 0.5 * 6.2831853;
+  vec3 n_snareLayer = clamp(node_mix_blend(clamp(state[0].z * n_panelSelect, 0.0, 1.0), vec3(0.0, 0.0, 0.0), vec3(0.02, 0.7, 0.85)), 0.0, 1.0);
+  float n_kickBand = spectrumPeak(0, 40.0, 130.0);
+  float n_drumsOn_above = float(n_kickBand >= state[1].z);
+  state[1].w = n_drumsOn_above > 0.5 ? 0.0 : state[1].w + iTimeDelta;
+  if (n_drumsOn_above < 0.5 && state[1].w > 0.6) state[1].z = max(n_kickBand, state[1].z * exp(-iTimeDelta / max(0.15, 0.0001)));
+  if (n_drumsOn_above > 0.5) state[1].z = n_kickBand;
+  float n_hatBand = spectrumPeak(1, 9000.0, 16000.0);
+  float n_hatOnly = clamp(n_snareBand * -1.1 + n_hatBand, 0.0, 1.0);
+  float n_hatDensity_time = n_hatOnly > state[2].x ? 0.25 : 0.6;
+  state[2].x += (n_hatOnly - state[2].x) * (n_hatDensity_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_hatDensity_time));
+  state[2].y = state[2].y > 0.5 ? float(state[2].x > 0.038) : float(state[2].x >= 0.05);
+  state[2].z += min(4.0 * iTimeDelta, max(-(2.0) * iTimeDelta, state[2].y - state[2].z));
+  float n_dropHue = state[2].z * 0.185 + 0.0;
+  float n_heatShift = state[1].z * 0.2 + n_dropHue;
+  float n_beatGate = (1.0 - step(0.5, iAudioFeatures[1].z));
+  float n_barClock_restart = float(0.0 >= 0.5 && state[3].y < 0.5);
+  state[3].y = float(0.0 >= 0.5);
+  if (n_barClock_restart > 0.5) state[2].w = 0.0;
+  float n_barClock_up = float(n_beatGate >= 0.5 && state[3].x < 0.5);
+  state[3].x = float(n_beatGate >= 0.5);
+  float n_barClock_fired = n_barClock_up * float(state[2].w == 0.0);
+  if (n_barClock_up > 0.5) state[2].w = (state[2].w + 1.0 - 4.0 * floor((state[2].w + 1.0 + 0.5) / 4.0));
+  float n_barClock_phase = state[2].w / 4.0;
+  float n_angleSeq_restart = float(0.0 >= 0.5 && state[4].x < 0.5);
+  state[4].x = float(0.0 >= 0.5);
+  float n_angleSeq_up = (1.0 - n_angleSeq_restart) * float(n_barClock_fired >= 0.5 && state[3].w < 0.5);
+  if (n_angleSeq_restart < 0.5) state[3].w = float(n_barClock_fired >= 0.5);
+  state[3].z = n_angleSeq_restart > 0.5 ? 0.0 : state[3].z + n_angleSeq_up;
+  state[3].z = (state[3].z - 4.0 * floor((state[3].z + 0.5) / 4.0));
+  float n_angleSeq_value = state[3].z < 0.5 ? 0.0 : state[3].z < 1.5 ? 0.0 : state[3].z < 2.5 ? 0.125 : 0.5;
+  float n_rigRotate_a = n_angleSeq_value * 6.2831853;
   vec2 n_rigRotate_p = uv - vec2(0.5, 0.5);
   vec2 n_rigRotate = vec2(n_rigRotate_p.x * cos(n_rigRotate_a) + n_rigRotate_p.y * sin(n_rigRotate_a), n_rigRotate_p.y * cos(n_rigRotate_a) - n_rigRotate_p.x * sin(n_rigRotate_a)) + vec2(0.5, 0.5);
-  // Slew Limiter "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec2 n_rigMirror_folded = abs(n_rigRotate - vec2(0.5)) / max(vec2(0.5), 1.0 - vec2(0.5));
+  float n_mirrorSeq_restart = float(0.0 >= 0.5 && state[4].w < 0.5);
+  state[4].w = float(0.0 >= 0.5);
+  float n_mirrorSeq_up = (1.0 - n_mirrorSeq_restart) * float(n_barClock_fired >= 0.5 && state[4].z < 0.5);
+  if (n_mirrorSeq_restart < 0.5) state[4].z = float(n_barClock_fired >= 0.5);
+  state[4].y = n_mirrorSeq_restart > 0.5 ? 0.0 : state[4].y + n_mirrorSeq_up;
+  state[4].y = (state[4].y - 4.0 * floor((state[4].y + 0.5) / 4.0));
+  float n_mirrorSeq_value = state[4].y < 0.5 ? 0.5 : state[4].y < 1.5 ? 0.5 : state[4].y < 2.5 ? 0.0 : 0.0;
+  state[5].x += min(2.0 * iTimeDelta, max(-(2.0) * iTimeDelta, n_mirrorSeq_value - state[5].x));
+  vec2 n_rigMirror_folded = abs(n_rigRotate - vec2(state[5].x)) / max(vec2(state[5].x), 1.0 - vec2(state[5].x));
   vec2 n_rigMirror = vec2(n_rigMirror_folded.x, n_rigRotate.y);
-  // Step Sequencer "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_blocks_n = max(1.0, floor(0.5));
+  float n_blockCountSeq_restart = float(0.0 >= 0.5 && state[5].w < 0.5);
+  state[5].w = float(0.0 >= 0.5);
+  float n_blockCountSeq_up = (1.0 - n_blockCountSeq_restart) * float(n_barClock_fired >= 0.5 && state[5].z < 0.5);
+  if (n_blockCountSeq_restart < 0.5) state[5].z = float(n_barClock_fired >= 0.5);
+  state[5].y = n_blockCountSeq_restart > 0.5 ? 0.0 : state[5].y + n_blockCountSeq_up;
+  state[5].y = (state[5].y - 4.0 * floor((state[5].y + 0.5) / 4.0));
+  float n_blockCountSeq_value = state[5].y < 0.5 ? 8.0 : state[5].y < 1.5 ? 4.0 : state[5].y < 2.5 ? 2.0 : 4.0;
+  float n_blocks_n = max(1.0, floor(n_blockCountSeq_value));
   float n_blocks_scaled = clamp(n_rigMirror.x, 0.0, 0.999999) * n_blocks_n;
   float n_blocks_segment = floor(n_blocks_scaled);
   float n_blocks = fract(n_blocks_scaled);
@@ -150,32 +201,56 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_blockRamp = mix(n_blockRamp, vec3(0.3, 0.05, 1.0), clamp((n_blockRamp_fac - 0.5) / 0.5, 0.0, 1.0));
   vec3 n_blockHue_hsv = rgb_to_hsv(n_blockRamp);
   vec3 n_blockHue = mix(n_blockRamp, max(hsv_to_rgb(vec3(fract(n_blockHue_hsv.x + n_heatShift), clamp(n_blockHue_hsv.y * 1.0, 0.0, 1.0), n_blockHue_hsv.z * 1.0)), vec3(0.0)), 1.0);
-  // Counter "Count" runs per frame; frozen at 0.5 when this code was taken
-  float n_stepInBar = node_modulo(0.5, 0.5);
-  float n_litWidth = mix(1.5, 0.5, clamp((0.5 - 0.0) / (1.0 - 0.0), 0.0, 1.0));
+  float n_eighthGate_cycle = iAudioFeatures[1].z * 2.0 + 0.0;
+  float n_eighthGate_p = fract(n_eighthGate_cycle);
+  float n_eighthGate = step(n_eighthGate_p, 0.5);
+  float n_stepClock = mix(n_beatGate, n_eighthGate, step(0.5, state[2].z));
+  float n_stepCounter_up = float(n_stepClock >= 0.5 && state[6].y < 0.5);
+  state[6].y = float(n_stepClock >= 0.5);
+  float n_stepCounter_restart = float(0.0 >= 0.5 && state[6].z < 0.5);
+  state[6].z = float(0.0 >= 0.5);
+  if (n_stepCounter_up > 0.5) state[6].x = (state[6].x + 1.0 - 8.0 * floor((state[6].x + 1.0 + 0.5) / 8.0));
+  if (n_stepCounter_restart > 0.5) state[6].x = 0.0;
+  float n_stepCounter_phase = state[6].x / 8.0;
+  float n_stepInBar = node_modulo(state[6].x, n_blockCountSeq_value);
+  float n_litWidth = mix(1.5, 0.5, clamp((state[1].z - 0.0) / (1.0 - 0.0), 0.0, 1.0));
   float n_blockLit = node_compare(n_blocks_segment, n_stepInBar, n_litWidth);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_dropFloor = 0.5 * 0.5;
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_floorDuck = clamp(0.5 - 0.5, 0.0, 1.0);
+  float n_dropFloor = state[2].z * 0.5;
+  state[6].w = state[6].w > 0.5 ? float(n_kickBand > 0.5) : float(n_kickBand >= 0.8);
+  if (state[6].w >= 0.5 && state[7].z < 0.5) state[7].x = 1.0;
+  state[7].z = float(state[6].w >= 0.5);
+  float n_kickPunch_stage = state[7].x;
+  if (n_kickPunch_stage == 1.0) state[7].y = min(1.0, state[7].y + (0.01 <= 0.0 ? 1.0 : iTimeDelta / 0.01));
+  if (n_kickPunch_stage == 1.0 && state[7].y >= 1.0) state[7].x = 2.0;
+  if (n_kickPunch_stage == 2.0) state[7].y = max(0.0, state[7].y - (0.45 <= 0.0 ? 1.0 : iTimeDelta / 0.45));
+  if (n_kickPunch_stage == 2.0 && state[7].y <= 0.0) state[7].x = 0.0;
+  if (n_kickPunch_stage == 3.0) state[7].y = 0.0;
+  if (n_kickPunch_stage == 4.0) state[7].y = max(0.0, state[7].y - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_kickPunch_stage == 4.0 && state[7].y <= 0.0) state[7].x = 0.0;
+  float n_floorDuck = clamp(state[7].y - state[0].z, 0.0, 1.0);
   float n_floorDrive = n_dropFloor * n_floorDuck;
-  // Envelope "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_padSoft = mix(0.7, 1.0, clamp((mid() - 0.1) / (0.3 - 0.1), 0.0, 1.0));
-  float n_stepDrive = 0.5 * n_padSoft;
-  float n_blockDrive = max(0.5, n_stepDrive);
+  if (n_stepClock >= 0.5 && state[8].y < 0.5) state[7].w = 1.0;
+  state[8].y = float(n_stepClock >= 0.5);
+  float n_stepPunch_stage = state[7].w;
+  if (n_stepPunch_stage == 1.0) state[8].x = min(1.0, state[8].x + (0.1 <= 0.0 ? 1.0 : iTimeDelta / 0.1));
+  if (n_stepPunch_stage == 1.0 && state[8].x >= 1.0) state[7].w = 2.0;
+  if (n_stepPunch_stage == 2.0) state[8].x = max(0.0, state[8].x - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_stepPunch_stage == 2.0 && state[8].x <= 0.0) state[7].w = 0.0;
+  if (n_stepPunch_stage == 3.0) state[8].x = 0.0;
+  if (n_stepPunch_stage == 4.0) state[8].x = max(0.0, state[8].x - (0.4 <= 0.0 ? 1.0 : iTimeDelta / 0.4));
+  if (n_stepPunch_stage == 4.0 && state[8].x <= 0.0) state[7].w = 0.0;
+  float n_padSoft = mix(0.7, 1.0, clamp((iAudioFeatures[3].y - 0.1) / (0.3 - 0.1), 0.0, 1.0));
+  float n_stepDrive = state[8].x * n_padSoft;
+  float n_blockDrive = max(state[7].y, n_stepDrive);
   float n_blockLevel = mix(n_floorDrive, n_blockDrive, clamp(n_blockLit, 0.0, 1.0));
   float n_blockShape_edge = max(0.08, 0.0001) * 0.5;
   float n_blockShape_lo = min(0.06, 0.94);
   float n_blockShape_hi = max(0.06, 0.94);
   float n_blockShape = smoothstep(n_blockShape_lo - n_blockShape_edge, n_blockShape_lo + n_blockShape_edge, n_blocks) * (1.0 - smoothstep(n_blockShape_hi - n_blockShape_edge, n_blockShape_hi + n_blockShape_edge, n_blocks));
   vec3 n_blockLayer = clamp(node_mix_blend(clamp(n_blockLevel * n_blockShape, 0.0, 1.0), n_snareLayer, n_blockHue), 0.0, 1.0);
-  // Band Split "Level" runs per frame; frozen at 0.5 when this code was taken
-  // Band Split "Level" runs per frame; frozen at 0.5 when this code was taken
-  float n_hatOnly = clamp(0.5 * -1.1 + 0.5, 0.0, 1.0);
   float n_hatGain = clamp(n_hatOnly * 5.0, 0.0, 1.0);
   float n_hatGlitter = sparkle(ledIndex, 0.15, 6.0);
   vec3 n_hatLayer = clamp(node_mix_add(clamp(n_hatGain * n_hatGlitter, 0.0, 1.0), n_blockLayer, n_blockHue), 0.0, 1.0);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_trails = max(n_hatLayer, previousFrame(0.0) * exp(-iTimeDelta / max(0.5, 0.0001)));
+  vec3 n_trails = max(n_hatLayer, previousFrame(0.0) * exp(-iTimeDelta / max(0.15, 0.0001)));
   c = vec4(n_trails, 1.0);
 }

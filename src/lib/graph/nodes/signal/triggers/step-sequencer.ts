@@ -1,7 +1,7 @@
 import { defineNode, Float, floatLiteral, fmt, Text } from '@/lib/graph/authoring'
-import { risingEdge, risingEdgeFlag, wrappedCount } from '@/lib/graph/nodes/shared/signal'
+import { declareRisingEdge, wrapCount } from '@/lib/graph/nodes/shared/signal'
 
-const parse = (steps: string) => steps.split(/[\s,]+/).map(Number).filter(Number.isFinite)
+const parseSteps = (steps: string) => steps.split(/[\s,]+/).map(Number).filter(Number.isFinite)
 
 export const stepSequencerNode = defineNode('stepSequencer', {
   title: 'Step Sequencer',
@@ -14,30 +14,21 @@ export const stepSequencerNode = defineNode('stepSequencer', {
   },
   output: { value: Float, step: Float },
   state: { index: Float, triggerHigh: Float, resetHigh: Float },
-  frameOnlyInOldPipeline: true,
-  resolve: ({ steps }) => ({ data: { values: parse(steps) } }),
+  resolve: ({ steps }) => ({ data: { values: parseSteps(steps) } }),
   body: ({ trigger, reset }, ctx) => {
     const values = ctx.resolved.values as number[]
     const { index, triggerHigh, resetHigh } = ctx.state
-    const restart = risingEdgeFlag(ctx, resetHigh, reset, 'restart')
-    // the trigger's edge is only looked at when Reset did not rise, so a trigger held through a reset counts after it
+    const restart = declareRisingEdge(ctx, resetHigh, reset, 'restart')
+    // Trigger edge counts only w/o a Reset rise, so a trigger held through reset counts after it
     const up = ctx.declare('float', `(1.0 - ${restart}) * float(${trigger.expr} >= 0.5 && ${triggerHigh.expr} < 0.5)`, 'up').expr
     ctx.emit(`if (${restart} < 0.5) ${triggerHigh.expr} = float(${trigger.expr} >= 0.5);`)
     ctx.emit(`${index.expr} = ${restart} > 0.5 ? 0.0 : ${index.expr} + ${up};`)
     if (!values.length) return { value: floatLiteral(0), step: floatLiteral(0) }
-    ctx.emit(`${index.expr} = ${wrappedCount(index.expr, fmt(values.length))};`)
-    return { value: ctx.declare('float', stepValue(index.expr, values), 'value'), step: index }
-  },
-  frame: ({ trigger, reset }, { state, resolved }) => {
-    const values = resolved.values as number[]
-    if (risingEdge(state, 'resetHigh', reset)) state.index = 0
-    else if (risingEdge(state, 'triggerHigh', trigger)) state.index += 1
-    if (!values.length) return { value: 0, step: 0 }
-    state.index %= values.length
-    return { value: values[state.index], step: state.index }
+    ctx.emit(`${index.expr} = ${wrapCount(index.expr, fmt(values.length))};`)
+    return { value: ctx.declare('float', selectStepValue(index.expr, values), 'value'), step: index }
   },
 })
 
-/** The value at a whole-number `index`, as a chain of selects; neither GLSL ES nor the C++ header share an array literal. */
-const stepValue = (index: string, values: number[]) =>
+/** Chain of selects: GLSL ES and the C++ header share no array literal */
+const selectStepValue = (index: string, values: number[]) =>
   values.slice(0, -1).reduceRight((rest, value, i) => `${index} < ${fmt(i + 0.5)} ? ${fmt(value)} : ${rest}`, fmt(values[values.length - 1]))

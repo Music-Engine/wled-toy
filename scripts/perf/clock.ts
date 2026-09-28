@@ -16,33 +16,51 @@ const out = document.getElementById('out')!
 const inApp = params.get('app') === '1'
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-async function intervalRate(fps: number, busyMs = 0) {
-  let ticks = 0
-  let raf = 0
-  const burn = () => {
-    raf = requestAnimationFrame(burn)
-    const until = performance.now() + busyMs
-    while (performance.now() < until) { /* hold the main thread */ }
+async function main() {
+  if (inApp) await mountApp()
+  const rows: Record<string, unknown>[] = []
+  const show = () => (out.textContent = JSON.stringify(rows, null, 1))
+  for (const fps of [60, 90]) rows.push({ kind: 'interval', fps, idle: await measureIntervalRate(fps), busy4ms: await measureIntervalRate(fps, 4), busy12ms: await measureIntervalRate(fps, 12) }), show()
+  for (const fps of [30, 60, 90, 120]) rows.push({ kind: 'deadline', fps, idle: await measureDeadlineRate(fps), busy4ms: await measureDeadlineRate(fps, 4), busy12ms: await measureDeadlineRate(fps, 12) }), show()
+  const stream = params.get('stream') === '1'
+  const engine = useEngine()
+  if (stream && !engine.streaming.value) engine.toggleStream()
+  for (const fps of [60, 90]) {
+    rows.push({ kind: 'engine', fps, shader: 'plain', preview: 'off', ...(await measureEngineRate(fps, -1, PLAIN)) }), show()
+    rows.push({ kind: 'engine', fps, shader: 'plain', preview: '60', ...(await measureEngineRate(fps, 60, PLAIN)) }), show()
+    rows.push({ kind: 'engine', fps, shader: 'heavy', preview: 'off', ...(await measureEngineRate(fps, -1, HEAVY)) }), show()
+    rows.push({ kind: 'engine', fps, shader: 'heavy', preview: '60', ...(await measureEngineRate(fps, 60, HEAVY)) }), show()
+    rows.push({ kind: 'engine', fps, shader: 'heavy', preview: 'uncapped', ...(await measureEngineRate(fps, 0, HEAVY)) }), show()
   }
-  if (busyMs) raf = requestAnimationFrame(burn)
+  if (stream && engine.streaming.value) engine.toggleStream()
+  await fetch(receiver, { method: 'POST', mode: 'no-cors', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ label, stream, rows }) })
+  out.textContent += '\nposted'
+}
+
+async function mountApp() {
+  const root = document.createElement('div')
+  root.id = 'app'
+  root.style.cssText = 'height: 700px'
+  document.body.prepend(root)
+  await import('@/main')
+  await pause(3000)
+}
+
+async function measureIntervalRate(fps: number, busyMs = 0) {
+  let ticks = 0
+  const stopBusy = startBusyLoop(busyMs)
   const start = performance.now()
   const timer = setInterval(() => ticks++, 1000 / fps)
   await pause(SECONDS * 1000)
   clearInterval(timer)
-  cancelAnimationFrame(raf)
+  stopBusy()
   return +(ticks / ((performance.now() - start) / 1000)).toFixed(1)
 }
 
-/** A drift-free clock: each tick is due at start + n * period, and a tick more than one period late is skipped, not caught up. */
-async function deadlineRate(fps: number, busyMs = 0) {
+/** Tick due at start + n * period; one more than a period late is skipped, not caught up */
+async function measureDeadlineRate(fps: number, busyMs = 0) {
   let ticks = 0
-  let raf = 0
-  const burn = () => {
-    raf = requestAnimationFrame(burn)
-    const until = performance.now() + busyMs
-    while (performance.now() < until) { /* hold the main thread */ }
-  }
-  if (busyMs) raf = requestAnimationFrame(burn)
+  const stopBusy = startBusyLoop(busyMs)
   const period = 1000 / fps
   const start = performance.now()
   let due = start + period
@@ -57,70 +75,55 @@ async function deadlineRate(fps: number, busyMs = 0) {
   timer = window.setTimeout(tick, period)
   await pause(SECONDS * 1000)
   clearTimeout(timer)
-  cancelAnimationFrame(raf)
+  stopBusy()
   return +(ticks / ((performance.now() - start) / 1000)).toFixed(1)
 }
 
-async function engineRate(fps: number, previewFps: number, code: string) {
+async function measureEngineRate(fps: number, previewFps: number, code: string) {
   const engine = useEngine()
   const host = document.getElementById('host')!
   if (!inApp) previewFps >= 0 ? host.append(engine.canvas) : engine.canvas.remove()
   preferences.previewFps = previewFps < 0 ? 60 : previewFps
   config.fps = fps
   if (!engine.compile(code)) throw new Error('compile failed')
-  let ticks = 0
-  const gaps: number[] = []
-  let last = performance.now()
-  // the bridge hears about every rendered LED frame, which makes it the place to time the ticks
-  const record = engine.bridge.recordLedRender
-  engine.bridge.recordLedRender = (ms) => {
-    const now = performance.now()
-    gaps.push(now - last)
-    last = now
-    ticks++
-    return record(ms)
-  }
-  const stop = () => (engine.bridge.recordLedRender = record)
   await pause(500)
-  ticks = 0
-  gaps.length = 0
-  last = performance.now()
+  const gaps = recordTickGaps(engine.bridge)
   const start = performance.now()
   await pause(SECONDS * 1000)
-  stop()
-  const rate = ticks / ((performance.now() - start) / 1000)
-  gaps.sort((a, b) => a - b)
-  const p = (q: number) => +(gaps[Math.min(gaps.length - 1, Math.floor(q * gaps.length))] ?? 0).toFixed(1)
-  return { rate: +rate.toFixed(1), ledRenderMs: +(engine.bridge.stats.ledRenderMs ?? 0).toFixed(2), sendFps: +engine.bridge.stats.sendFps.toFixed(1), dropped: engine.bridge.stats.framesDropped, gapP50: p(0.5), gapP90: p(0.9), gapMax: p(1) }
+  gaps.stop()
+  const rate = gaps.list.length / ((performance.now() - start) / 1000)
+  gaps.list.sort((a, b) => a - b)
+  const readPercentile = (q: number) => +(gaps.list[Math.min(gaps.list.length - 1, Math.floor(q * gaps.list.length))] ?? 0).toFixed(1)
+  const { stats } = engine.bridge
+  return { rate: +rate.toFixed(1), ledRenderMs: +(stats.ledRenderMs ?? 0).toFixed(2), sendFps: +stats.sendFps.toFixed(1), dropped: stats.framesDropped, gapP50: readPercentile(0.5), gapP90: readPercentile(0.9), gapMax: readPercentile(1) }
 }
 
-async function main() {
-  if (inApp) {
-    const root = document.createElement('div')
-    root.id = 'app'
-    root.style.cssText = 'height: 700px'
-    document.body.prepend(root)
-    await import('@/main')
-    await pause(3000)
+/** Bridge hears every rendered LED frame, so it times the ticks */
+function recordTickGaps(bridge: ReturnType<typeof useEngine>['bridge']) {
+  const list: number[] = []
+  let last = performance.now()
+  const record = bridge.recordLedRender
+  bridge.recordLedRender = (ms) => {
+    const now = performance.now()
+    list.push(now - last)
+    last = now
+    return record(ms)
   }
-  const rows: Record<string, unknown>[] = []
-  const show = () => (out.textContent = JSON.stringify(rows, null, 1))
-  for (const fps of [60, 90]) rows.push({ kind: 'interval', fps, idle: await intervalRate(fps), busy4ms: await intervalRate(fps, 4), busy12ms: await intervalRate(fps, 12) }), show()
-  for (const fps of [30, 60, 90, 120]) rows.push({ kind: 'deadline', fps, idle: await deadlineRate(fps), busy4ms: await deadlineRate(fps, 4), busy12ms: await deadlineRate(fps, 12) }), show()
-  const stream = params.get('stream') === '1'
-  const engine = useEngine()
-  if (stream && !engine.streaming.value) engine.toggleStream()
-  for (const fps of [60, 90]) {
-    rows.push({ kind: 'engine', fps, shader: 'plain', preview: 'off', ...(await engineRate(fps, -1, PLAIN)) }), show()
-    rows.push({ kind: 'engine', fps, shader: 'plain', preview: '60', ...(await engineRate(fps, 60, PLAIN)) }), show()
-    rows.push({ kind: 'engine', fps, shader: 'heavy', preview: 'off', ...(await engineRate(fps, -1, HEAVY)) }), show()
-    rows.push({ kind: 'engine', fps, shader: 'heavy', preview: '60', ...(await engineRate(fps, 60, HEAVY)) }), show()
-    rows.push({ kind: 'engine', fps, shader: 'heavy', preview: 'uncapped', ...(await engineRate(fps, 0, HEAVY)) }), show()
-  }
-  if (stream && engine.streaming.value) engine.toggleStream()
-  await fetch(receiver, { method: 'POST', mode: 'no-cors', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ label, stream, rows }) })
-  out.textContent += '\nposted'
+  return { list, stop: () => (bridge.recordLedRender = record) }
 }
+
+/** Holds the main thread `busyMs` every animation frame; returns the stop */
+function startBusyLoop(busyMs: number): () => void {
+  let frame = 0
+  const burn = () => {
+    frame = requestAnimationFrame(burn)
+    const until = performance.now() + busyMs
+    while (performance.now() < until) { /* hold the main thread */ }
+  }
+  if (busyMs) frame = requestAnimationFrame(burn)
+  return () => cancelAnimationFrame(frame)
+}
+
 const fail = (e: unknown) => {
   out.textContent = String(e)
   void fetch(receiver, { method: 'POST', mode: 'no-cors', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ label, error: String((e as Error)?.stack ?? e), rows: [] }) })

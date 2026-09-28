@@ -4,7 +4,7 @@ export const sceneSwitchNode = defineNode('sceneSwitch', {
   title: 'Scene Switch',
   description: 'Recalls a saved scene when Index changes: 0 is the first scene in the Parameters panel. Drive it from a Counter to step scenes on the beat, or from MIDI In to pick them from a controller.',
   category: 'input',
-  // nothing reads this node; it acts on the knobs, so it is evaluated even though no link leads from it to the Output
+  // Unread; acts on the knobs, so it's a sink
   isOutput: true,
   input: {
     index: { type: Float, default: 0, props: { min: 0, step: 1, decimals: 0 } },
@@ -13,6 +13,4 @@ export const sceneSwitchNode = defineNode('sceneSwitch', {
   output: { scene: Float },
   body: ({ index }, ctx) => ({ scene: ctx.declare('float', `max(0.0, floor(${index.expr} + 0.5))`) }),
   probe: 'scene',
-  frameOnlyInOldPipeline: true,
-  frame: ({ index }) => ({ scene: Math.max(0, Math.round(index)) }),
 })

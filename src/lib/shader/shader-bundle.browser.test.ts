@@ -4,49 +4,16 @@ import { EXAMPLES } from './examples'
 import { NODES, type Param } from './catalog'
 import { PRELUDE } from './prelude'
 import { bundleShader } from './shader-bundle'
-import { standaloneGlsl } from './shader-export'
+import { bundleStandaloneGlsl } from './shader-export'
 import { workspace } from '@/lib/app/workspace'
 
-/** A host that knows nothing of this app: its own context, a constant for every plain uniform, a 1x1 texture per sampler. Returns the pixels it drew. */
+/** Host that knows nothing of this app: own context, constant per plain uniform, 1x1 texture per sampler; returns drawn pixels */
 function runStandalone(fragment: string, size = 4): Uint8Array {
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = size
   const gl = canvas.getContext('webgl2')!
-  const program = gl.createProgram()
-  for (const [type, source] of [[gl.VERTEX_SHADER, '#version 300 es\nin vec2 p;\nvoid main() { gl_Position = vec4(p, 0.0, 1.0); }'], [gl.FRAGMENT_SHADER, fragment]] as const) {
-    const shader = gl.createShader(type)!
-    gl.shaderSource(shader, source)
-    gl.compileShader(shader)
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader) ?? 'compile failed')
-    gl.attachShader(program, shader)
-  }
-  gl.linkProgram(program)
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) ?? 'link failed')
-  gl.useProgram(program)
-
-  let unit = 0
-  for (let i = 0; i < gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS); i++) {
-    const info = gl.getActiveUniform(program, i)!
-    const location = gl.getUniformLocation(program, info.name)
-    if (info.type === gl.SAMPLER_2D || info.type === gl.SAMPLER_2D_ARRAY) {
-      const target = info.type === gl.SAMPLER_2D ? gl.TEXTURE_2D : gl.TEXTURE_2D_ARRAY
-      const units = Array.from({ length: info.size }, () => unit++)
-      for (const u of units) {
-        gl.activeTexture(gl.TEXTURE0 + u)
-        gl.bindTexture(target, gl.createTexture())
-        if (target === gl.TEXTURE_2D) gl.texImage2D(target, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([128, 128, 128, 255]))
-        else gl.texImage3D(target, 0, gl.RGBA, 1, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([128, 128, 128, 255]))
-        gl.texParameteri(target, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-      }
-      gl.uniform1iv(location, units)
-    } else if (info.name === 'iResolution') gl.uniform3f(location, size, size, 1)
-    else if (info.type === gl.INT) gl.uniform1i(location, 1)
-    else if (info.type === gl.FLOAT) gl.uniform1fv(location, new Float32Array(info.size).fill(1))
-    else if (info.type === gl.FLOAT_VEC3) gl.uniform3f(location, 0, 0, 48000)
-    else if (info.type === gl.FLOAT_VEC4) gl.uniform4fv(location, new Float32Array(info.size * 4).fill(0.5))
-    else throw new Error(`No dummy for ${info.name}`)
-  }
-
+  const program = linkStandalone(gl, fragment)
+  bindDummyUniforms(gl, program, size)
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
   gl.enableVertexAttribArray(gl.getAttribLocation(program, 'p'))
@@ -60,6 +27,48 @@ function runStandalone(fragment: string, size = 4): Uint8Array {
   return pixels
 }
 
+function linkStandalone(gl: WebGL2RenderingContext, fragment: string): WebGLProgram {
+  const program = gl.createProgram()
+  for (const [type, source] of [[gl.VERTEX_SHADER, '#version 300 es\nin vec2 p;\nvoid main() { gl_Position = vec4(p, 0.0, 1.0); }'], [gl.FRAGMENT_SHADER, fragment]] as const) {
+    const shader = gl.createShader(type)!
+    gl.shaderSource(shader, source)
+    gl.compileShader(shader)
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader) ?? 'compile failed')
+    gl.attachShader(program, shader)
+  }
+  gl.linkProgram(program)
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) ?? 'link failed')
+  gl.useProgram(program)
+  return program
+}
+
+function bindDummyUniforms(gl: WebGL2RenderingContext, program: WebGLProgram, size: number): void {
+  let unit = 0
+  for (let i = 0; i < gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS); i++) {
+    const info = gl.getActiveUniform(program, i)!
+    const location = gl.getUniformLocation(program, info.name)
+    if (info.type === gl.SAMPLER_2D || info.type === gl.SAMPLER_2D_ARRAY) {
+      const units = Array.from({ length: info.size }, () => unit++)
+      units.forEach((textureUnit) => bindGreyTexture(gl, textureUnit, info.type === gl.SAMPLER_2D ? gl.TEXTURE_2D : gl.TEXTURE_2D_ARRAY))
+      gl.uniform1iv(location, units)
+    } else if (info.name === 'iResolution') gl.uniform3f(location, size, size, 1)
+    else if (info.type === gl.INT) gl.uniform1i(location, 1)
+    else if (info.type === gl.FLOAT) gl.uniform1fv(location, new Float32Array(info.size).fill(1))
+    else if (info.type === gl.FLOAT_VEC3) gl.uniform3f(location, 0, 0, 48000)
+    else if (info.type === gl.FLOAT_VEC4) gl.uniform4fv(location, new Float32Array(info.size * 4).fill(0.5))
+    else throw new Error(`No dummy for ${info.name}`)
+  }
+}
+
+function bindGreyTexture(gl: WebGL2RenderingContext, unit: number, target: number): void {
+  const grey = new Uint8Array([128, 128, 128, 255])
+  gl.activeTexture(gl.TEXTURE0 + unit)
+  gl.bindTexture(target, gl.createTexture())
+  if (target === gl.TEXTURE_2D) gl.texImage2D(target, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, grey)
+  else gl.texImage3D(target, 0, gl.RGBA, 1, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, grey)
+  gl.texParameteri(target, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+}
+
 const code = config.code
 afterEach(() => {
   config.code = code
@@ -68,9 +77,9 @@ afterEach(() => {
 
 it('a bundle compiles, links and draws in a WebGL2 context that has never seen the prelude', () => {
   const pixels = runStandalone(bundleShader('void mainImage(out vec4 c, vec2 uv, float ledIndex) {\n  c = vec4(uv.x, step(0.5, uv.y), fbm(uv), 1.0);\n}'))
-  const at = (x: number, y: number) => [...pixels.slice((y * 4 + x) * 4, (y * 4 + x) * 4 + 2)]
-  expect(at(0, 0)).toEqual([32, 0])
-  expect(at(3, 3)).toEqual([223, 255])
+  const readRedGreen = (x: number, y: number) => [...pixels.slice((y * 4 + x) * 4, (y * 4 + x) * 4 + 2)]
+  expect(readRedGreen(0, 0)).toEqual([32, 0])
+  expect(readRedGreen(3, 3)).toEqual([223, 255])
 })
 
 it('the host is a real check: the same code without its helpers does not compile', () => {
@@ -82,17 +91,17 @@ it.each(EXAMPLES.map((example) => [example.name, example.code]))('the example "%
 })
 
 it('a shader that reaches every helper and every uniform of the prelude still compiles', () => {
-  const literal = (value: Param['default']) => (value === undefined ? 'vec3(0.5)' : typeof value === 'number' ? value.toFixed(2) : Array.isArray(value) ? `vec${value.length}(${value.map((v) => v.toFixed(2)).join(', ')})` : value)
+  const toLiteral = (value: Param['default']) => (value === undefined ? 'vec3(0.5)' : typeof value === 'number' ? value.toFixed(2) : Array.isArray(value) ? `vec${value.length}(${value.map((v) => v.toFixed(2)).join(', ')})` : value)
   const documented = NODES.filter((node) => node.kind === 'function' && node.category !== 'builtin')
   const source = [
     'void mainImage(out vec4 c, vec2 uv, float ledIndex) {',
-    ...documented.map((node, i) => `  ${node.returns} v${i} = ${node.name}(${node.params.map((param) => literal(param.default)).join(', ')});`),
+    ...documented.map((node, i) => `  ${node.returns} v${i} = ${node.name}(${node.params.map((param) => toLiteral(param.default)).join(', ')});`),
     '  c = vec4(previousFrame(1.0) + historyAt(2, uv.x, 0.5) + history(uv.x, 0.1) + bands(uv.x) + chroma(3.0) + waveformAt(4.0), 1.0);',
     '  c.r += texture(iImages, vec3(uv, 0.0)).r + iControl[3].y + iTimeDelta + float(iFrame) + bandsPeak(1, 2, 8) + spectrumPeak(0, 60.0, 150.0) + iAudioFeatures[1].y;',
     '}',
   ].join('\n')
   const bundle = bundleShader(source)
-  // the audio* names are aliases kept for old shaders; nothing documented calls them, and they have a test of their own
+  // audio* aliases kept for old shaders; nothing documented calls them, tested on their own
   const helpers = [...PRELUDE.matchAll(/^\w+ (\w+)\(.*\{/gm)].map((m) => m[1]).filter((name) => name !== 'main' && !name.startsWith('audio'))
   expect(helpers.length).toBeGreaterThan(60)
   for (const name of helpers) expect(bundle, name).toMatch(new RegExp(`^\\w+ ${name}\\(`, 'm'))
@@ -118,7 +127,7 @@ it('a shader written with the old audio* names still compiles, and the bundle ca
 
 it('in graph mode the export is the standalone compile of the working graph: no iControl, and it draws', () => {
   workspace.mode = 'graph'
-  const { name, text } = standaloneGlsl()
+  const { name, text } = bundleStandaloneGlsl()
   expect(name).toBe('graph.standalone.glsl')
   expect(text).not.toMatch(/\biControl\b/)
   expect(text).toContain('// Generated by WLEDtoy graph mode')
@@ -127,7 +136,7 @@ it('in graph mode the export is the standalone compile of the working graph: no 
 
 it('in shader mode the export bundles the working copy', () => {
   config.code = 'void mainImage(out vec4 c, vec2 uv, float ledIndex) {\n  c = vec4(kelvin(2700.0), 1.0);\n}'
-  const { name, text } = standaloneGlsl()
+  const { name, text } = bundleStandaloneGlsl()
   expect(name).toBe('shader.standalone.glsl')
   expect(text).toContain(config.code)
   expect(text).toMatch(/^vec3 kelvin\(/m)

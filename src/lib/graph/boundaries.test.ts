@@ -3,10 +3,9 @@ import { expect, it } from 'vitest'
 
 const GRAPH = 'src/lib/graph'
 const FIXTURES = `${GRAPH}/boundaries.fixtures`
-const DEFINE_OUTSIDE = ['@/lib/shader/catalog', '@/lib/audio/dsp', '@/lib/engine/midi', '@/lib/engine/output/output', '@/lib/util/json']
+const DEFINE_OUTSIDE = ['@/lib/shader/catalog', '@/lib/engine/output/output', '@/lib/util/json']
 
-// a node reaches the graph only through authoring; a helper two categories need lives in nodes/shared (or nodes/glsl for
-// GLSL chunks) rather than being imported from one of them, so categories stay independent of each other
+// Nodes reach the graph only via authoring; shared helpers live in nodes/shared or nodes/glsl, so categories stay independent
 function nodesAllow(file: string, from: string): boolean {
   if (from.startsWith('./')) return true
   if (from.startsWith('.')) return false
@@ -18,8 +17,8 @@ function nodesAllow(file: string, from: string): boolean {
 const defineAllows = (file: string, from: string) =>
   from.startsWith('./') || DEFINE_OUTSIDE.includes(from) || (file.endsWith('.test.ts') && from === 'vitest')
 
-// outside compile/ only its entry points are reachable: the old compiler and its frame runner, and the new compilers
-const COMPILE_ENTRIES = /(^|\/)compile\/(compile|js\/frame|next\/compilers)$/
+// Outside compile/, only its entry point
+const COMPILE_ENTRIES = /(^|\/)compile\/compilers$/
 
 const stageAllows = (file: string, from: string) =>
   file.startsWith('compile/') || !/(^|\/)compile\//.test(from) || COMPILE_ENTRIES.test(from)
@@ -30,7 +29,7 @@ const RULES = [
   { rule: 'compile stages', covers: () => true, allows: stageAllows },
 ]
 
-function importsUnder(root: string): { file: string; from: string }[] {
+function listImports(root: string): { file: string; from: string }[] {
   return readdirSync(root, { recursive: true, encoding: 'utf8' })
     .filter((file) => file.endsWith('.ts') && !file.startsWith('boundaries.fixtures/'))
     .flatMap((file) =>
@@ -39,18 +38,18 @@ function importsUnder(root: string): { file: string; from: string }[] {
     )
 }
 
-const violations = (root: string) =>
-  importsUnder(root).flatMap(({ file, from }) =>
+const listViolations = (root: string) =>
+  listImports(root).flatMap(({ file, from }) =>
     RULES.filter((r) => r.covers(file) && !r.allows(file, from)).map((r) => `${r.rule}: ${file} imports ${from}`),
   )
 
 it('graph files import only across the boundaries the module allows', () => {
-  expect(violations(GRAPH)).toEqual([])
+  expect(listViolations(GRAPH)).toEqual([])
 })
 
 it('reports a forbidden import in a node file', () => {
-  expect(violations(FIXTURES)).toEqual([
-    'nodes: nodes/leak.ts imports @/lib/graph/compile/glsl/glsl',
-    'compile stages: nodes/leak.ts imports @/lib/graph/compile/glsl/glsl',
+  expect(listViolations(FIXTURES)).toEqual([
+    'nodes: nodes/leak.ts imports @/lib/graph/compile/targets/glsl',
+    'compile stages: nodes/leak.ts imports @/lib/graph/compile/targets/glsl',
   ])
 })

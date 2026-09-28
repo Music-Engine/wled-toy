@@ -1,35 +1,21 @@
-import type { Features } from '@/lib/audio/dsp'
-import { defineNode, Enum, Float, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
+import { defineNode, Enum, Float, SpectrumStream } from '@/lib/graph/authoring'
 import { audioReadsChunk } from '@/lib/graph/nodes/glsl/audio'
 
 const COUNTS = [{ value: '4', label: '4 bands' }, { value: '8', label: '8 bands' }, { value: '16', label: '16 bands' }] as const
 
-/** A few band levels as per-frame numbers; the count decides how many outputs the node has. */
+/** Count decides the outputs */
 export const bandsNode = defineNode('bands', ({ count = '8' }: { count?: string }) => {
-  const n = Number(count) || 8
+  const bandCount = Number(count) || 8
   return {
     title: 'Bands',
     description: 'The spectrum folded into a few bands, each an output you can wire per frame: the per-frame side of the Spectrum node.',
     category: 'audio',
+    prefers: 'frame',
     input: { spectrum: SpectrumStream, count: { type: Enum(COUNTS), label: '', default: '8', linkable: false, props: { label: 'Bands' } } },
-    output: Object.fromEntries(Array.from({ length: n }, (_, i) => [`band${i + 1}`, { type: Float, label: `Band ${i + 1}` }])),
-    frameOnlyInOldPipeline: true,
+    output: Object.fromEntries(Array.from({ length: bandCount }, (_, i) => [`band${i + 1}`, { type: Float, label: `Band ${i + 1}` }])),
     body: ({ spectrum }, ctx) => {
       ctx.include(audioReadsChunk)
-      return Object.fromEntries(Array.from({ length: n }, (_, i) => [`band${i + 1}`, ctx.declare('float', `bandsPeak(${spectrum?.slot ?? 0}, ${i}, ${n})`, `band${i + 1}`)]))
-    },
-    frame: ({ spectrum }, info: FrameInfo) => {
-      const f: Features | null | undefined = info.audio?.analyses[spectrum?.slot ?? 0]
-      const bands = f?.bands
-      return Object.fromEntries(Array.from({ length: n }, (_, i) => {
-        if (!bands) return [`band${i + 1}`, 0]
-        // each output is the loudest of the analysis bands it covers
-        const from = Math.floor((i * bands.length) / n)
-        const to = Math.max(from + 1, Math.floor(((i + 1) * bands.length) / n))
-        let peak = 0
-        for (let k = from; k < to; k++) peak = Math.max(peak, bands[k])
-        return [`band${i + 1}`, peak]
-      }))
+      return Object.fromEntries(Array.from({ length: bandCount }, (_, i) => [`band${i + 1}`, ctx.declare('float', `bandsPeak(${spectrum?.slot ?? 0}, ${i}, ${bandCount})`, `band${i + 1}`)]))
     },
   }
 })

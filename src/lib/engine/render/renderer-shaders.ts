@@ -2,7 +2,7 @@ export const VERT = `#version 300 es
 in vec2 p;
 void main() { gl_Position = vec4(p, 0.0, 1.0); }`
 
-// copies a feedback target to the canvas
+// Copies a feedback target to the canvas
 export const PRESENT = `#version 300 es
 precision highp float;
 uniform sampler2D source;

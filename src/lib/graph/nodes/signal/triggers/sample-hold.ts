@@ -1,5 +1,5 @@
 import { defineNode, Float } from '@/lib/graph/authoring'
-import { risingEdge, risingEdgeFlag } from '@/lib/graph/nodes/shared/signal'
+import { declareRisingEdge } from '@/lib/graph/nodes/shared/signal'
 
 export const sampleHoldNode = defineNode('sampleHold', {
   title: 'Sample and Hold',
@@ -8,15 +8,10 @@ export const sampleHoldNode = defineNode('sampleHold', {
   input: { signal: { type: Float, default: 0 }, trigger: { type: Float, default: 0 } },
   output: { value: Float },
   state: { held: Float, high: Float },
-  frameOnlyInOldPipeline: true,
   body: ({ signal, trigger }, ctx) => {
     const { held, high } = ctx.state
-    const rose = risingEdgeFlag(ctx, high, trigger, 'rose')
+    const rose = declareRisingEdge(ctx, high, trigger, 'rose')
     ctx.emit(`if (${rose} > 0.5) ${held.expr} = ${signal.expr};`)
     return { value: held }
-  },
-  frame: ({ signal, trigger }, { state }) => {
-    if (risingEdge(state, 'high', trigger)) state.held = signal
-    return { value: state.held }
   },
 })

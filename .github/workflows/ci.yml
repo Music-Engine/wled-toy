@@ -66,9 +66,9 @@ jobs:
           cmp cpp/generated/nodes.cpp "$RUNNER_TEMP/nodes.cpp"
           cmp cpp/generated/parity.cpp "$RUNNER_TEMP/parity.cpp"
 
-      - name: Compile every pixel body as C++
+      - name: Compile every kind alone through the usermod target
         timeout-minutes: 2
-        run: g++ $CXXFLAGS -fsyntax-only cpp/generated/nodes.cpp
+        run: g++ $CXXFLAGS -I cpp -fsyntax-only cpp/generated/nodes.cpp
 
       - name: Build and run the op tables' numeric parity check
         timeout-minutes: 2

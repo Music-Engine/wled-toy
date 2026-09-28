@@ -1,0 +1,334 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [
+      {
+        "kind": "knob",
+        "default": 0.25,
+        "label": "Bass Drift",
+        "min": 0,
+        "max": 1.5,
+        "cc": -1,
+        "node": "driftSpeed",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "knob",
+        "default": 0.5,
+        "label": "History Depth",
+        "min": 0.1,
+        "max": 2,
+        "cc": -1,
+        "node": "historyDepth",
+        "output": "value",
+        "offset": 1
+      },
+      {
+        "kind": "knob",
+        "default": 1.8,
+        "label": "Hat Sparkle",
+        "min": 0,
+        "max": 3,
+        "cc": -1,
+        "node": "sparkleAmount",
+        "output": "value",
+        "offset": 2
+      },
+      {
+        "kind": "knob",
+        "default": 0.3,
+        "label": "Afterglow",
+        "min": 0,
+        "max": 1.5,
+        "cc": -1,
+        "node": "afterglow",
+        "output": "value",
+        "offset": 3
+      }
+    ],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 6,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "analysis": [
+        {
+          "windowSize": 4096,
+          "hop": 1024,
+          "window": "blackman",
+          "bands": 96,
+          "scale": "log",
+          "fmin": 40,
+          "fmax": 16000
+        }
+      ],
+      "spectra": [
+        1
+      ],
+      "audioFeatures": [
+        true
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 0.9,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "lineNodes": {
+      "pixel": {
+        "103": "curtainCoords",
+        "104": "curtainCoords",
+        "105": "curtainCoords",
+        "106": "curtainNoise",
+        "107": "curtainNoise",
+        "108": "curtainNoise",
+        "109": "curtainNoise",
+        "110": "curtainShape",
+        "111": "curtainHue",
+        "112": "curtainRamp",
+        "113": "curtainRamp",
+        "114": "curtainRamp",
+        "115": "curtainRamp",
+        "116": "curtainRamp",
+        "117": "curtainRamp",
+        "118": "curtainLayer",
+        "119": "rowOffset",
+        "120": "horizonDistance",
+        "121": "age",
+        "122": "waterfall",
+        "123": "trebleTilt",
+        "124": "tiltedLevel",
+        "125": "levelShaped",
+        "126": "historyHeat",
+        "127": "colorOffset",
+        "128": "rampPosition",
+        "129": "auroraRamp",
+        "130": "auroraRamp",
+        "131": "auroraRamp",
+        "132": "auroraRamp",
+        "133": "auroraRamp",
+        "134": "auroraRamp",
+        "135": "auroraRamp",
+        "136": "auroraRamp",
+        "137": "auroraRamp",
+        "138": "heightFade",
+        "139": "fadedLevel",
+        "140": "curtainGate",
+        "141": "waterfallBrightness",
+        "142": "waterfallOverCurtain",
+        "143": "hatSparkle",
+        "144": "trebleRegion",
+        "145": "trebleHits",
+        "146": "sparkleLayer",
+        "147": "trailDecay",
+        "148": "glowTrails",
+        "149": "out"
+      },
+      "frame": {
+        "81": "bassBand",
+        "82": "bassEnergy",
+        "83": "bassEnergy",
+        "84": "driftRate",
+        "85": "curtainDrift",
+        "86": "curtainDrift",
+        "87": "curtainDrift",
+        "88": "curtainOffset",
+        "89": "curtainOffset",
+        "90": "padEnvelope",
+        "91": "padEnvelope",
+        "92": "padLift",
+        "93": "padLift",
+        "94": "curtainGain",
+        "95": "curtainGain",
+        "96": "sensitivity",
+        "97": "sensitivity",
+        "98": "dropEnergy",
+        "99": "dropEnergy",
+        "100": "trebleBoost",
+        "101": "trebleBoost",
+        "102": "dropLift",
+        "103": "dropLift",
+        "104": "hatEnvelope",
+        "105": "hatEnvelope",
+        "106": "sparkleDensity",
+        "107": "sparkleDensity"
+      }
+    },
+    "frame": {
+      "texels": 4,
+      "probes": []
+    },
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {
+        "bassEnergy": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 0,
+            "kind": "envelopeFollower"
+          }
+        },
+        "curtainDrift": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 1,
+            "kind": "integrator"
+          },
+          "high": {
+            "type": "float",
+            "dim": 1,
+            "offset": 2,
+            "kind": "integrator"
+          }
+        },
+        "curtainOffset:vector": {
+          "vector": {
+            "type": "vec3",
+            "dim": 3,
+            "offset": 4,
+            "kind": "combineXYZ"
+          }
+        },
+        "padEnvelope": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 7,
+            "kind": "envelopeFollower"
+          }
+        },
+        "padLift:result": {
+          "result": {
+            "type": "float",
+            "dim": 1,
+            "offset": 8,
+            "kind": "remap"
+          }
+        },
+        "curtainGain:result": {
+          "result": {
+            "type": "float",
+            "dim": 1,
+            "offset": 9,
+            "kind": "remap"
+          }
+        },
+        "sensitivity:result": {
+          "result": {
+            "type": "float",
+            "dim": 1,
+            "offset": 10,
+            "kind": "remap"
+          }
+        },
+        "dropEnergy": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 11,
+            "kind": "envelopeFollower"
+          }
+        },
+        "trebleBoost:result": {
+          "result": {
+            "type": "float",
+            "dim": 1,
+            "offset": 12,
+            "kind": "remap"
+          }
+        },
+        "dropLift:result": {
+          "result": {
+            "type": "float",
+            "dim": 1,
+            "offset": 13,
+            "kind": "remap"
+          }
+        },
+        "hatEnvelope": {
+          "value": {
+            "type": "float",
+            "dim": 1,
+            "offset": 14,
+            "kind": "envelopeFollower"
+          }
+        },
+        "sparkleDensity:result": {
+          "result": {
+            "type": "float",
+            "dim": 1,
+            "offset": 15,
+            "kind": "math"
+          }
+        }
+      }
+    }
+  },
+  "usermod": {
+    "issues": [
+      {
+        "nodeId": "glowTrails",
+        "message": "Trails reads a texture or a GLSL-only helper, which a C++ unit has nothing for"
+      }
+    ]
+  },
+  "standalone": {
+    "issues": [
+      {
+        "nodeId": "bassEnergy",
+        "message": "Envelope Follower keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      },
+      {
+        "nodeId": "curtainDrift",
+        "message": "Integrator keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      },
+      {
+        "nodeId": "padEnvelope",
+        "message": "Envelope Follower keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      },
+      {
+        "nodeId": "dropEnergy",
+        "message": "Envelope Follower keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      },
+      {
+        "nodeId": "hatEnvelope",
+        "message": "Envelope Follower keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      },
+      {
+        "nodeId": "driftSpeed",
+        "message": "Knob \"Value\" is fixed at 0.25 in the exported shader"
+      },
+      {
+        "nodeId": "historyDepth",
+        "message": "Knob \"Value\" is fixed at 0.5 in the exported shader"
+      },
+      {
+        "nodeId": "sparkleAmount",
+        "message": "Knob \"Value\" is fixed at 1.8 in the exported shader"
+      },
+      {
+        "nodeId": "afterglow",
+        "message": "Knob \"Value\" is fixed at 0.3 in the exported shader"
+      }
+    ]
+  }
+}

@@ -1,7 +1,6 @@
-import type { Features } from '@/lib/audio/dsp'
-import { AUDIO_FEATURES, RANGES, rangeLevel } from '@/lib/audio/features'
+import { AUDIO_FEATURES } from '@/lib/audio/features'
 import { DEFAULT_ANALYSIS, DEFAULT_AUDIO, MAX_ANALYSES, systemAudioBlocked, type AnalysisSettings, type AudioSourceRequest } from '@/lib/audio/settings'
-import { AudioStream, defineNode, Enum, Float, Int, resourceIndex, SpectrumStream, type FrameInfo } from '@/lib/graph/authoring'
+import { AudioStream, defineNode, Enum, Float, Int, findResourceIndex, SpectrumStream } from '@/lib/graph/authoring'
 import { audioReadsChunk } from '@/lib/graph/nodes/glsl/audio'
 import { sameJson } from '@/lib/util/json'
 
@@ -9,13 +8,13 @@ const SOURCES = [{ value: 'file', label: 'Song' }, { value: 'device', label: 'Ca
 const CHANNELS = [{ value: 'mono', label: 'Mono Sum' }, { value: 'left', label: 'Left' }, { value: 'right', label: 'Right' }] as const
 const WINDOWS = [{ value: 'hann', label: 'Hann' }, { value: 'hamming', label: 'Hamming' }, { value: 'blackman', label: 'Blackman' }] as const
 const SCALES = [{ value: 'mel', label: 'Mel Bands' }, { value: 'log', label: 'Log Bands' }] as const
-const sizes = (values: number[]) => values.map((n) => ({ value: String(n), label: `${n} samples` }))
+const toSizeOptions = (values: number[]) => values.map((n) => ({ value: String(n), label: `${n} samples` }))
 
 export const audioSourceNode = defineNode('audioSource', {
   title: 'Audio Source',
   description: 'Where the sound comes from: your song, a capture device, or system audio (in a browser, a Chrome tab or, on Windows, the screen). It is the input of the whole graph, so audio nodes with nothing linked listen to it too. One source is live at a time.',
   category: 'audio',
-  // it sets the graph's input whether or not anything is linked to it
+  // Sets the graph's input, linked or not
   isOutput: true,
   input: {
     source: { type: Enum(SOURCES), label: '', default: DEFAULT_AUDIO.source, linkable: false, props: { label: 'Source' } },
@@ -29,7 +28,7 @@ export const audioSourceNode = defineNode('audioSource', {
   resolve: ({ source, channel, agcRelease, floorDb, gateDb, gateHold }, resources) => {
     const request: AudioSourceRequest = { source, channel, agc: { release: agcRelease, floorDb }, gate: { thresholdDb: gateDb, hold: gateHold } }
     const issues = []
-    if (resourceIndex(resources, 'audioSource', request) > 0) issues.push('Another Audio Source with different settings is live; one source runs at a time')
+    if (findResourceIndex(resources, 'audioSource', request) > 0) issues.push('Another Audio Source with different settings is live; one source runs at a time')
     const blocked = source === 'loopback' && systemAudioBlocked()
     if (blocked) issues.push(blocked)
     return { streams: { audio: { source: true } }, requires: [{ kind: 'audioSource', config: request }], issues }
@@ -42,8 +41,8 @@ export const fftNode = defineNode('fft', {
   category: 'audio',
   input: {
     audio: AudioStream,
-    windowSize: { type: Enum(sizes([512, 1024, 2048, 4096, 8192])), label: 'Window', default: String(DEFAULT_ANALYSIS.windowSize), linkable: false },
-    hop: { type: Enum(sizes([128, 256, 512, 1024, 2048])), label: 'Hop', default: String(DEFAULT_ANALYSIS.hop), linkable: false },
+    windowSize: { type: Enum(toSizeOptions([512, 1024, 2048, 4096, 8192])), label: 'Window', default: String(DEFAULT_ANALYSIS.windowSize), linkable: false },
+    hop: { type: Enum(toSizeOptions([128, 256, 512, 1024, 2048])), label: 'Hop', default: String(DEFAULT_ANALYSIS.hop), linkable: false },
     window: { type: Enum(WINDOWS), label: 'Window Shape', default: DEFAULT_ANALYSIS.window, linkable: false },
     scale: { type: Enum(SCALES), label: 'Band Spacing', default: DEFAULT_ANALYSIS.scale, linkable: false },
     bands: { type: Int, default: DEFAULT_ANALYSIS.bands, linkable: false, props: { min: 12, max: 256, step: 4, decimals: 0 } },
@@ -52,12 +51,11 @@ export const fftNode = defineNode('fft', {
   },
   output: { spectrum: SpectrumStream },
   resolve: ({ windowSize, hop, window, scale, bands, fmin, fmax }, resources) => {
-    // spread over the default so the keys keep its order: equal settings must serialize equally to share a slot
+    // Spread over default keeps key order: equal settings must serialize equally to share a slot
     const settings: AnalysisSettings = { ...DEFAULT_ANALYSIS, windowSize: Number(windowSize), hop: Number(hop), window, scale, bands, fmin, fmax }
     if (sameJson(settings, DEFAULT_ANALYSIS)) return { streams: { spectrum: { slot: 0 } } }
     const requires = [{ kind: 'analysis', config: settings }]
-    // slot 0 is the default analysis, so the first distinct FFT is slot 1
-    const slot = resourceIndex(resources, 'analysis', settings) + 1
+    const slot = findResourceIndex(resources, 'analysis', settings) + 1
     if (slot < MAX_ANALYSES) return { streams: { spectrum: { slot } }, requires }
     const issue = `Only ${MAX_ANALYSES - 1} FFT settings besides the default can be active at once; this one falls back to the default`
     return { streams: { spectrum: { slot: 0 } }, requires, issues: [issue] }
@@ -75,20 +73,10 @@ export const audioNode = defineNode('audio', {
     centroid: { type: Float, label: 'Brightness' }, flatness: { type: Float, label: 'Noisiness' },
     sub: Float, kick: Float, lowMid: Float, vocal: Float, presence: Float, air: Float,
   },
-  frameOnlyInOldPipeline: true,
+  resolve: () => ({ requires: [{ kind: 'audioFeatures', config: true }] }),
   body: (_, ctx) => {
     ctx.include(audioReadsChunk)
     return Object.fromEntries(AUDIO_FEATURES.map((name, i) => [name, { expr: `iAudioFeatures[${Math.floor(i / 4)}].${'xyzw'[i % 4]}`, type: 'float' }])) as never
-  },
-  frame: (_, info) => {
-    const f = analysis(info)
-    if (!f) return { level: 0, rms: 0, peak: 0, gate: 0, onset: 0, beat: 0, beatPhase: 0, bpm: 120, centroid: 0, flatness: 0, sub: 0, kick: 0, lowMid: 0, vocal: 0, presence: 0, air: 0 }
-    const range = ([low, high]: readonly [number, number]) => rangeLevel(f, info.audio!.sampleRate, low, high)
-    return {
-      level: f.level, rms: f.rms, peak: f.peak, gate: Number(f.gate), onset: Number(f.onset), beat: Number(f.beat), beatPhase: f.beatPhase, bpm: f.bpm,
-      centroid: f.centroid, flatness: f.flatness,
-      sub: range(RANGES.sub), kick: range(RANGES.kick), lowMid: range(RANGES.lowMid), vocal: range(RANGES.vocal), presence: range(RANGES.presence), air: range(RANGES.air),
-    }
   },
 })
 
@@ -96,21 +84,16 @@ export const bandSplitNode = defineNode('bandSplit', {
   title: 'Band Split',
   description: 'The level of one frequency range, for following a single part of the mix: set it around a kick, a voice, a hi-hat. Link an FFT with a large window to tell bass notes apart.',
   category: 'audio',
+  prefers: 'frame',
   input: {
     spectrum: SpectrumStream,
     low: { type: Float, label: 'Low (Hz)', default: 60, props: { min: 20, max: 20000, decimals: 0 } },
     high: { type: Float, label: 'High (Hz)', default: 150, props: { min: 20, max: 20000, decimals: 0 } },
   },
   output: { level: Float },
-  frameOnlyInOldPipeline: true,
+  resolve: ({ spectrum }) => ({ requires: [{ kind: 'spectra', config: spectrum?.slot ?? 0 }] }),
   body: ({ spectrum, low, high }, ctx) => {
     ctx.include(audioReadsChunk)
     return { level: ctx.declare('float', `spectrumPeak(${spectrum?.slot ?? 0}, ${low.expr}, ${high.expr})`) }
   },
-  frame: ({ spectrum, low, high }, info) => {
-    const f = analysis(info, spectrum?.slot)
-    return { level: f ? rangeLevel(f, info.audio!.sampleRate, low, high) : 0 }
-  },
 })
-
-const analysis = (frame: FrameInfo, slot = 0): Features | undefined => frame.audio?.analyses[slot] ?? undefined

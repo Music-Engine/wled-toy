@@ -1,4 +1,3 @@
-// The prelude helpers the catalog nodes and the standalone audio stand-ins call, ported from src/lib/shader/prelude.ts.
 #pragma once
 
 #include "runtime.h"
@@ -10,7 +9,7 @@ inline vec4 ledLayout(float ledIndex) {
   return vec4((ledIndex + 0.5f) / iLedCount, 0.5f, 0.0f, 0.0f);
 }
 
-// the nearest of the 16 bands, the resolution the usermod has
+// Nearest of the usermod's 16 bands
 inline float fft(float f) {
   int band = int(clamp(f, 0.0f, 1.0f) * 16.0f);
   return iAudioBands[band < 15 ? band : 15];
@@ -20,8 +19,7 @@ inline float bandLevel(float lo, float hi) {
   for (int i = 0; i < 8; i++) s += fft(mix(lo, hi, (float(i) + 0.5f) / 8.0f));
   return s / 8.0f;
 }
-// bandsAt, historyAt and waveformAt read the arrays as GLSL samples the textures: linear between bands, and between
-// history rows, which wrap
+// Arrays read as GLSL samples the textures: linear between bands and between wrapping history rows
 inline const float* bandRow(int slot) { return slot >= 1 && slot <= audioExtraSlots ? iAudioBandsExtra[slot - 1] : iAudioBands; }
 inline float bandsAcross(const float* row, float x) {
   float t = clamp(x * float(audioBands) - 0.5f, 0.0f, float(audioBands - 1));
@@ -83,7 +81,7 @@ inline float sparkle(float ledIndex, float density, float speed) {
   return on * sin(fract(t) * 3.14159f);
 }
 inline float luminance(vec3 c) { return dot(c, vec3(0.2126f, 0.7152f, 0.0722f)); }
-// Tanner Helland's blackbody fit, good enough for picking LED white points
+// Tanner Helland's blackbody fit, enough for LED white points
 inline vec3 kelvin(float k) {
   float t = clamp(k, 1000.0f, 40000.0f) / 100.0f;
   float r = t <= 66.0f ? 1.0f : clamp(1.29293618606f * pow(t - 60.0f, -0.1332047592f), 0.0f, 1.0f);

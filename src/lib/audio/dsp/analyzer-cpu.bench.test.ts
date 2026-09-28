@@ -4,7 +4,7 @@ import { Session } from 'node:inspector'
 import { describe, expect, it } from 'vitest'
 import { Analyzer, DEFAULT_ANALYZER, Fft, Filterbank, OnsetDetector, SampleRing, TempoTracker, centroid, chroma, createWindow, flatness, peak, rms, Agc, SilenceGate, type AnalyzerConfig } from './index'
 import { AudioTextures } from '@/lib/audio/textures'
-import { SAMPLE_RATE, synthTrack } from '@/lib/graph/testing/offline'
+import { SAMPLE_RATE, synthesizeTrack } from '@/lib/graph/testing/offline'
 
 // Node-side benchmark of the DSP analyzer, per stage. Chromium clamps performance.now() to 0.1 ms, which is more
 // than six of the nine stages cost, so the browser harness cannot split the hop; node can. Skipped unless
@@ -59,7 +59,7 @@ const SLOTS: { name: string; config: Omit<AnalyzerConfig, 'sampleRate'> }[] = [
 ]
 
 describe.runIf(RUN)('cpu profile: audio', () => {
-  const track = synthTrack(10)
+  const track = synthesizeTrack(10)
   mkdirSync(OUT, { recursive: true })
 
   it('analyzer per hop, by stage', () => {

@@ -99,8 +99,16 @@ vec3 node_mix_add(float t, vec3 col1, vec3 col2)
 
 void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   c = vec4(0.0, 0.0, 0.0, 1.0);
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_curtainOffset = vec3(0.5, 5.0, 0.5);
+  vec4 state[2];
+  for (int i = 0; i < 2; i++) state[i] = vec4(0.0);
+  float n_bassBand = spectrumPeak(1, 40.0, 160.0);
+  float n_bassEnergy_time = n_bassBand > state[0].x ? 0.04 : 0.6;
+  state[0].x += (n_bassBand - state[0].x) * (n_bassEnergy_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_bassEnergy_time));
+  float n_driftRate = state[0].x * 0.25 + 0.05;
+  float n_curtainDrift_restart = float(0.0 >= 0.5 && state[0].z < 0.5);
+  state[0].z = float(0.0 >= 0.5);
+  state[0].y = (n_curtainDrift_restart > 0.5 ? 0.0 : state[0].y) + n_driftRate * iTimeDelta;
+  vec3 n_curtainOffset = vec3(state[0].y, 5.0, state[0].y);
   vec3 n_curtainCoords_p = (vec3(uv, 0.0) - vec3(0.0, 0.0, 0.0)) * vec3(4.0, 0.35, 1.0);
   float n_curtainCoords_a = 0.03 * 6.2831853;
   vec3 n_curtainCoords = vec3(n_curtainCoords_p.x * cos(n_curtainCoords_a) + n_curtainCoords_p.y * sin(n_curtainCoords_a), n_curtainCoords_p.y * cos(n_curtainCoords_a) - n_curtainCoords_p.x * sin(n_curtainCoords_a), n_curtainCoords_p.z) + vec3(0.0, 0.0, 0.0) + n_curtainOffset;
@@ -109,8 +117,9 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   float n_curtainNoise_fac = noise_fbm(n_curtainNoise_warped, 2.5, 0.55, 2.0, true);
   vec3 n_curtainNoise_color = vec3(n_curtainNoise_fac, noise_fbm(n_curtainNoise_warped.yxz + 27.1, 2.5, 0.55, 2.0, true), noise_fbm(n_curtainNoise_warped.zyx - 41.3, 2.5, 0.55, 2.0, true));
   float n_curtainShape = smoothstep(0.33, 0.66, n_curtainNoise_fac);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_padLift = mix(-0.05, 0.08, clamp((0.5 - 0.25) / (0.45 - 0.25), 0.0, 1.0));
+  float n_padEnvelope_time = iAudioFeatures[3].y > state[0].w ? 0.3 : 1.2;
+  state[0].w += (iAudioFeatures[3].y - state[0].w) * (n_padEnvelope_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_padEnvelope_time));
+  float n_padLift = mix(-0.05, 0.08, clamp((state[0].w - 0.25) / (0.45 - 0.25), 0.0, 1.0));
   float n_curtainHue = n_curtainShape * 0.75 + n_padLift;
   float n_curtainRamp_fac = n_curtainHue;
   vec3 n_curtainRamp = vec3(0.16, 0.0, 0.5);
@@ -118,22 +127,21 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_curtainRamp = mix(n_curtainRamp, vec3(0.0, 0.4, 0.6), smoothstep(0.35, 0.6, n_curtainRamp_fac));
   n_curtainRamp = mix(n_curtainRamp, vec3(0.0, 0.8, 0.4), smoothstep(0.6, 0.85, n_curtainRamp_fac));
   n_curtainRamp = mix(n_curtainRamp, vec3(0.1, 1.0, 0.3), smoothstep(0.85, 1.0, n_curtainRamp_fac));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_curtainGain = mix(1.0, 0.35, clamp((0.5 - 0.05) / (0.6 - 0.05), 0.0, 1.0));
+  float n_curtainGain = mix(1.0, 0.35, clamp((state[0].x - 0.05) / (0.6 - 0.05), 0.0, 1.0));
   vec3 n_curtainLayer = clamp(node_mix_blend(clamp(n_curtainGain * n_curtainShape, 0.0, 1.0), vec3(0.0, 0.0, 0.0), n_curtainRamp), 0.0, 1.0);
-  float n_sensitivity = mix(0.35, 0.9, clamp((0.5 - 0.05) / (0.5 - 0.05), 0.0, 1.0));
+  float n_sensitivity = mix(0.35, 0.9, clamp((state[0].x - 0.05) / (0.5 - 0.05), 0.0, 1.0));
   float n_rowOffset = uv.y - iScanY;
   float n_horizonDistance = abs(n_rowOffset);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
   float n_age = clamp(n_horizonDistance * 0.5, 0.0, 1.0);
   float n_waterfall = historyAt(1, uv.x, n_age);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_trebleBoost = mix(3.4, 6.5, clamp((0.5 - 0.095) / (0.14 - 0.095), 0.0, 1.0));
+  float n_dropEnergy_time = iAudioFeatures[3].w > state[1].x ? 0.5 : 0.7;
+  state[1].x += (iAudioFeatures[3].w - state[1].x) * (n_dropEnergy_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_dropEnergy_time));
+  float n_trebleBoost = mix(3.4, 6.5, clamp((state[1].x - 0.095) / (0.14 - 0.095), 0.0, 1.0));
   float n_trebleTilt = mix(1.0, n_trebleBoost, clamp((uv.x - 0.0) / (1.0 - 0.0), 0.0, 1.0));
   float n_tiltedLevel = n_waterfall * n_trebleTilt;
   float n_levelShaped = smoothstep(0.13, n_sensitivity, n_tiltedLevel);
   float n_historyHeat = mix(0.7, 0.85, clamp((n_horizonDistance - 0.0) / (0.06 - 0.0), 0.0, 1.0));
-  float n_dropLift = mix(0.0, 0.15, clamp((0.5 - 0.095) / (0.14 - 0.095), 0.0, 1.0));
+  float n_dropLift = mix(0.0, 0.15, clamp((state[1].x - 0.095) / (0.14 - 0.095), 0.0, 1.0));
   float n_colorOffset = n_curtainShape * 0.2 + n_dropLift;
   float n_rampPosition = n_levelShaped * n_historyHeat + n_colorOffset;
   float n_auroraRamp_fac = n_rampPosition;
@@ -150,15 +158,14 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   float n_curtainGate = mix(0.5, 1.0, clamp(n_curtainShape, 0.0, 1.0));
   float n_waterfallBrightness = clamp(n_fadedLevel * n_curtainGate, 0.0, 1.0);
   vec3 n_waterfallOverCurtain = clamp(node_mix_screen(clamp(1.0 * n_waterfallBrightness, 0.0, 1.0), n_curtainLayer, n_auroraRamp), 0.0, 1.0);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_sparkleDensity = clamp(0.5 * 0.5, 0.0, 1.0);
+  float n_hatEnvelope_time = iAudioFeatures[3].w > state[1].y ? 0.0 : 0.1;
+  state[1].y += (iAudioFeatures[3].w - state[1].y) * (n_hatEnvelope_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_hatEnvelope_time));
+  float n_sparkleDensity = clamp(state[1].y * 1.8, 0.0, 1.0);
   float n_hatSparkle = sparkle(ledIndex, n_sparkleDensity, 7.0);
   float n_trebleRegion = smoothstep(0.62, 0.85, uv.x);
   float n_trebleHits = clamp(n_trebleRegion * n_fadedLevel, 0.0, 1.0);
   vec3 n_sparkleLayer = clamp(node_mix_add(clamp(n_hatSparkle * n_trebleHits, 0.0, 1.0), n_waterfallOverCurtain, vec3(1.0, 0.15, 0.55)), 0.0, 1.0);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_trailDecay = n_horizonDistance * -0.5 + 0.5;
+  float n_trailDecay = n_horizonDistance * -0.5 + 0.3;
   vec3 n_glowTrails = max(n_sparkleLayer, previousFrame(0.0) * exp(-iTimeDelta / max(n_trailDecay, 0.0001)));
   c = vec4(n_glowTrails, 1.0);
 }

@@ -73,8 +73,8 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_ramp0 = mix(n_ramp0, vec3(0.2, 0.6, 1.0), clamp((n_ramp0_fac - 0.0) / 0.5, 0.0, 1.0));
   n_ramp0 = mix(n_ramp0, vec3(1.0, 0.9, 0.4), clamp((n_ramp0_fac - 0.5) / 0.5, 0.0, 1.0));
   float n_chroma0 = chromaAt(1, floor(clamp(uv.x, 0.0, 0.9999) * 12.0));
-  // Band Split "Level" runs per frame; frozen at 0.5 when this code was taken
-  float n_chromaMul0 = n_chroma0 * 0.5;
+  float n_split0 = spectrumPeak(1, 60.0, 400.0);
+  float n_chromaMul0 = n_chroma0 * n_split0;
   vec3 n_chromaColor0 = hsv_to_rgb(vec3(0.0, 1.0, n_chromaMul0));
   vec3 n_tint0 = clamp(node_mix_add(clamp(0.5, 0.0, 1.0), n_ramp0, n_chromaColor0), 0.0, 1.0);
   float n_spec1 = historyAt(2, uv.x, 0.2);
@@ -83,8 +83,8 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_ramp1 = mix(n_ramp1, vec3(0.2, 0.6, 1.0), clamp((n_ramp1_fac - 0.0) / 0.5, 0.0, 1.0));
   n_ramp1 = mix(n_ramp1, vec3(1.0, 0.9, 0.4), clamp((n_ramp1_fac - 0.5) / 0.5, 0.0, 1.0));
   float n_chroma1 = chromaAt(2, floor(clamp(uv.x, 0.0, 0.9999) * 12.0));
-  // Band Split "Level" runs per frame; frozen at 0.5 when this code was taken
-  float n_chromaMul1 = n_chroma1 * 0.5;
+  float n_split1 = spectrumPeak(2, 460.0, 1600.0);
+  float n_chromaMul1 = n_chroma1 * n_split1;
   vec3 n_chromaColor1 = hsv_to_rgb(vec3(0.3333, 1.0, n_chromaMul1));
   vec3 n_tint1 = clamp(node_mix_add(clamp(0.5, 0.0, 1.0), n_ramp1, n_chromaColor1), 0.0, 1.0);
   vec3 n_mix0_0 = clamp(node_mix_screen(clamp(0.5, 0.0, 1.0), n_tint0, n_tint1), 0.0, 1.0);
@@ -94,8 +94,8 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_ramp2 = mix(n_ramp2, vec3(0.2, 0.6, 1.0), clamp((n_ramp2_fac - 0.0) / 0.5, 0.0, 1.0));
   n_ramp2 = mix(n_ramp2, vec3(1.0, 0.9, 0.4), clamp((n_ramp2_fac - 0.5) / 0.5, 0.0, 1.0));
   float n_chroma2 = chromaAt(3, floor(clamp(uv.x, 0.0, 0.9999) * 12.0));
-  // Band Split "Level" runs per frame; frozen at 0.5 when this code was taken
-  float n_chromaMul2 = n_chroma2 * 0.5;
+  float n_split2 = spectrumPeak(3, 860.0, 2800.0);
+  float n_chromaMul2 = n_chroma2 * n_split2;
   vec3 n_chromaColor2 = hsv_to_rgb(vec3(0.6667, 1.0, n_chromaMul2));
   vec3 n_tint2 = clamp(node_mix_add(clamp(0.5, 0.0, 1.0), n_ramp2, n_chromaColor2), 0.0, 1.0);
   float n_defaultSpec = historyAt(0, uv.x, 0.0);
@@ -104,104 +104,104 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   n_defaultRamp = mix(n_defaultRamp, vec3(1.0, 0.3, 0.1), smoothstep(0.0, 1.0, n_defaultRamp_fac));
   vec3 n_mix0_2 = clamp(node_mix_screen(clamp(0.5, 0.0, 1.0), n_tint2, n_defaultRamp), 0.0, 1.0);
   vec3 n_mix1_0 = clamp(node_mix_screen(clamp(0.5, 0.0, 1.0), n_mix0_0, n_mix0_2), 0.0, 1.0);
-  // Bands "Band 1" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_1 = clamp(0.5 + 0.5, 0.0, 1.0);
-  // Bands "Band 2" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_2 = clamp(n_bandSum0_1 + 0.5, 0.0, 1.0);
-  // Bands "Band 3" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_3 = clamp(n_bandSum0_2 + 0.5, 0.0, 1.0);
-  // Bands "Band 4" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_4 = clamp(n_bandSum0_3 + 0.5, 0.0, 1.0);
-  // Bands "Band 5" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_5 = clamp(n_bandSum0_4 + 0.5, 0.0, 1.0);
-  // Bands "Band 6" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_6 = clamp(n_bandSum0_5 + 0.5, 0.0, 1.0);
-  // Bands "Band 7" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_7 = clamp(n_bandSum0_6 + 0.5, 0.0, 1.0);
-  // Bands "Band 8" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_8 = clamp(n_bandSum0_7 + 0.5, 0.0, 1.0);
-  // Bands "Band 9" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_9 = clamp(n_bandSum0_8 + 0.5, 0.0, 1.0);
-  // Bands "Band 10" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_10 = clamp(n_bandSum0_9 + 0.5, 0.0, 1.0);
-  // Bands "Band 11" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_11 = clamp(n_bandSum0_10 + 0.5, 0.0, 1.0);
-  // Bands "Band 12" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_12 = clamp(n_bandSum0_11 + 0.5, 0.0, 1.0);
-  // Bands "Band 13" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_13 = clamp(n_bandSum0_12 + 0.5, 0.0, 1.0);
-  // Bands "Band 14" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_14 = clamp(n_bandSum0_13 + 0.5, 0.0, 1.0);
-  // Bands "Band 15" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_15 = clamp(n_bandSum0_14 + 0.5, 0.0, 1.0);
-  // Bands "Band 16" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum0_16 = clamp(n_bandSum0_15 + 0.5, 0.0, 1.0);
-  float n_gain0 = clamp(energy() + n_bandSum0_16, 0.0, 1.0);
-  // Bands "Band 1" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_1 = clamp(0.5 + 0.5, 0.0, 1.0);
-  // Bands "Band 2" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_2 = clamp(n_bandSum1_1 + 0.5, 0.0, 1.0);
-  // Bands "Band 3" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_3 = clamp(n_bandSum1_2 + 0.5, 0.0, 1.0);
-  // Bands "Band 4" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_4 = clamp(n_bandSum1_3 + 0.5, 0.0, 1.0);
-  // Bands "Band 5" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_5 = clamp(n_bandSum1_4 + 0.5, 0.0, 1.0);
-  // Bands "Band 6" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_6 = clamp(n_bandSum1_5 + 0.5, 0.0, 1.0);
-  // Bands "Band 7" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_7 = clamp(n_bandSum1_6 + 0.5, 0.0, 1.0);
-  // Bands "Band 8" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_8 = clamp(n_bandSum1_7 + 0.5, 0.0, 1.0);
-  // Bands "Band 9" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_9 = clamp(n_bandSum1_8 + 0.5, 0.0, 1.0);
-  // Bands "Band 10" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_10 = clamp(n_bandSum1_9 + 0.5, 0.0, 1.0);
-  // Bands "Band 11" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_11 = clamp(n_bandSum1_10 + 0.5, 0.0, 1.0);
-  // Bands "Band 12" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_12 = clamp(n_bandSum1_11 + 0.5, 0.0, 1.0);
-  // Bands "Band 13" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_13 = clamp(n_bandSum1_12 + 0.5, 0.0, 1.0);
-  // Bands "Band 14" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_14 = clamp(n_bandSum1_13 + 0.5, 0.0, 1.0);
-  // Bands "Band 15" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_15 = clamp(n_bandSum1_14 + 0.5, 0.0, 1.0);
-  // Bands "Band 16" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum1_16 = clamp(n_bandSum1_15 + 0.5, 0.0, 1.0);
+  float n_bands0_band1 = bandsPeak(1, 0, 16);
+  float n_bands0_band2 = bandsPeak(1, 1, 16);
+  float n_bands0_band3 = bandsPeak(1, 2, 16);
+  float n_bands0_band4 = bandsPeak(1, 3, 16);
+  float n_bands0_band5 = bandsPeak(1, 4, 16);
+  float n_bands0_band6 = bandsPeak(1, 5, 16);
+  float n_bands0_band7 = bandsPeak(1, 6, 16);
+  float n_bands0_band8 = bandsPeak(1, 7, 16);
+  float n_bands0_band9 = bandsPeak(1, 8, 16);
+  float n_bands0_band10 = bandsPeak(1, 9, 16);
+  float n_bands0_band11 = bandsPeak(1, 10, 16);
+  float n_bands0_band12 = bandsPeak(1, 11, 16);
+  float n_bands0_band13 = bandsPeak(1, 12, 16);
+  float n_bands0_band14 = bandsPeak(1, 13, 16);
+  float n_bands0_band15 = bandsPeak(1, 14, 16);
+  float n_bands0_band16 = bandsPeak(1, 15, 16);
+  float n_bandSum0_1 = clamp(n_bands0_band1 + n_bands0_band1, 0.0, 1.0);
+  float n_bandSum0_2 = clamp(n_bandSum0_1 + n_bands0_band2, 0.0, 1.0);
+  float n_bandSum0_3 = clamp(n_bandSum0_2 + n_bands0_band3, 0.0, 1.0);
+  float n_bandSum0_4 = clamp(n_bandSum0_3 + n_bands0_band4, 0.0, 1.0);
+  float n_bandSum0_5 = clamp(n_bandSum0_4 + n_bands0_band5, 0.0, 1.0);
+  float n_bandSum0_6 = clamp(n_bandSum0_5 + n_bands0_band6, 0.0, 1.0);
+  float n_bandSum0_7 = clamp(n_bandSum0_6 + n_bands0_band7, 0.0, 1.0);
+  float n_bandSum0_8 = clamp(n_bandSum0_7 + n_bands0_band8, 0.0, 1.0);
+  float n_bandSum0_9 = clamp(n_bandSum0_8 + n_bands0_band9, 0.0, 1.0);
+  float n_bandSum0_10 = clamp(n_bandSum0_9 + n_bands0_band10, 0.0, 1.0);
+  float n_bandSum0_11 = clamp(n_bandSum0_10 + n_bands0_band11, 0.0, 1.0);
+  float n_bandSum0_12 = clamp(n_bandSum0_11 + n_bands0_band12, 0.0, 1.0);
+  float n_bandSum0_13 = clamp(n_bandSum0_12 + n_bands0_band13, 0.0, 1.0);
+  float n_bandSum0_14 = clamp(n_bandSum0_13 + n_bands0_band14, 0.0, 1.0);
+  float n_bandSum0_15 = clamp(n_bandSum0_14 + n_bands0_band15, 0.0, 1.0);
+  float n_bandSum0_16 = clamp(n_bandSum0_15 + n_bands0_band16, 0.0, 1.0);
+  float n_gain0 = clamp(iAudioFeatures[0].x + n_bandSum0_16, 0.0, 1.0);
+  float n_bands1_band1 = bandsPeak(2, 0, 16);
+  float n_bands1_band2 = bandsPeak(2, 1, 16);
+  float n_bands1_band3 = bandsPeak(2, 2, 16);
+  float n_bands1_band4 = bandsPeak(2, 3, 16);
+  float n_bands1_band5 = bandsPeak(2, 4, 16);
+  float n_bands1_band6 = bandsPeak(2, 5, 16);
+  float n_bands1_band7 = bandsPeak(2, 6, 16);
+  float n_bands1_band8 = bandsPeak(2, 7, 16);
+  float n_bands1_band9 = bandsPeak(2, 8, 16);
+  float n_bands1_band10 = bandsPeak(2, 9, 16);
+  float n_bands1_band11 = bandsPeak(2, 10, 16);
+  float n_bands1_band12 = bandsPeak(2, 11, 16);
+  float n_bands1_band13 = bandsPeak(2, 12, 16);
+  float n_bands1_band14 = bandsPeak(2, 13, 16);
+  float n_bands1_band15 = bandsPeak(2, 14, 16);
+  float n_bands1_band16 = bandsPeak(2, 15, 16);
+  float n_bandSum1_1 = clamp(n_bands1_band1 + n_bands1_band1, 0.0, 1.0);
+  float n_bandSum1_2 = clamp(n_bandSum1_1 + n_bands1_band2, 0.0, 1.0);
+  float n_bandSum1_3 = clamp(n_bandSum1_2 + n_bands1_band3, 0.0, 1.0);
+  float n_bandSum1_4 = clamp(n_bandSum1_3 + n_bands1_band4, 0.0, 1.0);
+  float n_bandSum1_5 = clamp(n_bandSum1_4 + n_bands1_band5, 0.0, 1.0);
+  float n_bandSum1_6 = clamp(n_bandSum1_5 + n_bands1_band6, 0.0, 1.0);
+  float n_bandSum1_7 = clamp(n_bandSum1_6 + n_bands1_band7, 0.0, 1.0);
+  float n_bandSum1_8 = clamp(n_bandSum1_7 + n_bands1_band8, 0.0, 1.0);
+  float n_bandSum1_9 = clamp(n_bandSum1_8 + n_bands1_band9, 0.0, 1.0);
+  float n_bandSum1_10 = clamp(n_bandSum1_9 + n_bands1_band10, 0.0, 1.0);
+  float n_bandSum1_11 = clamp(n_bandSum1_10 + n_bands1_band11, 0.0, 1.0);
+  float n_bandSum1_12 = clamp(n_bandSum1_11 + n_bands1_band12, 0.0, 1.0);
+  float n_bandSum1_13 = clamp(n_bandSum1_12 + n_bands1_band13, 0.0, 1.0);
+  float n_bandSum1_14 = clamp(n_bandSum1_13 + n_bands1_band14, 0.0, 1.0);
+  float n_bandSum1_15 = clamp(n_bandSum1_14 + n_bands1_band15, 0.0, 1.0);
+  float n_bandSum1_16 = clamp(n_bandSum1_15 + n_bands1_band16, 0.0, 1.0);
   float n_gain1 = clamp(n_gain0 + n_bandSum1_16, 0.0, 1.0);
-  // Bands "Band 1" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_1 = clamp(0.5 + 0.5, 0.0, 1.0);
-  // Bands "Band 2" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_2 = clamp(n_bandSum2_1 + 0.5, 0.0, 1.0);
-  // Bands "Band 3" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_3 = clamp(n_bandSum2_2 + 0.5, 0.0, 1.0);
-  // Bands "Band 4" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_4 = clamp(n_bandSum2_3 + 0.5, 0.0, 1.0);
-  // Bands "Band 5" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_5 = clamp(n_bandSum2_4 + 0.5, 0.0, 1.0);
-  // Bands "Band 6" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_6 = clamp(n_bandSum2_5 + 0.5, 0.0, 1.0);
-  // Bands "Band 7" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_7 = clamp(n_bandSum2_6 + 0.5, 0.0, 1.0);
-  // Bands "Band 8" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_8 = clamp(n_bandSum2_7 + 0.5, 0.0, 1.0);
-  // Bands "Band 9" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_9 = clamp(n_bandSum2_8 + 0.5, 0.0, 1.0);
-  // Bands "Band 10" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_10 = clamp(n_bandSum2_9 + 0.5, 0.0, 1.0);
-  // Bands "Band 11" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_11 = clamp(n_bandSum2_10 + 0.5, 0.0, 1.0);
-  // Bands "Band 12" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_12 = clamp(n_bandSum2_11 + 0.5, 0.0, 1.0);
-  // Bands "Band 13" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_13 = clamp(n_bandSum2_12 + 0.5, 0.0, 1.0);
-  // Bands "Band 14" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_14 = clamp(n_bandSum2_13 + 0.5, 0.0, 1.0);
-  // Bands "Band 15" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_15 = clamp(n_bandSum2_14 + 0.5, 0.0, 1.0);
-  // Bands "Band 16" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandSum2_16 = clamp(n_bandSum2_15 + 0.5, 0.0, 1.0);
+  float n_bands2_band1 = bandsPeak(3, 0, 16);
+  float n_bands2_band2 = bandsPeak(3, 1, 16);
+  float n_bands2_band3 = bandsPeak(3, 2, 16);
+  float n_bands2_band4 = bandsPeak(3, 3, 16);
+  float n_bands2_band5 = bandsPeak(3, 4, 16);
+  float n_bands2_band6 = bandsPeak(3, 5, 16);
+  float n_bands2_band7 = bandsPeak(3, 6, 16);
+  float n_bands2_band8 = bandsPeak(3, 7, 16);
+  float n_bands2_band9 = bandsPeak(3, 8, 16);
+  float n_bands2_band10 = bandsPeak(3, 9, 16);
+  float n_bands2_band11 = bandsPeak(3, 10, 16);
+  float n_bands2_band12 = bandsPeak(3, 11, 16);
+  float n_bands2_band13 = bandsPeak(3, 12, 16);
+  float n_bands2_band14 = bandsPeak(3, 13, 16);
+  float n_bands2_band15 = bandsPeak(3, 14, 16);
+  float n_bands2_band16 = bandsPeak(3, 15, 16);
+  float n_bandSum2_1 = clamp(n_bands2_band1 + n_bands2_band1, 0.0, 1.0);
+  float n_bandSum2_2 = clamp(n_bandSum2_1 + n_bands2_band2, 0.0, 1.0);
+  float n_bandSum2_3 = clamp(n_bandSum2_2 + n_bands2_band3, 0.0, 1.0);
+  float n_bandSum2_4 = clamp(n_bandSum2_3 + n_bands2_band4, 0.0, 1.0);
+  float n_bandSum2_5 = clamp(n_bandSum2_4 + n_bands2_band5, 0.0, 1.0);
+  float n_bandSum2_6 = clamp(n_bandSum2_5 + n_bands2_band6, 0.0, 1.0);
+  float n_bandSum2_7 = clamp(n_bandSum2_6 + n_bands2_band7, 0.0, 1.0);
+  float n_bandSum2_8 = clamp(n_bandSum2_7 + n_bands2_band8, 0.0, 1.0);
+  float n_bandSum2_9 = clamp(n_bandSum2_8 + n_bands2_band9, 0.0, 1.0);
+  float n_bandSum2_10 = clamp(n_bandSum2_9 + n_bands2_band10, 0.0, 1.0);
+  float n_bandSum2_11 = clamp(n_bandSum2_10 + n_bands2_band11, 0.0, 1.0);
+  float n_bandSum2_12 = clamp(n_bandSum2_11 + n_bands2_band12, 0.0, 1.0);
+  float n_bandSum2_13 = clamp(n_bandSum2_12 + n_bands2_band13, 0.0, 1.0);
+  float n_bandSum2_14 = clamp(n_bandSum2_13 + n_bands2_band14, 0.0, 1.0);
+  float n_bandSum2_15 = clamp(n_bandSum2_14 + n_bands2_band15, 0.0, 1.0);
+  float n_bandSum2_16 = clamp(n_bandSum2_15 + n_bands2_band16, 0.0, 1.0);
   float n_gain2 = clamp(n_gain1 + n_bandSum2_16, 0.0, 1.0);
   vec3 n_gainColor = vec3(n_gain2, n_gain2, n_gain2);
   vec3 n_pump = clamp(node_mix_mul(clamp(1.0, 0.0, 1.0), n_mix1_0, n_gainColor), 0.0, 1.0);

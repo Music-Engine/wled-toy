@@ -1,32 +1,7 @@
-import { AUDIO_BINS, HISTORY_ROWS, MAX_SPECTRUM_BINS, WAVE_ROWS, WAVE_WIDTH } from '@/lib/audio/textures'
-import { AUDIO_EXTRA_SLOTS, CONTROL_VECTORS, IMAGE_LAYERS, IMAGE_LAYER_SIZE, PRELUDE } from './prelude'
+import { PRELUDE } from './prelude'
+import { UNIFORM_CONTRACT } from './prelude/uniform-contract'
 
-/** What a host has to feed each uniform of the prelude; the header of a bundle quotes the ones it declares. */
-export const UNIFORM_CONTRACT: Record<string, string> = {
-  iResolution: 'size of the render target in pixels as (width, height, 1). A target one pixel high is the LED pass: one pixel per LED, in wire order.',
-  iTime: 'seconds since the animation started.',
-  iFrame: 'frame counter, from 0.',
-  iLedCount: 'number of LEDs on the strip.',
-  iScanY: 'which row of the 2D picture the LED pass samples, 0 (bottom) to 1 (top). Only read when there is no LED layout.',
-  iAudio: `R8 texture, ${AUDIO_BINS} x 2, linear filtering, clamped. Row 0: FFT magnitudes 0 to 1, lowest frequency first. Row 1: the waveform, 0.5 is silence.`,
-  iImage: 'RGBA8 image of any size, linear filtering, clamped, first row at the top (the helpers flip y).',
-  iImages: `RGBA8 2D array texture, ${IMAGE_LAYERS} layers of ${IMAGE_LAYER_SIZE} x ${IMAGE_LAYER_SIZE}, linear filtering, clamped: one image per layer.`,
-  iAudioBands: 'R8 texture, N x 2 with N at least 12, linear filtering, clamped. Row 0: N band levels 0 to 1 (log or mel spaced), bass first. Row 1: the 12 pitch classes from C in texels 0 to 11.',
-  iAudioHistory: `R8 texture, N x ${HISTORY_ROWS}, linear filtering, clamped in x and repeating in y: one row of band levels per analysis hop, written as a ring. iAudioHeads.x is the newest row.`,
-  iAudioBandsExtra: `${AUDIO_EXTRA_SLOTS} more textures shaped like iAudioBands, for analyses with other settings (slots 1 to ${AUDIO_EXTRA_SLOTS}). Every element needs a texture unit of its own.`,
-  iAudioHistoryExtra: `${AUDIO_EXTRA_SLOTS} more textures shaped like iAudioHistory, one per extra analysis. Every element needs a texture unit of its own.`,
-  iAudioHistoryHeadExtra: 'the newest row of each iAudioHistoryExtra texture.',
-  iAudioSpectra: `R32F texture, ${MAX_SPECTRUM_BINS} x ${AUDIO_EXTRA_SLOTS + 1}, nearest filtering: each analysis's linear spectrum as levels 0 to 1, a row per slot from 0, lowest frequency first.`,
-  iAudioSpectrumBins: `${AUDIO_EXTRA_SLOTS + 1} floats: how many bins of each row of iAudioSpectra hold the spectrum, half the analysis's window.`,
-  iAudioWave: `R8 texture, ${WAVE_WIDTH} x ${WAVE_ROWS}, repeating in y: the most recent samples as a ring in row-major order, 128 is silence.`,
-  iAudioHeads: '(newest row of iAudioHistory, index of the next sample to be written to iAudioWave, sample rate in Hz).',
-  iAudioFeatures: "4 vec4 of the default analysis's features for this frame, four to a vector: level, rms, peak, gate, onset, beat, beat phase, BPM, brightness, noisiness, then the sub, kick, low mid, vocal, presence and air levels. Onset and beat are 1 when the analysis raised them since the previous frame.",
-  iLayout: 'RGBA32F texture, iLayoutCount x 1, nearest filtering: x, y, z (0 to 1) and segment index of every LED in wire order.',
-  iLayoutCount: 'number of LEDs in iLayout, or 0 for a plain strip that samples the row at iScanY.',
-  iPrevFrame: 'what this shader drew into the same target on the previous frame (render to two targets in turn), linear filtering, clamped.',
-  iTimeDelta: 'seconds since the previous frame of the same target.',
-  iControl: `${CONTROL_VECTORS} vec4 of values that WLEDtoy's graph mode computes on the CPU every frame; slot k is iControl[k / 4][k % 4]. This file does not carry what computes them: a host that cannot supply them leaves them at 0.`,
-}
+export { UNIFORM_CONTRACT } from './prelude/uniform-contract'
 
 interface Chunk {
   kind: 'uniform' | 'function'
@@ -34,12 +9,32 @@ interface Chunk {
   text: string
 }
 
-const withoutComments = (code: string) => code.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '')
-const identifiers = (code: string) => withoutComments(code).match(/[A-Za-z_]\w*/g) ?? []
-const braceDepth = (text: string) => text.split('{').length - text.split('}').length
+/** Fragment shader compiling outside this app: uniforms and prelude helpers the code reaches, the code, and `main` */
+export function bundleShader(code: string, title = 'Untitled'): string {
+  const chunks = listPreludeChunks()
+  const main = chunks.find((chunk) => chunk.name === 'main')!
+  const used = collectReachedChunks(chunks, [...listIdentifiers(code), ...listIdentifiers(main.text)])
+  const uniforms = chunks.filter((chunk) => chunk.kind === 'uniform' && used.has(chunk))
+  const helpers = chunks.filter((chunk) => chunk.kind === 'function' && chunk !== main && used.has(chunk))
+  return [
+    ...writeHeader(title, uniforms),
+    'precision highp float;',
+    '',
+    ...uniforms.map((uniform) => uniform.text),
+    '',
+    'out vec4 outColor;',
+    '',
+    ...helpers.map((helper) => helper.text),
+    '',
+    code.trim(),
+    '',
+    main.text,
+    '',
+  ].join('\n')
+}
 
-/** The uniforms and the function definitions of the prelude in source order, each function with the comment above it. */
-function preludeChunks(): Chunk[] {
+/** Prelude uniforms and function definitions in source order, each function w/ the comment above it */
+function listPreludeChunks(): Chunk[] {
   const chunks: Chunk[] = []
   const lines = PRELUDE.split('\n')
   let comments: string[] = []
@@ -53,7 +48,7 @@ function preludeChunks(): Chunk[] {
     if (uniform) chunks.push({ kind: 'uniform', name: uniform[1], text: lines[i] })
     if (definition) {
       let text = lines[i]
-      while (braceDepth(text) > 0) text += `\n${lines[++i]}`
+      while (countOpenBraces(text) > 0) text += `\n${lines[++i]}`
       chunks.push({ kind: 'function', name: definition[1], text: [...comments, text].join('\n') })
     }
     comments = []
@@ -61,26 +56,21 @@ function preludeChunks(): Chunk[] {
   return chunks
 }
 
-/**
- * One fragment shader that compiles outside this app: the uniforms the code reads, the prelude helpers it calls
- * (and what those call), the code itself and the `main` that runs `mainImage`. Nothing the code does not reach is included.
- */
-export function bundleShader(code: string, title = 'Untitled'): string {
-  const chunks = preludeChunks()
+/** Chunks named from `pending`, and what their functions name in turn */
+function collectReachedChunks(chunks: Chunk[], pending: string[]): Set<Chunk> {
   const byName = new Map(chunks.map((chunk) => [chunk.name, chunk]))
-  const main = byName.get('main')!
   const used = new Set<Chunk>()
-  const pending = [...identifiers(code), ...identifiers(main.text)]
   while (pending.length) {
     const chunk = byName.get(pending.pop()!)
     if (!chunk || used.has(chunk)) continue
     used.add(chunk)
-    if (chunk.kind === 'function') pending.push(...identifiers(chunk.text))
+    if (chunk.kind === 'function') pending.push(...listIdentifiers(chunk.text))
   }
-  const uniforms = chunks.filter((chunk) => chunk.kind === 'uniform' && used.has(chunk))
-  const helpers = chunks.filter((chunk) => chunk.kind === 'function' && chunk !== main && used.has(chunk))
-  const width = Math.max(...uniforms.map((u) => u.name.length))
+  return used
+}
 
+function writeHeader(title: string, uniforms: Chunk[]): string[] {
+  const width = Math.max(...uniforms.map((uniform) => uniform.name.length))
   return [
     '#version 300 es',
     `// ${title}`,
@@ -91,18 +81,10 @@ export function bundleShader(code: string, title = 'Untitled'): string {
     '// and the index of the LED the pixel belongs to.',
     '//',
     '// Uniforms the host sets. One left alone reads 0, and samplers of different types must not share a texture unit.',
-    ...uniforms.map((u) => `//   ${u.name.padEnd(width)}  ${UNIFORM_CONTRACT[u.name]}`),
-    'precision highp float;',
-    '',
-    ...uniforms.map((u) => u.text),
-    '',
-    'out vec4 outColor;',
-    '',
-    ...helpers.map((helper) => helper.text),
-    '',
-    code.trim(),
-    '',
-    main.text,
-    '',
-  ].join('\n')
+    ...uniforms.map((uniform) => `//   ${uniform.name.padEnd(width)}  ${UNIFORM_CONTRACT[uniform.name]}`),
+  ]
 }
+
+export const stripComments = (code: string) => code.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '')
+const listIdentifiers = (code: string) => stripComments(code).match(/[A-Za-z_]\w*/g) ?? []
+const countOpenBraces = (text: string) => text.split('{').length - text.split('}').length

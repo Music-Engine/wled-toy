@@ -10,7 +10,7 @@ const audio = engine.audio.state
 
 const clock = ref('00:00.0')
 const clockTimer = setInterval(() => {
-  clock.value = Format.clock(engine.elapsed())
+  clock.value = Format.clock(engine.readElapsed())
 }, 100)
 onUnmounted(() => clearInterval(clockTimer))
 

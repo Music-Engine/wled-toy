@@ -146,26 +146,37 @@ void wave_texture(int type,
 
 void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   c = vec4(0.0, 0.0, 0.0, 1.0);
-  // Integrator "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_swirlTurn = 0.5 * 0.05;
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_kickZoom = 0.5 * -0.12 + 1.0;
+  vec4 state[2];
+  for (int i = 0; i < 2; i++) state[i] = vec4(0.0);
+  float n_airFollower_time = iAudioFeatures[3].w > state[0].x ? 0.5 : 0.6;
+  state[0].x += (iAudioFeatures[3].w - state[0].x) * (n_airFollower_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_airFollower_time));
+  float n_heat = mix(0.0, 1.0, clamp((state[0].x - 0.03) / (0.14 - 0.03), 0.0, 1.0));
+  float n_bassFollower_time = iAudioFeatures[2].w > state[0].y ? 0.08 : 0.45;
+  state[0].y += (iAudioFeatures[2].w - state[0].y) * (n_bassFollower_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_bassFollower_time));
+  float n_bassFlow = state[0].y * 0.4 + 0.15;
+  float n_heatFlow = n_heat * 0.35 + n_bassFlow;
+  float n_flowRate = n_heatFlow * 1.0;
+  float n_flowPhase_restart = float(0.0 >= 0.5 && state[0].w < 0.5);
+  state[0].w = float(0.0 >= 0.5);
+  state[0].z = (n_flowPhase_restart > 0.5 ? 0.0 : state[0].z) + n_flowRate * iTimeDelta;
+  float n_swirlTurn = state[0].z * 0.05;
+  float n_kickShape = mix(0.0, 1.0, clamp((iAudioFeatures[2].w - 0.55) / (1.0 - 0.55), 0.0, 1.0));
+  float n_kickPulse_time = n_kickShape > state[1].x ? 0.05 : 0.16;
+  state[1].x += (n_kickShape - state[1].x) * (n_kickPulse_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_kickPulse_time));
+  float n_kickZoom = state[1].x * -0.12 + 1.0;
   vec3 n_zoomMapping_p = (vec3(uv, 0.0) - vec3(0.5, 0.5, 0.0)) * vec3(n_kickZoom);
   float n_zoomMapping_a = n_swirlTurn * 6.2831853;
   vec3 n_zoomMapping = vec3(n_zoomMapping_p.x * cos(n_zoomMapping_a) + n_zoomMapping_p.y * sin(n_zoomMapping_a), n_zoomMapping_p.y * cos(n_zoomMapping_a) - n_zoomMapping_p.x * sin(n_zoomMapping_a), n_zoomMapping_p.z) + vec3(0.5, 0.5, 0.0) + vec3(0.0, 0.0, 0.0);
-  vec3 n_flowVector = vec3(0.5) * vec3(0.3, 0.12, 0.7);
+  vec3 n_flowVector = vec3(state[0].z) * vec3(0.3, 0.12, 0.7);
   vec3 n_warpCoords = n_zoomMapping + n_flowVector;
   vec3 n_warpNoise_p = n_warpCoords * 1.8;
   vec3 n_warpNoise_warped = n_warpNoise_p + 0.0 * (vec3(noise3(n_warpNoise_p + 13.5), noise3(n_warpNoise_p), noise3(n_warpNoise_p - 13.5)) * 2.0 - 1.0);
   float n_warpNoise_fac = noise_fbm(n_warpNoise_warped, 1.0, 0.5, 2.0, true);
   vec3 n_warpNoise_color = vec3(n_warpNoise_fac, noise_fbm(n_warpNoise_warped.yxz + 27.1, 1.0, 0.5, 2.0, true), noise_fbm(n_warpNoise_warped.zyx - 41.3, 1.0, 0.5, 2.0, true));
   vec3 n_warpCentered = n_warpNoise_color - vec3(0.5, 0.5, 0.5);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_heat = mix(0.0, 1.0, clamp((0.5 - 0.03) / (0.14 - 0.03), 0.0, 1.0));
   float n_warpEnergy = n_heat * 0.6 + 0.45;
-  float n_warpKick = 0.5 * 0.2 + n_warpEnergy;
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_warpStrength = n_warpKick * 0.5;
+  float n_warpKick = state[1].x * 0.2 + n_warpEnergy;
+  float n_warpStrength = n_warpKick * 0.65;
   vec3 n_warpOffset = n_warpCentered * n_warpStrength;
   vec3 n_warpedCoords = n_zoomMapping + n_warpOffset;
   vec3 n_cellCoords = n_warpedCoords + n_flowVector;
@@ -182,23 +193,21 @@ void mainImage(out vec4 c, vec2 uv, float ledIndex) {
   vec3 n_cellField_color = vec3(node_hash(n_cellField_nearest), node_hash(n_cellField_nearest + 7.7), node_hash(n_cellField_nearest + 13.9));
   vec3 n_cellField_position = vec3(n_cellField_nearest / 3.0, 0.0);
   float n_hueSpread = n_cellField_distance * -0.4 + 0.42;
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  float n_heatOffset = n_heat * 0.5 + 0.5;
+  float n_heatOffset = n_heat * 0.5 + 0.0;
   float n_huePosition = n_hueSpread + n_heatOffset;
   vec3 n_nebulaPalette = palette(n_huePosition, vec3(0.5, 0.2, 0.5), vec3(0.5, 0.25, 0.5), vec3(1.0, 1.0, 1.0), vec3(0.22, 0.0, 0.67));
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_bandGap = 0.5 * 0.45 + 0.0;
-  float n_bandPhase = 0.5 * 6.0;
+  float n_bandGap = state[0].y * 0.45 + 0.0;
+  float n_bandPhase = state[0].z * 6.0;
   float n_bandField_fac; vec3 n_bandField_color; wave_texture(0, 3, 0, 0, 1.3, 0.0, 0.0, 1.0, 0.0, n_bandPhase, n_warpedCoords, n_bandField_fac, n_bandField_color);
   float n_bandMask = smoothstep(n_bandGap, 0.78, n_bandField_fac);
-  // Envelope Follower "Envelope" runs per frame; frozen at 0.5 when this code was taken
-  float n_cellReach = 0.5 * 0.9 + 0.55;
+  float n_vocalFollower_time = iAudioFeatures[3].y > state[1].y ? 0.03 : 0.25;
+  state[1].y += (iAudioFeatures[3].y - state[1].y) * (n_vocalFollower_time <= 0.0 ? 1.0 : 1.0 - exp(-iTimeDelta / n_vocalFollower_time));
+  float n_cellReach = state[1].y * 0.9 + 0.55;
   float n_cellGlow = mix(1.0, 0.15, clamp((n_cellField_distance - 0.1) / (n_cellReach - 0.1), 0.0, 1.0));
   float n_density = n_bandMask * n_cellGlow;
-  float n_kickLift = 0.5 * 0.45 + 0.65;
+  float n_kickLift = state[1].x * 0.45 + 0.65;
   float n_brightness = n_density * n_kickLift;
   vec3 n_nebulaColor = n_nebulaPalette * vec3(n_brightness);
-  // Knob "Value" runs per frame; frozen at 0.5 when this code was taken
-  vec3 n_swirlTrails = max(n_nebulaColor, previousFrame(1.0) * exp(-iTimeDelta / max(0.5, 0.0001)));
+  vec3 n_swirlTrails = max(n_nebulaColor, previousFrame(1.0) * exp(-iTimeDelta / max(0.35, 0.0001)));
   c = vec4(n_swirlTrails, 1.0);
 }
