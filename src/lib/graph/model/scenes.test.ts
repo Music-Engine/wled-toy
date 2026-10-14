@@ -30,7 +30,10 @@ describe('scenes and the graph', () => {
   })
 
   it('loads what is valid from stored scenes and ignores the rest', () => {
-    expect(parseScenes([scene, null, { id: 'x' }, { id: 'y', name: 'Y', values: { a: 'loud', b: 2 } }])).toEqual([scene, { id: 'y', name: 'Y', values: { b: 2 } }])
+    expect(parseScenes([scene, null, { id: 'x' }, { id: 'y', name: 'Y', values: { a: 'loud', b: 2 } }])).toEqual([
+      scene,
+      { id: 'y', name: 'Y', values: { b: 2 } },
+    ])
     expect(parseScenes('nope')).toEqual([])
   })
 })

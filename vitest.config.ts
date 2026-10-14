@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { playwright } from '@vitest/browser-playwright'
+import type { BrowserCommand, TestProject } from 'vitest/node'
 
 // audio tests: a synthetic microphone, no permission prompt, and an AudioContext that may start without a click
 const MEDIA_ARGS = ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required']
@@ -11,15 +12,55 @@ const SWIFTSHADER_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshade
 const GPU = process.env.BENCH_GPU === '1' || process.env.BENCH_GPU === 'headed'
 const GPU_ARGS = ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist']
 
+// the C++ harness spawns a compiler, which only the test server can, so browser tests reach it through these
+type CppHarness = typeof import('@/lib/graph/testing/cpp')
+const cppHarness = (project: TestProject) => project.import<CppHarness>('/src/lib/graph/testing/cpp.ts')
+const cppCompiler: BrowserCommand<[]> = async ({ project }) => (await cppHarness(project)).cppCompiler ?? null
+const runUsermod: BrowserCommand<Parameters<CppHarness['runUsermod']>> = async ({ project }, code, options) =>
+  (await cppHarness(project)).runUsermod(code, options)
+
+const TIMING_TESTS = ['src/lib/engine/led-clock.browser.test.ts']
+const GPU_TESTS = [
+  'src/lib/graph/compile/tests/**/*.browser.test.ts',
+  'src/lib/graph/testing/**/*.browser.test.ts',
+  'src/lib/engine/render/**/*.browser.test.ts',
+  'src/lib/engine/runtime.browser.test.ts',
+  'src/lib/graph/nodes/**/*.browser.test.ts',
+]
+const BROWSER = {
+  enabled: true,
+  headless: process.env.BENCH_GPU !== 'headed',
+  screenshotFailures: false,
+  provider: playwright({
+    launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
+  }),
+  instances: [{ browser: 'chromium' as const }],
+  commands: { cppCompiler, runUsermod },
+}
+
 export default defineConfig({
   plugins: [vue()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   // discovered late, these make Vite re-optimize and reload the page in the middle of a browser run
   optimizeDeps: {
     include: [
-      'vue', 'vue-router', '@vue-flow/core', '@vue-flow/background', '@vue-flow/controls', '@vue-flow/minimap', 'reka-ui', '@vueuse/core',
+      'vue',
+      'vue-router',
+      '@vue-flow/core',
+      '@vue-flow/background',
+      '@vue-flow/controls',
+      '@vue-flow/minimap',
+      'reka-ui',
+      '@vueuse/core',
       '@tauri-apps/plugin-opener',
-      '@codemirror/autocomplete', '@codemirror/commands', '@codemirror/language', '@codemirror/lint', '@codemirror/search', '@codemirror/state', '@codemirror/view', '@lezer/highlight',
+      '@codemirror/autocomplete',
+      '@codemirror/commands',
+      '@codemirror/language',
+      '@codemirror/lint',
+      '@codemirror/search',
+      '@codemirror/state',
+      '@codemirror/view',
+      '@lezer/highlight',
     ],
   },
   test: {
@@ -31,6 +72,7 @@ export default defineConfig({
           environment: 'node',
           include: ['src/**/*.test.ts', '*.test.ts'],
           exclude: ['src/**/*.browser.test.ts', 'project-three/**', 'node_modules/**'],
+          typecheck: { enabled: true, include: ['src/**/*.types.test.ts'], checker: 'vue-tsc' },
         },
       },
       {
@@ -38,17 +80,30 @@ export default defineConfig({
         test: {
           name: 'browser',
           include: ['src/**/*.browser.test.ts'],
+          exclude: [...TIMING_TESTS, ...GPU_TESTS],
           // Vue Flow's fit-on-init alone takes over the default second in software-rendered Chromium on a loaded machine
           expect: { poll: { timeout: 5000 } },
-          browser: {
-            enabled: true,
-            headless: process.env.BENCH_GPU !== 'headed',
-            screenshotFailures: false,
-            provider: playwright({
-              launchOptions: { args: [...(GPU ? GPU_ARGS : SWIFTSHADER_ARGS), ...MEDIA_ARGS] },
-            }),
-            instances: [{ browser: 'chromium' }],
-          },
+          browser: BROWSER,
+        },
+      },
+      // Heavy WebGL files (corpus compiles, switch parity, runtime, benches) run one at a time: in software Chromium they starve the UI files
+      {
+        extends: true,
+        test: {
+          name: 'browser-gpu',
+          include: GPU_TESTS,
+          fileParallelism: false,
+          browser: BROWSER,
+        },
+      },
+      // Files that measure rates on the main thread run alone, after the other browser projects: parallel iframes starve them
+      {
+        extends: true,
+        test: {
+          name: 'browser-timing',
+          include: TIMING_TESTS,
+          fileParallelism: false,
+          browser: BROWSER,
         },
       },
     ],

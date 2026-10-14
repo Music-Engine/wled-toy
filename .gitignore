@@ -2,12 +2,34 @@ node_modules
 dist
 src-tauri/target
 src-tauri/gen
+docs/
 
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Scratchpad files
+.work
+.ongoing
 graphs/**/*.md
 graphs/bench/reports
 graphs/notes
 
-.vscode
+# Platform-specific files
+.DS_Store
+Thumbs.db
 
-.work
-.ongoing
+# Language-specific files
+__pycache__/
+*.py[cod]
+.claude
+
+# C++ unit written by scripts/gen-cpp-unit.ts
+cpp/generated

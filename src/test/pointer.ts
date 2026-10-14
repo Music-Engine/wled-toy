@@ -7,7 +7,14 @@ function toViewport(x: number, y: number) {
 }
 
 const mouse = (type: 'mousePressed' | 'mouseMoved' | 'mouseReleased', x: number, y: number, shift = false) =>
-  cdp().send('Input.dispatchMouseEvent', { type, ...toViewport(x, y), button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1, modifiers: shift ? 8 : 0 })
+  cdp().send('Input.dispatchMouseEvent', {
+    type,
+    ...toViewport(x, y),
+    button: 'left',
+    buttons: type === 'mouseReleased' ? 0 : 1,
+    clickCount: 1,
+    modifiers: shift ? 8 : 0,
+  })
 
 /**
  * Presses at the element's center (or `from` fraction of its width), moves by `dx` CSS pixels in steps, and releases.

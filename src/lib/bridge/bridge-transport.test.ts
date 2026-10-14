@@ -26,7 +26,9 @@ function fakeIpc(respond: (command: string) => Promise<unknown> = () => Promise.
     },
     Channel: class {
       onmessage: (message: BridgeMessage) => void = () => undefined
-      constructor() { channels.push(this) }
+      constructor() {
+        channels.push(this)
+      }
     },
   }
   return { ipc, calls, channels }
@@ -41,7 +43,7 @@ it('opens with a channel, reports open once the Rust side answered, and passes c
   expect(calls).toEqual([{ command: 'bridge_open', args: { events: channels[0] } }])
   expect(transport.isOpen()).toBe(true)
 
-  const ack: BridgeMessage = { type: 'ack', frameId: 1, udpMs: 0.1, bytes: 190 }
+  const ack: BridgeMessage = { type: 'ack', frameId: 1, count: 1, udpMs: 0.1, bytes: 190 }
   channels[0].onmessage(ack)
   expect(events).toEqual(['open', ack])
 })
@@ -54,7 +56,10 @@ it('sends the config as JSON arguments and a frame as the raw request body', asy
   const frame = new Uint8Array([1, 0, 0, 0, 255, 128, 0])
   transport.sendConfig(config)
   transport.sendFrame(frame)
-  expect(calls.slice(1)).toEqual([{ command: 'bridge_config', args: { config } }, { command: 'bridge_frame', args: frame }])
+  expect(calls.slice(1)).toEqual([
+    { command: 'bridge_config', args: { config } },
+    { command: 'bridge_frame', args: frame },
+  ])
   expect(calls[2].args).toBe(frame)
 })
 
@@ -108,7 +113,14 @@ it('close tells the Rust side, silences the channel, and is not reported as a lo
 
 it('picks the transport from the endpoint', async () => {
   const sockets: string[] = []
-  vi.stubGlobal('WebSocket', class { constructor(url: string) { sockets.push(url) } })
+  vi.stubGlobal(
+    'WebSocket',
+    class {
+      constructor(url: string) {
+        sockets.push(url)
+      }
+    },
+  )
   const { events, handlers } = recorder()
   // outside a Tauri webview the real @tauri-apps/api has nothing to talk to: the link closes, and no socket was tried
   expect(openBridgeTransport(handlers, { kind: 'tauri' })).not.toBeNull()

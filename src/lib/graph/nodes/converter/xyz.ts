@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define';
-import { Float, Vec3 } from '@/lib/graph/define/types';
-import { swizzle } from '@/lib/graph/define/value';
+import { defineNode, Float, swizzle, Vec3 } from '@/lib/graph/authoring'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 export const combineXyzNode = defineNode('combineXYZ', {
   title: 'Combine XYZ',
@@ -12,19 +11,17 @@ export const combineXyzNode = defineNode('combineXYZ', {
     z: { type: Float, label: 'Z', default: 0 },
   },
   output: { vector: Vec3 },
-  exec: ({ x, y, z }, ctx) => ({ vector: ctx.declare('vec3', `vec3(${x.expr}, ${y.expr}, ${z.expr})`) }),
-  run: ({ x, y, z }) => ({ vector: [x, y, z] }),
-});
+  body: ({ x, y, z }, ctx) => ({ vector: ctx.declare('vec3', `vec3(${x.expr}, ${y.expr}, ${z.expr})`) }),
+})
 
 export const separateXyzNode = defineNode('separateXYZ', {
   title: 'Separate XYZ',
   description: 'The three components of a vector.',
   category: 'converter',
-  input: { vector: { type: Vec3, default: { expr: 'vec3(uv, 0.0)', label: 'uv' } } },
+  input: { vector: textureVector },
   output: { x: { type: Float, label: 'X' }, y: { type: Float, label: 'Y' }, z: { type: Float, label: 'Z' } },
-  exec: ({ vector }, ctx) => {
-    const v = ctx.declare('vec3', vector.expr);
-    return { x: swizzle(v, 'x'), y: swizzle(v, 'y'), z: swizzle(v, 'z') };
+  body: ({ vector }, ctx) => {
+    const components = ctx.declare('vec3', vector.expr)
+    return { x: swizzle(components, 'x'), y: swizzle(components, 'y'), z: swizzle(components, 'z') }
   },
-  run: ({ vector }) => ({ x: vector[0], y: vector[1], z: vector[2] }),
-});
+})

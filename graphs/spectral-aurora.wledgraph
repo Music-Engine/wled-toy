@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "song",
@@ -152,7 +151,7 @@
           "values": {
             "inLow": 0.05,
             "inHigh": 0.6,
-            "outLow": 1.0,
+            "outLow": 1,
             "outHigh": 0.35
           }
         }
@@ -408,7 +407,7 @@
         "data": {
           "kind": "remap",
           "values": {
-            "outLow": 1.0
+            "outLow": 1
           }
         }
       },
@@ -919,8 +918,8 @@
       {
         "id": "e-song-audio-bigFft-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "bigFft",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -930,8 +929,8 @@
       {
         "id": "e-song-audio-audio-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -941,8 +940,8 @@
       {
         "id": "e-bigFft-spectrum-bassBand-spectrum",
         "source": "bigFft",
-        "sourceHandle": "spectrum",
         "target": "bassBand",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -952,8 +951,8 @@
       {
         "id": "e-bassBand-level-bassEnergy-signal",
         "source": "bassBand",
-        "sourceHandle": "level",
         "target": "bassEnergy",
+        "sourceHandle": "level",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -963,8 +962,8 @@
       {
         "id": "e-bassEnergy-envelope-driftRate-a",
         "source": "bassEnergy",
-        "sourceHandle": "envelope",
         "target": "driftRate",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -974,8 +973,8 @@
       {
         "id": "e-driftSpeed-value-driftRate-b",
         "source": "driftSpeed",
-        "sourceHandle": "value",
         "target": "driftRate",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -985,8 +984,8 @@
       {
         "id": "e-driftRate-result-curtainDrift-rate",
         "source": "driftRate",
-        "sourceHandle": "result",
         "target": "curtainDrift",
+        "sourceHandle": "result",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -996,8 +995,8 @@
       {
         "id": "e-curtainDrift-value-curtainOffset-x",
         "source": "curtainDrift",
-        "sourceHandle": "value",
         "target": "curtainOffset",
+        "sourceHandle": "value",
         "targetHandle": "x",
         "style": {
           "stroke": "#a1a1a1",
@@ -1007,8 +1006,8 @@
       {
         "id": "e-curtainDrift-value-curtainOffset-z",
         "source": "curtainDrift",
-        "sourceHandle": "value",
         "target": "curtainOffset",
+        "sourceHandle": "value",
         "targetHandle": "z",
         "style": {
           "stroke": "#a1a1a1",
@@ -1018,8 +1017,8 @@
       {
         "id": "e-bassEnergy-envelope-curtainGain-value",
         "source": "bassEnergy",
-        "sourceHandle": "envelope",
         "target": "curtainGain",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1029,8 +1028,8 @@
       {
         "id": "e-bassEnergy-envelope-sensitivity-value",
         "source": "bassEnergy",
-        "sourceHandle": "envelope",
         "target": "sensitivity",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1040,8 +1039,8 @@
       {
         "id": "e-sensitivity-result-levelShaped-high",
         "source": "sensitivity",
-        "sourceHandle": "result",
         "target": "levelShaped",
+        "sourceHandle": "result",
         "targetHandle": "high",
         "style": {
           "stroke": "#a1a1a1",
@@ -1051,8 +1050,8 @@
       {
         "id": "e-audio-air-hatEnvelope-signal",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "hatEnvelope",
+        "sourceHandle": "air",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1062,8 +1061,8 @@
       {
         "id": "e-hatEnvelope-envelope-sparkleDensity-a",
         "source": "hatEnvelope",
-        "sourceHandle": "envelope",
         "target": "sparkleDensity",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1073,8 +1072,8 @@
       {
         "id": "e-sparkleAmount-value-sparkleDensity-b",
         "source": "sparkleAmount",
-        "sourceHandle": "value",
         "target": "sparkleDensity",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1084,8 +1083,8 @@
       {
         "id": "e-audio-air-dropEnergy-signal",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "dropEnergy",
+        "sourceHandle": "air",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1095,8 +1094,8 @@
       {
         "id": "e-dropEnergy-envelope-dropLift-value",
         "source": "dropEnergy",
-        "sourceHandle": "envelope",
         "target": "dropLift",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1106,8 +1105,8 @@
       {
         "id": "e-dropEnergy-envelope-trebleBoost-value",
         "source": "dropEnergy",
-        "sourceHandle": "envelope",
         "target": "trebleBoost",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1117,8 +1116,8 @@
       {
         "id": "e-audio-vocal-padEnvelope-signal",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "padEnvelope",
+        "sourceHandle": "vocal",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1128,8 +1127,8 @@
       {
         "id": "e-padEnvelope-envelope-padLift-value",
         "source": "padEnvelope",
-        "sourceHandle": "envelope",
         "target": "padLift",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1139,8 +1138,8 @@
       {
         "id": "e-trebleBoost-result-trebleTilt-outHigh",
         "source": "trebleBoost",
-        "sourceHandle": "result",
         "target": "trebleTilt",
+        "sourceHandle": "result",
         "targetHandle": "outHigh",
         "style": {
           "stroke": "#a1a1a1",
@@ -1150,8 +1149,8 @@
       {
         "id": "e-uv-y-rowOffset-a",
         "source": "uv",
-        "sourceHandle": "y",
         "target": "rowOffset",
+        "sourceHandle": "y",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1161,8 +1160,8 @@
       {
         "id": "e-scanRow-out-rowOffset-b",
         "source": "scanRow",
-        "sourceHandle": "out",
         "target": "rowOffset",
+        "sourceHandle": "out",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1172,8 +1171,8 @@
       {
         "id": "e-rowOffset-result-horizonDistance-a",
         "source": "rowOffset",
-        "sourceHandle": "result",
         "target": "horizonDistance",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1183,8 +1182,8 @@
       {
         "id": "e-horizonDistance-result-age-a",
         "source": "horizonDistance",
-        "sourceHandle": "result",
         "target": "age",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1194,8 +1193,8 @@
       {
         "id": "e-historyDepth-value-age-b",
         "source": "historyDepth",
-        "sourceHandle": "value",
         "target": "age",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1205,8 +1204,8 @@
       {
         "id": "e-bigFft-spectrum-waterfall-spectrum",
         "source": "bigFft",
-        "sourceHandle": "spectrum",
         "target": "waterfall",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1216,8 +1215,8 @@
       {
         "id": "e-age-result-waterfall-age",
         "source": "age",
-        "sourceHandle": "result",
         "target": "waterfall",
+        "sourceHandle": "result",
         "targetHandle": "age",
         "style": {
           "stroke": "#a1a1a1",
@@ -1227,8 +1226,8 @@
       {
         "id": "e-waterfall-level-tiltedLevel-a",
         "source": "waterfall",
-        "sourceHandle": "level",
         "target": "tiltedLevel",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1238,8 +1237,8 @@
       {
         "id": "e-trebleTilt-result-tiltedLevel-b",
         "source": "trebleTilt",
-        "sourceHandle": "result",
         "target": "tiltedLevel",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1249,8 +1248,8 @@
       {
         "id": "e-tiltedLevel-result-levelShaped-value",
         "source": "tiltedLevel",
-        "sourceHandle": "result",
         "target": "levelShaped",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1260,8 +1259,8 @@
       {
         "id": "e-horizonDistance-result-heightFade-value",
         "source": "horizonDistance",
-        "sourceHandle": "result",
         "target": "heightFade",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1271,8 +1270,8 @@
       {
         "id": "e-levelShaped-out-fadedLevel-a",
         "source": "levelShaped",
-        "sourceHandle": "out",
         "target": "fadedLevel",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1282,8 +1281,8 @@
       {
         "id": "e-heightFade-result-fadedLevel-b",
         "source": "heightFade",
-        "sourceHandle": "result",
         "target": "fadedLevel",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1293,8 +1292,8 @@
       {
         "id": "e-curtainOffset-vector-curtainCoords-location",
         "source": "curtainOffset",
-        "sourceHandle": "vector",
         "target": "curtainCoords",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -1304,8 +1303,8 @@
       {
         "id": "e-curtainCoords-vector-curtainNoise-vector",
         "source": "curtainCoords",
-        "sourceHandle": "vector",
         "target": "curtainNoise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1315,8 +1314,8 @@
       {
         "id": "e-curtainNoise-fac-curtainShape-value",
         "source": "curtainNoise",
-        "sourceHandle": "fac",
         "target": "curtainShape",
+        "sourceHandle": "fac",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1326,8 +1325,8 @@
       {
         "id": "e-curtainShape-out-curtainGate-factor",
         "source": "curtainShape",
-        "sourceHandle": "out",
         "target": "curtainGate",
+        "sourceHandle": "out",
         "targetHandle": "factor",
         "style": {
           "stroke": "#a1a1a1",
@@ -1337,8 +1336,8 @@
       {
         "id": "e-fadedLevel-result-waterfallBrightness-a",
         "source": "fadedLevel",
-        "sourceHandle": "result",
         "target": "waterfallBrightness",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1348,8 +1347,8 @@
       {
         "id": "e-curtainGate-result-waterfallBrightness-b",
         "source": "curtainGate",
-        "sourceHandle": "result",
         "target": "waterfallBrightness",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1359,8 +1358,8 @@
       {
         "id": "e-curtainShape-out-curtainHue-a",
         "source": "curtainShape",
-        "sourceHandle": "out",
         "target": "curtainHue",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1370,8 +1369,8 @@
       {
         "id": "e-padLift-result-curtainHue-c",
         "source": "padLift",
-        "sourceHandle": "result",
         "target": "curtainHue",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1381,8 +1380,8 @@
       {
         "id": "e-curtainHue-result-curtainRamp-fac",
         "source": "curtainHue",
-        "sourceHandle": "result",
         "target": "curtainRamp",
+        "sourceHandle": "result",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1392,8 +1391,8 @@
       {
         "id": "e-curtainRamp-color-curtainLayer-layer",
         "source": "curtainRamp",
-        "sourceHandle": "color",
         "target": "curtainLayer",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1403,8 +1402,8 @@
       {
         "id": "e-curtainGain-result-curtainLayer-opacity",
         "source": "curtainGain",
-        "sourceHandle": "result",
         "target": "curtainLayer",
+        "sourceHandle": "result",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1414,8 +1413,8 @@
       {
         "id": "e-curtainShape-out-curtainLayer-mask",
         "source": "curtainShape",
-        "sourceHandle": "out",
         "target": "curtainLayer",
+        "sourceHandle": "out",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1425,8 +1424,8 @@
       {
         "id": "e-horizonDistance-result-historyHeat-value",
         "source": "horizonDistance",
-        "sourceHandle": "result",
         "target": "historyHeat",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1436,8 +1435,8 @@
       {
         "id": "e-historyHeat-result-rampPosition-b",
         "source": "historyHeat",
-        "sourceHandle": "result",
         "target": "rampPosition",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1447,8 +1446,8 @@
       {
         "id": "e-curtainShape-out-colorOffset-a",
         "source": "curtainShape",
-        "sourceHandle": "out",
         "target": "colorOffset",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1458,8 +1457,8 @@
       {
         "id": "e-dropLift-result-colorOffset-c",
         "source": "dropLift",
-        "sourceHandle": "result",
         "target": "colorOffset",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1469,8 +1468,8 @@
       {
         "id": "e-levelShaped-out-rampPosition-a",
         "source": "levelShaped",
-        "sourceHandle": "out",
         "target": "rampPosition",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1480,8 +1479,8 @@
       {
         "id": "e-colorOffset-result-rampPosition-c",
         "source": "colorOffset",
-        "sourceHandle": "result",
         "target": "rampPosition",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1491,8 +1490,8 @@
       {
         "id": "e-rampPosition-result-auroraRamp-fac",
         "source": "rampPosition",
-        "sourceHandle": "result",
         "target": "auroraRamp",
+        "sourceHandle": "result",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1502,8 +1501,8 @@
       {
         "id": "e-curtainLayer-color-waterfallOverCurtain-base",
         "source": "curtainLayer",
-        "sourceHandle": "color",
         "target": "waterfallOverCurtain",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1513,8 +1512,8 @@
       {
         "id": "e-auroraRamp-color-waterfallOverCurtain-layer",
         "source": "auroraRamp",
-        "sourceHandle": "color",
         "target": "waterfallOverCurtain",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1524,8 +1523,8 @@
       {
         "id": "e-waterfallBrightness-result-waterfallOverCurtain-mask",
         "source": "waterfallBrightness",
-        "sourceHandle": "result",
         "target": "waterfallOverCurtain",
+        "sourceHandle": "result",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1535,8 +1534,8 @@
       {
         "id": "e-sparkleDensity-result-hatSparkle-density",
         "source": "sparkleDensity",
-        "sourceHandle": "result",
         "target": "hatSparkle",
+        "sourceHandle": "result",
         "targetHandle": "density",
         "style": {
           "stroke": "#a1a1a1",
@@ -1546,8 +1545,8 @@
       {
         "id": "e-trebleRegion-out-trebleHits-a",
         "source": "trebleRegion",
-        "sourceHandle": "out",
         "target": "trebleHits",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1557,8 +1556,8 @@
       {
         "id": "e-fadedLevel-result-trebleHits-b",
         "source": "fadedLevel",
-        "sourceHandle": "result",
         "target": "trebleHits",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1568,8 +1567,8 @@
       {
         "id": "e-waterfallOverCurtain-color-sparkleLayer-base",
         "source": "waterfallOverCurtain",
-        "sourceHandle": "color",
         "target": "sparkleLayer",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1579,8 +1578,8 @@
       {
         "id": "e-hatSparkle-out-sparkleLayer-opacity",
         "source": "hatSparkle",
-        "sourceHandle": "out",
         "target": "sparkleLayer",
+        "sourceHandle": "out",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1590,8 +1589,8 @@
       {
         "id": "e-trebleHits-result-sparkleLayer-mask",
         "source": "trebleHits",
-        "sourceHandle": "result",
         "target": "sparkleLayer",
+        "sourceHandle": "result",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1601,8 +1600,8 @@
       {
         "id": "e-sparkleLayer-color-glowTrails-color",
         "source": "sparkleLayer",
-        "sourceHandle": "color",
         "target": "glowTrails",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1612,8 +1611,8 @@
       {
         "id": "e-horizonDistance-result-trailDecay-a",
         "source": "horizonDistance",
-        "sourceHandle": "result",
         "target": "trailDecay",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1623,8 +1622,8 @@
       {
         "id": "e-afterglow-value-trailDecay-c",
         "source": "afterglow",
-        "sourceHandle": "value",
         "target": "trailDecay",
+        "sourceHandle": "value",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1634,8 +1633,8 @@
       {
         "id": "e-trailDecay-result-glowTrails-decay",
         "source": "trailDecay",
-        "sourceHandle": "result",
         "target": "glowTrails",
+        "sourceHandle": "result",
         "targetHandle": "decay",
         "style": {
           "stroke": "#a1a1a1",
@@ -1645,8 +1644,8 @@
       {
         "id": "e-glowTrails-color-out-color",
         "source": "glowTrails",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1685,6 +1684,7 @@
           "afterglow": 0.12
         }
       }
-    ]
+    ],
+    "version": 4
   }
 }

@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "uv",
@@ -33,14 +32,16 @@
       {
         "id": "e-uv-x-out-color",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "out",
+        "sourceHandle": "x",
         "targetHandle": "color",
         "style": {
           "stroke": "#a1a1a1",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

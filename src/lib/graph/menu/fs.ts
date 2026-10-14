@@ -1,58 +1,88 @@
-import { categoryById, type CategoryId } from '@/lib/shader/glsl'
+import { categoryById, type CategoryId } from '@/lib/shader/catalog'
 import { directory, leaf, separator, type MenuDirectory, type MenuEntry, type MenuFs, type MenuItem, type MenuPreset } from '@/lib/shader/menu-fs'
-import { CATALOG_FUNCTIONS, CATALOG_UNIFORMS } from '@/lib/graph/nodes/catalog'
-import type { NodeItem } from '@/lib/graph/define/node'
-import * as nodes from '@/lib/graph/nodes'
-import { MATH_OP_OPTIONS } from '@/lib/graph/nodes/converter/math'
-import { VECTOR_OP_OPTIONS } from '@/lib/graph/nodes/converter/vector-math'
-import { isGlslType, type LinkType } from '@/lib/graph/define/types'
+import { toGlslForm } from '@/lib/graph/compile/compilers'
+import type { NodeItem } from '@/lib/graph/define/shape'
+import { findNodeItem } from '@/lib/graph/registry'
+import type { DataType } from '@/lib/graph/define/types'
 
-/** A directory themed after a category: the graph's own nodes first, then the injected GLSL functions of that category. */
-function categoryDirectory(id: CategoryId, own: NodeItem[] = [], extra: MenuItem<NodeItem>[] = []): MenuDirectory<NodeItem> {
-  const category = categoryById.get(id)!
-  const rest = [...CATALOG_FUNCTIONS.filter((item) => item.category === id).map((n) => leaf(n)), ...extra]
-  const items = own.length && rest.length ? [...own.map((n) => leaf(n)), separator, ...rest] : [...own.map((n) => leaf(n)), ...rest]
-  return directory(category.label, items, { icon: category.icon, color: category.color })
-}
+const UNIFORMS = ['iResolution', 'iLedCount', 'iScanY', 'iAudio', 'iImage']
+const uniforms = new Set(UNIFORMS)
+
+const toLeaves = (ids: string[]) => ids.map((id) => leaf(findKind(id)))
 
 export const GRAPH_FS: MenuFs<NodeItem> = {
   title: 'Add',
   items: [
-    categoryDirectory('input', [nodes.uvNode, nodes.ledLayoutNode, nodes.timeNode, nodes.valueNode, nodes.vector2Node, nodes.colorNode, nodes.knobNode, nodes.midiInNode, nodes.oscInNode, nodes.sceneSwitchNode], [
-      directory('Uniforms', CATALOG_UNIFORMS.map((n) => leaf(n)), { description: 'Values the engine updates every frame.' }),
+    buildCategoryDirectory(
+      'input',
+      ['uv', 'ledLayout', 'time', 'value', 'vector2', 'color', 'knob', 'midiIn', 'oscIn', 'sceneSwitch'],
+      [directory('Uniforms', toLeaves(UNIFORMS), { description: 'Values the engine updates every frame.' })],
+    ),
+    buildCategoryDirectory(
+      'output',
+      ['output'],
+      [
+        directory('Feedback', toLeaves(['trails', 'stripBlur', 'previousFrame']), {
+          description: 'Nodes that read what the Output showed on the previous frame.',
+        }),
+      ],
+    ),
+    buildCategoryDirectory('noise', [
+      'noiseTexture',
+      'whiteNoise',
+      'voronoi',
+      'waveTexture',
+      'magicTexture',
+      'gradientTexture',
+      'checkerTexture',
+      'brickTexture',
     ]),
-    categoryDirectory('output', [nodes.outputNode], [
-      directory('Feedback', [nodes.trailsNode, nodes.stripBlurNode, nodes.previousFrameNode].map((n) => leaf(n)), { description: 'Nodes that read what the Output showed on the previous frame.' }),
-    ]),
-    categoryDirectory('noise', [
-      nodes.noiseTextureNode, nodes.whiteNoiseNode, nodes.voronoiNode, nodes.waveTextureNode, nodes.magicTextureNode, nodes.gradientTextureNode, nodes.checkerTextureNode, nodes.brickTextureNode,
-    ]),
-    categoryDirectory('image', [nodes.imageTextureNode]),
-    categoryDirectory('color', [
-      nodes.colorMixNode, nodes.layerMixNode, nodes.maskNode, nodes.colorRampNode, nodes.paletteNode, nodes.hueSaturationNode, nodes.brightnessCeilingNode, nodes.brightnessContrastNode, nodes.gammaNode, nodes.invertNode, nodes.hsvToRgbNode, nodes.rgbToHsvNode,
-    ]),
-    categoryDirectory('converter', [nodes.mathNode, nodes.vectorMathNode, nodes.mixNode, nodes.clampNode, nodes.mapRangeNode, nodes.curveNode, nodes.randomNode, nodes.combineXyzNode, nodes.separateXyzNode, nodes.separateColorNode, nodes.combineColorNode], [
-      // every operation is its own entry, so "sine" or "ping-pong" finds Math set to it
-      directory('Math Operations', [...new Set(MATH_OP_OPTIONS.map((o) => o.group))].map((group) =>
-        directory(group, MATH_OP_OPTIONS.filter((o) => o.group === group).map((o) => leaf(nodes.mathNode, { title: o.label, values: { op: o.value } })))),
-      ),
-      directory('Vector Math Operations', VECTOR_OP_OPTIONS.map((o) => leaf(nodes.vectorMathNode, { title: o.label, values: { op: o.value } }))),
-    ]),
-    categoryDirectory('signal', [nodes.waveNode, nodes.integratorNode, nodes.viewerNode], [
-      directory('Smoothing', [nodes.envelopeFollowerNode, nodes.peakHoldNode, nodes.slewLimiterNode].map((n) => leaf(n))),
-      directory('Triggers', [nodes.schmittTriggerNode, nodes.envelopeNode, nodes.sampleHoldNode, nodes.counterNode, nodes.toggleNode, nodes.clockDividerNode, nodes.stepSequencerNode].map((n) => leaf(n))),
-    ]),
-    categoryDirectory('math', [nodes.mappingNode, nodes.polarNode, nodes.mirrorNode, nodes.tileNode, nodes.rotateNode, nodes.segmentSplitNode, nodes.rangeSelectNode, nodes.fromCenterNode]),
-    categoryDirectory('strip'),
-    categoryDirectory('animation'),
-    categoryDirectory('audio', [nodes.audioSourceNode, nodes.fftNode, nodes.audioNode, nodes.audioSignalNode, nodes.bandsNode, nodes.bandSplitNode, nodes.spectrumNode, nodes.waveformNode, nodes.chromaNode]),
-    categoryDirectory('builtin'),
+    buildCategoryDirectory('image', ['imageTexture']),
+    buildCategoryDirectory(
+      'color',
+      [
+        'colorMix',
+        'layerMix',
+        'mask',
+        'colorRamp',
+        'gradientPalette',
+        'hueSaturation',
+        'brightnessCeiling',
+        'brightnessContrast',
+        'gamma',
+        'invert',
+        'hsv2rgb',
+        'rgb2hsv',
+      ],
+      toLeaves(['palette', 'luminance', 'kelvin']),
+    ),
+    buildCategoryDirectory(
+      'converter',
+      ['math', 'vectorMath', 'mix', 'clamp', 'remap', 'curve', 'random', 'combineXYZ', 'separateXYZ', 'separateColor', 'combineColor'],
+      [buildPresetDirectory('math'), buildPresetDirectory('vectorMath')],
+    ),
+    buildCategoryDirectory(
+      'signal',
+      ['wave', 'integrator', 'viewer'],
+      [
+        directory('Smoothing', toLeaves(['envelopeFollower', 'peakHold', 'slewLimiter'])),
+        directory('Triggers', toLeaves(['schmittTrigger', 'envelope', 'sampleHold', 'counter', 'toggle', 'clockDivider', 'stepSequencer'])),
+      ],
+    ),
+    buildCategoryDirectory('math', ['mapping', 'polar', 'mirror', 'tile', 'rotate', 'segmentSplit', 'rangeSelect', 'fromCenter']),
+    buildCategoryDirectory('strip', [], toLeaves(['stripes', 'chase', 'scanner', 'sparkle'])),
+    buildCategoryDirectory('animation', []),
+    buildCategoryDirectory(
+      'audio',
+      ['audioSource', 'fft', 'audio', 'audioSignal', 'bands', 'bandSplit', 'spectrum', 'waveform', 'chroma'],
+      toLeaves(['bandLevel']),
+    ),
+    buildCategoryDirectory('builtin', [], toLeaves(['smoothstep', 'texture'])),
   ],
 }
 
-const uniforms = new Set(CATALOG_UNIFORMS)
-
-export function describeNodeItem(item: NodeItem, preset?: MenuPreset): MenuEntry {
+/** `socketColor` from the editor, which owns how socket types are drawn */
+export function describeNodeItem(item: NodeItem, preset: MenuPreset | undefined, socketColor: (type: DataType<any>) => string): MenuEntry {
   const category = categoryById.get(item.category)!
   const shape = preset ? item.shape(preset.values) : item.base
   return {
@@ -64,8 +94,40 @@ export function describeNodeItem(item: NodeItem, preset?: MenuPreset): MenuEntry
     keywords: item.id,
     color: category.color,
     icon: category.icon,
-    inputs: shape.inputs.map((s) => ({ label: s.label || s.type.label, type: isGlslType(s.type) ? s.type.glsl : s.type.label, color: s.connectable ? (s.type as LinkType).color : '' })),
-    outputs: shape.outputs.map((s) => ({ label: s.label, color: s.type.color })),
-    note: uniforms.has(item) ? 'uniform' : undefined,
+    inputs: shape.inputs.map((socket) => ({
+      label: socket.label || socket.type.label,
+      type: socket.type.kind === 'value' ? toGlslForm(socket.type).type : socket.type.label,
+      color: socket.linkable ? socketColor(socket.type) : '',
+    })),
+    outputs: shape.outputs.map((socket) => ({ label: socket.label, color: socketColor(socket.type) })),
+    note: uniforms.has(item.id) ? 'uniform' : undefined,
   }
+}
+
+/** Category-themed directory: own nodes, separator, then injected GLSL functions and sub-directories */
+function buildCategoryDirectory(id: CategoryId, own: string[], rest: MenuItem<NodeItem>[] = []): MenuDirectory<NodeItem> {
+  const category = categoryById.get(id)!
+  const items: MenuItem<NodeItem>[] = toLeaves(own)
+  if (own.length && rest.length) items.push(separator)
+  items.push(...rest)
+  return directory(category.label, items, { icon: category.icon, color: category.color })
+}
+
+/** Each preset its own entry, under its group if any */
+function buildPresetDirectory(id: string): MenuDirectory<NodeItem> {
+  const item = findKind(id)
+  const presets = item.presets ?? []
+  if (!presets.length) throw new Error(`The Add menu lists presets of "${id}", which has none`)
+  const toPresetLeaves = (group?: string) => presets.filter((preset) => preset.group === group).map((preset) => leaf(item, preset))
+  const groups = [...new Set(presets.map((preset) => preset.group))]
+  return directory(
+    `${item.title} Operations`,
+    groups.flatMap((group): MenuItem<NodeItem>[] => (group ? [directory(group, toPresetLeaves(group))] : toPresetLeaves())),
+  )
+}
+
+function findKind(id: string): NodeItem {
+  const item = findNodeItem(id)
+  if (!item) throw new Error(`The Add menu names unknown node kind "${id}"`)
+  return item
 }

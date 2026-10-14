@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "uv",
@@ -261,8 +260,8 @@
       {
         "id": "e-song-audio-audio-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -272,8 +271,8 @@
       {
         "id": "e-spectrum-level-bandGate-value",
         "source": "spectrum",
-        "sourceHandle": "level",
         "target": "bandGate",
+        "sourceHandle": "level",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -283,8 +282,8 @@
       {
         "id": "e-time-time-drift-a",
         "source": "time",
-        "sourceHandle": "time",
         "target": "drift",
+        "sourceHandle": "time",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -294,8 +293,8 @@
       {
         "id": "e-uv-x-huePosition-a",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "huePosition",
+        "sourceHandle": "x",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -305,8 +304,8 @@
       {
         "id": "e-drift-result-huePosition-b",
         "source": "drift",
-        "sourceHandle": "result",
         "target": "huePosition",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -316,8 +315,8 @@
       {
         "id": "e-huePosition-result-palette-position",
         "source": "huePosition",
-        "sourceHandle": "result",
         "target": "palette",
+        "sourceHandle": "result",
         "targetHandle": "position",
         "style": {
           "stroke": "#a1a1a1",
@@ -327,8 +326,8 @@
       {
         "id": "e-palette-color-bands-layer",
         "source": "palette",
-        "sourceHandle": "color",
         "target": "bands",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -338,8 +337,8 @@
       {
         "id": "e-bandGate-mask-bands-mask",
         "source": "bandGate",
-        "sourceHandle": "mask",
         "target": "bands",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -349,8 +348,8 @@
       {
         "id": "e-uv-x-left-a",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "left",
+        "sourceHandle": "x",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -360,8 +359,8 @@
       {
         "id": "e-uv-x-right-b",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "right",
+        "sourceHandle": "x",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -371,8 +370,8 @@
       {
         "id": "e-left-result-fromCenter-a",
         "source": "left",
-        "sourceHandle": "result",
         "target": "fromCenter",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -382,8 +381,8 @@
       {
         "id": "e-right-result-fromCenter-b",
         "source": "right",
-        "sourceHandle": "result",
         "target": "fromCenter",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -393,8 +392,8 @@
       {
         "id": "e-audio-kick-burstWidth-a",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "burstWidth",
+        "sourceHandle": "kick",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -404,8 +403,8 @@
       {
         "id": "e-audio-kick-kickGate-value",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kickGate",
+        "sourceHandle": "kick",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -415,8 +414,8 @@
       {
         "id": "e-fromCenter-result-burst-value",
         "source": "fromCenter",
-        "sourceHandle": "result",
         "target": "burst",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -426,8 +425,8 @@
       {
         "id": "e-burstWidth-result-burst-threshold",
         "source": "burstWidth",
-        "sourceHandle": "result",
         "target": "burst",
+        "sourceHandle": "result",
         "targetHandle": "threshold",
         "style": {
           "stroke": "#a1a1a1",
@@ -437,8 +436,8 @@
       {
         "id": "e-bands-color-flash-base",
         "source": "bands",
-        "sourceHandle": "color",
         "target": "flash",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -448,8 +447,8 @@
       {
         "id": "e-kickGate-mask-flash-opacity",
         "source": "kickGate",
-        "sourceHandle": "mask",
         "target": "flash",
+        "sourceHandle": "mask",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -459,8 +458,8 @@
       {
         "id": "e-burst-mask-flash-mask",
         "source": "burst",
-        "sourceHandle": "mask",
         "target": "flash",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -470,14 +469,16 @@
       {
         "id": "e-flash-color-out-color",
         "source": "flash",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

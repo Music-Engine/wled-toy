@@ -1,6 +1,5 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { adjustChunk } from '@/lib/graph/compile/glsl/adjust'
-import { Color, Float } from '@/lib/graph/define/types'
+import { Color, defineNode, Float } from '@/lib/graph/authoring'
+import { adjustChunk } from './adjust-chunk'
 
 const signed = { min: -1, max: 1, decimals: 2 }
 
@@ -15,7 +14,7 @@ export const brightnessContrastNode = defineNode('brightnessContrast', {
     contrast: { type: Float, default: 0, props: signed },
   },
   output: { color: Color },
-  exec: ({ color, brightness, contrast }, ctx) => ctx.call('node_brightness_contrast', [color.expr, brightness.expr, contrast.expr], { color: 'vec3' }),
+  body: ({ color, brightness, contrast }, ctx) => ctx.call('node_brightness_contrast', [color.expr, brightness.expr, contrast.expr], { color: 'vec3' }),
 })
 
 export const invertNode = defineNode('invert', {
@@ -28,7 +27,7 @@ export const invertNode = defineNode('invert', {
     color: { type: Color, default: [0, 0, 0] },
   },
   output: { color: Color },
-  exec: ({ factor, color }, ctx) => ctx.call('node_invert', [color.expr, factor.expr], { color: 'vec3' }),
+  body: ({ factor, color }, ctx) => ctx.call('node_invert', [color.expr, factor.expr], { color: 'vec3' }),
 })
 
 export const gammaNode = defineNode('gamma', {
@@ -41,5 +40,5 @@ export const gammaNode = defineNode('gamma', {
     gamma: { type: Float, default: 2.2, props: { min: 0.01, step: 0.1, decimals: 2 } },
   },
   output: { color: Color },
-  exec: ({ color, gamma }, ctx) => ctx.call('node_gamma', [color.expr, gamma.expr], { color: 'vec3' }),
+  body: ({ color, gamma }, ctx) => ctx.call('node_gamma', [color.expr, gamma.expr], { color: 'vec3' }),
 })

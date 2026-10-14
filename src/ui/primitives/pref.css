@@ -1,0 +1,72 @@
+/* The preference classes that more than one component puts on its own elements. Unlayered, as they were in the settings view, so they still win over utilities on the same element. */
+.pref-group-title {
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--pref-line);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-text-muted);
+}
+
+.pref-label {
+  display: block;
+  font-size: 13px;
+  color: var(--ui-text-highlighted);
+}
+
+.pref-hint {
+  max-width: 52ch;
+  margin-top: 1px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ui-text-muted);
+}
+
+.pref-error {
+  max-width: 52ch;
+  margin-top: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ui-error);
+}
+
+.pref-input {
+  height: 24px;
+  border: 1px solid var(--ui-border-accented);
+  border-radius: 4px;
+  background: var(--ui-bg);
+  padding: 0 7px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text-highlighted);
+}
+
+.pref-input::placeholder {
+  color: var(--ui-text-dimmed);
+}
+
+.pref-input:disabled {
+  opacity: 0.45;
+}
+
+.pref-button {
+  height: 24px;
+  flex-shrink: 0;
+  cursor: default;
+  border: 1px solid var(--ui-border-accented);
+  border-radius: 4px;
+  background: var(--ui-bg);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--ui-text-highlighted);
+  transition: background-color 80ms;
+}
+
+.pref-button:hover:not(:disabled) {
+  background: var(--ui-bg-accented);
+}
+
+.pref-button:disabled {
+  opacity: 0.45;
+}

@@ -1,5 +1,17 @@
 import type { ColorRamp } from '@/lib/graph/nodes/color/color-ramp'
 import { parseScenes, type Scene } from './scenes'
+import { cloneJson } from '@/lib/util/json'
+
+export interface NodeGraph {
+  version: number
+  nodes: StoredNode[]
+  edges: StoredEdge[]
+  /** Saved knob settings the Parameters panel can recall. */
+  scenes?: Scene[]
+}
+
+/** Bumped whenever nodes or sockets change in a way older saved graphs cannot follow; `lib/documents` migrates old files */
+export const GRAPH_VERSION = 4
 
 export type SocketValue = number | number[] | string | boolean | ColorRamp
 
@@ -9,6 +21,12 @@ export interface GraphNodeData {
   values: Record<string, SocketValue>
   /** Folded to its header in the editor. */
   collapsed?: boolean
+  /** Shows only the sockets that hold a link. */
+  hideUnused?: boolean
+  /** Passes its first input that fits an output straight through, as if the node were not there. */
+  muted?: boolean
+  /** Shown in place of the node's title. */
+  label?: string
 }
 
 export interface StoredNode {
@@ -27,36 +45,74 @@ export interface StoredEdge {
   style?: Record<string, string | number>
 }
 
-/**
- * Bumped whenever nodes or sockets change in a way older saved graphs cannot follow. There are no migrations: a graph
- * saved by an older version is discarded on load, and Settings can wipe everything the app stored.
- */
-export const GRAPH_VERSION = 3
-
-export interface GraphDoc {
-  version: number
-  nodes: StoredNode[]
-  edges: StoredEdge[]
-  /** Saved knob settings the Parameters panel can recall. */
-  scenes?: Scene[]
-}
-
 export const GRAPH_NODE_TYPE = 'shader'
 
 export const newNodeData = (kind: string, values: GraphNodeData['values'] = {}): GraphNodeData => ({ kind, values })
 
 /** A current-version graph, tidied: an input holds one link (the newest wins) and scenes are what parseScenes accepts. */
-export function normalizeDoc(doc: GraphDoc): GraphDoc {
-  const byInput = new Map(doc.edges.map((e) => [`${e.target}:${e.targetHandle}`, e]))
-  return { version: GRAPH_VERSION, nodes: doc.nodes, edges: [...byInput.values()], scenes: parseScenes(doc.scenes) }
+export function normalizeDoc(doc: NodeGraph): NodeGraph {
+  return { version: GRAPH_VERSION, nodes: doc.nodes, edges: [...edgesByInput(doc.edges).values()], scenes: parseScenes(doc.scenes) }
 }
 
-export function createDefaultGraph(): GraphDoc {
+/** The link into each input, keyed by `inputKey`; when an input has several, the last one wins. */
+export function edgesByInput(edges: NodeGraph['edges']): Map<string, NodeGraph['edges'][number]> {
+  return new Map(edges.map((e) => [inputKey(e.target, e.targetHandle), e]))
+}
+
+export const inputKey = (nodeId: string, handle: string | null | undefined) => `${nodeId}:${handle}`
+
+interface NodeLike {
+  id: string
+  type?: string
+  position: { x: number; y: number }
+  data?: GraphNodeData
+}
+
+interface EdgeLike {
+  id: string
+  source: string
+  target: string
+  sourceHandle?: string | null
+  targetHandle?: string | null
+  style?: unknown
+}
+
+/**
+ * The one shape and key order a graph is stored in. The editor's snapshot and a freshly parsed file both go through it,
+ * so a file that was just opened serializes to the text it was compared against and does not count as edited.
+ */
+export function storedDoc(nodes: readonly NodeLike[], edges: readonly EdgeLike[], scenes: NodeGraph['scenes']): NodeGraph {
+  return cloneJson({
+    nodes: nodes.map((n) => ({ id: n.id, type: n.type ?? GRAPH_NODE_TYPE, position: { x: n.position.x, y: n.position.y }, data: n.data })),
+    edges: edges.map((e) => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      sourceHandle: e.sourceHandle ?? null,
+      targetHandle: e.targetHandle ?? null,
+      style: e.style,
+    })),
+    scenes: scenes ?? [],
+    version: GRAPH_VERSION,
+  }) as NodeGraph
+}
+
+export const canonical = (doc: NodeGraph) => storedDoc(doc.nodes, doc.edges, doc.scenes)
+
+export function createDefaultGraph(): NodeGraph {
   const node = (id: string, kind: string, x: number, y: number, values: GraphNodeData['values'] = {}): StoredNode => ({
-    id, type: GRAPH_NODE_TYPE, position: { x, y }, data: { kind, values },
+    id,
+    type: GRAPH_NODE_TYPE,
+    position: { x, y },
+    data: { kind, values },
   })
   const edge = (source: string, sourceHandle: string, target: string, targetHandle: string, stroke: string): StoredEdge => ({
-    id: `e-${source}-${sourceHandle}-${target}-${targetHandle}`, source, sourceHandle, target, targetHandle, style: { stroke, strokeWidth: 2 },
+    id: `e-${source}-${sourceHandle}-${target}-${targetHandle}`,
+    source,
+    sourceHandle,
+    target,
+    targetHandle,
+    style: { stroke, strokeWidth: 2 },
   })
   const grey = '#a1a1a1'
   const yellow = '#c7c729'

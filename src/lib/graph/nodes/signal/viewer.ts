@@ -1,13 +1,13 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { defineNode, Float } from '@/lib/graph/authoring'
 
 export const viewerNode = defineNode('viewer', {
   title: 'Viewer',
-  description: 'Plots a per-frame value over the last few seconds, for seeing what a control chain does. Passes the value on unchanged.',
+  description: 'Plots a per-frame value over the last few seconds, for seeing what a chain of per-frame nodes does. Passes the value on unchanged.',
   category: 'signal',
-  // it draws nothing, but has to run each frame to have something to show
+  // Draws nothing, but must run each frame to have a value to show
   isOutput: true,
   input: { value: { type: Float, default: 0 } },
   output: { value: Float },
-  run: ({ value }) => ({ value }),
+  body: ({ value }) => ({ value }),
+  probe: 'value',
 })

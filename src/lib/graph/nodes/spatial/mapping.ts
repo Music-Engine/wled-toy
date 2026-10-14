@@ -1,10 +1,10 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Vec3 } from '@/lib/graph/define/types'
-import { textureVector } from '@/lib/graph/nodes/texture/vector'
+import { defineNode, Float, Vec3 } from '@/lib/graph/authoring'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
 
 export const mappingNode = defineNode('mapping', {
   title: 'Mapping',
-  description: 'Moves, turns and scales a coordinate before a texture or image reads it: scale around the pivot, rotate around it (in turns), then add the location.',
+  description:
+    'Moves, turns and scales a coordinate before a texture or image reads it: scale around the pivot, rotate around it (in turns), then add the location.',
   category: 'math',
   input: {
     vector: textureVector,
@@ -14,11 +14,11 @@ export const mappingNode = defineNode('mapping', {
     pivot: { type: Vec3, default: [0.5, 0.5, 0] },
   },
   output: { vector: Vec3 },
-  exec: ({ vector, location, rotation, scale, pivot }, ctx) => {
-    const p = ctx.declare('vec3', `(${vector.expr} - ${pivot.expr}) * ${scale.expr}`, 'p').expr
-    const a = ctx.declare('float', `${rotation.expr} * 6.2831853`, 'a').expr
-    // turning the lookup by -a turns the picture by +a
-    const turned = `vec3(${p}.x * cos(${a}) + ${p}.y * sin(${a}), ${p}.y * cos(${a}) - ${p}.x * sin(${a}), ${p}.z)`
+  body: ({ vector, location, rotation, scale, pivot }, ctx) => {
+    const point = ctx.declare('vec3', `(${vector.expr} - ${pivot.expr}) * ${scale.expr}`, 'p').expr
+    const radians = ctx.declare('float', `${rotation.expr} * 6.2831853`, 'a').expr
+    // Lookup turned by -angle turns the picture by +angle
+    const turned = `vec3(${point}.x * cos(${radians}) + ${point}.y * sin(${radians}), ${point}.y * cos(${radians}) - ${point}.x * sin(${radians}), ${point}.z)`
     return { vector: ctx.declare('vec3', `${turned} + ${pivot.expr} + ${location.expr}`) }
   },
 })

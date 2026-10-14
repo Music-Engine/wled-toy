@@ -1,0 +1,12 @@
+* text=auto
+*.sh text eol=lf
+*.png binary
+*.jpg binary
+*.icns binary
+*.ico binary
+*.mp3 binary
+
+**/__snapshots__/** linguist-generated=true
+graphs/bench/*.wledgraph linguist-generated=true
+src-tauri/tests/fixtures/*.bin binary linguist-generated=true
+*.wledgraph linguist-language=JSON

@@ -1,0 +1,82 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "5": "o"
+      },
+      "frame": {
+        "45": "n",
+        "46": "n",
+        "47": "n",
+        "48": "n",
+        "49": "n",
+        "50": "n",
+        "51": "n",
+        "52": "n",
+        "53": "n"
+      }
+    },
+    "frame": {
+      "texels": 1,
+      "probes": []
+    },
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {
+        "n": {
+          "count": {
+            "type": "float",
+            "dim": 1,
+            "offset": 0,
+            "kind": "clockDivider"
+          },
+          "triggerHigh": {
+            "type": "float",
+            "dim": 1,
+            "offset": 1,
+            "kind": "clockDivider"
+          },
+          "resetHigh": {
+            "type": "float",
+            "dim": 1,
+            "offset": 2,
+            "kind": "clockDivider"
+          }
+        },
+        "n:trigger": {
+          "trigger": {
+            "type": "float",
+            "dim": 1,
+            "offset": 3,
+            "kind": "clockDivider"
+          }
+        }
+      }
+    }
+  },
+  "usermod": {
+    "issues": []
+  },
+  "standalone": {
+    "issues": [
+      {
+        "nodeId": "n",
+        "message": "Clock Divider keeps no memory in the exported shader: its state starts from 0 on every pixel of every frame"
+      }
+    ]
+  }
+}

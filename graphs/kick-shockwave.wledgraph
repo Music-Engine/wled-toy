@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "song",
@@ -835,8 +834,8 @@
       {
         "id": "e-song-audio-audio-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -846,8 +845,8 @@
       {
         "id": "e-audio-kick-kickGate-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kickGate",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -857,8 +856,8 @@
       {
         "id": "e-audio-presence-snareGate-signal",
         "source": "audio",
-        "sourceHandle": "presence",
         "target": "snareGate",
+        "sourceHandle": "presence",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -868,8 +867,8 @@
       {
         "id": "e-audio-vocal-padEnv-signal",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "padEnv",
+        "sourceHandle": "vocal",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -879,8 +878,8 @@
       {
         "id": "e-kickGate-gate-kickToggle-trigger",
         "source": "kickGate",
-        "sourceHandle": "gate",
         "target": "kickToggle",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -890,8 +889,8 @@
       {
         "id": "e-kickGate-gate-kickPunch-gate",
         "source": "kickGate",
-        "sourceHandle": "gate",
         "target": "kickPunch",
+        "sourceHandle": "gate",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -901,8 +900,8 @@
       {
         "id": "e-kickPunch-envelope-ringLead-value",
         "source": "kickPunch",
-        "sourceHandle": "envelope",
         "target": "ringLead",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -912,8 +911,8 @@
       {
         "id": "e-ringLead-result-ringMaskA-from",
         "source": "ringLead",
-        "sourceHandle": "result",
         "target": "ringMaskA",
+        "sourceHandle": "result",
         "targetHandle": "from",
         "style": {
           "stroke": "#a1a1a1",
@@ -923,8 +922,8 @@
       {
         "id": "e-ringLead-result-ringMaskB-from",
         "source": "ringLead",
-        "sourceHandle": "result",
         "target": "ringMaskB",
+        "sourceHandle": "result",
         "targetHandle": "from",
         "style": {
           "stroke": "#a1a1a1",
@@ -934,8 +933,8 @@
       {
         "id": "e-kickGate-gate-kickCounter-trigger",
         "source": "kickGate",
-        "sourceHandle": "gate",
         "target": "kickCounter",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -945,8 +944,8 @@
       {
         "id": "e-kickGate-gate-kickPresence-signal",
         "source": "kickGate",
-        "sourceHandle": "gate",
         "target": "kickPresence",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -956,8 +955,8 @@
       {
         "id": "e-audio-air-energySum-a",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "energySum",
+        "sourceHandle": "air",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -967,8 +966,8 @@
       {
         "id": "e-audio-vocal-energySum-b",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "energySum",
+        "sourceHandle": "vocal",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -978,8 +977,8 @@
       {
         "id": "e-energySum-result-energyEnv-signal",
         "source": "energySum",
-        "sourceHandle": "result",
         "target": "energyEnv",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -989,8 +988,8 @@
       {
         "id": "e-snareGate-gate-snareEnv-gate",
         "source": "snareGate",
-        "sourceHandle": "gate",
         "target": "snareEnv",
+        "sourceHandle": "gate",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1000,8 +999,8 @@
       {
         "id": "e-kickToggle-state-toggleInverse-b",
         "source": "kickToggle",
-        "sourceHandle": "state",
         "target": "toggleInverse",
+        "sourceHandle": "state",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1011,8 +1010,8 @@
       {
         "id": "e-kickCounter-count-hitRandom-seed",
         "source": "kickCounter",
-        "sourceHandle": "count",
         "target": "hitRandom",
+        "sourceHandle": "count",
         "targetHandle": "seed",
         "style": {
           "stroke": "#a1a1a1",
@@ -1022,8 +1021,8 @@
       {
         "id": "e-energyEnv-envelope-ringPower-value",
         "source": "energyEnv",
-        "sourceHandle": "envelope",
         "target": "ringPower",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1033,8 +1032,8 @@
       {
         "id": "e-energyEnv-envelope-ringThickness-value",
         "source": "energyEnv",
-        "sourceHandle": "envelope",
         "target": "ringThickness",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1044,8 +1043,8 @@
       {
         "id": "e-kickPresence-envelope-quietBoost-factor",
         "source": "kickPresence",
-        "sourceHandle": "envelope",
         "target": "quietBoost",
+        "sourceHandle": "envelope",
         "targetHandle": "factor",
         "style": {
           "stroke": "#a1a1a1",
@@ -1055,8 +1054,8 @@
       {
         "id": "e-snareEnv-envelope-snareReach-value",
         "source": "snareEnv",
-        "sourceHandle": "envelope",
         "target": "snareReach",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1066,8 +1065,8 @@
       {
         "id": "e-hitRandom-value-hitHue-a",
         "source": "hitRandom",
-        "sourceHandle": "value",
         "target": "hitHue",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1077,8 +1076,8 @@
       {
         "id": "e-hueScatter-value-hitHue-b",
         "source": "hueScatter",
-        "sourceHandle": "value",
         "target": "hitHue",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1088,8 +1087,8 @@
       {
         "id": "e-kickCounter-phase-hitHue-c",
         "source": "kickCounter",
-        "sourceHandle": "phase",
         "target": "hitHue",
+        "sourceHandle": "phase",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1099,8 +1098,8 @@
       {
         "id": "e-hitHue-result-hueHoldA-signal",
         "source": "hitHue",
-        "sourceHandle": "result",
         "target": "hueHoldA",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1110,8 +1109,8 @@
       {
         "id": "e-hitHue-result-hueHoldB-signal",
         "source": "hitHue",
-        "sourceHandle": "result",
         "target": "hueHoldB",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1121,8 +1120,8 @@
       {
         "id": "e-kickToggle-state-hueHoldA-trigger",
         "source": "kickToggle",
-        "sourceHandle": "state",
         "target": "hueHoldA",
+        "sourceHandle": "state",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -1132,8 +1131,8 @@
       {
         "id": "e-toggleInverse-result-hueHoldB-trigger",
         "source": "toggleInverse",
-        "sourceHandle": "result",
         "target": "hueHoldB",
+        "sourceHandle": "result",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -1143,8 +1142,8 @@
       {
         "id": "e-kickToggle-state-ringAgeA-reset",
         "source": "kickToggle",
-        "sourceHandle": "state",
         "target": "ringAgeA",
+        "sourceHandle": "state",
         "targetHandle": "reset",
         "style": {
           "stroke": "#a1a1a1",
@@ -1154,8 +1153,8 @@
       {
         "id": "e-toggleInverse-result-ringAgeB-reset",
         "source": "toggleInverse",
-        "sourceHandle": "result",
         "target": "ringAgeB",
+        "sourceHandle": "result",
         "targetHandle": "reset",
         "style": {
           "stroke": "#a1a1a1",
@@ -1165,8 +1164,8 @@
       {
         "id": "e-ringSpeed-value-ringAgeA-rate",
         "source": "ringSpeed",
-        "sourceHandle": "value",
         "target": "ringAgeA",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1176,8 +1175,8 @@
       {
         "id": "e-ringSpeed-value-ringAgeB-rate",
         "source": "ringSpeed",
-        "sourceHandle": "value",
         "target": "ringAgeB",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1187,8 +1186,8 @@
       {
         "id": "e-padEnv-envelope-baseLevel-value",
         "source": "padEnv",
-        "sourceHandle": "envelope",
         "target": "baseLevel",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1198,8 +1197,8 @@
       {
         "id": "e-breathWave-value-baseLevel-outHigh",
         "source": "breathWave",
-        "sourceHandle": "value",
         "target": "baseLevel",
+        "sourceHandle": "value",
         "targetHandle": "outHigh",
         "style": {
           "stroke": "#a1a1a1",
@@ -1209,8 +1208,8 @@
       {
         "id": "e-ringAgeA-value-ringDistA-a",
         "source": "ringAgeA",
-        "sourceHandle": "value",
         "target": "ringDistA",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1220,8 +1219,8 @@
       {
         "id": "e-polar-radius-ringDistA-b",
         "source": "polar",
-        "sourceHandle": "radius",
         "target": "ringDistA",
+        "sourceHandle": "radius",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1231,8 +1230,8 @@
       {
         "id": "e-ringAgeB-value-ringDistB-a",
         "source": "ringAgeB",
-        "sourceHandle": "value",
         "target": "ringDistB",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1242,8 +1241,8 @@
       {
         "id": "e-polar-radius-ringDistB-b",
         "source": "polar",
-        "sourceHandle": "radius",
         "target": "ringDistB",
+        "sourceHandle": "radius",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1253,8 +1252,8 @@
       {
         "id": "e-polar-radius-ringFalloff-value",
         "source": "polar",
-        "sourceHandle": "radius",
         "target": "ringFalloff",
+        "sourceHandle": "radius",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1264,8 +1263,8 @@
       {
         "id": "e-ringPower-result-ringFalloff-outLow",
         "source": "ringPower",
-        "sourceHandle": "result",
         "target": "ringFalloff",
+        "sourceHandle": "result",
         "targetHandle": "outLow",
         "style": {
           "stroke": "#a1a1a1",
@@ -1275,8 +1274,8 @@
       {
         "id": "e-polar-radius-baseRadial-a",
         "source": "polar",
-        "sourceHandle": "radius",
         "target": "baseRadial",
+        "sourceHandle": "radius",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1286,8 +1285,8 @@
       {
         "id": "e-baseDrift-value-baseRadial-b",
         "source": "baseDrift",
-        "sourceHandle": "value",
         "target": "baseRadial",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1297,8 +1296,8 @@
       {
         "id": "e-polar-angle-spokes-input",
         "source": "polar",
-        "sourceHandle": "angle",
         "target": "spokes",
+        "sourceHandle": "angle",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -1308,8 +1307,8 @@
       {
         "id": "e-spokeSpin-value-spokes-phase",
         "source": "spokeSpin",
-        "sourceHandle": "value",
         "target": "spokes",
+        "sourceHandle": "value",
         "targetHandle": "phase",
         "style": {
           "stroke": "#a1a1a1",
@@ -1319,8 +1318,8 @@
       {
         "id": "e-hueHoldA-value-ringColorA-a",
         "source": "hueHoldA",
-        "sourceHandle": "value",
         "target": "ringColorA",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1330,8 +1329,8 @@
       {
         "id": "e-hueHoldB-value-ringColorB-a",
         "source": "hueHoldB",
-        "sourceHandle": "value",
         "target": "ringColorB",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1341,8 +1340,8 @@
       {
         "id": "e-ringDistA-result-ringMaskA-value",
         "source": "ringDistA",
-        "sourceHandle": "result",
         "target": "ringMaskA",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1352,8 +1351,8 @@
       {
         "id": "e-ringDistB-result-ringMaskB-value",
         "source": "ringDistB",
-        "sourceHandle": "result",
         "target": "ringMaskB",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1363,8 +1362,8 @@
       {
         "id": "e-ringThickness-result-ringMaskA-to",
         "source": "ringThickness",
-        "sourceHandle": "result",
         "target": "ringMaskA",
+        "sourceHandle": "result",
         "targetHandle": "to",
         "style": {
           "stroke": "#a1a1a1",
@@ -1374,8 +1373,8 @@
       {
         "id": "e-ringThickness-result-ringMaskB-to",
         "source": "ringThickness",
-        "sourceHandle": "result",
         "target": "ringMaskB",
+        "sourceHandle": "result",
         "targetHandle": "to",
         "style": {
           "stroke": "#a1a1a1",
@@ -1385,8 +1384,8 @@
       {
         "id": "e-polar-radius-snareRim-value",
         "source": "polar",
-        "sourceHandle": "radius",
         "target": "snareRim",
+        "sourceHandle": "radius",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1396,8 +1395,8 @@
       {
         "id": "e-snareReach-result-snareRim-threshold",
         "source": "snareReach",
-        "sourceHandle": "result",
         "target": "snareRim",
+        "sourceHandle": "result",
         "targetHandle": "threshold",
         "style": {
           "stroke": "#a1a1a1",
@@ -1407,8 +1406,8 @@
       {
         "id": "e-spokes-value-snareRamp-fac",
         "source": "spokes",
-        "sourceHandle": "value",
         "target": "snareRamp",
+        "sourceHandle": "value",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1418,8 +1417,8 @@
       {
         "id": "e-baseRadial-result-baseNoise-vector",
         "source": "baseRadial",
-        "sourceHandle": "result",
         "target": "baseNoise",
+        "sourceHandle": "result",
         "targetHandle": "vector",
         "style": {
           "stroke": "#a1a1a1",
@@ -1429,8 +1428,8 @@
       {
         "id": "e-baseNoise-fac-baseRamp-fac",
         "source": "baseNoise",
-        "sourceHandle": "fac",
         "target": "baseRamp",
+        "sourceHandle": "fac",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1440,8 +1439,8 @@
       {
         "id": "e-baseRamp-color-baseLayer-layer",
         "source": "baseRamp",
-        "sourceHandle": "color",
         "target": "baseLayer",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1451,8 +1450,8 @@
       {
         "id": "e-baseLevel-result-baseLayer-opacity",
         "source": "baseLevel",
-        "sourceHandle": "result",
         "target": "baseLayer",
+        "sourceHandle": "result",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1462,8 +1461,8 @@
       {
         "id": "e-quietBoost-result-baseLayer-mask",
         "source": "quietBoost",
-        "sourceHandle": "result",
         "target": "baseLayer",
+        "sourceHandle": "result",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1473,8 +1472,8 @@
       {
         "id": "e-baseLayer-color-addRingA-base",
         "source": "baseLayer",
-        "sourceHandle": "color",
         "target": "addRingA",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1484,8 +1483,8 @@
       {
         "id": "e-ringColorA-color-addRingA-layer",
         "source": "ringColorA",
-        "sourceHandle": "color",
         "target": "addRingA",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1495,8 +1494,8 @@
       {
         "id": "e-ringFalloff-result-addRingA-opacity",
         "source": "ringFalloff",
-        "sourceHandle": "result",
         "target": "addRingA",
+        "sourceHandle": "result",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1506,8 +1505,8 @@
       {
         "id": "e-ringMaskA-mask-addRingA-mask",
         "source": "ringMaskA",
-        "sourceHandle": "mask",
         "target": "addRingA",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1517,8 +1516,8 @@
       {
         "id": "e-addRingA-color-addRingB-base",
         "source": "addRingA",
-        "sourceHandle": "color",
         "target": "addRingB",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1528,8 +1527,8 @@
       {
         "id": "e-ringColorB-color-addRingB-layer",
         "source": "ringColorB",
-        "sourceHandle": "color",
         "target": "addRingB",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1539,8 +1538,8 @@
       {
         "id": "e-ringFalloff-result-addRingB-opacity",
         "source": "ringFalloff",
-        "sourceHandle": "result",
         "target": "addRingB",
+        "sourceHandle": "result",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1550,8 +1549,8 @@
       {
         "id": "e-ringMaskB-mask-addRingB-mask",
         "source": "ringMaskB",
-        "sourceHandle": "mask",
         "target": "addRingB",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1561,8 +1560,8 @@
       {
         "id": "e-addRingB-color-addSnare-base",
         "source": "addRingB",
-        "sourceHandle": "color",
         "target": "addSnare",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1572,8 +1571,8 @@
       {
         "id": "e-snareRamp-color-addSnare-layer",
         "source": "snareRamp",
-        "sourceHandle": "color",
         "target": "addSnare",
+        "sourceHandle": "color",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1583,8 +1582,8 @@
       {
         "id": "e-snareRim-mask-addSnare-mask",
         "source": "snareRim",
-        "sourceHandle": "mask",
         "target": "addSnare",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1594,8 +1593,8 @@
       {
         "id": "e-addSnare-color-wake-color",
         "source": "addSnare",
-        "sourceHandle": "color",
         "target": "wake",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1605,8 +1604,8 @@
       {
         "id": "e-wakeDecay-value-wake-decay",
         "source": "wakeDecay",
-        "sourceHandle": "value",
         "target": "wake",
+        "sourceHandle": "value",
         "targetHandle": "decay",
         "style": {
           "stroke": "#a1a1a1",
@@ -1616,14 +1615,16 @@
       {
         "id": "e-wake-color-out-color",
         "source": "wake",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

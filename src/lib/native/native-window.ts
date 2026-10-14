@@ -1,6 +1,6 @@
 import { watchEffect } from 'vue'
 import { runCommand } from '@/lib/app/commands'
-import { activeDocument, documentSessions, documentTitle } from '@/lib/documents/document-session'
+import { activeDocument, documentSessions, documentTitle } from '@/lib/documents/sessions/document-session'
 import { workspace, type Mode } from '@/lib/app/workspace'
 
 /**

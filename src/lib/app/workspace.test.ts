@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 const stored = new Map<string, string>()
@@ -21,7 +21,11 @@ describe('sanitize', () => {
 
   it('the LED strip shows unless a stored layout hid it', async () => {
     const { sanitize } = await reload()
-    expect([sanitize({}).stripVisible, sanitize({ stripVisible: false }).stripVisible, sanitize({ stripVisible: 'no' }).stripVisible]).toEqual([true, false, true])
+    expect([sanitize({}).stripVisible, sanitize({ stripVisible: false }).stripVisible, sanitize({ stripVisible: 'no' }).stripVisible]).toEqual([
+      true,
+      false,
+      true,
+    ])
   })
 
   it('keeps a known preview view and falls back to the render for anything else', async () => {
@@ -36,12 +40,23 @@ describe('sanitize', () => {
       placement: { log: 'right', glsl: 'left', nonsense: 'bottom' },
       activeTab: { right: { graph: 'log', shader: 'nonsense', settings: 'log' }, bottom: 'log' },
     })
-    expect(layout.placement).toEqual({ parameters: 'right', output: 'right', inputs: 'right', problems: 'bottom', log: 'right', glsl: 'bottom', performance: 'bottom' })
+    expect(layout.placement).toEqual({
+      parameters: 'right',
+      output: 'right',
+      inputs: 'right',
+      problems: 'bottom',
+      log: 'right',
+      glsl: 'bottom',
+      performance: 'bottom',
+    })
     expect(layout.activeTab).toEqual({ right: { graph: 'log' }, bottom: {} })
   })
 })
 
 describe('persistence', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
   it('sizes, visibility, tab placement and tab choice come back after a reload; mode and problem count do not', async () => {
     const first = await reload()
     first.workspace.mode = 'graph'
@@ -53,6 +68,7 @@ describe('persistence', () => {
     first.workspace.dockVisible = false
     first.workspace.bottomVisible = true
     await nextTick()
+    vi.advanceTimersByTime(300)
 
     const second = await reload()
     expect(second.workspace).toMatchObject({ dockWidth: 420, bottomHeight: 300, dockVisible: false, bottomVisible: true, mode: 'shader', problemCount: 0 })
@@ -73,7 +89,41 @@ describe('persistence', () => {
     await nextTick()
     resetLayout()
     await nextTick()
+    vi.advanceTimersByTime(300)
     expect(JSON.parse(stored.get('wledtoy:workspace')!)).toMatchObject({ dockWidth: 360, placement: { log: 'bottom' } })
+  })
+
+  it('a dragged split handle writes the layout once when the drag pauses', async () => {
+    const { workspace } = await reload()
+    const setItem = vi.spyOn(localStorage, 'setItem')
+    for (let i = 0; i < 10; i++) {
+      workspace.dockWidth = 300 + i
+      await nextTick()
+      vi.advanceTimersByTime(20)
+    }
+    expect(setItem).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(300)
+    expect(setItem).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(stored.get('wledtoy:workspace')!).dockWidth).toBe(309)
+  })
+
+  it('a layout change still waiting for its write lands when the page hides', async () => {
+    const listeners = new Map<string, () => void>()
+    const page = globalThis as { window?: unknown }
+    page.window = { addEventListener: (type: string, listener: () => void) => listeners.set(type, listener) }
+    try {
+      const { workspace } = await reload()
+      const setItem = vi.spyOn(localStorage, 'setItem')
+      workspace.dockWidth = 333
+      await nextTick()
+      listeners.get('pagehide')!()
+      expect(setItem).toHaveBeenCalledTimes(1)
+      expect(JSON.parse(stored.get('wledtoy:workspace')!).dockWidth).toBe(333)
+      vi.advanceTimersByTime(300)
+      expect(setItem).toHaveBeenCalledTimes(1)
+    } finally {
+      delete page.window
+    }
   })
 })
 
@@ -82,11 +132,20 @@ describe('tabs', () => {
     const { workspace, visibleTabs } = await reload()
     const ids = (dock: 'right' | 'bottom') => visibleTabs(dock).map((tab) => tab.id)
     workspace.mode = 'shader'
-    expect([ids('right'), ids('bottom')]).toEqual([['output', 'inputs'], ['problems', 'log', 'performance']])
+    expect([ids('right'), ids('bottom')]).toEqual([
+      ['output', 'inputs'],
+      ['problems', 'log', 'performance'],
+    ])
     workspace.mode = 'graph'
-    expect([ids('right'), ids('bottom')]).toEqual([['parameters', 'output', 'inputs'], ['problems', 'log', 'glsl', 'performance']])
+    expect([ids('right'), ids('bottom')]).toEqual([
+      ['parameters', 'output', 'inputs'],
+      ['problems', 'log', 'glsl', 'performance'],
+    ])
     workspace.mode = 'reference'
-    expect([ids('right'), ids('bottom')]).toEqual([['output', 'inputs'], ['log', 'performance']])
+    expect([ids('right'), ids('bottom')]).toEqual([
+      ['output', 'inputs'],
+      ['log', 'performance'],
+    ])
   })
 
   it('each mode remembers its own tab, and a remembered tab that is not showing yields the first one', async () => {

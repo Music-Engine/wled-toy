@@ -182,7 +182,7 @@ describe('Analyzer', () => {
     const onsets: number[] = []
     run(clicks(120, 6), (f, time) => f.onset && time > 1 && onsets.push(time))
     expect(onsets.length).toBeGreaterThanOrEqual(9)
-    expect(onsets.every((t) => (t % 0.5) < 0.08)).toBe(true)
+    expect(onsets.every((t) => t % 0.5 < 0.08)).toBe(true)
   })
 
   it('gives the same band picture for a loud and a quiet copy of the same sound', () => {

@@ -1,11 +1,15 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { gradientTextureChunk } from '@/lib/graph/compile/glsl/gradient-texture'
-import { Color, Enum, Float, enumIndex } from '@/lib/graph/define/types'
-import { textureVector } from './vector'
+import { Color, defineNode, Enum, toEnumIndex, Float } from '@/lib/graph/authoring'
+import { textureVector } from '@/lib/graph/nodes/shared/sockets'
+import { gradientTextureChunk } from './chunks/gradient-texture-chunk'
 
 const TYPES = [
-  { value: 'linear', label: 'Linear' }, { value: 'quadratic', label: 'Quadratic' }, { value: 'easing', label: 'Easing' }, { value: 'diagonal', label: 'Diagonal' },
-  { value: 'radial', label: 'Radial' }, { value: 'spherical', label: 'Spherical' }, { value: 'quadraticSphere', label: 'Quadratic Sphere' },
+  { value: 'linear', label: 'Linear' },
+  { value: 'quadratic', label: 'Quadratic' },
+  { value: 'easing', label: 'Easing' },
+  { value: 'diagonal', label: 'Diagonal' },
+  { value: 'radial', label: 'Radial' },
+  { value: 'spherical', label: 'Spherical' },
+  { value: 'quadraticSphere', label: 'Quadratic Sphere' },
 ] as const
 
 export const gradientTextureNode = defineNode('gradientTexture', {
@@ -14,9 +18,9 @@ export const gradientTextureNode = defineNode('gradientTexture', {
   category: 'noise',
   includes: [gradientTextureChunk],
   input: {
-    type: { type: Enum(TYPES), label: '', connectable: false, props: { label: 'Gradient' } },
+    type: { type: Enum(TYPES), label: '', linkable: false, props: { label: 'Gradient' } },
     vector: textureVector,
   },
   output: { fac: Float, color: Color },
-  exec: ({ type, vector }, ctx) => ctx.call('gradient_texture', [vector.expr, enumIndex(TYPES, type)], { fac: 'float', color: 'vec3' }),
+  body: ({ type, vector }, ctx) => ctx.call('gradient_texture', [vector.expr, toEnumIndex(TYPES, type)], { fac: 'float', color: 'vec3' }),
 })

@@ -18,7 +18,10 @@ describe('DDP', () => {
 describe('WLED DNRGB', () => {
   it('addresses each packet by its first LED', () => {
     const packets = buildDnrgbPackets(pixels(500))
-    expect(packets.map((p) => [p[0], p[1], p.readUInt16BE(2), p.length])).toEqual([[4, 2, 0, 4 + 489 * 3], [4, 2, 489, 4 + 11 * 3]])
+    expect(packets.map((p) => [p[0], p[1], p.readUInt16BE(2), p.length])).toEqual([
+      [4, 2, 0, 4 + 489 * 3],
+      [4, 2, 489, 4 + 11 * 3],
+    ])
   })
 })
 
@@ -82,8 +85,16 @@ describe('sACN (E1.31)', () => {
 
 describe('OSC', () => {
   const pad = (text: string) => Buffer.concat([Buffer.from(text), Buffer.alloc(4 - (text.length % 4))])
-  const float = (v: number) => { const b = Buffer.alloc(4); b.writeFloatBE(v); return b }
-  const int = (v: number) => { const b = Buffer.alloc(4); b.writeInt32BE(v); return b }
+  const float = (v: number) => {
+    const b = Buffer.alloc(4)
+    b.writeFloatBE(v)
+    return b
+  }
+  const int = (v: number) => {
+    const b = Buffer.alloc(4)
+    b.writeInt32BE(v)
+    return b
+  }
   const message = (address: string, tags: string, ...args: Buffer[]) => Buffer.concat([pad(address), pad(`,${tags}`), ...args])
 
   it('reads ints, floats, strings and booleans', () => {
@@ -95,7 +106,10 @@ describe('OSC', () => {
     const element = (m: Buffer) => Buffer.concat([int(m.length), m])
     const bundle = (...messages: Buffer[]) => Buffer.concat([pad('#bundle'), Buffer.alloc(8), ...messages.map(element)])
     const packet = bundle(message('/a', 'f', float(1)), bundle(message('/b', 'i', int(2))))
-    expect(parseOsc(packet)).toEqual([{ address: '/a', args: [1] }, { address: '/b', args: [2] }])
+    expect(parseOsc(packet)).toEqual([
+      { address: '/a', args: [1] },
+      { address: '/b', args: [2] },
+    ])
   })
 
   it('yields nothing for a packet that is not an OSC message, and throws on a truncated one (the listener drops both)', () => {

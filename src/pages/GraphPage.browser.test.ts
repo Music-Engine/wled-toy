@@ -1,15 +1,16 @@
 import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h } from 'vue'
 import GraphPage from './GraphPage.vue'
-import TitleBar from '@/components/shell/TitleBar.vue'
-import { commands, runCommand } from '@/lib/app/commands'
-import { config } from '@/lib/app/config'
-import type { FileBackend } from '@/lib/documents/documents'
-import { createDefaultGraph, type GraphDoc } from '@/lib/graph'
+import TitleBar from '@/features/shell/TitleBar.vue'
+import { commandTitle, commands, runCommand } from '@/lib/app/commands'
+import { config } from '@/lib/app/settings/config'
+import type { FileBackend } from '@/lib/documents/files/file-backends'
+import { DocumentError } from '@/lib/documents/document-error'
+import { createDefaultGraph, type NodeGraph } from '@/lib/graph'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
+import { readGraphFile, serializeGraphFile } from '@/lib/graph/model/file'
 import { logs } from '@/lib/app/logs'
-import { preferences, resetPreferences } from '@/lib/app/preferences'
+import { preferences, resetPreferences } from '@/lib/app/settings/preferences'
 import { workspace } from '@/lib/app/workspace'
 import sampleFile from '../../graphs/high-contrast-music.wledgraph?raw'
 
@@ -18,12 +19,17 @@ function fakeDisk(files: Record<string, string>) {
   const dialog = { pick: null as string | null }
   const backend: Required<FileBackend> = {
     open: async () => (dialog.pick === null ? null : { handle: { name: dialog.pick }, text: files[dialog.pick] }),
-    save: async (handle, text) => { files[handle.name] = text },
+    save: async (handle, text) => {
+      files[handle.name] = text
+    },
     saveAs: async (text, suggestedName) => {
       files[suggestedName] = text
       return { handle: { name: suggestedName }, text }
     },
-    reopen: async (name) => (name in files ? { handle: { name }, text: files[name] } : null),
+    reopen: async (name) => {
+      if (!(name in files)) throw new DocumentError('file-gone', 'it was deleted')
+      return { handle: { name }, text: files[name] }
+    },
   }
   return { files, dialog, backend }
 }
@@ -38,7 +44,10 @@ function mount(backend: FileBackend) {
   // Nuxt UI and the router are not installed here; the page's own buttons render as unknown elements
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
 }
 
 const clearStored = () => ['wledtoy:graph:recent', 'wledtoy:graph:recovery'].forEach((key) => localStorage.removeItem(key))
@@ -66,11 +75,11 @@ const dialog = () => document.querySelector<HTMLElement>('.graph-document-dialog
 const choose = (choice: string) => dialog()!.querySelector<HTMLButtonElement>(`[data-choice="${choice}"]`)!.click()
 const recentIds = () => commands.value.filter((command) => command.id.startsWith('file.recent.')).map((command) => command.id)
 
-const sample = parseGraphFile(sampleFile)
+const sample = readGraphFile(sampleFile).doc
 const defaultNodes = createDefaultGraph().nodes.length
 
 /** What another tab's save or an import does to this editor: the working copy changes under it. */
-function editFromOutside(doc: GraphDoc): GraphDoc {
+function editFromOutside(doc: NodeGraph): NodeGraph {
   const edited = { ...doc, nodes: doc.nodes.map((n, i) => (i === 0 ? { ...n, position: { x: n.position.x + 75, y: n.position.y + 25 } } : n)) }
   config.graph = edited
   return edited
@@ -111,8 +120,8 @@ it('opens a file, marks an edit, and saves the edit back into the file', async (
 
   runCommand('file.save')
   await expect.poll(titleBarText).toBe('music.wledgraph')
-  expect(parseGraphFile(disk.files['music.wledgraph']).nodes[0].position).toEqual(edited.nodes[0].position)
-  expect(parseGraphFile(disk.files['music.wledgraph']).edges).toHaveLength(sample.edges.length)
+  expect(readGraphFile(disk.files['music.wledgraph']).doc.nodes[0].position).toEqual(edited.nodes[0].position)
+  expect(readGraphFile(disk.files['music.wledgraph']).doc.edges).toHaveLength(sample.edges.length)
 })
 
 it('Save on an Untitled document goes through Save As and names the document', async () => {
@@ -121,8 +130,8 @@ it('Save on an Untitled document goes through Save As and names the document', a
   await expect.poll(titleBarText).toBe('Untitled')
   runCommand('file.save')
   await expect.poll(titleBarText).toBe('graph.wledgraph')
-  expect(parseGraphFile(disk.files['graph.wledgraph']).nodes).toHaveLength(defaultNodes)
-  expect(parseGraphFile(disk.files['graph.wledgraph']).edges).toHaveLength(createDefaultGraph().edges.length)
+  expect(readGraphFile(disk.files['graph.wledgraph']).doc.nodes).toHaveLength(defaultNodes)
+  expect(readGraphFile(disk.files['graph.wledgraph']).doc.edges).toHaveLength(createDefaultGraph().edges.length)
 })
 
 it('Revert asks, then goes back to the last save', async () => {
@@ -150,10 +159,12 @@ it('rejects a file of another version: logged, and the editor keeps its graph an
 
   await openFile(disk, 'old.wledgraph')
   // the engine logs on its own schedule, so the entry is looked up rather than expected last
-  await expect.poll(() => logs.value.find((entry) => entry.message.startsWith('Open failed'))).toMatchObject({
-    level: 'error',
-    message: 'Open failed: This graph was saved by an older version (2); this app reads version 3.',
-  })
+  await expect
+    .poll(() => logs.value.find((entry) => entry.message.startsWith('Open failed')))
+    .toMatchObject({
+      level: 'error',
+      message: 'Open failed: This graph was saved by an older version (2); this app reads version 4.',
+    })
   expect(nodeCount()).toBe(defaultNodes)
   expect(titleBarText()).toBe('Untitled')
   expect(recentIds()).toEqual(['file.recent.none'])
@@ -181,7 +192,7 @@ it('asks before New replaces unsaved work: Cancel keeps it, Save stores it first
   choose('save')
   await expect.poll(titleBarText).toBe('Untitled')
   await expect.poll(nodeCount).toBe(defaultNodes)
-  expect(parseGraphFile(disk.files['music.wledgraph']).nodes[0].position).toEqual(edited.nodes[0].position)
+  expect(readGraphFile(disk.files['music.wledgraph']).doc.nodes[0].position).toEqual(edited.nodes[0].position)
 
   editFromOutside(createDefaultGraph())
   await expect.poll(titleBarText).toBe('Untitled · Edited')
@@ -214,13 +225,14 @@ it('lists files it can reopen under Open Recent, newest first, and reopens one',
   expect(recentIds()).toEqual(['file.recent.music.wledgraph', 'file.recent.graph.wledgraph'])
 })
 
-it('offers no recent files when the backend cannot reopen one', async () => {
+it('offers no recent files when the backend cannot reopen one, even after a save', async () => {
   const { reopen: _, ...backend } = fakeDisk({}).backend
   mount(backend)
   await expect.poll(titleBarText).toBe('Untitled')
   runCommand('file.save')
   await expect.poll(titleBarText).toBe('graph.wledgraph')
   expect(recentIds()).toEqual(['file.recent.none'])
+  expect(commandTitle(commands.value.find((command) => command.id === 'file.recent.none')!)).toBe('Not Available in This Browser')
 })
 
 it('guards the unload only while there is unsaved work', async () => {

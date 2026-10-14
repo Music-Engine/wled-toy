@@ -1,4 +1,4 @@
-import { EXAMPLE } from './glsl'
+import { EXAMPLE } from './example'
 
 export interface ShaderExample {
   name: string

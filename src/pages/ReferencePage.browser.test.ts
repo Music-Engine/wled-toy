@@ -1,16 +1,22 @@
 import { afterEach, expect, it } from 'vitest'
 import { KeepAlive, createApp, h, nextTick } from 'vue'
 import ReferencePage from './ReferencePage.vue'
-import { setClipboardWriter } from '@/lib/app/clipboard'
-import { CATEGORIES, NODES } from '@/lib/shader/glsl'
+import { setClipboardWriter } from '@/lib/app/files/clipboard'
+import { installKeyDispatcher, isMac } from '@/lib/app/commands'
+import { workspace } from '@/lib/app/workspace'
+import { CATEGORIES, NODES } from '@/lib/shader/catalog'
 
 let unmount: (() => void) | undefined
 afterEach(() => {
   unmount?.()
-  setClipboardWriter((text) => { void navigator.clipboard.writeText(text) })
+  workspace.mode = 'shader'
+  setClipboardWriter((text) => {
+    void navigator.clipboard.writeText(text)
+  })
 })
 
 function mount() {
+  workspace.mode = 'reference'
   const root = document.createElement('div')
   root.style.height = '600px'
   document.body.append(root)
@@ -18,7 +24,12 @@ function mount() {
   // Nuxt UI is not installed here; ReferencePage uses only native elements plus GlslCode, CommandScope and the reference components, none of which needs it
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  const removeKeys = installKeyDispatcher()
+  unmount = () => {
+    removeKeys()
+    app.unmount()
+    root.remove()
+  }
   return root
 }
 
@@ -26,6 +37,7 @@ function press(target: EventTarget, key: string, init: KeyboardEventInit = {}) {
   target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }))
 }
 
+const mod = isMac() ? { metaKey: true } : { ctrlKey: true }
 const search = (root: HTMLElement) => root.querySelector<HTMLInputElement>('input')!
 const categoryOptions = (root: HTMLElement) => [...root.querySelectorAll<HTMLButtonElement>('[role="option"]')]
 const entryNames = (root: HTMLElement) => [...root.querySelectorAll<HTMLElement>('[data-entry]')].map((el) => el.dataset.entry)
@@ -47,7 +59,9 @@ it('groups entries under one section header per category that has entries, in ca
   expect(headers.every((h) => h.classList.contains('sticky'))).toBe(true)
 
   const audio = root.querySelector('section[aria-label="Audio"]')!
-  expect([...audio.querySelectorAll<HTMLElement>('[data-entry]')].map((el) => el.dataset.entry)).toEqual(NODES.filter((n) => n.category === 'audio').map((n) => n.name))
+  expect([...audio.querySelectorAll<HTMLElement>('[data-entry]')].map((el) => el.dataset.entry)).toEqual(
+    NODES.filter((n) => n.category === 'audio').map((n) => n.name),
+  )
   expect(categoryOptions(root).some((el) => el.textContent!.includes('Converter'))).toBe(false)
 })
 
@@ -104,7 +118,9 @@ it('search highlights the match in the title, the name and the description', asy
 
 it('an empty result names the query and offers the way out', async () => {
   const root = mount()
-  categoryOptions(root).find((el) => el.textContent!.includes('Color'))!.click()
+  categoryOptions(root)
+    .find((el) => el.textContent!.includes('Color'))!
+    .click()
   const input = search(root)
   input.value = 'fftlog'
   input.dispatchEvent(new Event('input'))
@@ -195,7 +211,9 @@ it('the on this page index lists every visible entry and jumps to the one clicke
 it('the Copy action on a row writes the signature through the injected clipboard writer', async () => {
   const root = mount()
   const written: string[] = []
-  setClipboardWriter((text) => { written.push(text) })
+  setClipboardWriter((text) => {
+    written.push(text)
+  })
 
   const row = root.querySelector<HTMLElement>('[data-entry="bass"]')!
   row.querySelector<HTMLButtonElement>('button')!.click()
@@ -207,7 +225,9 @@ it('the Copy action on a row writes the signature through the injected clipboard
 it('Enter on a focused row copies it, and Cmd/Ctrl+C copies whichever row has focus', async () => {
   const root = mount()
   const written: string[] = []
-  setClipboardWriter((text) => { written.push(text) })
+  setClipboardWriter((text) => {
+    written.push(text)
+  })
 
   const row = root.querySelector<HTMLElement>('[data-entry="bass"]')!
   row.focus()
@@ -222,7 +242,7 @@ it('Enter on a focused row copies it, and Cmd/Ctrl+C copies whichever row has fo
   expect(written).toEqual([node.signature])
 
   // the key still bubbles from whichever row the browser has focused, not from window itself
-  press(row, 'c', { metaKey: true })
+  press(row, 'c', mod)
   await nextTick()
   expect(written).toEqual([node.signature, node.signature])
 })
@@ -230,10 +250,12 @@ it('Enter on a focused row copies it, and Cmd/Ctrl+C copies whichever row has fo
 it('Cmd/Ctrl+C is left alone when nothing reference-specific has focus', async () => {
   const root = mount()
   const written: string[] = []
-  setClipboardWriter((text) => { written.push(text) })
+  setClipboardWriter((text) => {
+    written.push(text)
+  })
   const input = search(root)
   input.focus()
-  press(input, 'c', { metaKey: true })
+  press(input, 'c', mod)
   await nextTick()
   expect(written).toEqual([])
 })

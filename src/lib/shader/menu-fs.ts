@@ -55,8 +55,11 @@ export interface MenuRow<T> {
   path: string[]
 }
 
-export const directory = <T>(title: string, items: MenuItem<T>[], options: Pick<MenuDirectory<T>, 'description' | 'icon' | 'color'> = {}): MenuDirectory<T> =>
-  ({ type: 'directory', title, items, ...options })
+export const directory = <T>(
+  title: string,
+  items: MenuItem<T>[],
+  options: Pick<MenuDirectory<T>, 'description' | 'icon' | 'color'> = {},
+): MenuDirectory<T> => ({ type: 'directory', title, items, ...options })
 export const leaf = <T>(node: T, preset?: MenuPreset): MenuNode<T> => ({ type: 'node', node, ...(preset && { preset }) })
 export const separator: MenuSeparator = { type: 'separator' }
 

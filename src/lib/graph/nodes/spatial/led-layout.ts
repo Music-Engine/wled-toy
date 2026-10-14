@@ -1,11 +1,11 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float, Vec2, Vec3 } from '@/lib/graph/define/types'
-import { swizzle } from '@/lib/graph/define/value'
+import { defineNode, Float, swizzle, Vec2, Vec3 } from '@/lib/graph/authoring'
 
 export const ledLayoutNode = defineNode('ledLayout', {
   title: 'LED Layout',
-  description: 'Where the LED being shaded physically is, from the layout in Settings: a strip, ring, matrix or measured points. In the 2D preview it is the pixel position.',
+  description:
+    'Where the LED being shaded physically is, from the layout in Settings: a strip, ring, matrix or measured points. In the 2D preview it is the pixel position.',
   category: 'input',
+  varies: 'pixel',
   input: {},
   output: {
     position: Vec3,
@@ -14,7 +14,7 @@ export const ledLayoutNode = defineNode('ledLayout', {
     fraction: { type: Float, label: 'Index 0 to 1' },
     segment: Float,
   },
-  exec: (_, ctx) => {
+  body: (_, ctx) => {
     const led = ctx.declare('vec4', 'ledLayout(ledIndex)')
     return {
       position: swizzle(led, 'xyz'),

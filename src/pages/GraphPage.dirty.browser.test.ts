@@ -3,12 +3,12 @@ import { afterEach, beforeEach, expect, it } from 'vitest'
 import { createApp, h } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
-import TitleBar from '@/components/shell/TitleBar.vue'
+import TitleBar from '@/features/shell/TitleBar.vue'
 import { runCommand } from '@/lib/app/commands'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { activeGraphDocument, graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile } from '@/lib/graph/model/file'
-import { preferences, resetPreferences } from '@/lib/app/preferences'
+import { readGraphFile } from '@/lib/graph/model/file'
+import { preferences, resetPreferences } from '@/lib/app/settings/preferences'
 import { workspace } from '@/lib/app/workspace'
 import type { GraphNodeData } from '@/lib/graph'
 
@@ -16,7 +16,9 @@ const FLOW_ID = 'wledtoy-graph'
 const files: Record<string, string> = {}
 const backend = {
   open: async () => null,
-  save: async (handle: { name: string }, text: string) => { files[handle.name] = text },
+  save: async (handle: { name: string }, text: string) => {
+    files[handle.name] = text
+  },
   saveAs: async (text: string, suggestedName: string) => {
     files[suggestedName] = text
     return { handle: { name: suggestedName }, text }
@@ -32,7 +34,10 @@ function mount() {
   app.provide(graphFileBackendKey, backend)
   app.config.warnHandler = () => undefined
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
 }
 
 const dirty = () => !!activeGraphDocument.value?.store.dirty.value
@@ -103,5 +108,5 @@ it('a save after an edit stores the edit, and the working copy survives a pagehi
 
   runCommand('file.save')
   await expect.poll(dirty).toBe(false)
-  expect(parseGraphFile(files['graph.wledgraph']).nodes.find((n) => n.id === node.id)!.data!.values[name]).toBe(42.5)
+  expect(readGraphFile(files['graph.wledgraph']).doc.nodes.find((n) => n.id === node.id)!.data!.values[name]).toBe(42.5)
 })

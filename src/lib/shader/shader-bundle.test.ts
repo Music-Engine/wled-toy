@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PRELUDE } from './glsl'
+import { PRELUDE } from './prelude'
 import { UNIFORM_CONTRACT, bundleShader } from './shader-bundle'
 
 const shader = (body: string) => `void mainImage(out vec4 c, vec2 uv, float ledIndex) {\n  ${body}\n}`

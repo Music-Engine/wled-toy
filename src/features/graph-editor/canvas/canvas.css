@@ -1,0 +1,40 @@
+.vue-flow__edge-path {
+  stroke-width: 2;
+}
+
+.vue-flow__edge.selected .vue-flow__edge-path {
+  filter: drop-shadow(0 0 3px var(--ui-primary));
+}
+
+.vue-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: calc(var(--ui-radius) * 2);
+  box-shadow: none;
+}
+
+.vue-flow__controls-button {
+  background: var(--ui-bg-elevated);
+  border-bottom-color: var(--ui-border);
+  color: var(--ui-text);
+}
+
+.vue-flow__controls-button:hover {
+  background: var(--ui-bg-accented);
+}
+
+.vue-flow__controls-button svg {
+  fill: currentColor;
+}
+
+.vue-flow__minimap {
+  overflow: hidden;
+  background: var(--ui-bg-elevated);
+  border: 1px solid var(--ui-border);
+  border-radius: calc(var(--ui-radius) * 2);
+}
+
+.is-grabbing,
+.is-grabbing * {
+  cursor: move !important;
+}
