@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { defineNode, Float, floatLiteral } from '@/lib/graph/authoring'
 
 export const valueNode = defineNode('value', {
   title: 'Value',
@@ -7,8 +6,8 @@ export const valueNode = defineNode('value', {
   category: 'input',
   signature: 'float value',
   input: {
-    value: { type: Float, label: 'Value', default: 0.5, connectable: false },
+    value: { type: Float, label: 'Value', default: 0.5, linkable: false },
   },
   output: { value: Float },
-  exec: ({ value }) => ({ value: Float.literal(value) }),
+  body: ({ value }) => ({ value: floatLiteral(value) }),
 })

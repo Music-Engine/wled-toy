@@ -1,5 +1,4 @@
-import { defineNode } from '@/lib/graph/define/define'
-import { Float } from '@/lib/graph/define/types'
+import { defineNode, Float } from '@/lib/graph/authoring'
 
 export const randomNode = defineNode('random', {
   title: 'Random',
@@ -7,10 +6,5 @@ export const randomNode = defineNode('random', {
   category: 'converter',
   input: { seed: { type: Float, default: { expr: 'ledIndex', label: 'LED index' } } },
   output: { value: Float },
-  exec: ({ seed }, ctx) => ({ value: ctx.declare('float', `fract(sin(${seed.expr} * 127.1 + 311.7) * 43758.5453)`) }),
-  // float32 in the shader and float64 here round differently, so the two sides agree in distribution, not digit for digit
-  run: ({ seed }) => {
-    const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453
-    return { value: x - Math.floor(x) }
-  },
+  body: ({ seed }, ctx) => ({ value: ctx.declare('float', `fract(sin(${seed.expr} * 127.1 + 311.7) * 43758.5453)`) }),
 })

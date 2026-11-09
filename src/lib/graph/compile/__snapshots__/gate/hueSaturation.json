@@ -1,0 +1,37 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {},
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "96": "n",
+        "97": "n",
+        "98": "o"
+      },
+      "frame": {}
+    },
+    "frame": null,
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": []
+  },
+  "standalone": {
+    "issues": []
+  }
+}

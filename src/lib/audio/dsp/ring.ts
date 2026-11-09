@@ -4,7 +4,10 @@ export class RingRows {
   /** Row that will be written next; the newest row is the one before it. */
   head = 0
 
-  constructor(readonly width: number, readonly rows: number) {
+  constructor(
+    readonly width: number,
+    readonly rows: number,
+  ) {
     this.data = new Float32Array(width * rows)
   }
 

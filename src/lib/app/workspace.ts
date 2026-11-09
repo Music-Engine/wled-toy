@@ -1,4 +1,5 @@
 import { reactive, ref, watch } from 'vue'
+import { loadStored } from '@/lib/app/settings/storage'
 
 export type DockId = 'right' | 'bottom'
 export type Mode = 'shader' | 'graph' | 'reference'
@@ -75,7 +76,7 @@ export function sanitize(raw: unknown): Layout {
   const src = record(raw)
   const out = defaults()
   const size = (value: unknown, { min, max, initial }: { min: number; max: number; initial: number }) =>
-    (typeof value === 'number' && Number.isFinite(value) ? Math.round(Math.min(max, Math.max(min, value))) : initial)
+    typeof value === 'number' && Number.isFinite(value) ? Math.round(Math.min(max, Math.max(min, value))) : initial
   out.dockWidth = size(src.dockWidth, DOCK_SIZES.right)
   out.bottomHeight = size(src.bottomHeight, DOCK_SIZES.bottom)
   if (typeof src.dockVisible === 'boolean') out.dockVisible = src.dockVisible
@@ -93,24 +94,50 @@ export function sanitize(raw: unknown): Layout {
   return out
 }
 
-function load(): Layout {
-  try {
-    return sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}'))
-  } catch {
-    return defaults()
-  }
-}
-
 /** `mode` and `problemCount` are runtime only: the shell sets the mode, the active page's ProblemsList the count. */
-export const workspace = reactive({ ...load(), mode: 'shader' as Mode, problemCount: 0 })
+export const workspace = reactive({ ...loadStored(STORAGE_KEY, 'your panel layout', sanitize, defaults()), mode: 'shader' as Mode, problemCount: 0 })
 
-watch(() => {
-  const { mode, problemCount, ...layout } = workspace
-  return JSON.stringify(layout)
-}, (serialized) => localStorage.setItem(STORAGE_KEY, serialized))
+let saveTimer: ReturnType<typeof setTimeout> | undefined
+let unsaved: string | null = null
+function saveLayout() {
+  clearTimeout(saveTimer)
+  if (unsaved === null) return
+  localStorage.setItem(STORAGE_KEY, unsaved)
+  unsaved = null
+}
+watch(
+  () => {
+    const { mode, problemCount, ...layout } = workspace
+    return JSON.stringify(layout)
+  },
+  (serialized) => {
+    // dragging a split handle changes the layout per pointer move; one write per pause is enough
+    unsaved = serialized
+    clearTimeout(saveTimer)
+    saveTimer = setTimeout(saveLayout, 300)
+  },
+)
+if (typeof window !== 'undefined') window.addEventListener('pagehide', saveLayout)
 
 export function resetLayout() {
   Object.assign(workspace, defaults())
+}
+
+// in memory only: the layout that is saved is the maximized one, so a reload stays maximized with nothing to restore
+const beforeMaximize = ref<Pick<Layout, 'dockVisible' | 'bottomVisible' | 'stripVisible'> | null>(null)
+
+export const isMaximized = () => beforeMaximize.value !== null
+
+/** Hides every panel around the editor, or brings back the ones the last maximize hid. */
+export function toggleMaximize() {
+  if (beforeMaximize.value) {
+    Object.assign(workspace, beforeMaximize.value)
+    beforeMaximize.value = null
+    return
+  }
+  const { dockVisible, bottomVisible, stripVisible } = workspace
+  beforeMaximize.value = { dockVisible, bottomVisible, stripVisible }
+  Object.assign(workspace, { dockVisible: false, bottomVisible: false, stripVisible: false })
 }
 
 /** The tabs a dock shows in the current mode, in `DOCK_TABS` order. */
@@ -121,7 +148,7 @@ export const visibleTabs = (dock: DockId) =>
 export function activeTab(dock: DockId): TabId | null {
   const tabs = visibleTabs(dock)
   const stored = workspace.activeTab[dock][workspace.mode]
-  return tabs.some((tab) => tab.id === stored) ? stored! : tabs[0]?.id ?? null
+  return tabs.some((tab) => tab.id === stored) ? stored! : (tabs[0]?.id ?? null)
 }
 
 export function selectTab(id: TabId) {

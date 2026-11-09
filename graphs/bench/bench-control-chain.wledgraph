@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "source",
@@ -5116,8 +5115,8 @@
       {
         "id": "e-source-audio-audio-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -5127,8 +5126,8 @@
       {
         "id": "e-audio-level-c0s0-signal",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "c0s0",
+        "sourceHandle": "level",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5138,8 +5137,8 @@
       {
         "id": "e-c0s0-envelope-c0s1-signal",
         "source": "c0s0",
-        "sourceHandle": "envelope",
         "target": "c0s1",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5149,8 +5148,8 @@
       {
         "id": "e-c0s1-value-c0s2-a",
         "source": "c0s1",
-        "sourceHandle": "value",
         "target": "c0s2",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5160,8 +5159,8 @@
       {
         "id": "e-c0s2-result-c0s3-input",
         "source": "c0s2",
-        "sourceHandle": "result",
         "target": "c0s3",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -5171,8 +5170,8 @@
       {
         "id": "e-c0s3-value-c0s4-signal",
         "source": "c0s3",
-        "sourceHandle": "value",
         "target": "c0s4",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5182,8 +5181,8 @@
       {
         "id": "e-c0s4-peak-c0s5-value",
         "source": "c0s4",
-        "sourceHandle": "peak",
         "target": "c0s5",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5193,8 +5192,8 @@
       {
         "id": "e-c0s5-result-c0s6-value",
         "source": "c0s5",
-        "sourceHandle": "result",
         "target": "c0s6",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5204,8 +5203,8 @@
       {
         "id": "e-c0s6-result-c0s7-signal",
         "source": "c0s6",
-        "sourceHandle": "result",
         "target": "c0s7",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5215,8 +5214,8 @@
       {
         "id": "e-c0s7-gate-c0s8-trigger",
         "source": "c0s7",
-        "sourceHandle": "gate",
         "target": "c0s8",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5226,8 +5225,8 @@
       {
         "id": "e-c0s7-gate-c0s8-signal",
         "source": "c0s7",
-        "sourceHandle": "gate",
         "target": "c0s8",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5237,8 +5236,8 @@
       {
         "id": "e-c0s8-value-c0s9-trigger",
         "source": "c0s8",
-        "sourceHandle": "value",
         "target": "c0s9",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5248,8 +5247,8 @@
       {
         "id": "e-c0s9-phase-c0s10-trigger",
         "source": "c0s9",
-        "sourceHandle": "phase",
         "target": "c0s10",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5259,8 +5258,8 @@
       {
         "id": "e-c0s10-value-c0s11-rate",
         "source": "c0s10",
-        "sourceHandle": "value",
         "target": "c0s11",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5270,8 +5269,8 @@
       {
         "id": "e-c0s11-value-c0s12-trigger",
         "source": "c0s11",
-        "sourceHandle": "value",
         "target": "c0s12",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5281,8 +5280,8 @@
       {
         "id": "e-c0s12-phase-c0s13-trigger",
         "source": "c0s12",
-        "sourceHandle": "phase",
         "target": "c0s13",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5292,8 +5291,8 @@
       {
         "id": "e-c0s13-state-c0s14-gate",
         "source": "c0s13",
-        "sourceHandle": "state",
         "target": "c0s14",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5303,8 +5302,8 @@
       {
         "id": "e-c0s14-envelope-c0s15-a",
         "source": "c0s14",
-        "sourceHandle": "envelope",
         "target": "c0s15",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5314,8 +5313,8 @@
       {
         "id": "e-audio-kick-c1s0-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "c1s0",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5325,8 +5324,8 @@
       {
         "id": "e-c1s0-value-c1s1-a",
         "source": "c1s0",
-        "sourceHandle": "value",
         "target": "c1s1",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5336,8 +5335,8 @@
       {
         "id": "e-c1s1-result-c1s2-input",
         "source": "c1s1",
-        "sourceHandle": "result",
         "target": "c1s2",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -5347,8 +5346,8 @@
       {
         "id": "e-c1s2-value-c1s3-signal",
         "source": "c1s2",
-        "sourceHandle": "value",
         "target": "c1s3",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5358,8 +5357,8 @@
       {
         "id": "e-c1s3-peak-c1s4-value",
         "source": "c1s3",
-        "sourceHandle": "peak",
         "target": "c1s4",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5369,8 +5368,8 @@
       {
         "id": "e-c1s4-result-c1s5-value",
         "source": "c1s4",
-        "sourceHandle": "result",
         "target": "c1s5",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5380,8 +5379,8 @@
       {
         "id": "e-c1s5-result-c1s6-signal",
         "source": "c1s5",
-        "sourceHandle": "result",
         "target": "c1s6",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5391,8 +5390,8 @@
       {
         "id": "e-c1s6-gate-c1s7-trigger",
         "source": "c1s6",
-        "sourceHandle": "gate",
         "target": "c1s7",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5402,8 +5401,8 @@
       {
         "id": "e-c1s6-gate-c1s7-signal",
         "source": "c1s6",
-        "sourceHandle": "gate",
         "target": "c1s7",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5413,8 +5412,8 @@
       {
         "id": "e-c1s7-value-c1s8-trigger",
         "source": "c1s7",
-        "sourceHandle": "value",
         "target": "c1s8",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5424,8 +5423,8 @@
       {
         "id": "e-c1s8-phase-c1s9-trigger",
         "source": "c1s8",
-        "sourceHandle": "phase",
         "target": "c1s9",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5435,8 +5434,8 @@
       {
         "id": "e-c1s9-value-c1s10-rate",
         "source": "c1s9",
-        "sourceHandle": "value",
         "target": "c1s10",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5446,8 +5445,8 @@
       {
         "id": "e-c1s10-value-c1s11-trigger",
         "source": "c1s10",
-        "sourceHandle": "value",
         "target": "c1s11",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5457,8 +5456,8 @@
       {
         "id": "e-c1s11-phase-c1s12-trigger",
         "source": "c1s11",
-        "sourceHandle": "phase",
         "target": "c1s12",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5468,8 +5467,8 @@
       {
         "id": "e-c1s12-state-c1s13-gate",
         "source": "c1s12",
-        "sourceHandle": "state",
         "target": "c1s13",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5479,8 +5478,8 @@
       {
         "id": "e-c1s13-envelope-c1s14-a",
         "source": "c1s13",
-        "sourceHandle": "envelope",
         "target": "c1s14",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5490,8 +5489,8 @@
       {
         "id": "e-c1s14-result-c1s15-signal",
         "source": "c1s14",
-        "sourceHandle": "result",
         "target": "c1s15",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5501,8 +5500,8 @@
       {
         "id": "e-audio-sub-c2s0-a",
         "source": "audio",
-        "sourceHandle": "sub",
         "target": "c2s0",
+        "sourceHandle": "sub",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5512,8 +5511,8 @@
       {
         "id": "e-c2s0-result-c2s1-input",
         "source": "c2s0",
-        "sourceHandle": "result",
         "target": "c2s1",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -5523,8 +5522,8 @@
       {
         "id": "e-c2s1-value-c2s2-signal",
         "source": "c2s1",
-        "sourceHandle": "value",
         "target": "c2s2",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5534,8 +5533,8 @@
       {
         "id": "e-c2s2-peak-c2s3-value",
         "source": "c2s2",
-        "sourceHandle": "peak",
         "target": "c2s3",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5545,8 +5544,8 @@
       {
         "id": "e-c2s3-result-c2s4-value",
         "source": "c2s3",
-        "sourceHandle": "result",
         "target": "c2s4",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5556,8 +5555,8 @@
       {
         "id": "e-c2s4-result-c2s5-signal",
         "source": "c2s4",
-        "sourceHandle": "result",
         "target": "c2s5",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5567,8 +5566,8 @@
       {
         "id": "e-c2s5-gate-c2s6-trigger",
         "source": "c2s5",
-        "sourceHandle": "gate",
         "target": "c2s6",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5578,8 +5577,8 @@
       {
         "id": "e-c2s5-gate-c2s6-signal",
         "source": "c2s5",
-        "sourceHandle": "gate",
         "target": "c2s6",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5589,8 +5588,8 @@
       {
         "id": "e-c2s6-value-c2s7-trigger",
         "source": "c2s6",
-        "sourceHandle": "value",
         "target": "c2s7",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5600,8 +5599,8 @@
       {
         "id": "e-c2s7-phase-c2s8-trigger",
         "source": "c2s7",
-        "sourceHandle": "phase",
         "target": "c2s8",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5611,8 +5610,8 @@
       {
         "id": "e-c2s8-value-c2s9-rate",
         "source": "c2s8",
-        "sourceHandle": "value",
         "target": "c2s9",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5622,8 +5621,8 @@
       {
         "id": "e-c2s9-value-c2s10-trigger",
         "source": "c2s9",
-        "sourceHandle": "value",
         "target": "c2s10",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5633,8 +5632,8 @@
       {
         "id": "e-c2s10-phase-c2s11-trigger",
         "source": "c2s10",
-        "sourceHandle": "phase",
         "target": "c2s11",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5644,8 +5643,8 @@
       {
         "id": "e-c2s11-state-c2s12-gate",
         "source": "c2s11",
-        "sourceHandle": "state",
         "target": "c2s12",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5655,8 +5654,8 @@
       {
         "id": "e-c2s12-envelope-c2s13-a",
         "source": "c2s12",
-        "sourceHandle": "envelope",
         "target": "c2s13",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5666,8 +5665,8 @@
       {
         "id": "e-c2s13-result-c2s14-signal",
         "source": "c2s13",
-        "sourceHandle": "result",
         "target": "c2s14",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5677,8 +5676,8 @@
       {
         "id": "e-c2s14-envelope-c2s15-signal",
         "source": "c2s14",
-        "sourceHandle": "envelope",
         "target": "c2s15",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5688,8 +5687,8 @@
       {
         "id": "e-audio-lowMid-c3s0-input",
         "source": "audio",
-        "sourceHandle": "lowMid",
         "target": "c3s0",
+        "sourceHandle": "lowMid",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -5699,8 +5698,8 @@
       {
         "id": "e-c3s0-value-c3s1-signal",
         "source": "c3s0",
-        "sourceHandle": "value",
         "target": "c3s1",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5710,8 +5709,8 @@
       {
         "id": "e-c3s1-peak-c3s2-value",
         "source": "c3s1",
-        "sourceHandle": "peak",
         "target": "c3s2",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5721,8 +5720,8 @@
       {
         "id": "e-c3s2-result-c3s3-value",
         "source": "c3s2",
-        "sourceHandle": "result",
         "target": "c3s3",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5732,8 +5731,8 @@
       {
         "id": "e-c3s3-result-c3s4-signal",
         "source": "c3s3",
-        "sourceHandle": "result",
         "target": "c3s4",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5743,8 +5742,8 @@
       {
         "id": "e-c3s4-gate-c3s5-trigger",
         "source": "c3s4",
-        "sourceHandle": "gate",
         "target": "c3s5",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5754,8 +5753,8 @@
       {
         "id": "e-c3s4-gate-c3s5-signal",
         "source": "c3s4",
-        "sourceHandle": "gate",
         "target": "c3s5",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5765,8 +5764,8 @@
       {
         "id": "e-c3s5-value-c3s6-trigger",
         "source": "c3s5",
-        "sourceHandle": "value",
         "target": "c3s6",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5776,8 +5775,8 @@
       {
         "id": "e-c3s6-phase-c3s7-trigger",
         "source": "c3s6",
-        "sourceHandle": "phase",
         "target": "c3s7",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5787,8 +5786,8 @@
       {
         "id": "e-c3s7-value-c3s8-rate",
         "source": "c3s7",
-        "sourceHandle": "value",
         "target": "c3s8",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5798,8 +5797,8 @@
       {
         "id": "e-c3s8-value-c3s9-trigger",
         "source": "c3s8",
-        "sourceHandle": "value",
         "target": "c3s9",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5809,8 +5808,8 @@
       {
         "id": "e-c3s9-phase-c3s10-trigger",
         "source": "c3s9",
-        "sourceHandle": "phase",
         "target": "c3s10",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5820,8 +5819,8 @@
       {
         "id": "e-c3s10-state-c3s11-gate",
         "source": "c3s10",
-        "sourceHandle": "state",
         "target": "c3s11",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5831,8 +5830,8 @@
       {
         "id": "e-c3s11-envelope-c3s12-a",
         "source": "c3s11",
-        "sourceHandle": "envelope",
         "target": "c3s12",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5842,8 +5841,8 @@
       {
         "id": "e-c3s12-result-c3s13-signal",
         "source": "c3s12",
-        "sourceHandle": "result",
         "target": "c3s13",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5853,8 +5852,8 @@
       {
         "id": "e-c3s13-envelope-c3s14-signal",
         "source": "c3s13",
-        "sourceHandle": "envelope",
         "target": "c3s14",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5864,8 +5863,8 @@
       {
         "id": "e-c3s14-value-c3s15-a",
         "source": "c3s14",
-        "sourceHandle": "value",
         "target": "c3s15",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -5875,8 +5874,8 @@
       {
         "id": "e-audio-vocal-c4s0-signal",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "c4s0",
+        "sourceHandle": "vocal",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5886,8 +5885,8 @@
       {
         "id": "e-c4s0-peak-c4s1-value",
         "source": "c4s0",
-        "sourceHandle": "peak",
         "target": "c4s1",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5897,8 +5896,8 @@
       {
         "id": "e-c4s1-result-c4s2-value",
         "source": "c4s1",
-        "sourceHandle": "result",
         "target": "c4s2",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -5908,8 +5907,8 @@
       {
         "id": "e-c4s2-result-c4s3-signal",
         "source": "c4s2",
-        "sourceHandle": "result",
         "target": "c4s3",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5919,8 +5918,8 @@
       {
         "id": "e-c4s3-gate-c4s4-trigger",
         "source": "c4s3",
-        "sourceHandle": "gate",
         "target": "c4s4",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5930,8 +5929,8 @@
       {
         "id": "e-c4s3-gate-c4s4-signal",
         "source": "c4s3",
-        "sourceHandle": "gate",
         "target": "c4s4",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -5941,8 +5940,8 @@
       {
         "id": "e-c4s4-value-c4s5-trigger",
         "source": "c4s4",
-        "sourceHandle": "value",
         "target": "c4s5",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5952,8 +5951,8 @@
       {
         "id": "e-c4s5-phase-c4s6-trigger",
         "source": "c4s5",
-        "sourceHandle": "phase",
         "target": "c4s6",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5963,8 +5962,8 @@
       {
         "id": "e-c4s6-value-c4s7-rate",
         "source": "c4s6",
-        "sourceHandle": "value",
         "target": "c4s7",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -5974,8 +5973,8 @@
       {
         "id": "e-c4s7-value-c4s8-trigger",
         "source": "c4s7",
-        "sourceHandle": "value",
         "target": "c4s8",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5985,8 +5984,8 @@
       {
         "id": "e-c4s8-phase-c4s9-trigger",
         "source": "c4s8",
-        "sourceHandle": "phase",
         "target": "c4s9",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -5996,8 +5995,8 @@
       {
         "id": "e-c4s9-state-c4s10-gate",
         "source": "c4s9",
-        "sourceHandle": "state",
         "target": "c4s10",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6007,8 +6006,8 @@
       {
         "id": "e-c4s10-envelope-c4s11-a",
         "source": "c4s10",
-        "sourceHandle": "envelope",
         "target": "c4s11",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6018,8 +6017,8 @@
       {
         "id": "e-c4s11-result-c4s12-signal",
         "source": "c4s11",
-        "sourceHandle": "result",
         "target": "c4s12",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6029,8 +6028,8 @@
       {
         "id": "e-c4s12-envelope-c4s13-signal",
         "source": "c4s12",
-        "sourceHandle": "envelope",
         "target": "c4s13",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6040,8 +6039,8 @@
       {
         "id": "e-c4s13-value-c4s14-a",
         "source": "c4s13",
-        "sourceHandle": "value",
         "target": "c4s14",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6051,8 +6050,8 @@
       {
         "id": "e-c4s14-result-c4s15-input",
         "source": "c4s14",
-        "sourceHandle": "result",
         "target": "c4s15",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -6062,8 +6061,8 @@
       {
         "id": "e-audio-presence-c5s0-value",
         "source": "audio",
-        "sourceHandle": "presence",
         "target": "c5s0",
+        "sourceHandle": "presence",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6073,8 +6072,8 @@
       {
         "id": "e-c5s0-result-c5s1-value",
         "source": "c5s0",
-        "sourceHandle": "result",
         "target": "c5s1",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6084,8 +6083,8 @@
       {
         "id": "e-c5s1-result-c5s2-signal",
         "source": "c5s1",
-        "sourceHandle": "result",
         "target": "c5s2",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6095,8 +6094,8 @@
       {
         "id": "e-c5s2-gate-c5s3-trigger",
         "source": "c5s2",
-        "sourceHandle": "gate",
         "target": "c5s3",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6106,8 +6105,8 @@
       {
         "id": "e-c5s2-gate-c5s3-signal",
         "source": "c5s2",
-        "sourceHandle": "gate",
         "target": "c5s3",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6117,8 +6116,8 @@
       {
         "id": "e-c5s3-value-c5s4-trigger",
         "source": "c5s3",
-        "sourceHandle": "value",
         "target": "c5s4",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6128,8 +6127,8 @@
       {
         "id": "e-c5s4-phase-c5s5-trigger",
         "source": "c5s4",
-        "sourceHandle": "phase",
         "target": "c5s5",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6139,8 +6138,8 @@
       {
         "id": "e-c5s5-value-c5s6-rate",
         "source": "c5s5",
-        "sourceHandle": "value",
         "target": "c5s6",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6150,8 +6149,8 @@
       {
         "id": "e-c5s6-value-c5s7-trigger",
         "source": "c5s6",
-        "sourceHandle": "value",
         "target": "c5s7",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6161,8 +6160,8 @@
       {
         "id": "e-c5s7-phase-c5s8-trigger",
         "source": "c5s7",
-        "sourceHandle": "phase",
         "target": "c5s8",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6172,8 +6171,8 @@
       {
         "id": "e-c5s8-state-c5s9-gate",
         "source": "c5s8",
-        "sourceHandle": "state",
         "target": "c5s9",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6183,8 +6182,8 @@
       {
         "id": "e-c5s9-envelope-c5s10-a",
         "source": "c5s9",
-        "sourceHandle": "envelope",
         "target": "c5s10",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6194,8 +6193,8 @@
       {
         "id": "e-c5s10-result-c5s11-signal",
         "source": "c5s10",
-        "sourceHandle": "result",
         "target": "c5s11",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6205,8 +6204,8 @@
       {
         "id": "e-c5s11-envelope-c5s12-signal",
         "source": "c5s11",
-        "sourceHandle": "envelope",
         "target": "c5s12",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6216,8 +6215,8 @@
       {
         "id": "e-c5s12-value-c5s13-a",
         "source": "c5s12",
-        "sourceHandle": "value",
         "target": "c5s13",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6227,8 +6226,8 @@
       {
         "id": "e-c5s13-result-c5s14-input",
         "source": "c5s13",
-        "sourceHandle": "result",
         "target": "c5s14",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -6238,8 +6237,8 @@
       {
         "id": "e-c5s14-value-c5s15-signal",
         "source": "c5s14",
-        "sourceHandle": "value",
         "target": "c5s15",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6249,8 +6248,8 @@
       {
         "id": "e-audio-air-c6s0-value",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "c6s0",
+        "sourceHandle": "air",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6260,8 +6259,8 @@
       {
         "id": "e-c6s0-result-c6s1-signal",
         "source": "c6s0",
-        "sourceHandle": "result",
         "target": "c6s1",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6271,8 +6270,8 @@
       {
         "id": "e-c6s1-gate-c6s2-trigger",
         "source": "c6s1",
-        "sourceHandle": "gate",
         "target": "c6s2",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6282,8 +6281,8 @@
       {
         "id": "e-c6s1-gate-c6s2-signal",
         "source": "c6s1",
-        "sourceHandle": "gate",
         "target": "c6s2",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6293,8 +6292,8 @@
       {
         "id": "e-c6s2-value-c6s3-trigger",
         "source": "c6s2",
-        "sourceHandle": "value",
         "target": "c6s3",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6304,8 +6303,8 @@
       {
         "id": "e-c6s3-phase-c6s4-trigger",
         "source": "c6s3",
-        "sourceHandle": "phase",
         "target": "c6s4",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6315,8 +6314,8 @@
       {
         "id": "e-c6s4-value-c6s5-rate",
         "source": "c6s4",
-        "sourceHandle": "value",
         "target": "c6s5",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6326,8 +6325,8 @@
       {
         "id": "e-c6s5-value-c6s6-trigger",
         "source": "c6s5",
-        "sourceHandle": "value",
         "target": "c6s6",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6337,8 +6336,8 @@
       {
         "id": "e-c6s6-phase-c6s7-trigger",
         "source": "c6s6",
-        "sourceHandle": "phase",
         "target": "c6s7",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6348,8 +6347,8 @@
       {
         "id": "e-c6s7-state-c6s8-gate",
         "source": "c6s7",
-        "sourceHandle": "state",
         "target": "c6s8",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6359,8 +6358,8 @@
       {
         "id": "e-c6s8-envelope-c6s9-a",
         "source": "c6s8",
-        "sourceHandle": "envelope",
         "target": "c6s9",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6370,8 +6369,8 @@
       {
         "id": "e-c6s9-result-c6s10-signal",
         "source": "c6s9",
-        "sourceHandle": "result",
         "target": "c6s10",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6381,8 +6380,8 @@
       {
         "id": "e-c6s10-envelope-c6s11-signal",
         "source": "c6s10",
-        "sourceHandle": "envelope",
         "target": "c6s11",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6392,8 +6391,8 @@
       {
         "id": "e-c6s11-value-c6s12-a",
         "source": "c6s11",
-        "sourceHandle": "value",
         "target": "c6s12",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6403,8 +6402,8 @@
       {
         "id": "e-c6s12-result-c6s13-input",
         "source": "c6s12",
-        "sourceHandle": "result",
         "target": "c6s13",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -6414,8 +6413,8 @@
       {
         "id": "e-c6s13-value-c6s14-signal",
         "source": "c6s13",
-        "sourceHandle": "value",
         "target": "c6s14",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6425,8 +6424,8 @@
       {
         "id": "e-c6s14-peak-c6s15-value",
         "source": "c6s14",
-        "sourceHandle": "peak",
         "target": "c6s15",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6436,8 +6435,8 @@
       {
         "id": "e-audio-beatPhase-c7s0-signal",
         "source": "audio",
-        "sourceHandle": "beatPhase",
         "target": "c7s0",
+        "sourceHandle": "beatPhase",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6447,8 +6446,8 @@
       {
         "id": "e-c7s0-gate-c7s1-trigger",
         "source": "c7s0",
-        "sourceHandle": "gate",
         "target": "c7s1",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6458,8 +6457,8 @@
       {
         "id": "e-c7s0-gate-c7s1-signal",
         "source": "c7s0",
-        "sourceHandle": "gate",
         "target": "c7s1",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6469,8 +6468,8 @@
       {
         "id": "e-c7s1-value-c7s2-trigger",
         "source": "c7s1",
-        "sourceHandle": "value",
         "target": "c7s2",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6480,8 +6479,8 @@
       {
         "id": "e-c7s2-phase-c7s3-trigger",
         "source": "c7s2",
-        "sourceHandle": "phase",
         "target": "c7s3",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6491,8 +6490,8 @@
       {
         "id": "e-c7s3-value-c7s4-rate",
         "source": "c7s3",
-        "sourceHandle": "value",
         "target": "c7s4",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6502,8 +6501,8 @@
       {
         "id": "e-c7s4-value-c7s5-trigger",
         "source": "c7s4",
-        "sourceHandle": "value",
         "target": "c7s5",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6513,8 +6512,8 @@
       {
         "id": "e-c7s5-phase-c7s6-trigger",
         "source": "c7s5",
-        "sourceHandle": "phase",
         "target": "c7s6",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6524,8 +6523,8 @@
       {
         "id": "e-c7s6-state-c7s7-gate",
         "source": "c7s6",
-        "sourceHandle": "state",
         "target": "c7s7",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6535,8 +6534,8 @@
       {
         "id": "e-c7s7-envelope-c7s8-a",
         "source": "c7s7",
-        "sourceHandle": "envelope",
         "target": "c7s8",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6546,8 +6545,8 @@
       {
         "id": "e-c7s8-result-c7s9-signal",
         "source": "c7s8",
-        "sourceHandle": "result",
         "target": "c7s9",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6557,8 +6556,8 @@
       {
         "id": "e-c7s9-envelope-c7s10-signal",
         "source": "c7s9",
-        "sourceHandle": "envelope",
         "target": "c7s10",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6568,8 +6567,8 @@
       {
         "id": "e-c7s10-value-c7s11-a",
         "source": "c7s10",
-        "sourceHandle": "value",
         "target": "c7s11",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6579,8 +6578,8 @@
       {
         "id": "e-c7s11-result-c7s12-input",
         "source": "c7s11",
-        "sourceHandle": "result",
         "target": "c7s12",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -6590,8 +6589,8 @@
       {
         "id": "e-c7s12-value-c7s13-signal",
         "source": "c7s12",
-        "sourceHandle": "value",
         "target": "c7s13",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6601,8 +6600,8 @@
       {
         "id": "e-c7s13-peak-c7s14-value",
         "source": "c7s13",
-        "sourceHandle": "peak",
         "target": "c7s14",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6612,8 +6611,8 @@
       {
         "id": "e-c7s14-result-c7s15-value",
         "source": "c7s14",
-        "sourceHandle": "result",
         "target": "c7s15",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6623,8 +6622,8 @@
       {
         "id": "e-audio-centroid-c8s0-trigger",
         "source": "audio",
-        "sourceHandle": "centroid",
         "target": "c8s0",
+        "sourceHandle": "centroid",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6634,8 +6633,8 @@
       {
         "id": "e-audio-centroid-c8s0-signal",
         "source": "audio",
-        "sourceHandle": "centroid",
         "target": "c8s0",
+        "sourceHandle": "centroid",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6645,8 +6644,8 @@
       {
         "id": "e-c8s0-value-c8s1-trigger",
         "source": "c8s0",
-        "sourceHandle": "value",
         "target": "c8s1",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6656,8 +6655,8 @@
       {
         "id": "e-c8s1-phase-c8s2-trigger",
         "source": "c8s1",
-        "sourceHandle": "phase",
         "target": "c8s2",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6667,8 +6666,8 @@
       {
         "id": "e-c8s2-value-c8s3-rate",
         "source": "c8s2",
-        "sourceHandle": "value",
         "target": "c8s3",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6678,8 +6677,8 @@
       {
         "id": "e-c8s3-value-c8s4-trigger",
         "source": "c8s3",
-        "sourceHandle": "value",
         "target": "c8s4",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6689,8 +6688,8 @@
       {
         "id": "e-c8s4-phase-c8s5-trigger",
         "source": "c8s4",
-        "sourceHandle": "phase",
         "target": "c8s5",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6700,8 +6699,8 @@
       {
         "id": "e-c8s5-state-c8s6-gate",
         "source": "c8s5",
-        "sourceHandle": "state",
         "target": "c8s6",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6711,8 +6710,8 @@
       {
         "id": "e-c8s6-envelope-c8s7-a",
         "source": "c8s6",
-        "sourceHandle": "envelope",
         "target": "c8s7",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6722,8 +6721,8 @@
       {
         "id": "e-c8s7-result-c8s8-signal",
         "source": "c8s7",
-        "sourceHandle": "result",
         "target": "c8s8",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6733,8 +6732,8 @@
       {
         "id": "e-c8s8-envelope-c8s9-signal",
         "source": "c8s8",
-        "sourceHandle": "envelope",
         "target": "c8s9",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6744,8 +6743,8 @@
       {
         "id": "e-c8s9-value-c8s10-a",
         "source": "c8s9",
-        "sourceHandle": "value",
         "target": "c8s10",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6755,8 +6754,8 @@
       {
         "id": "e-c8s10-result-c8s11-input",
         "source": "c8s10",
-        "sourceHandle": "result",
         "target": "c8s11",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -6766,8 +6765,8 @@
       {
         "id": "e-c8s11-value-c8s12-signal",
         "source": "c8s11",
-        "sourceHandle": "value",
         "target": "c8s12",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6777,8 +6776,8 @@
       {
         "id": "e-c8s12-peak-c8s13-value",
         "source": "c8s12",
-        "sourceHandle": "peak",
         "target": "c8s13",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6788,8 +6787,8 @@
       {
         "id": "e-c8s13-result-c8s14-value",
         "source": "c8s13",
-        "sourceHandle": "result",
         "target": "c8s14",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6799,8 +6798,8 @@
       {
         "id": "e-c8s14-result-c8s15-signal",
         "source": "c8s14",
-        "sourceHandle": "result",
         "target": "c8s15",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6810,8 +6809,8 @@
       {
         "id": "e-audio-flatness-c9s0-trigger",
         "source": "audio",
-        "sourceHandle": "flatness",
         "target": "c9s0",
+        "sourceHandle": "flatness",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6821,8 +6820,8 @@
       {
         "id": "e-c9s0-phase-c9s1-trigger",
         "source": "c9s0",
-        "sourceHandle": "phase",
         "target": "c9s1",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6832,8 +6831,8 @@
       {
         "id": "e-c9s1-value-c9s2-rate",
         "source": "c9s1",
-        "sourceHandle": "value",
         "target": "c9s2",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6843,8 +6842,8 @@
       {
         "id": "e-c9s2-value-c9s3-trigger",
         "source": "c9s2",
-        "sourceHandle": "value",
         "target": "c9s3",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6854,8 +6853,8 @@
       {
         "id": "e-c9s3-phase-c9s4-trigger",
         "source": "c9s3",
-        "sourceHandle": "phase",
         "target": "c9s4",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6865,8 +6864,8 @@
       {
         "id": "e-c9s4-state-c9s5-gate",
         "source": "c9s4",
-        "sourceHandle": "state",
         "target": "c9s5",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -6876,8 +6875,8 @@
       {
         "id": "e-c9s5-envelope-c9s6-a",
         "source": "c9s5",
-        "sourceHandle": "envelope",
         "target": "c9s6",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6887,8 +6886,8 @@
       {
         "id": "e-c9s6-result-c9s7-signal",
         "source": "c9s6",
-        "sourceHandle": "result",
         "target": "c9s7",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6898,8 +6897,8 @@
       {
         "id": "e-c9s7-envelope-c9s8-signal",
         "source": "c9s7",
-        "sourceHandle": "envelope",
         "target": "c9s8",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6909,8 +6908,8 @@
       {
         "id": "e-c9s8-value-c9s9-a",
         "source": "c9s8",
-        "sourceHandle": "value",
         "target": "c9s9",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -6920,8 +6919,8 @@
       {
         "id": "e-c9s9-result-c9s10-input",
         "source": "c9s9",
-        "sourceHandle": "result",
         "target": "c9s10",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -6931,8 +6930,8 @@
       {
         "id": "e-c9s10-value-c9s11-signal",
         "source": "c9s10",
-        "sourceHandle": "value",
         "target": "c9s11",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6942,8 +6941,8 @@
       {
         "id": "e-c9s11-peak-c9s12-value",
         "source": "c9s11",
-        "sourceHandle": "peak",
         "target": "c9s12",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6953,8 +6952,8 @@
       {
         "id": "e-c9s12-result-c9s13-value",
         "source": "c9s12",
-        "sourceHandle": "result",
         "target": "c9s13",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -6964,8 +6963,8 @@
       {
         "id": "e-c9s13-result-c9s14-signal",
         "source": "c9s13",
-        "sourceHandle": "result",
         "target": "c9s14",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6975,8 +6974,8 @@
       {
         "id": "e-c9s14-gate-c9s15-trigger",
         "source": "c9s14",
-        "sourceHandle": "gate",
         "target": "c9s15",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -6986,8 +6985,8 @@
       {
         "id": "e-c9s14-gate-c9s15-signal",
         "source": "c9s14",
-        "sourceHandle": "gate",
         "target": "c9s15",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -6997,8 +6996,8 @@
       {
         "id": "e-audio-rms-c10s0-trigger",
         "source": "audio",
-        "sourceHandle": "rms",
         "target": "c10s0",
+        "sourceHandle": "rms",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7008,8 +7007,8 @@
       {
         "id": "e-c10s0-value-c10s1-rate",
         "source": "c10s0",
-        "sourceHandle": "value",
         "target": "c10s1",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7019,8 +7018,8 @@
       {
         "id": "e-c10s1-value-c10s2-trigger",
         "source": "c10s1",
-        "sourceHandle": "value",
         "target": "c10s2",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7030,8 +7029,8 @@
       {
         "id": "e-c10s2-phase-c10s3-trigger",
         "source": "c10s2",
-        "sourceHandle": "phase",
         "target": "c10s3",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7041,8 +7040,8 @@
       {
         "id": "e-c10s3-state-c10s4-gate",
         "source": "c10s3",
-        "sourceHandle": "state",
         "target": "c10s4",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7052,8 +7051,8 @@
       {
         "id": "e-c10s4-envelope-c10s5-a",
         "source": "c10s4",
-        "sourceHandle": "envelope",
         "target": "c10s5",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7063,8 +7062,8 @@
       {
         "id": "e-c10s5-result-c10s6-signal",
         "source": "c10s5",
-        "sourceHandle": "result",
         "target": "c10s6",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7074,8 +7073,8 @@
       {
         "id": "e-c10s6-envelope-c10s7-signal",
         "source": "c10s6",
-        "sourceHandle": "envelope",
         "target": "c10s7",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7085,8 +7084,8 @@
       {
         "id": "e-c10s7-value-c10s8-a",
         "source": "c10s7",
-        "sourceHandle": "value",
         "target": "c10s8",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7096,8 +7095,8 @@
       {
         "id": "e-c10s8-result-c10s9-input",
         "source": "c10s8",
-        "sourceHandle": "result",
         "target": "c10s9",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -7107,8 +7106,8 @@
       {
         "id": "e-c10s9-value-c10s10-signal",
         "source": "c10s9",
-        "sourceHandle": "value",
         "target": "c10s10",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7118,8 +7117,8 @@
       {
         "id": "e-c10s10-peak-c10s11-value",
         "source": "c10s10",
-        "sourceHandle": "peak",
         "target": "c10s11",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7129,8 +7128,8 @@
       {
         "id": "e-c10s11-result-c10s12-value",
         "source": "c10s11",
-        "sourceHandle": "result",
         "target": "c10s12",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7140,8 +7139,8 @@
       {
         "id": "e-c10s12-result-c10s13-signal",
         "source": "c10s12",
-        "sourceHandle": "result",
         "target": "c10s13",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7151,8 +7150,8 @@
       {
         "id": "e-c10s13-gate-c10s14-trigger",
         "source": "c10s13",
-        "sourceHandle": "gate",
         "target": "c10s14",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7162,8 +7161,8 @@
       {
         "id": "e-c10s13-gate-c10s14-signal",
         "source": "c10s13",
-        "sourceHandle": "gate",
         "target": "c10s14",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7173,8 +7172,8 @@
       {
         "id": "e-c10s14-value-c10s15-trigger",
         "source": "c10s14",
-        "sourceHandle": "value",
         "target": "c10s15",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7184,8 +7183,8 @@
       {
         "id": "e-audio-peak-c11s0-rate",
         "source": "audio",
-        "sourceHandle": "peak",
         "target": "c11s0",
+        "sourceHandle": "peak",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7195,8 +7194,8 @@
       {
         "id": "e-c11s0-value-c11s1-trigger",
         "source": "c11s0",
-        "sourceHandle": "value",
         "target": "c11s1",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7206,8 +7205,8 @@
       {
         "id": "e-c11s1-phase-c11s2-trigger",
         "source": "c11s1",
-        "sourceHandle": "phase",
         "target": "c11s2",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7217,8 +7216,8 @@
       {
         "id": "e-c11s2-state-c11s3-gate",
         "source": "c11s2",
-        "sourceHandle": "state",
         "target": "c11s3",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7228,8 +7227,8 @@
       {
         "id": "e-c11s3-envelope-c11s4-a",
         "source": "c11s3",
-        "sourceHandle": "envelope",
         "target": "c11s4",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7239,8 +7238,8 @@
       {
         "id": "e-c11s4-result-c11s5-signal",
         "source": "c11s4",
-        "sourceHandle": "result",
         "target": "c11s5",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7250,8 +7249,8 @@
       {
         "id": "e-c11s5-envelope-c11s6-signal",
         "source": "c11s5",
-        "sourceHandle": "envelope",
         "target": "c11s6",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7261,8 +7260,8 @@
       {
         "id": "e-c11s6-value-c11s7-a",
         "source": "c11s6",
-        "sourceHandle": "value",
         "target": "c11s7",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7272,8 +7271,8 @@
       {
         "id": "e-c11s7-result-c11s8-input",
         "source": "c11s7",
-        "sourceHandle": "result",
         "target": "c11s8",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -7283,8 +7282,8 @@
       {
         "id": "e-c11s8-value-c11s9-signal",
         "source": "c11s8",
-        "sourceHandle": "value",
         "target": "c11s9",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7294,8 +7293,8 @@
       {
         "id": "e-c11s9-peak-c11s10-value",
         "source": "c11s9",
-        "sourceHandle": "peak",
         "target": "c11s10",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7305,8 +7304,8 @@
       {
         "id": "e-c11s10-result-c11s11-value",
         "source": "c11s10",
-        "sourceHandle": "result",
         "target": "c11s11",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7316,8 +7315,8 @@
       {
         "id": "e-c11s11-result-c11s12-signal",
         "source": "c11s11",
-        "sourceHandle": "result",
         "target": "c11s12",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7327,8 +7326,8 @@
       {
         "id": "e-c11s12-gate-c11s13-trigger",
         "source": "c11s12",
-        "sourceHandle": "gate",
         "target": "c11s13",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7338,8 +7337,8 @@
       {
         "id": "e-c11s12-gate-c11s13-signal",
         "source": "c11s12",
-        "sourceHandle": "gate",
         "target": "c11s13",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7349,8 +7348,8 @@
       {
         "id": "e-c11s13-value-c11s14-trigger",
         "source": "c11s13",
-        "sourceHandle": "value",
         "target": "c11s14",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7360,8 +7359,8 @@
       {
         "id": "e-c11s14-phase-c11s15-trigger",
         "source": "c11s14",
-        "sourceHandle": "phase",
         "target": "c11s15",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7371,8 +7370,8 @@
       {
         "id": "e-audio-gate-c12s0-trigger",
         "source": "audio",
-        "sourceHandle": "gate",
         "target": "c12s0",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7382,8 +7381,8 @@
       {
         "id": "e-c12s0-phase-c12s1-trigger",
         "source": "c12s0",
-        "sourceHandle": "phase",
         "target": "c12s1",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7393,8 +7392,8 @@
       {
         "id": "e-c12s1-state-c12s2-gate",
         "source": "c12s1",
-        "sourceHandle": "state",
         "target": "c12s2",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7404,8 +7403,8 @@
       {
         "id": "e-c12s2-envelope-c12s3-a",
         "source": "c12s2",
-        "sourceHandle": "envelope",
         "target": "c12s3",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7415,8 +7414,8 @@
       {
         "id": "e-c12s3-result-c12s4-signal",
         "source": "c12s3",
-        "sourceHandle": "result",
         "target": "c12s4",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7426,8 +7425,8 @@
       {
         "id": "e-c12s4-envelope-c12s5-signal",
         "source": "c12s4",
-        "sourceHandle": "envelope",
         "target": "c12s5",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7437,8 +7436,8 @@
       {
         "id": "e-c12s5-value-c12s6-a",
         "source": "c12s5",
-        "sourceHandle": "value",
         "target": "c12s6",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7448,8 +7447,8 @@
       {
         "id": "e-c12s6-result-c12s7-input",
         "source": "c12s6",
-        "sourceHandle": "result",
         "target": "c12s7",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -7459,8 +7458,8 @@
       {
         "id": "e-c12s7-value-c12s8-signal",
         "source": "c12s7",
-        "sourceHandle": "value",
         "target": "c12s8",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7470,8 +7469,8 @@
       {
         "id": "e-c12s8-peak-c12s9-value",
         "source": "c12s8",
-        "sourceHandle": "peak",
         "target": "c12s9",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7481,8 +7480,8 @@
       {
         "id": "e-c12s9-result-c12s10-value",
         "source": "c12s9",
-        "sourceHandle": "result",
         "target": "c12s10",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7492,8 +7491,8 @@
       {
         "id": "e-c12s10-result-c12s11-signal",
         "source": "c12s10",
-        "sourceHandle": "result",
         "target": "c12s11",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7503,8 +7502,8 @@
       {
         "id": "e-c12s11-gate-c12s12-trigger",
         "source": "c12s11",
-        "sourceHandle": "gate",
         "target": "c12s12",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7514,8 +7513,8 @@
       {
         "id": "e-c12s11-gate-c12s12-signal",
         "source": "c12s11",
-        "sourceHandle": "gate",
         "target": "c12s12",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7525,8 +7524,8 @@
       {
         "id": "e-c12s12-value-c12s13-trigger",
         "source": "c12s12",
-        "sourceHandle": "value",
         "target": "c12s13",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7536,8 +7535,8 @@
       {
         "id": "e-c12s13-phase-c12s14-trigger",
         "source": "c12s13",
-        "sourceHandle": "phase",
         "target": "c12s14",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7547,8 +7546,8 @@
       {
         "id": "e-c12s14-value-c12s15-rate",
         "source": "c12s14",
-        "sourceHandle": "value",
         "target": "c12s15",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7558,8 +7557,8 @@
       {
         "id": "e-audio-onset-c13s0-trigger",
         "source": "audio",
-        "sourceHandle": "onset",
         "target": "c13s0",
+        "sourceHandle": "onset",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7569,8 +7568,8 @@
       {
         "id": "e-c13s0-state-c13s1-gate",
         "source": "c13s0",
-        "sourceHandle": "state",
         "target": "c13s1",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7580,8 +7579,8 @@
       {
         "id": "e-c13s1-envelope-c13s2-a",
         "source": "c13s1",
-        "sourceHandle": "envelope",
         "target": "c13s2",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7591,8 +7590,8 @@
       {
         "id": "e-c13s2-result-c13s3-signal",
         "source": "c13s2",
-        "sourceHandle": "result",
         "target": "c13s3",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7602,8 +7601,8 @@
       {
         "id": "e-c13s3-envelope-c13s4-signal",
         "source": "c13s3",
-        "sourceHandle": "envelope",
         "target": "c13s4",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7613,8 +7612,8 @@
       {
         "id": "e-c13s4-value-c13s5-a",
         "source": "c13s4",
-        "sourceHandle": "value",
         "target": "c13s5",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7624,8 +7623,8 @@
       {
         "id": "e-c13s5-result-c13s6-input",
         "source": "c13s5",
-        "sourceHandle": "result",
         "target": "c13s6",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -7635,8 +7634,8 @@
       {
         "id": "e-c13s6-value-c13s7-signal",
         "source": "c13s6",
-        "sourceHandle": "value",
         "target": "c13s7",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7646,8 +7645,8 @@
       {
         "id": "e-c13s7-peak-c13s8-value",
         "source": "c13s7",
-        "sourceHandle": "peak",
         "target": "c13s8",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7657,8 +7656,8 @@
       {
         "id": "e-c13s8-result-c13s9-value",
         "source": "c13s8",
-        "sourceHandle": "result",
         "target": "c13s9",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7668,8 +7667,8 @@
       {
         "id": "e-c13s9-result-c13s10-signal",
         "source": "c13s9",
-        "sourceHandle": "result",
         "target": "c13s10",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7679,8 +7678,8 @@
       {
         "id": "e-c13s10-gate-c13s11-trigger",
         "source": "c13s10",
-        "sourceHandle": "gate",
         "target": "c13s11",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7690,8 +7689,8 @@
       {
         "id": "e-c13s10-gate-c13s11-signal",
         "source": "c13s10",
-        "sourceHandle": "gate",
         "target": "c13s11",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7701,8 +7700,8 @@
       {
         "id": "e-c13s11-value-c13s12-trigger",
         "source": "c13s11",
-        "sourceHandle": "value",
         "target": "c13s12",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7712,8 +7711,8 @@
       {
         "id": "e-c13s12-phase-c13s13-trigger",
         "source": "c13s12",
-        "sourceHandle": "phase",
         "target": "c13s13",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7723,8 +7722,8 @@
       {
         "id": "e-c13s13-value-c13s14-rate",
         "source": "c13s13",
-        "sourceHandle": "value",
         "target": "c13s14",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7734,8 +7733,8 @@
       {
         "id": "e-c13s14-value-c13s15-trigger",
         "source": "c13s14",
-        "sourceHandle": "value",
         "target": "c13s15",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7745,8 +7744,8 @@
       {
         "id": "e-audio-beat-c14s0-gate",
         "source": "audio",
-        "sourceHandle": "beat",
         "target": "c14s0",
+        "sourceHandle": "beat",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7756,8 +7755,8 @@
       {
         "id": "e-c14s0-envelope-c14s1-a",
         "source": "c14s0",
-        "sourceHandle": "envelope",
         "target": "c14s1",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7767,8 +7766,8 @@
       {
         "id": "e-c14s1-result-c14s2-signal",
         "source": "c14s1",
-        "sourceHandle": "result",
         "target": "c14s2",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7778,8 +7777,8 @@
       {
         "id": "e-c14s2-envelope-c14s3-signal",
         "source": "c14s2",
-        "sourceHandle": "envelope",
         "target": "c14s3",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7789,8 +7788,8 @@
       {
         "id": "e-c14s3-value-c14s4-a",
         "source": "c14s3",
-        "sourceHandle": "value",
         "target": "c14s4",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7800,8 +7799,8 @@
       {
         "id": "e-c14s4-result-c14s5-input",
         "source": "c14s4",
-        "sourceHandle": "result",
         "target": "c14s5",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -7811,8 +7810,8 @@
       {
         "id": "e-c14s5-value-c14s6-signal",
         "source": "c14s5",
-        "sourceHandle": "value",
         "target": "c14s6",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7822,8 +7821,8 @@
       {
         "id": "e-c14s6-peak-c14s7-value",
         "source": "c14s6",
-        "sourceHandle": "peak",
         "target": "c14s7",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7833,8 +7832,8 @@
       {
         "id": "e-c14s7-result-c14s8-value",
         "source": "c14s7",
-        "sourceHandle": "result",
         "target": "c14s8",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -7844,8 +7843,8 @@
       {
         "id": "e-c14s8-result-c14s9-signal",
         "source": "c14s8",
-        "sourceHandle": "result",
         "target": "c14s9",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7855,8 +7854,8 @@
       {
         "id": "e-c14s9-gate-c14s10-trigger",
         "source": "c14s9",
-        "sourceHandle": "gate",
         "target": "c14s10",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7866,8 +7865,8 @@
       {
         "id": "e-c14s9-gate-c14s10-signal",
         "source": "c14s9",
-        "sourceHandle": "gate",
         "target": "c14s10",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7877,8 +7876,8 @@
       {
         "id": "e-c14s10-value-c14s11-trigger",
         "source": "c14s10",
-        "sourceHandle": "value",
         "target": "c14s11",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7888,8 +7887,8 @@
       {
         "id": "e-c14s11-phase-c14s12-trigger",
         "source": "c14s11",
-        "sourceHandle": "phase",
         "target": "c14s12",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7899,8 +7898,8 @@
       {
         "id": "e-c14s12-value-c14s13-rate",
         "source": "c14s12",
-        "sourceHandle": "value",
         "target": "c14s13",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -7910,8 +7909,8 @@
       {
         "id": "e-c14s13-value-c14s14-trigger",
         "source": "c14s13",
-        "sourceHandle": "value",
         "target": "c14s14",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7921,8 +7920,8 @@
       {
         "id": "e-c14s14-phase-c14s15-trigger",
         "source": "c14s14",
-        "sourceHandle": "phase",
         "target": "c14s15",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -7932,8 +7931,8 @@
       {
         "id": "e-audio-bpm-c15s0-a",
         "source": "audio",
-        "sourceHandle": "bpm",
         "target": "c15s0",
+        "sourceHandle": "bpm",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7943,8 +7942,8 @@
       {
         "id": "e-c15s0-result-c15s1-signal",
         "source": "c15s0",
-        "sourceHandle": "result",
         "target": "c15s1",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7954,8 +7953,8 @@
       {
         "id": "e-c15s1-envelope-c15s2-signal",
         "source": "c15s1",
-        "sourceHandle": "envelope",
         "target": "c15s2",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7965,8 +7964,8 @@
       {
         "id": "e-c15s2-value-c15s3-a",
         "source": "c15s2",
-        "sourceHandle": "value",
         "target": "c15s3",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -7976,8 +7975,8 @@
       {
         "id": "e-c15s3-result-c15s4-input",
         "source": "c15s3",
-        "sourceHandle": "result",
         "target": "c15s4",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -7987,8 +7986,8 @@
       {
         "id": "e-c15s4-value-c15s5-signal",
         "source": "c15s4",
-        "sourceHandle": "value",
         "target": "c15s5",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -7998,8 +7997,8 @@
       {
         "id": "e-c15s5-peak-c15s6-value",
         "source": "c15s5",
-        "sourceHandle": "peak",
         "target": "c15s6",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8009,8 +8008,8 @@
       {
         "id": "e-c15s6-result-c15s7-value",
         "source": "c15s6",
-        "sourceHandle": "result",
         "target": "c15s7",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8020,8 +8019,8 @@
       {
         "id": "e-c15s7-result-c15s8-signal",
         "source": "c15s7",
-        "sourceHandle": "result",
         "target": "c15s8",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8031,8 +8030,8 @@
       {
         "id": "e-c15s8-gate-c15s9-trigger",
         "source": "c15s8",
-        "sourceHandle": "gate",
         "target": "c15s9",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8042,8 +8041,8 @@
       {
         "id": "e-c15s8-gate-c15s9-signal",
         "source": "c15s8",
-        "sourceHandle": "gate",
         "target": "c15s9",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8053,8 +8052,8 @@
       {
         "id": "e-c15s9-value-c15s10-trigger",
         "source": "c15s9",
-        "sourceHandle": "value",
         "target": "c15s10",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8064,8 +8063,8 @@
       {
         "id": "e-c15s10-phase-c15s11-trigger",
         "source": "c15s10",
-        "sourceHandle": "phase",
         "target": "c15s11",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8075,8 +8074,8 @@
       {
         "id": "e-c15s11-value-c15s12-rate",
         "source": "c15s11",
-        "sourceHandle": "value",
         "target": "c15s12",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8086,8 +8085,8 @@
       {
         "id": "e-c15s12-value-c15s13-trigger",
         "source": "c15s12",
-        "sourceHandle": "value",
         "target": "c15s13",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8097,8 +8096,8 @@
       {
         "id": "e-c15s13-phase-c15s14-trigger",
         "source": "c15s13",
-        "sourceHandle": "phase",
         "target": "c15s14",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8108,8 +8107,8 @@
       {
         "id": "e-c15s14-state-c15s15-gate",
         "source": "c15s14",
-        "sourceHandle": "state",
         "target": "c15s15",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8119,8 +8118,8 @@
       {
         "id": "e-audio-level-c16s0-signal",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "c16s0",
+        "sourceHandle": "level",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8130,8 +8129,8 @@
       {
         "id": "e-c16s0-envelope-c16s1-signal",
         "source": "c16s0",
-        "sourceHandle": "envelope",
         "target": "c16s1",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8141,8 +8140,8 @@
       {
         "id": "e-c16s1-value-c16s2-a",
         "source": "c16s1",
-        "sourceHandle": "value",
         "target": "c16s2",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8152,8 +8151,8 @@
       {
         "id": "e-c16s2-result-c16s3-input",
         "source": "c16s2",
-        "sourceHandle": "result",
         "target": "c16s3",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -8163,8 +8162,8 @@
       {
         "id": "e-c16s3-value-c16s4-signal",
         "source": "c16s3",
-        "sourceHandle": "value",
         "target": "c16s4",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8174,8 +8173,8 @@
       {
         "id": "e-c16s4-peak-c16s5-value",
         "source": "c16s4",
-        "sourceHandle": "peak",
         "target": "c16s5",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8185,8 +8184,8 @@
       {
         "id": "e-c16s5-result-c16s6-value",
         "source": "c16s5",
-        "sourceHandle": "result",
         "target": "c16s6",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8196,8 +8195,8 @@
       {
         "id": "e-c16s6-result-c16s7-signal",
         "source": "c16s6",
-        "sourceHandle": "result",
         "target": "c16s7",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8207,8 +8206,8 @@
       {
         "id": "e-c16s7-gate-c16s8-trigger",
         "source": "c16s7",
-        "sourceHandle": "gate",
         "target": "c16s8",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8218,8 +8217,8 @@
       {
         "id": "e-c16s7-gate-c16s8-signal",
         "source": "c16s7",
-        "sourceHandle": "gate",
         "target": "c16s8",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8229,8 +8228,8 @@
       {
         "id": "e-c16s8-value-c16s9-trigger",
         "source": "c16s8",
-        "sourceHandle": "value",
         "target": "c16s9",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8240,8 +8239,8 @@
       {
         "id": "e-c16s9-phase-c16s10-trigger",
         "source": "c16s9",
-        "sourceHandle": "phase",
         "target": "c16s10",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8251,8 +8250,8 @@
       {
         "id": "e-c16s10-value-c16s11-rate",
         "source": "c16s10",
-        "sourceHandle": "value",
         "target": "c16s11",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8262,8 +8261,8 @@
       {
         "id": "e-c16s11-value-c16s12-trigger",
         "source": "c16s11",
-        "sourceHandle": "value",
         "target": "c16s12",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8273,8 +8272,8 @@
       {
         "id": "e-c16s12-phase-c16s13-trigger",
         "source": "c16s12",
-        "sourceHandle": "phase",
         "target": "c16s13",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8284,8 +8283,8 @@
       {
         "id": "e-c16s13-state-c16s14-gate",
         "source": "c16s13",
-        "sourceHandle": "state",
         "target": "c16s14",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8295,8 +8294,8 @@
       {
         "id": "e-c16s14-envelope-c16s15-a",
         "source": "c16s14",
-        "sourceHandle": "envelope",
         "target": "c16s15",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8306,8 +8305,8 @@
       {
         "id": "e-audio-kick-c17s0-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "c17s0",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8317,8 +8316,8 @@
       {
         "id": "e-c17s0-value-c17s1-a",
         "source": "c17s0",
-        "sourceHandle": "value",
         "target": "c17s1",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8328,8 +8327,8 @@
       {
         "id": "e-c17s1-result-c17s2-input",
         "source": "c17s1",
-        "sourceHandle": "result",
         "target": "c17s2",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -8339,8 +8338,8 @@
       {
         "id": "e-c17s2-value-c17s3-signal",
         "source": "c17s2",
-        "sourceHandle": "value",
         "target": "c17s3",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8350,8 +8349,8 @@
       {
         "id": "e-c17s3-peak-c17s4-value",
         "source": "c17s3",
-        "sourceHandle": "peak",
         "target": "c17s4",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8361,8 +8360,8 @@
       {
         "id": "e-c17s4-result-c17s5-value",
         "source": "c17s4",
-        "sourceHandle": "result",
         "target": "c17s5",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8372,8 +8371,8 @@
       {
         "id": "e-c17s5-result-c17s6-signal",
         "source": "c17s5",
-        "sourceHandle": "result",
         "target": "c17s6",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8383,8 +8382,8 @@
       {
         "id": "e-c17s6-gate-c17s7-trigger",
         "source": "c17s6",
-        "sourceHandle": "gate",
         "target": "c17s7",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8394,8 +8393,8 @@
       {
         "id": "e-c17s6-gate-c17s7-signal",
         "source": "c17s6",
-        "sourceHandle": "gate",
         "target": "c17s7",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8405,8 +8404,8 @@
       {
         "id": "e-c17s7-value-c17s8-trigger",
         "source": "c17s7",
-        "sourceHandle": "value",
         "target": "c17s8",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8416,8 +8415,8 @@
       {
         "id": "e-c17s8-phase-c17s9-trigger",
         "source": "c17s8",
-        "sourceHandle": "phase",
         "target": "c17s9",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8427,8 +8426,8 @@
       {
         "id": "e-c17s9-value-c17s10-rate",
         "source": "c17s9",
-        "sourceHandle": "value",
         "target": "c17s10",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8438,8 +8437,8 @@
       {
         "id": "e-c17s10-value-c17s11-trigger",
         "source": "c17s10",
-        "sourceHandle": "value",
         "target": "c17s11",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8449,8 +8448,8 @@
       {
         "id": "e-c17s11-phase-c17s12-trigger",
         "source": "c17s11",
-        "sourceHandle": "phase",
         "target": "c17s12",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8460,8 +8459,8 @@
       {
         "id": "e-c17s12-state-c17s13-gate",
         "source": "c17s12",
-        "sourceHandle": "state",
         "target": "c17s13",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8471,8 +8470,8 @@
       {
         "id": "e-c17s13-envelope-c17s14-a",
         "source": "c17s13",
-        "sourceHandle": "envelope",
         "target": "c17s14",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8482,8 +8481,8 @@
       {
         "id": "e-c17s14-result-c17s15-signal",
         "source": "c17s14",
-        "sourceHandle": "result",
         "target": "c17s15",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8493,8 +8492,8 @@
       {
         "id": "e-audio-sub-c18s0-a",
         "source": "audio",
-        "sourceHandle": "sub",
         "target": "c18s0",
+        "sourceHandle": "sub",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8504,8 +8503,8 @@
       {
         "id": "e-c18s0-result-c18s1-input",
         "source": "c18s0",
-        "sourceHandle": "result",
         "target": "c18s1",
+        "sourceHandle": "result",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -8515,8 +8514,8 @@
       {
         "id": "e-c18s1-value-c18s2-signal",
         "source": "c18s1",
-        "sourceHandle": "value",
         "target": "c18s2",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8526,8 +8525,8 @@
       {
         "id": "e-c18s2-peak-c18s3-value",
         "source": "c18s2",
-        "sourceHandle": "peak",
         "target": "c18s3",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8537,8 +8536,8 @@
       {
         "id": "e-c18s3-result-c18s4-value",
         "source": "c18s3",
-        "sourceHandle": "result",
         "target": "c18s4",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8548,8 +8547,8 @@
       {
         "id": "e-c18s4-result-c18s5-signal",
         "source": "c18s4",
-        "sourceHandle": "result",
         "target": "c18s5",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8559,8 +8558,8 @@
       {
         "id": "e-c18s5-gate-c18s6-trigger",
         "source": "c18s5",
-        "sourceHandle": "gate",
         "target": "c18s6",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8570,8 +8569,8 @@
       {
         "id": "e-c18s5-gate-c18s6-signal",
         "source": "c18s5",
-        "sourceHandle": "gate",
         "target": "c18s6",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8581,8 +8580,8 @@
       {
         "id": "e-c18s6-value-c18s7-trigger",
         "source": "c18s6",
-        "sourceHandle": "value",
         "target": "c18s7",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8592,8 +8591,8 @@
       {
         "id": "e-c18s7-phase-c18s8-trigger",
         "source": "c18s7",
-        "sourceHandle": "phase",
         "target": "c18s8",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8603,8 +8602,8 @@
       {
         "id": "e-c18s8-value-c18s9-rate",
         "source": "c18s8",
-        "sourceHandle": "value",
         "target": "c18s9",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8614,8 +8613,8 @@
       {
         "id": "e-c18s9-value-c18s10-trigger",
         "source": "c18s9",
-        "sourceHandle": "value",
         "target": "c18s10",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8625,8 +8624,8 @@
       {
         "id": "e-c18s10-phase-c18s11-trigger",
         "source": "c18s10",
-        "sourceHandle": "phase",
         "target": "c18s11",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8636,8 +8635,8 @@
       {
         "id": "e-c18s11-state-c18s12-gate",
         "source": "c18s11",
-        "sourceHandle": "state",
         "target": "c18s12",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8647,8 +8646,8 @@
       {
         "id": "e-c18s12-envelope-c18s13-a",
         "source": "c18s12",
-        "sourceHandle": "envelope",
         "target": "c18s13",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8658,8 +8657,8 @@
       {
         "id": "e-c18s13-result-c18s14-signal",
         "source": "c18s13",
-        "sourceHandle": "result",
         "target": "c18s14",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8669,8 +8668,8 @@
       {
         "id": "e-c18s14-envelope-c18s15-signal",
         "source": "c18s14",
-        "sourceHandle": "envelope",
         "target": "c18s15",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8680,8 +8679,8 @@
       {
         "id": "e-audio-lowMid-c19s0-input",
         "source": "audio",
-        "sourceHandle": "lowMid",
         "target": "c19s0",
+        "sourceHandle": "lowMid",
         "targetHandle": "input",
         "style": {
           "stroke": "#a1a1a1",
@@ -8691,8 +8690,8 @@
       {
         "id": "e-c19s0-value-c19s1-signal",
         "source": "c19s0",
-        "sourceHandle": "value",
         "target": "c19s1",
+        "sourceHandle": "value",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8702,8 +8701,8 @@
       {
         "id": "e-c19s1-peak-c19s2-value",
         "source": "c19s1",
-        "sourceHandle": "peak",
         "target": "c19s2",
+        "sourceHandle": "peak",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8713,8 +8712,8 @@
       {
         "id": "e-c19s2-result-c19s3-value",
         "source": "c19s2",
-        "sourceHandle": "result",
         "target": "c19s3",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -8724,8 +8723,8 @@
       {
         "id": "e-c19s3-result-c19s4-signal",
         "source": "c19s3",
-        "sourceHandle": "result",
         "target": "c19s4",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8735,8 +8734,8 @@
       {
         "id": "e-c19s4-gate-c19s5-trigger",
         "source": "c19s4",
-        "sourceHandle": "gate",
         "target": "c19s5",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8746,8 +8745,8 @@
       {
         "id": "e-c19s4-gate-c19s5-signal",
         "source": "c19s4",
-        "sourceHandle": "gate",
         "target": "c19s5",
+        "sourceHandle": "gate",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8757,8 +8756,8 @@
       {
         "id": "e-c19s5-value-c19s6-trigger",
         "source": "c19s5",
-        "sourceHandle": "value",
         "target": "c19s6",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8768,8 +8767,8 @@
       {
         "id": "e-c19s6-phase-c19s7-trigger",
         "source": "c19s6",
-        "sourceHandle": "phase",
         "target": "c19s7",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8779,8 +8778,8 @@
       {
         "id": "e-c19s7-value-c19s8-rate",
         "source": "c19s7",
-        "sourceHandle": "value",
         "target": "c19s8",
+        "sourceHandle": "value",
         "targetHandle": "rate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8790,8 +8789,8 @@
       {
         "id": "e-c19s8-value-c19s9-trigger",
         "source": "c19s8",
-        "sourceHandle": "value",
         "target": "c19s9",
+        "sourceHandle": "value",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8801,8 +8800,8 @@
       {
         "id": "e-c19s9-phase-c19s10-trigger",
         "source": "c19s9",
-        "sourceHandle": "phase",
         "target": "c19s10",
+        "sourceHandle": "phase",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -8812,8 +8811,8 @@
       {
         "id": "e-c19s10-state-c19s11-gate",
         "source": "c19s10",
-        "sourceHandle": "state",
         "target": "c19s11",
+        "sourceHandle": "state",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -8823,8 +8822,8 @@
       {
         "id": "e-c19s11-envelope-c19s12-a",
         "source": "c19s11",
-        "sourceHandle": "envelope",
         "target": "c19s12",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8834,8 +8833,8 @@
       {
         "id": "e-c19s12-result-c19s13-signal",
         "source": "c19s12",
-        "sourceHandle": "result",
         "target": "c19s13",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8845,8 +8844,8 @@
       {
         "id": "e-c19s13-envelope-c19s14-signal",
         "source": "c19s13",
-        "sourceHandle": "envelope",
         "target": "c19s14",
+        "sourceHandle": "envelope",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -8856,8 +8855,8 @@
       {
         "id": "e-c19s14-value-c19s15-a",
         "source": "c19s14",
-        "sourceHandle": "value",
         "target": "c19s15",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8867,8 +8866,8 @@
       {
         "id": "e-c0s15-result-sum0_0-a",
         "source": "c0s15",
-        "sourceHandle": "result",
         "target": "sum0_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8878,8 +8877,8 @@
       {
         "id": "e-c1s15-envelope-sum0_0-b",
         "source": "c1s15",
-        "sourceHandle": "envelope",
         "target": "sum0_0",
+        "sourceHandle": "envelope",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -8889,8 +8888,8 @@
       {
         "id": "e-c2s15-value-sum0_2-a",
         "source": "c2s15",
-        "sourceHandle": "value",
         "target": "sum0_2",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8900,8 +8899,8 @@
       {
         "id": "e-c3s15-result-sum0_2-b",
         "source": "c3s15",
-        "sourceHandle": "result",
         "target": "sum0_2",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -8911,8 +8910,8 @@
       {
         "id": "e-c4s15-value-sum0_4-a",
         "source": "c4s15",
-        "sourceHandle": "value",
         "target": "sum0_4",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8922,8 +8921,8 @@
       {
         "id": "e-c5s15-peak-sum0_4-b",
         "source": "c5s15",
-        "sourceHandle": "peak",
         "target": "sum0_4",
+        "sourceHandle": "peak",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -8933,8 +8932,8 @@
       {
         "id": "e-c6s15-result-sum0_6-a",
         "source": "c6s15",
-        "sourceHandle": "result",
         "target": "sum0_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8944,8 +8943,8 @@
       {
         "id": "e-c7s15-result-sum0_6-b",
         "source": "c7s15",
-        "sourceHandle": "result",
         "target": "sum0_6",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -8955,8 +8954,8 @@
       {
         "id": "e-c8s15-gate-sum0_8-a",
         "source": "c8s15",
-        "sourceHandle": "gate",
         "target": "sum0_8",
+        "sourceHandle": "gate",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8966,8 +8965,8 @@
       {
         "id": "e-c9s15-value-sum0_8-b",
         "source": "c9s15",
-        "sourceHandle": "value",
         "target": "sum0_8",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -8977,8 +8976,8 @@
       {
         "id": "e-c10s15-phase-sum0_10-a",
         "source": "c10s15",
-        "sourceHandle": "phase",
         "target": "sum0_10",
+        "sourceHandle": "phase",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -8988,8 +8987,8 @@
       {
         "id": "e-c11s15-value-sum0_10-b",
         "source": "c11s15",
-        "sourceHandle": "value",
         "target": "sum0_10",
+        "sourceHandle": "value",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -8999,8 +8998,8 @@
       {
         "id": "e-c12s15-value-sum0_12-a",
         "source": "c12s15",
-        "sourceHandle": "value",
         "target": "sum0_12",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9010,8 +9009,8 @@
       {
         "id": "e-c13s15-phase-sum0_12-b",
         "source": "c13s15",
-        "sourceHandle": "phase",
         "target": "sum0_12",
+        "sourceHandle": "phase",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9021,8 +9020,8 @@
       {
         "id": "e-c14s15-state-sum0_14-a",
         "source": "c14s15",
-        "sourceHandle": "state",
         "target": "sum0_14",
+        "sourceHandle": "state",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9032,8 +9031,8 @@
       {
         "id": "e-c15s15-envelope-sum0_14-b",
         "source": "c15s15",
-        "sourceHandle": "envelope",
         "target": "sum0_14",
+        "sourceHandle": "envelope",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9043,8 +9042,8 @@
       {
         "id": "e-c16s15-result-sum0_16-a",
         "source": "c16s15",
-        "sourceHandle": "result",
         "target": "sum0_16",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9054,8 +9053,8 @@
       {
         "id": "e-c17s15-envelope-sum0_16-b",
         "source": "c17s15",
-        "sourceHandle": "envelope",
         "target": "sum0_16",
+        "sourceHandle": "envelope",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9065,8 +9064,8 @@
       {
         "id": "e-c18s15-value-sum0_18-a",
         "source": "c18s15",
-        "sourceHandle": "value",
         "target": "sum0_18",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9076,8 +9075,8 @@
       {
         "id": "e-c19s15-result-sum0_18-b",
         "source": "c19s15",
-        "sourceHandle": "result",
         "target": "sum0_18",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9087,8 +9086,8 @@
       {
         "id": "e-sum0_0-result-sum1_0-a",
         "source": "sum0_0",
-        "sourceHandle": "result",
         "target": "sum1_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9098,8 +9097,8 @@
       {
         "id": "e-sum0_2-result-sum1_0-b",
         "source": "sum0_2",
-        "sourceHandle": "result",
         "target": "sum1_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9109,8 +9108,8 @@
       {
         "id": "e-sum0_4-result-sum1_2-a",
         "source": "sum0_4",
-        "sourceHandle": "result",
         "target": "sum1_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9120,8 +9119,8 @@
       {
         "id": "e-sum0_6-result-sum1_2-b",
         "source": "sum0_6",
-        "sourceHandle": "result",
         "target": "sum1_2",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9131,8 +9130,8 @@
       {
         "id": "e-sum0_8-result-sum1_4-a",
         "source": "sum0_8",
-        "sourceHandle": "result",
         "target": "sum1_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9142,8 +9141,8 @@
       {
         "id": "e-sum0_10-result-sum1_4-b",
         "source": "sum0_10",
-        "sourceHandle": "result",
         "target": "sum1_4",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9153,8 +9152,8 @@
       {
         "id": "e-sum0_12-result-sum1_6-a",
         "source": "sum0_12",
-        "sourceHandle": "result",
         "target": "sum1_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9164,8 +9163,8 @@
       {
         "id": "e-sum0_14-result-sum1_6-b",
         "source": "sum0_14",
-        "sourceHandle": "result",
         "target": "sum1_6",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9175,8 +9174,8 @@
       {
         "id": "e-sum0_16-result-sum1_8-a",
         "source": "sum0_16",
-        "sourceHandle": "result",
         "target": "sum1_8",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9186,8 +9185,8 @@
       {
         "id": "e-sum0_18-result-sum1_8-b",
         "source": "sum0_18",
-        "sourceHandle": "result",
         "target": "sum1_8",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9197,8 +9196,8 @@
       {
         "id": "e-sum1_0-result-sum2_0-a",
         "source": "sum1_0",
-        "sourceHandle": "result",
         "target": "sum2_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9208,8 +9207,8 @@
       {
         "id": "e-sum1_2-result-sum2_0-b",
         "source": "sum1_2",
-        "sourceHandle": "result",
         "target": "sum2_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9219,8 +9218,8 @@
       {
         "id": "e-sum1_4-result-sum2_2-a",
         "source": "sum1_4",
-        "sourceHandle": "result",
         "target": "sum2_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9230,8 +9229,8 @@
       {
         "id": "e-sum1_6-result-sum2_2-b",
         "source": "sum1_6",
-        "sourceHandle": "result",
         "target": "sum2_2",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9241,8 +9240,8 @@
       {
         "id": "e-sum2_0-result-sum3_0-a",
         "source": "sum2_0",
-        "sourceHandle": "result",
         "target": "sum3_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9252,8 +9251,8 @@
       {
         "id": "e-sum2_2-result-sum3_0-b",
         "source": "sum2_2",
-        "sourceHandle": "result",
         "target": "sum3_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9263,8 +9262,8 @@
       {
         "id": "e-sum3_0-result-sum4_0-a",
         "source": "sum3_0",
-        "sourceHandle": "result",
         "target": "sum4_0",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9274,8 +9273,8 @@
       {
         "id": "e-sum1_8-result-sum4_0-b",
         "source": "sum1_8",
-        "sourceHandle": "result",
         "target": "sum4_0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9285,8 +9284,8 @@
       {
         "id": "e-uv-x-tint-a",
         "source": "uv",
-        "sourceHandle": "x",
         "target": "tint",
+        "sourceHandle": "x",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -9296,8 +9295,8 @@
       {
         "id": "e-sum4_0-result-tint-b",
         "source": "sum4_0",
-        "sourceHandle": "result",
         "target": "tint",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -9307,14 +9306,16 @@
       {
         "id": "e-tint-result-out-color",
         "source": "tint",
-        "sourceHandle": "result",
         "target": "out",
+        "sourceHandle": "result",
         "targetHandle": "color",
         "style": {
           "stroke": "#a1a1a1",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

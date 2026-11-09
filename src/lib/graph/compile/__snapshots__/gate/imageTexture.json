@@ -1,0 +1,49 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "image": [
+        ""
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "22": "n",
+        "23": "n",
+        "24": "n",
+        "25": "n",
+        "26": "n",
+        "27": "o"
+      },
+      "frame": {}
+    },
+    "frame": null,
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": [
+      {
+        "nodeId": "n",
+        "message": "Image Texture reads a texture or a GLSL-only helper, which a C++ unit has nothing for"
+      }
+    ]
+  },
+  "standalone": {
+    "issues": []
+  }
+}

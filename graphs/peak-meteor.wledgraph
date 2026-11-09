@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "song",
@@ -658,9 +657,9 @@
               "interpolation": "linear",
               "stops": [
                 {
-                  "position": 0.0,
+                  "position": 0,
                   "color": [
-                    0.0,
+                    0,
                     0.35,
                     0.8
                   ]
@@ -668,7 +667,7 @@
                 {
                   "position": 0.2,
                   "color": [
-                    0.0,
+                    0,
                     0.65,
                     0.6
                   ]
@@ -676,7 +675,7 @@
                 {
                   "position": 0.42,
                   "color": [
-                    0.0,
+                    0,
                     0.8,
                     0.25
                   ]
@@ -686,22 +685,22 @@
                   "color": [
                     0.95,
                     0.65,
-                    0.0
+                    0
                   ]
                 },
                 {
                   "position": 0.8,
                   "color": [
-                    1.0,
+                    1,
                     0.16,
-                    0.0
+                    0
                   ]
                 },
                 {
-                  "position": 1.0,
+                  "position": 1,
                   "color": [
-                    1.0,
-                    0.0,
+                    1,
+                    0,
                     0.3
                   ]
                 }
@@ -742,7 +741,7 @@
             "layer": [
               0.6,
               0.9,
-              1.0
+              1
             ]
           }
         }
@@ -772,7 +771,7 @@
             "layer": [
               0.9,
               0.25,
-              1.0
+              1
             ]
           }
         }
@@ -788,7 +787,7 @@
           "kind": "layerMix",
           "values": {
             "layer": [
-              1.0,
+              1,
               0.9,
               0.75
             ]
@@ -873,8 +872,8 @@
       {
         "id": "e-song-audio-audio-audio",
         "source": "song",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -884,8 +883,8 @@
       {
         "id": "e-audio-level-barBallistics-signal",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "barBallistics",
+        "sourceHandle": "level",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -895,8 +894,8 @@
       {
         "id": "e-audio-kick-kickPresence-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kickPresence",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -906,8 +905,8 @@
       {
         "id": "e-kickPresence-envelope-drumsGone-a",
         "source": "kickPresence",
-        "sourceHandle": "envelope",
         "target": "drumsGone",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -917,8 +916,8 @@
       {
         "id": "e-drumsGone-result-dropTension-signal",
         "source": "drumsGone",
-        "sourceHandle": "result",
         "target": "dropTension",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -928,8 +927,8 @@
       {
         "id": "e-dropTension-envelope-reach-value",
         "source": "dropTension",
-        "sourceHandle": "envelope",
         "target": "reach",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -939,8 +938,8 @@
       {
         "id": "e-barReach-value-reach-outLow",
         "source": "barReach",
-        "sourceHandle": "value",
         "target": "reach",
+        "sourceHandle": "value",
         "targetHandle": "outLow",
         "style": {
           "stroke": "#a1a1a1",
@@ -950,8 +949,8 @@
       {
         "id": "e-barBallistics-envelope-barLength-a",
         "source": "barBallistics",
-        "sourceHandle": "envelope",
         "target": "barLength",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -961,8 +960,8 @@
       {
         "id": "e-reach-result-barLength-b",
         "source": "reach",
-        "sourceHandle": "result",
         "target": "barLength",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -972,8 +971,8 @@
       {
         "id": "e-barLength-result-peakHang-signal",
         "source": "barLength",
-        "sourceHandle": "result",
         "target": "peakHang",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -983,8 +982,8 @@
       {
         "id": "e-barLength-result-barAtPeak-a",
         "source": "barLength",
-        "sourceHandle": "result",
         "target": "barAtPeak",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -994,8 +993,8 @@
       {
         "id": "e-peakHang-peak-barAtPeak-b",
         "source": "peakHang",
-        "sourceHandle": "peak",
         "target": "barAtPeak",
+        "sourceHandle": "peak",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1005,8 +1004,8 @@
       {
         "id": "e-barAtPeak-result-fallSpeed-reset",
         "source": "barAtPeak",
-        "sourceHandle": "result",
         "target": "fallSpeed",
+        "sourceHandle": "result",
         "targetHandle": "reset",
         "style": {
           "stroke": "#a1a1a1",
@@ -1016,8 +1015,8 @@
       {
         "id": "e-barLength-result-peakGravity-signal",
         "source": "barLength",
-        "sourceHandle": "result",
         "target": "peakGravity",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1027,8 +1026,8 @@
       {
         "id": "e-fallSpeed-value-peakGravity-fall",
         "source": "fallSpeed",
-        "sourceHandle": "value",
         "target": "peakGravity",
+        "sourceHandle": "value",
         "targetHandle": "fall",
         "style": {
           "stroke": "#a1a1a1",
@@ -1038,8 +1037,8 @@
       {
         "id": "e-audio-kick-kickGate-signal",
         "source": "audio",
-        "sourceHandle": "kick",
         "target": "kickGate",
+        "sourceHandle": "kick",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1049,8 +1048,8 @@
       {
         "id": "e-kickGate-gate-alternateKick-trigger",
         "source": "kickGate",
-        "sourceHandle": "gate",
         "target": "alternateKick",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -1060,8 +1059,8 @@
       {
         "id": "e-alternateKick-state-meteorArmed-a",
         "source": "alternateKick",
-        "sourceHandle": "state",
         "target": "meteorArmed",
+        "sourceHandle": "state",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1071,8 +1070,8 @@
       {
         "id": "e-dropTension-envelope-meteorArmed-b",
         "source": "dropTension",
-        "sourceHandle": "envelope",
         "target": "meteorArmed",
+        "sourceHandle": "envelope",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1082,8 +1081,8 @@
       {
         "id": "e-kickGate-gate-meteorTrigger-a",
         "source": "kickGate",
-        "sourceHandle": "gate",
         "target": "meteorTrigger",
+        "sourceHandle": "gate",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1093,8 +1092,8 @@
       {
         "id": "e-meteorArmed-result-meteorTrigger-b",
         "source": "meteorArmed",
-        "sourceHandle": "result",
         "target": "meteorTrigger",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1104,8 +1103,8 @@
       {
         "id": "e-meteorTrigger-result-meteorFlight-gate",
         "source": "meteorTrigger",
-        "sourceHandle": "result",
         "target": "meteorFlight",
+        "sourceHandle": "result",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1115,8 +1114,8 @@
       {
         "id": "e-meteorFlight-envelope-meteorHead-value",
         "source": "meteorFlight",
-        "sourceHandle": "envelope",
         "target": "meteorHead",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1126,8 +1125,8 @@
       {
         "id": "e-meteorTrigger-result-meteorGlow-gate",
         "source": "meteorTrigger",
-        "sourceHandle": "result",
         "target": "meteorGlow",
+        "sourceHandle": "result",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1137,8 +1136,8 @@
       {
         "id": "e-audio-air-highEnv-signal",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "highEnv",
+        "sourceHandle": "air",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1148,8 +1147,8 @@
       {
         "id": "e-audio-vocal-leadSlow-signal",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "leadSlow",
+        "sourceHandle": "vocal",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1159,8 +1158,8 @@
       {
         "id": "e-audio-vocal-leadTransient-a",
         "source": "audio",
-        "sourceHandle": "vocal",
         "target": "leadTransient",
+        "sourceHandle": "vocal",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1170,8 +1169,8 @@
       {
         "id": "e-leadSlow-envelope-leadTransient-b",
         "source": "leadSlow",
-        "sourceHandle": "envelope",
         "target": "leadTransient",
+        "sourceHandle": "envelope",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1181,8 +1180,8 @@
       {
         "id": "e-leadTransient-result-leadSpark-value",
         "source": "leadTransient",
-        "sourceHandle": "result",
         "target": "leadSpark",
+        "sourceHandle": "result",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1192,8 +1191,8 @@
       {
         "id": "e-dropTension-envelope-leadSpark-outHigh",
         "source": "dropTension",
-        "sourceHandle": "envelope",
         "target": "leadSpark",
+        "sourceHandle": "envelope",
         "targetHandle": "outHigh",
         "style": {
           "stroke": "#a1a1a1",
@@ -1203,8 +1202,8 @@
       {
         "id": "e-audio-air-sparkDrive-a",
         "source": "audio",
-        "sourceHandle": "air",
         "target": "sparkDrive",
+        "sourceHandle": "air",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1214,8 +1213,8 @@
       {
         "id": "e-leadSpark-result-sparkDrive-b",
         "source": "leadSpark",
-        "sourceHandle": "result",
         "target": "sparkDrive",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1225,8 +1224,8 @@
       {
         "id": "e-sparkDrive-result-sparkGate-signal",
         "source": "sparkDrive",
-        "sourceHandle": "result",
         "target": "sparkGate",
+        "sourceHandle": "result",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1236,8 +1235,8 @@
       {
         "id": "e-time-time-sparkSeed-signal",
         "source": "time",
-        "sourceHandle": "time",
         "target": "sparkSeed",
+        "sourceHandle": "time",
         "targetHandle": "signal",
         "style": {
           "stroke": "#a1a1a1",
@@ -1247,8 +1246,8 @@
       {
         "id": "e-sparkGate-gate-sparkSeed-trigger",
         "source": "sparkGate",
-        "sourceHandle": "gate",
         "target": "sparkSeed",
+        "sourceHandle": "gate",
         "targetHandle": "trigger",
         "style": {
           "stroke": "#a1a1a1",
@@ -1258,8 +1257,8 @@
       {
         "id": "e-sparkGate-gate-sparkFlash-gate",
         "source": "sparkGate",
-        "sourceHandle": "gate",
         "target": "sparkFlash",
+        "sourceHandle": "gate",
         "targetHandle": "gate",
         "style": {
           "stroke": "#a1a1a1",
@@ -1269,8 +1268,8 @@
       {
         "id": "e-mirror-uv-radius-a",
         "source": "mirror",
-        "sourceHandle": "uv",
         "target": "radius",
+        "sourceHandle": "uv",
         "targetHandle": "a",
         "style": {
           "stroke": "#6363c7",
@@ -1280,8 +1279,8 @@
       {
         "id": "e-radius-value-segments-position",
         "source": "radius",
-        "sourceHandle": "value",
         "target": "segments",
+        "sourceHandle": "value",
         "targetHandle": "position",
         "style": {
           "stroke": "#a1a1a1",
@@ -1291,8 +1290,8 @@
       {
         "id": "e-segments-local-segmentGaps-value",
         "source": "segments",
-        "sourceHandle": "local",
         "target": "segmentGaps",
+        "sourceHandle": "local",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1302,8 +1301,8 @@
       {
         "id": "e-radius-value-barMask-value",
         "source": "radius",
-        "sourceHandle": "value",
         "target": "barMask",
+        "sourceHandle": "value",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1313,8 +1312,8 @@
       {
         "id": "e-barLength-result-barMask-threshold",
         "source": "barLength",
-        "sourceHandle": "result",
         "target": "barMask",
+        "sourceHandle": "result",
         "targetHandle": "threshold",
         "style": {
           "stroke": "#a1a1a1",
@@ -1324,8 +1323,8 @@
       {
         "id": "e-highEnv-envelope-heat-a",
         "source": "highEnv",
-        "sourceHandle": "envelope",
         "target": "heat",
+        "sourceHandle": "envelope",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1335,8 +1334,8 @@
       {
         "id": "e-radius-value-heat-c",
         "source": "radius",
-        "sourceHandle": "value",
         "target": "heat",
+        "sourceHandle": "value",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1346,8 +1345,8 @@
       {
         "id": "e-meteorHead-result-meteorTailEnd-a",
         "source": "meteorHead",
-        "sourceHandle": "result",
         "target": "meteorTailEnd",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1357,8 +1356,8 @@
       {
         "id": "e-radius-value-meteorMask-value",
         "source": "radius",
-        "sourceHandle": "value",
         "target": "meteorMask",
+        "sourceHandle": "value",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1368,8 +1367,8 @@
       {
         "id": "e-meteorTailEnd-result-meteorMask-from",
         "source": "meteorTailEnd",
-        "sourceHandle": "result",
         "target": "meteorMask",
+        "sourceHandle": "result",
         "targetHandle": "from",
         "style": {
           "stroke": "#a1a1a1",
@@ -1379,8 +1378,8 @@
       {
         "id": "e-meteorHead-result-meteorMask-to",
         "source": "meteorHead",
-        "sourceHandle": "result",
         "target": "meteorMask",
+        "sourceHandle": "result",
         "targetHandle": "to",
         "style": {
           "stroke": "#a1a1a1",
@@ -1390,8 +1389,8 @@
       {
         "id": "e-peakGravity-value-peakEdge-a",
         "source": "peakGravity",
-        "sourceHandle": "value",
         "target": "peakEdge",
+        "sourceHandle": "value",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1401,8 +1400,8 @@
       {
         "id": "e-radius-value-peakDot-value",
         "source": "radius",
-        "sourceHandle": "value",
         "target": "peakDot",
+        "sourceHandle": "value",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1412,8 +1411,8 @@
       {
         "id": "e-peakGravity-value-peakDot-from",
         "source": "peakGravity",
-        "sourceHandle": "value",
         "target": "peakDot",
+        "sourceHandle": "value",
         "targetHandle": "from",
         "style": {
           "stroke": "#a1a1a1",
@@ -1423,8 +1422,8 @@
       {
         "id": "e-peakEdge-result-peakDot-to",
         "source": "peakEdge",
-        "sourceHandle": "result",
         "target": "peakDot",
+        "sourceHandle": "result",
         "targetHandle": "to",
         "style": {
           "stroke": "#a1a1a1",
@@ -1434,8 +1433,8 @@
       {
         "id": "e-ledLayout-index-sparkCoords-x",
         "source": "ledLayout",
-        "sourceHandle": "index",
         "target": "sparkCoords",
+        "sourceHandle": "index",
         "targetHandle": "x",
         "style": {
           "stroke": "#a1a1a1",
@@ -1445,8 +1444,8 @@
       {
         "id": "e-sparkSeed-value-sparkCoords-y",
         "source": "sparkSeed",
-        "sourceHandle": "value",
         "target": "sparkCoords",
+        "sourceHandle": "value",
         "targetHandle": "y",
         "style": {
           "stroke": "#a1a1a1",
@@ -1456,8 +1455,8 @@
       {
         "id": "e-sparkCoords-vector-sparkNoise-vector",
         "source": "sparkCoords",
-        "sourceHandle": "vector",
         "target": "sparkNoise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -1467,8 +1466,8 @@
       {
         "id": "e-sparkNoise-fac-sparkPick-value",
         "source": "sparkNoise",
-        "sourceHandle": "fac",
         "target": "sparkPick",
+        "sourceHandle": "fac",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1478,8 +1477,8 @@
       {
         "id": "e-barBallistics-envelope-barGlow-value",
         "source": "barBallistics",
-        "sourceHandle": "envelope",
         "target": "barGlow",
+        "sourceHandle": "envelope",
         "targetHandle": "value",
         "style": {
           "stroke": "#a1a1a1",
@@ -1489,8 +1488,8 @@
       {
         "id": "e-heat-result-barRamp-fac",
         "source": "heat",
-        "sourceHandle": "result",
         "target": "barRamp",
+        "sourceHandle": "result",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1500,8 +1499,8 @@
       {
         "id": "e-barRamp-color-barShade-a",
         "source": "barRamp",
-        "sourceHandle": "color",
         "target": "barShade",
+        "sourceHandle": "color",
         "targetHandle": "a",
         "style": {
           "stroke": "#c7c729",
@@ -1511,8 +1510,8 @@
       {
         "id": "e-barGlow-result-barShade-b",
         "source": "barGlow",
-        "sourceHandle": "result",
         "target": "barShade",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1522,8 +1521,8 @@
       {
         "id": "e-sparkFlash-envelope-sparkLayer-opacity",
         "source": "sparkFlash",
-        "sourceHandle": "envelope",
         "target": "sparkLayer",
+        "sourceHandle": "envelope",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1533,8 +1532,8 @@
       {
         "id": "e-sparkPick-mask-sparkLayer-mask",
         "source": "sparkPick",
-        "sourceHandle": "mask",
         "target": "sparkLayer",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1544,8 +1543,8 @@
       {
         "id": "e-meteorLayer-color-barLayer-base",
         "source": "meteorLayer",
-        "sourceHandle": "color",
         "target": "barLayer",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1555,8 +1554,8 @@
       {
         "id": "e-barShade-result-barLayer-layer",
         "source": "barShade",
-        "sourceHandle": "result",
         "target": "barLayer",
+        "sourceHandle": "result",
         "targetHandle": "layer",
         "style": {
           "stroke": "#c7c729",
@@ -1566,8 +1565,8 @@
       {
         "id": "e-segmentGaps-mask-barLayer-opacity",
         "source": "segmentGaps",
-        "sourceHandle": "mask",
         "target": "barLayer",
+        "sourceHandle": "mask",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1577,8 +1576,8 @@
       {
         "id": "e-barMask-mask-barLayer-mask",
         "source": "barMask",
-        "sourceHandle": "mask",
         "target": "barLayer",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1588,8 +1587,8 @@
       {
         "id": "e-sparkLayer-color-meteorLayer-base",
         "source": "sparkLayer",
-        "sourceHandle": "color",
         "target": "meteorLayer",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1599,8 +1598,8 @@
       {
         "id": "e-meteorGlow-envelope-meteorLayer-opacity",
         "source": "meteorGlow",
-        "sourceHandle": "envelope",
         "target": "meteorLayer",
+        "sourceHandle": "envelope",
         "targetHandle": "opacity",
         "style": {
           "stroke": "#a1a1a1",
@@ -1610,8 +1609,8 @@
       {
         "id": "e-meteorMask-mask-meteorLayer-mask",
         "source": "meteorMask",
-        "sourceHandle": "mask",
         "target": "meteorLayer",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1621,8 +1620,8 @@
       {
         "id": "e-barLayer-color-peakLayer-base",
         "source": "barLayer",
-        "sourceHandle": "color",
         "target": "peakLayer",
+        "sourceHandle": "color",
         "targetHandle": "base",
         "style": {
           "stroke": "#c7c729",
@@ -1632,8 +1631,8 @@
       {
         "id": "e-peakDot-mask-peakLayer-mask",
         "source": "peakDot",
-        "sourceHandle": "mask",
         "target": "peakLayer",
+        "sourceHandle": "mask",
         "targetHandle": "mask",
         "style": {
           "stroke": "#a1a1a1",
@@ -1643,8 +1642,8 @@
       {
         "id": "e-hueShift-value-hueRotate-hue",
         "source": "hueShift",
-        "sourceHandle": "value",
         "target": "hueRotate",
+        "sourceHandle": "value",
         "targetHandle": "hue",
         "style": {
           "stroke": "#a1a1a1",
@@ -1654,8 +1653,8 @@
       {
         "id": "e-peakLayer-color-hueRotate-color",
         "source": "peakLayer",
-        "sourceHandle": "color",
         "target": "hueRotate",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1665,8 +1664,8 @@
       {
         "id": "e-hueRotate-color-trails-color",
         "source": "hueRotate",
-        "sourceHandle": "color",
         "target": "trails",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1676,8 +1675,8 @@
       {
         "id": "e-tailLength-value-trails-decay",
         "source": "tailLength",
-        "sourceHandle": "value",
         "target": "trails",
+        "sourceHandle": "value",
         "targetHandle": "decay",
         "style": {
           "stroke": "#a1a1a1",
@@ -1687,14 +1686,16 @@
       {
         "id": "e-trails-color-out-color",
         "source": "trails",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

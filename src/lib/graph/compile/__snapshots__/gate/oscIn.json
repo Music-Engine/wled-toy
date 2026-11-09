@@ -1,0 +1,85 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [
+      {
+        "kind": "osc",
+        "default": 0,
+        "address": "/1/fader1",
+        "argument": 0,
+        "node": "n",
+        "output": "value",
+        "offset": 0
+      },
+      {
+        "kind": "osc",
+        "default": 0,
+        "address": "/1/fader1",
+        "argument": 1,
+        "node": "n",
+        "output": "second",
+        "offset": 1
+      },
+      {
+        "kind": "osc",
+        "default": 0,
+        "address": "/1/fader1",
+        "argument": 2,
+        "node": "n",
+        "output": "third",
+        "offset": 2
+      }
+    ],
+    "resources": {
+      "osc": [
+        9000
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "4": "o"
+      },
+      "frame": {}
+    },
+    "frame": null,
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": [
+      {
+        "nodeId": "n",
+        "message": "OSC In reads OSC, which a usermod has no input for"
+      }
+    ]
+  },
+  "standalone": {
+    "issues": [
+      {
+        "nodeId": "n",
+        "message": "OSC In \"Value\" is fixed at 0 in the exported shader"
+      },
+      {
+        "nodeId": "n",
+        "message": "OSC In \"Argument 2\" is fixed at 0 in the exported shader"
+      },
+      {
+        "nodeId": "n",
+        "message": "OSC In \"Argument 3\" is fixed at 0 in the exported shader"
+      }
+    ]
+  }
+}

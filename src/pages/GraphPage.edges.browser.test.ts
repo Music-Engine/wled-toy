@@ -4,10 +4,10 @@ import { afterEach, expect, it } from 'vitest'
 import { KeepAlive, createApp, h } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
 import GraphPage from './GraphPage.vue'
-import { config } from '@/lib/app/config'
+import { config } from '@/lib/app/settings/config'
 import { graphFileBackendKey } from '@/lib/graph/model/document'
-import { parseGraphFile } from '@/lib/graph/model/file'
-import { preferences, resetPreferences } from '@/lib/app/preferences'
+import { readGraphFile } from '@/lib/graph/model/file'
+import { preferences, resetPreferences } from '@/lib/app/settings/preferences'
 import { workspace } from '@/lib/app/workspace'
 import chainFile from '../../graphs/bench/bench-control-chain.wledgraph?raw'
 
@@ -57,7 +57,7 @@ async function settle(timeout = 20000) {
 }
 
 it('adding and removing a link on a 344-node graph settles, without re-rendering the canvas', { timeout: 120000 }, async () => {
-  const doc = parseGraphFile(chainFile)
+  const doc = readGraphFile(chainFile).doc
   config.graph = doc
   workspace.mode = 'graph'
   preferences.autosave = false
@@ -68,9 +68,16 @@ it('adding and removing a link on a 344-node graph settles, without re-rendering
   const app = createApp({ render: () => h('div', { style: 'width: 1200px; height: 800px' }, h(KeepAlive, null, [h(GraphPage)])) })
   app.provide(graphFileBackendKey, backend)
   app.config.warnHandler = () => undefined
-  app.mixin({ updated() { updates++ } })
+  app.mixin({
+    updated() {
+      updates++
+    },
+  })
   app.mount(root)
-  unmount = () => { app.unmount(); root.remove() }
+  unmount = () => {
+    app.unmount()
+    root.remove()
+  }
   await settle()
   expect(document.querySelectorAll('.vue-flow__node')).toHaveLength(doc.nodes.length)
 

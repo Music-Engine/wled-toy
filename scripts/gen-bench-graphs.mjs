@@ -17,7 +17,16 @@ const SIZES = {
 }
 
 // the type colors the editor writes on a link, by the source socket's type (graphs/AUTHORING.md "File format")
-const STROKE = { float: '#a1a1a1', int: '#4772b3', vec2: '#6363c7', vec3: '#6363c7', color: '#c7c729', texture: '#29c7c7', audio: '#e0853d', spectrum: '#d9568b' }
+const STROKE = {
+  float: '#a1a1a1',
+  int: '#4772b3',
+  vec2: '#6363c7',
+  vec3: '#6363c7',
+  color: '#c7c729',
+  texture: '#29c7c7',
+  audio: '#e0853d',
+  spectrum: '#d9568b',
+}
 
 class Builder {
   constructor() {
@@ -33,7 +42,14 @@ class Builder {
   link(from, to, type = 'float') {
     const [source, sourceHandle] = from.split('.')
     const [target, targetHandle] = to.split('.')
-    this.edges.push({ id: `e-${source}-${sourceHandle}-${target}-${targetHandle}`, source, sourceHandle, target, targetHandle, style: { stroke: STROKE[type], strokeWidth: 2 } })
+    this.edges.push({
+      id: `e-${source}-${sourceHandle}-${target}-${targetHandle}`,
+      source,
+      sourceHandle,
+      target,
+      targetHandle,
+      style: { stroke: STROKE[type], strokeWidth: 2 },
+    })
   }
 
   // a plain grid in creation order: 320 px columns are wider than any node, so only the row pitch has to clear the tallest one
@@ -74,10 +90,29 @@ function gpuHeavy() {
     b.link(`${p}map.vector`, `${p}magic.vector`, 'vec3')
     b.add(`${p}brick`, 'brickTexture', { scale: 6 + layer, mortarSize: 0.04, mortarSmooth: 0.5, brickWidth: 0.5, rowHeight: 0.25 })
     b.link(`${p}map.vector`, `${p}brick.vector`, 'vec3')
-    b.add(`${p}wave`, 'waveTexture', { type: 'rings', ringsDirection: 'spherical', profile: 'triangle', scale: 9 + layer, distortion: 2, detail: 15, detailScale: 2, detailRoughness: 0.7 })
+    b.add(`${p}wave`, 'waveTexture', {
+      type: 'rings',
+      ringsDirection: 'spherical',
+      profile: 'triangle',
+      scale: 9 + layer,
+      distortion: 2,
+      detail: 15,
+      detailScale: 2,
+      detailRoughness: 0.7,
+    })
     b.link(`${p}map.vector`, `${p}wave.vector`, 'vec3')
 
-    b.add(`${p}ramp`, 'colorRamp', { ramp: { interpolation: 'spline', stops: [{ position: 0, color: [0, 0, 0.2] }, { position: 0.35, color: [0.8, 0.1, 0.4] }, { position: 0.7, color: [1, 0.7, 0.1] }, { position: 1, color: [0.9, 1, 1] }] } })
+    b.add(`${p}ramp`, 'colorRamp', {
+      ramp: {
+        interpolation: 'spline',
+        stops: [
+          { position: 0, color: [0, 0, 0.2] },
+          { position: 0.35, color: [0.8, 0.1, 0.4] },
+          { position: 0.7, color: [1, 0.7, 0.1] },
+          { position: 1, color: [0.9, 1, 1] },
+        ],
+      },
+    })
     b.link(`${p}noise.fac`, `${p}ramp.fac`)
     b.add(`${p}mixA`, 'colorMix', { mode: 'overlay', factor: 0.6 })
     b.link(`${p}ramp.color`, `${p}mixA.color1`, 'color')
@@ -181,7 +216,24 @@ const CONTROL_STEPS = [
   { kind: 'math', values: { op: 'add', b: 0.05, clamp: true }, in: 'a', out: 'result' },
 ]
 
-const AUDIO_TAPS = ['level', 'kick', 'sub', 'lowMid', 'vocal', 'presence', 'air', 'beatPhase', 'centroid', 'flatness', 'rms', 'peak', 'gate', 'onset', 'beat', 'bpm']
+const AUDIO_TAPS = [
+  'level',
+  'kick',
+  'sub',
+  'lowMid',
+  'vocal',
+  'presence',
+  'air',
+  'beatPhase',
+  'centroid',
+  'flatness',
+  'rms',
+  'peak',
+  'gate',
+  'onset',
+  'beat',
+  'bpm',
+]
 
 /** Adds `chains` chains of `length` control nodes hanging off the Audio node, and returns a handle for their sum. */
 function controlChains(b, chains, length, prefix) {
@@ -260,7 +312,16 @@ function audioMultiFft() {
     b.add(`split${i}`, 'bandSplit', { low: 60 + i * 400, high: 400 + i * 1200 })
     b.link(`fft${i}.spectrum`, `split${i}.spectrum`, 'spectrum')
 
-    b.add(`ramp${i}`, 'colorRamp', { ramp: { interpolation: 'linear', stops: [{ position: 0, color: [0, 0, 0] }, { position: 0.5, color: [0.2, 0.6, 1] }, { position: 1, color: [1, 0.9, 0.4] }] } })
+    b.add(`ramp${i}`, 'colorRamp', {
+      ramp: {
+        interpolation: 'linear',
+        stops: [
+          { position: 0, color: [0, 0, 0] },
+          { position: 0.5, color: [0.2, 0.6, 1] },
+          { position: 1, color: [1, 0.9, 0.4] },
+        ],
+      },
+    })
     b.link(`spec${i}.level`, `ramp${i}.fac`)
     b.add(`chromaMul${i}`, 'math', { op: 'multiply' })
     b.link(`chroma${i}.level`, `chromaMul${i}.a`)
@@ -289,7 +350,15 @@ function audioMultiFft() {
   b.add('audio', 'audio')
   b.link('source.audio', 'audio.audio', 'audio')
   b.add('defaultSpec', 'spectrum')
-  b.add('defaultRamp', 'colorRamp', { ramp: { interpolation: 'ease', stops: [{ position: 0, color: [0, 0, 0] }, { position: 1, color: [1, 0.3, 0.1] }] } })
+  b.add('defaultRamp', 'colorRamp', {
+    ramp: {
+      interpolation: 'ease',
+      stops: [
+        { position: 0, color: [0, 0, 0] },
+        { position: 1, color: [1, 0.3, 0.1] },
+      ],
+    },
+  })
   b.link('defaultSpec.level', 'defaultRamp.fac')
   colors.push('defaultRamp.color')
 
@@ -469,7 +538,16 @@ function kitchenSink() {
   b.link('map.vector', 'noise.vector', 'vec3')
   b.add('voronoi', 'voronoi', { scale: 10, randomness: 1 })
   b.link('map.vector', 'voronoi.vector', 'vec3')
-  b.add('ramp', 'colorRamp', { ramp: { interpolation: 'ease', stops: [{ position: 0, color: [0, 0, 0.1] }, { position: 0.5, color: [0.6, 0.1, 0.8] }, { position: 1, color: [1, 0.9, 0.5] }] } })
+  b.add('ramp', 'colorRamp', {
+    ramp: {
+      interpolation: 'ease',
+      stops: [
+        { position: 0, color: [0, 0, 0.1] },
+        { position: 0.5, color: [0.6, 0.1, 0.8] },
+        { position: 1, color: [1, 0.9, 0.5] },
+      ],
+    },
+  })
   b.link('noise.fac', 'ramp.fac')
   b.add('tex', 'colorMix', { mode: 'overlay', factor: 0.5 })
   b.link('ramp.color', 'tex.color1', 'color')

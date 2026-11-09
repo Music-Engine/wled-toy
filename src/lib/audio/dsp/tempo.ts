@@ -24,7 +24,12 @@ export class TempoTracker {
   private phase = 0
   private confidence = 0
 
-  constructor(private readonly hopRate: number, private readonly minBpm = 60, private readonly maxBpm = 200, seconds = 6) {
+  constructor(
+    private readonly hopRate: number,
+    private readonly minBpm = 60,
+    private readonly maxBpm = 200,
+    seconds = 6,
+  ) {
     this.history = new Float32Array(Math.round(seconds * hopRate))
   }
 

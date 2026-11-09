@@ -1,0 +1,76 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "audioFeatures": [
+        true
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 2.2,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "temporal"
+    },
+    "lineNodes": {
+      "pixel": {
+        "10": "drift",
+        "11": "huePosition",
+        "12": "palette",
+        "13": "palette",
+        "14": "palette",
+        "15": "palette",
+        "16": "palette",
+        "17": "palette",
+        "18": "palette",
+        "19": "palette",
+        "20": "spectrum",
+        "21": "bandGate",
+        "22": "bandGate",
+        "23": "bands",
+        "24": "kickGate",
+        "25": "kickGate",
+        "26": "left",
+        "27": "right",
+        "28": "fromCenter",
+        "29": "burstWidth",
+        "30": "burst",
+        "31": "burst",
+        "32": "flash",
+        "33": "out"
+      },
+      "frame": {}
+    },
+    "frame": null,
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": []
+  },
+  "standalone": {
+    "issues": []
+  }
+}

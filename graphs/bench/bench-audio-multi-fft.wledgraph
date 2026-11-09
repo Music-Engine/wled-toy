@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "source",
@@ -1434,8 +1433,8 @@
       {
         "id": "e-source-audio-fft0-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "fft0",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -1445,8 +1444,8 @@
       {
         "id": "e-fft0-spectrum-spec0-spectrum",
         "source": "fft0",
-        "sourceHandle": "spectrum",
         "target": "spec0",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1456,8 +1455,8 @@
       {
         "id": "e-fft0-spectrum-chroma0-spectrum",
         "source": "fft0",
-        "sourceHandle": "spectrum",
         "target": "chroma0",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1467,8 +1466,8 @@
       {
         "id": "e-fft0-spectrum-bands0-spectrum",
         "source": "fft0",
-        "sourceHandle": "spectrum",
         "target": "bands0",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1478,8 +1477,8 @@
       {
         "id": "e-fft0-spectrum-split0-spectrum",
         "source": "fft0",
-        "sourceHandle": "spectrum",
         "target": "split0",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1489,8 +1488,8 @@
       {
         "id": "e-spec0-level-ramp0-fac",
         "source": "spec0",
-        "sourceHandle": "level",
         "target": "ramp0",
+        "sourceHandle": "level",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1500,8 +1499,8 @@
       {
         "id": "e-chroma0-level-chromaMul0-a",
         "source": "chroma0",
-        "sourceHandle": "level",
         "target": "chromaMul0",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1511,8 +1510,8 @@
       {
         "id": "e-split0-level-chromaMul0-b",
         "source": "split0",
-        "sourceHandle": "level",
         "target": "chromaMul0",
+        "sourceHandle": "level",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1522,8 +1521,8 @@
       {
         "id": "e-ramp0-color-tint0-color1",
         "source": "ramp0",
-        "sourceHandle": "color",
         "target": "tint0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1533,8 +1532,8 @@
       {
         "id": "e-chromaMul0-result-chromaColor0-c",
         "source": "chromaMul0",
-        "sourceHandle": "result",
         "target": "chromaColor0",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -1544,8 +1543,8 @@
       {
         "id": "e-chromaColor0-color-tint0-color2",
         "source": "chromaColor0",
-        "sourceHandle": "color",
         "target": "tint0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1555,8 +1554,8 @@
       {
         "id": "e-bands0-band1-bandSum0_1-a",
         "source": "bands0",
-        "sourceHandle": "band1",
         "target": "bandSum0_1",
+        "sourceHandle": "band1",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1566,8 +1565,8 @@
       {
         "id": "e-bands0-band1-bandSum0_1-b",
         "source": "bands0",
-        "sourceHandle": "band1",
         "target": "bandSum0_1",
+        "sourceHandle": "band1",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1577,8 +1576,8 @@
       {
         "id": "e-bandSum0_1-result-bandSum0_2-a",
         "source": "bandSum0_1",
-        "sourceHandle": "result",
         "target": "bandSum0_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1588,8 +1587,8 @@
       {
         "id": "e-bands0-band2-bandSum0_2-b",
         "source": "bands0",
-        "sourceHandle": "band2",
         "target": "bandSum0_2",
+        "sourceHandle": "band2",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1599,8 +1598,8 @@
       {
         "id": "e-bandSum0_2-result-bandSum0_3-a",
         "source": "bandSum0_2",
-        "sourceHandle": "result",
         "target": "bandSum0_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1610,8 +1609,8 @@
       {
         "id": "e-bands0-band3-bandSum0_3-b",
         "source": "bands0",
-        "sourceHandle": "band3",
         "target": "bandSum0_3",
+        "sourceHandle": "band3",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1621,8 +1620,8 @@
       {
         "id": "e-bandSum0_3-result-bandSum0_4-a",
         "source": "bandSum0_3",
-        "sourceHandle": "result",
         "target": "bandSum0_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1632,8 +1631,8 @@
       {
         "id": "e-bands0-band4-bandSum0_4-b",
         "source": "bands0",
-        "sourceHandle": "band4",
         "target": "bandSum0_4",
+        "sourceHandle": "band4",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1643,8 +1642,8 @@
       {
         "id": "e-bandSum0_4-result-bandSum0_5-a",
         "source": "bandSum0_4",
-        "sourceHandle": "result",
         "target": "bandSum0_5",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1654,8 +1653,8 @@
       {
         "id": "e-bands0-band5-bandSum0_5-b",
         "source": "bands0",
-        "sourceHandle": "band5",
         "target": "bandSum0_5",
+        "sourceHandle": "band5",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1665,8 +1664,8 @@
       {
         "id": "e-bandSum0_5-result-bandSum0_6-a",
         "source": "bandSum0_5",
-        "sourceHandle": "result",
         "target": "bandSum0_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1676,8 +1675,8 @@
       {
         "id": "e-bands0-band6-bandSum0_6-b",
         "source": "bands0",
-        "sourceHandle": "band6",
         "target": "bandSum0_6",
+        "sourceHandle": "band6",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1687,8 +1686,8 @@
       {
         "id": "e-bandSum0_6-result-bandSum0_7-a",
         "source": "bandSum0_6",
-        "sourceHandle": "result",
         "target": "bandSum0_7",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1698,8 +1697,8 @@
       {
         "id": "e-bands0-band7-bandSum0_7-b",
         "source": "bands0",
-        "sourceHandle": "band7",
         "target": "bandSum0_7",
+        "sourceHandle": "band7",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1709,8 +1708,8 @@
       {
         "id": "e-bandSum0_7-result-bandSum0_8-a",
         "source": "bandSum0_7",
-        "sourceHandle": "result",
         "target": "bandSum0_8",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1720,8 +1719,8 @@
       {
         "id": "e-bands0-band8-bandSum0_8-b",
         "source": "bands0",
-        "sourceHandle": "band8",
         "target": "bandSum0_8",
+        "sourceHandle": "band8",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1731,8 +1730,8 @@
       {
         "id": "e-bandSum0_8-result-bandSum0_9-a",
         "source": "bandSum0_8",
-        "sourceHandle": "result",
         "target": "bandSum0_9",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1742,8 +1741,8 @@
       {
         "id": "e-bands0-band9-bandSum0_9-b",
         "source": "bands0",
-        "sourceHandle": "band9",
         "target": "bandSum0_9",
+        "sourceHandle": "band9",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1753,8 +1752,8 @@
       {
         "id": "e-bandSum0_9-result-bandSum0_10-a",
         "source": "bandSum0_9",
-        "sourceHandle": "result",
         "target": "bandSum0_10",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1764,8 +1763,8 @@
       {
         "id": "e-bands0-band10-bandSum0_10-b",
         "source": "bands0",
-        "sourceHandle": "band10",
         "target": "bandSum0_10",
+        "sourceHandle": "band10",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1775,8 +1774,8 @@
       {
         "id": "e-bandSum0_10-result-bandSum0_11-a",
         "source": "bandSum0_10",
-        "sourceHandle": "result",
         "target": "bandSum0_11",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1786,8 +1785,8 @@
       {
         "id": "e-bands0-band11-bandSum0_11-b",
         "source": "bands0",
-        "sourceHandle": "band11",
         "target": "bandSum0_11",
+        "sourceHandle": "band11",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1797,8 +1796,8 @@
       {
         "id": "e-bandSum0_11-result-bandSum0_12-a",
         "source": "bandSum0_11",
-        "sourceHandle": "result",
         "target": "bandSum0_12",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1808,8 +1807,8 @@
       {
         "id": "e-bands0-band12-bandSum0_12-b",
         "source": "bands0",
-        "sourceHandle": "band12",
         "target": "bandSum0_12",
+        "sourceHandle": "band12",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1819,8 +1818,8 @@
       {
         "id": "e-bandSum0_12-result-bandSum0_13-a",
         "source": "bandSum0_12",
-        "sourceHandle": "result",
         "target": "bandSum0_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1830,8 +1829,8 @@
       {
         "id": "e-bands0-band13-bandSum0_13-b",
         "source": "bands0",
-        "sourceHandle": "band13",
         "target": "bandSum0_13",
+        "sourceHandle": "band13",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1841,8 +1840,8 @@
       {
         "id": "e-bandSum0_13-result-bandSum0_14-a",
         "source": "bandSum0_13",
-        "sourceHandle": "result",
         "target": "bandSum0_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1852,8 +1851,8 @@
       {
         "id": "e-bands0-band14-bandSum0_14-b",
         "source": "bands0",
-        "sourceHandle": "band14",
         "target": "bandSum0_14",
+        "sourceHandle": "band14",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1863,8 +1862,8 @@
       {
         "id": "e-bandSum0_14-result-bandSum0_15-a",
         "source": "bandSum0_14",
-        "sourceHandle": "result",
         "target": "bandSum0_15",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1874,8 +1873,8 @@
       {
         "id": "e-bands0-band15-bandSum0_15-b",
         "source": "bands0",
-        "sourceHandle": "band15",
         "target": "bandSum0_15",
+        "sourceHandle": "band15",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1885,8 +1884,8 @@
       {
         "id": "e-bandSum0_15-result-bandSum0_16-a",
         "source": "bandSum0_15",
-        "sourceHandle": "result",
         "target": "bandSum0_16",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1896,8 +1895,8 @@
       {
         "id": "e-bands0-band16-bandSum0_16-b",
         "source": "bands0",
-        "sourceHandle": "band16",
         "target": "bandSum0_16",
+        "sourceHandle": "band16",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1907,8 +1906,8 @@
       {
         "id": "e-source-audio-fft1-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "fft1",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -1918,8 +1917,8 @@
       {
         "id": "e-fft1-spectrum-spec1-spectrum",
         "source": "fft1",
-        "sourceHandle": "spectrum",
         "target": "spec1",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1929,8 +1928,8 @@
       {
         "id": "e-fft1-spectrum-chroma1-spectrum",
         "source": "fft1",
-        "sourceHandle": "spectrum",
         "target": "chroma1",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1940,8 +1939,8 @@
       {
         "id": "e-fft1-spectrum-bands1-spectrum",
         "source": "fft1",
-        "sourceHandle": "spectrum",
         "target": "bands1",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1951,8 +1950,8 @@
       {
         "id": "e-fft1-spectrum-split1-spectrum",
         "source": "fft1",
-        "sourceHandle": "spectrum",
         "target": "split1",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -1962,8 +1961,8 @@
       {
         "id": "e-spec1-level-ramp1-fac",
         "source": "spec1",
-        "sourceHandle": "level",
         "target": "ramp1",
+        "sourceHandle": "level",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -1973,8 +1972,8 @@
       {
         "id": "e-chroma1-level-chromaMul1-a",
         "source": "chroma1",
-        "sourceHandle": "level",
         "target": "chromaMul1",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -1984,8 +1983,8 @@
       {
         "id": "e-split1-level-chromaMul1-b",
         "source": "split1",
-        "sourceHandle": "level",
         "target": "chromaMul1",
+        "sourceHandle": "level",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -1995,8 +1994,8 @@
       {
         "id": "e-ramp1-color-tint1-color1",
         "source": "ramp1",
-        "sourceHandle": "color",
         "target": "tint1",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2006,8 +2005,8 @@
       {
         "id": "e-chromaMul1-result-chromaColor1-c",
         "source": "chromaMul1",
-        "sourceHandle": "result",
         "target": "chromaColor1",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -2017,8 +2016,8 @@
       {
         "id": "e-chromaColor1-color-tint1-color2",
         "source": "chromaColor1",
-        "sourceHandle": "color",
         "target": "tint1",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2028,8 +2027,8 @@
       {
         "id": "e-bands1-band1-bandSum1_1-a",
         "source": "bands1",
-        "sourceHandle": "band1",
         "target": "bandSum1_1",
+        "sourceHandle": "band1",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2039,8 +2038,8 @@
       {
         "id": "e-bands1-band1-bandSum1_1-b",
         "source": "bands1",
-        "sourceHandle": "band1",
         "target": "bandSum1_1",
+        "sourceHandle": "band1",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2050,8 +2049,8 @@
       {
         "id": "e-bandSum1_1-result-bandSum1_2-a",
         "source": "bandSum1_1",
-        "sourceHandle": "result",
         "target": "bandSum1_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2061,8 +2060,8 @@
       {
         "id": "e-bands1-band2-bandSum1_2-b",
         "source": "bands1",
-        "sourceHandle": "band2",
         "target": "bandSum1_2",
+        "sourceHandle": "band2",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2072,8 +2071,8 @@
       {
         "id": "e-bandSum1_2-result-bandSum1_3-a",
         "source": "bandSum1_2",
-        "sourceHandle": "result",
         "target": "bandSum1_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2083,8 +2082,8 @@
       {
         "id": "e-bands1-band3-bandSum1_3-b",
         "source": "bands1",
-        "sourceHandle": "band3",
         "target": "bandSum1_3",
+        "sourceHandle": "band3",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2094,8 +2093,8 @@
       {
         "id": "e-bandSum1_3-result-bandSum1_4-a",
         "source": "bandSum1_3",
-        "sourceHandle": "result",
         "target": "bandSum1_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2105,8 +2104,8 @@
       {
         "id": "e-bands1-band4-bandSum1_4-b",
         "source": "bands1",
-        "sourceHandle": "band4",
         "target": "bandSum1_4",
+        "sourceHandle": "band4",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2116,8 +2115,8 @@
       {
         "id": "e-bandSum1_4-result-bandSum1_5-a",
         "source": "bandSum1_4",
-        "sourceHandle": "result",
         "target": "bandSum1_5",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2127,8 +2126,8 @@
       {
         "id": "e-bands1-band5-bandSum1_5-b",
         "source": "bands1",
-        "sourceHandle": "band5",
         "target": "bandSum1_5",
+        "sourceHandle": "band5",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2138,8 +2137,8 @@
       {
         "id": "e-bandSum1_5-result-bandSum1_6-a",
         "source": "bandSum1_5",
-        "sourceHandle": "result",
         "target": "bandSum1_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2149,8 +2148,8 @@
       {
         "id": "e-bands1-band6-bandSum1_6-b",
         "source": "bands1",
-        "sourceHandle": "band6",
         "target": "bandSum1_6",
+        "sourceHandle": "band6",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2160,8 +2159,8 @@
       {
         "id": "e-bandSum1_6-result-bandSum1_7-a",
         "source": "bandSum1_6",
-        "sourceHandle": "result",
         "target": "bandSum1_7",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2171,8 +2170,8 @@
       {
         "id": "e-bands1-band7-bandSum1_7-b",
         "source": "bands1",
-        "sourceHandle": "band7",
         "target": "bandSum1_7",
+        "sourceHandle": "band7",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2182,8 +2181,8 @@
       {
         "id": "e-bandSum1_7-result-bandSum1_8-a",
         "source": "bandSum1_7",
-        "sourceHandle": "result",
         "target": "bandSum1_8",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2193,8 +2192,8 @@
       {
         "id": "e-bands1-band8-bandSum1_8-b",
         "source": "bands1",
-        "sourceHandle": "band8",
         "target": "bandSum1_8",
+        "sourceHandle": "band8",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2204,8 +2203,8 @@
       {
         "id": "e-bandSum1_8-result-bandSum1_9-a",
         "source": "bandSum1_8",
-        "sourceHandle": "result",
         "target": "bandSum1_9",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2215,8 +2214,8 @@
       {
         "id": "e-bands1-band9-bandSum1_9-b",
         "source": "bands1",
-        "sourceHandle": "band9",
         "target": "bandSum1_9",
+        "sourceHandle": "band9",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2226,8 +2225,8 @@
       {
         "id": "e-bandSum1_9-result-bandSum1_10-a",
         "source": "bandSum1_9",
-        "sourceHandle": "result",
         "target": "bandSum1_10",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2237,8 +2236,8 @@
       {
         "id": "e-bands1-band10-bandSum1_10-b",
         "source": "bands1",
-        "sourceHandle": "band10",
         "target": "bandSum1_10",
+        "sourceHandle": "band10",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2248,8 +2247,8 @@
       {
         "id": "e-bandSum1_10-result-bandSum1_11-a",
         "source": "bandSum1_10",
-        "sourceHandle": "result",
         "target": "bandSum1_11",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2259,8 +2258,8 @@
       {
         "id": "e-bands1-band11-bandSum1_11-b",
         "source": "bands1",
-        "sourceHandle": "band11",
         "target": "bandSum1_11",
+        "sourceHandle": "band11",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2270,8 +2269,8 @@
       {
         "id": "e-bandSum1_11-result-bandSum1_12-a",
         "source": "bandSum1_11",
-        "sourceHandle": "result",
         "target": "bandSum1_12",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2281,8 +2280,8 @@
       {
         "id": "e-bands1-band12-bandSum1_12-b",
         "source": "bands1",
-        "sourceHandle": "band12",
         "target": "bandSum1_12",
+        "sourceHandle": "band12",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2292,8 +2291,8 @@
       {
         "id": "e-bandSum1_12-result-bandSum1_13-a",
         "source": "bandSum1_12",
-        "sourceHandle": "result",
         "target": "bandSum1_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2303,8 +2302,8 @@
       {
         "id": "e-bands1-band13-bandSum1_13-b",
         "source": "bands1",
-        "sourceHandle": "band13",
         "target": "bandSum1_13",
+        "sourceHandle": "band13",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2314,8 +2313,8 @@
       {
         "id": "e-bandSum1_13-result-bandSum1_14-a",
         "source": "bandSum1_13",
-        "sourceHandle": "result",
         "target": "bandSum1_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2325,8 +2324,8 @@
       {
         "id": "e-bands1-band14-bandSum1_14-b",
         "source": "bands1",
-        "sourceHandle": "band14",
         "target": "bandSum1_14",
+        "sourceHandle": "band14",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2336,8 +2335,8 @@
       {
         "id": "e-bandSum1_14-result-bandSum1_15-a",
         "source": "bandSum1_14",
-        "sourceHandle": "result",
         "target": "bandSum1_15",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2347,8 +2346,8 @@
       {
         "id": "e-bands1-band15-bandSum1_15-b",
         "source": "bands1",
-        "sourceHandle": "band15",
         "target": "bandSum1_15",
+        "sourceHandle": "band15",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2358,8 +2357,8 @@
       {
         "id": "e-bandSum1_15-result-bandSum1_16-a",
         "source": "bandSum1_15",
-        "sourceHandle": "result",
         "target": "bandSum1_16",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2369,8 +2368,8 @@
       {
         "id": "e-bands1-band16-bandSum1_16-b",
         "source": "bands1",
-        "sourceHandle": "band16",
         "target": "bandSum1_16",
+        "sourceHandle": "band16",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2380,8 +2379,8 @@
       {
         "id": "e-source-audio-fft2-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "fft2",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -2391,8 +2390,8 @@
       {
         "id": "e-fft2-spectrum-spec2-spectrum",
         "source": "fft2",
-        "sourceHandle": "spectrum",
         "target": "spec2",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -2402,8 +2401,8 @@
       {
         "id": "e-fft2-spectrum-chroma2-spectrum",
         "source": "fft2",
-        "sourceHandle": "spectrum",
         "target": "chroma2",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -2413,8 +2412,8 @@
       {
         "id": "e-fft2-spectrum-bands2-spectrum",
         "source": "fft2",
-        "sourceHandle": "spectrum",
         "target": "bands2",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -2424,8 +2423,8 @@
       {
         "id": "e-fft2-spectrum-split2-spectrum",
         "source": "fft2",
-        "sourceHandle": "spectrum",
         "target": "split2",
+        "sourceHandle": "spectrum",
         "targetHandle": "spectrum",
         "style": {
           "stroke": "#d9568b",
@@ -2435,8 +2434,8 @@
       {
         "id": "e-spec2-level-ramp2-fac",
         "source": "spec2",
-        "sourceHandle": "level",
         "target": "ramp2",
+        "sourceHandle": "level",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -2446,8 +2445,8 @@
       {
         "id": "e-chroma2-level-chromaMul2-a",
         "source": "chroma2",
-        "sourceHandle": "level",
         "target": "chromaMul2",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2457,8 +2456,8 @@
       {
         "id": "e-split2-level-chromaMul2-b",
         "source": "split2",
-        "sourceHandle": "level",
         "target": "chromaMul2",
+        "sourceHandle": "level",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2468,8 +2467,8 @@
       {
         "id": "e-ramp2-color-tint2-color1",
         "source": "ramp2",
-        "sourceHandle": "color",
         "target": "tint2",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2479,8 +2478,8 @@
       {
         "id": "e-chromaMul2-result-chromaColor2-c",
         "source": "chromaMul2",
-        "sourceHandle": "result",
         "target": "chromaColor2",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -2490,8 +2489,8 @@
       {
         "id": "e-chromaColor2-color-tint2-color2",
         "source": "chromaColor2",
-        "sourceHandle": "color",
         "target": "tint2",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2501,8 +2500,8 @@
       {
         "id": "e-bands2-band1-bandSum2_1-a",
         "source": "bands2",
-        "sourceHandle": "band1",
         "target": "bandSum2_1",
+        "sourceHandle": "band1",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2512,8 +2511,8 @@
       {
         "id": "e-bands2-band1-bandSum2_1-b",
         "source": "bands2",
-        "sourceHandle": "band1",
         "target": "bandSum2_1",
+        "sourceHandle": "band1",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2523,8 +2522,8 @@
       {
         "id": "e-bandSum2_1-result-bandSum2_2-a",
         "source": "bandSum2_1",
-        "sourceHandle": "result",
         "target": "bandSum2_2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2534,8 +2533,8 @@
       {
         "id": "e-bands2-band2-bandSum2_2-b",
         "source": "bands2",
-        "sourceHandle": "band2",
         "target": "bandSum2_2",
+        "sourceHandle": "band2",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2545,8 +2544,8 @@
       {
         "id": "e-bandSum2_2-result-bandSum2_3-a",
         "source": "bandSum2_2",
-        "sourceHandle": "result",
         "target": "bandSum2_3",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2556,8 +2555,8 @@
       {
         "id": "e-bands2-band3-bandSum2_3-b",
         "source": "bands2",
-        "sourceHandle": "band3",
         "target": "bandSum2_3",
+        "sourceHandle": "band3",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2567,8 +2566,8 @@
       {
         "id": "e-bandSum2_3-result-bandSum2_4-a",
         "source": "bandSum2_3",
-        "sourceHandle": "result",
         "target": "bandSum2_4",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2578,8 +2577,8 @@
       {
         "id": "e-bands2-band4-bandSum2_4-b",
         "source": "bands2",
-        "sourceHandle": "band4",
         "target": "bandSum2_4",
+        "sourceHandle": "band4",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2589,8 +2588,8 @@
       {
         "id": "e-bandSum2_4-result-bandSum2_5-a",
         "source": "bandSum2_4",
-        "sourceHandle": "result",
         "target": "bandSum2_5",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2600,8 +2599,8 @@
       {
         "id": "e-bands2-band5-bandSum2_5-b",
         "source": "bands2",
-        "sourceHandle": "band5",
         "target": "bandSum2_5",
+        "sourceHandle": "band5",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2611,8 +2610,8 @@
       {
         "id": "e-bandSum2_5-result-bandSum2_6-a",
         "source": "bandSum2_5",
-        "sourceHandle": "result",
         "target": "bandSum2_6",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2622,8 +2621,8 @@
       {
         "id": "e-bands2-band6-bandSum2_6-b",
         "source": "bands2",
-        "sourceHandle": "band6",
         "target": "bandSum2_6",
+        "sourceHandle": "band6",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2633,8 +2632,8 @@
       {
         "id": "e-bandSum2_6-result-bandSum2_7-a",
         "source": "bandSum2_6",
-        "sourceHandle": "result",
         "target": "bandSum2_7",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2644,8 +2643,8 @@
       {
         "id": "e-bands2-band7-bandSum2_7-b",
         "source": "bands2",
-        "sourceHandle": "band7",
         "target": "bandSum2_7",
+        "sourceHandle": "band7",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2655,8 +2654,8 @@
       {
         "id": "e-bandSum2_7-result-bandSum2_8-a",
         "source": "bandSum2_7",
-        "sourceHandle": "result",
         "target": "bandSum2_8",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2666,8 +2665,8 @@
       {
         "id": "e-bands2-band8-bandSum2_8-b",
         "source": "bands2",
-        "sourceHandle": "band8",
         "target": "bandSum2_8",
+        "sourceHandle": "band8",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2677,8 +2676,8 @@
       {
         "id": "e-bandSum2_8-result-bandSum2_9-a",
         "source": "bandSum2_8",
-        "sourceHandle": "result",
         "target": "bandSum2_9",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2688,8 +2687,8 @@
       {
         "id": "e-bands2-band9-bandSum2_9-b",
         "source": "bands2",
-        "sourceHandle": "band9",
         "target": "bandSum2_9",
+        "sourceHandle": "band9",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2699,8 +2698,8 @@
       {
         "id": "e-bandSum2_9-result-bandSum2_10-a",
         "source": "bandSum2_9",
-        "sourceHandle": "result",
         "target": "bandSum2_10",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2710,8 +2709,8 @@
       {
         "id": "e-bands2-band10-bandSum2_10-b",
         "source": "bands2",
-        "sourceHandle": "band10",
         "target": "bandSum2_10",
+        "sourceHandle": "band10",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2721,8 +2720,8 @@
       {
         "id": "e-bandSum2_10-result-bandSum2_11-a",
         "source": "bandSum2_10",
-        "sourceHandle": "result",
         "target": "bandSum2_11",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2732,8 +2731,8 @@
       {
         "id": "e-bands2-band11-bandSum2_11-b",
         "source": "bands2",
-        "sourceHandle": "band11",
         "target": "bandSum2_11",
+        "sourceHandle": "band11",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2743,8 +2742,8 @@
       {
         "id": "e-bandSum2_11-result-bandSum2_12-a",
         "source": "bandSum2_11",
-        "sourceHandle": "result",
         "target": "bandSum2_12",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2754,8 +2753,8 @@
       {
         "id": "e-bands2-band12-bandSum2_12-b",
         "source": "bands2",
-        "sourceHandle": "band12",
         "target": "bandSum2_12",
+        "sourceHandle": "band12",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2765,8 +2764,8 @@
       {
         "id": "e-bandSum2_12-result-bandSum2_13-a",
         "source": "bandSum2_12",
-        "sourceHandle": "result",
         "target": "bandSum2_13",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2776,8 +2775,8 @@
       {
         "id": "e-bands2-band13-bandSum2_13-b",
         "source": "bands2",
-        "sourceHandle": "band13",
         "target": "bandSum2_13",
+        "sourceHandle": "band13",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2787,8 +2786,8 @@
       {
         "id": "e-bandSum2_13-result-bandSum2_14-a",
         "source": "bandSum2_13",
-        "sourceHandle": "result",
         "target": "bandSum2_14",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2798,8 +2797,8 @@
       {
         "id": "e-bands2-band14-bandSum2_14-b",
         "source": "bands2",
-        "sourceHandle": "band14",
         "target": "bandSum2_14",
+        "sourceHandle": "band14",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2809,8 +2808,8 @@
       {
         "id": "e-bandSum2_14-result-bandSum2_15-a",
         "source": "bandSum2_14",
-        "sourceHandle": "result",
         "target": "bandSum2_15",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2820,8 +2819,8 @@
       {
         "id": "e-bands2-band15-bandSum2_15-b",
         "source": "bands2",
-        "sourceHandle": "band15",
         "target": "bandSum2_15",
+        "sourceHandle": "band15",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2831,8 +2830,8 @@
       {
         "id": "e-bandSum2_15-result-bandSum2_16-a",
         "source": "bandSum2_15",
-        "sourceHandle": "result",
         "target": "bandSum2_16",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2842,8 +2841,8 @@
       {
         "id": "e-bands2-band16-bandSum2_16-b",
         "source": "bands2",
-        "sourceHandle": "band16",
         "target": "bandSum2_16",
+        "sourceHandle": "band16",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2853,8 +2852,8 @@
       {
         "id": "e-source-audio-audio-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -2864,8 +2863,8 @@
       {
         "id": "e-defaultSpec-level-defaultRamp-fac",
         "source": "defaultSpec",
-        "sourceHandle": "level",
         "target": "defaultRamp",
+        "sourceHandle": "level",
         "targetHandle": "fac",
         "style": {
           "stroke": "#a1a1a1",
@@ -2875,8 +2874,8 @@
       {
         "id": "e-tint0-color-mix0_0-color1",
         "source": "tint0",
-        "sourceHandle": "color",
         "target": "mix0_0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2886,8 +2885,8 @@
       {
         "id": "e-tint1-color-mix0_0-color2",
         "source": "tint1",
-        "sourceHandle": "color",
         "target": "mix0_0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2897,8 +2896,8 @@
       {
         "id": "e-tint2-color-mix0_2-color1",
         "source": "tint2",
-        "sourceHandle": "color",
         "target": "mix0_2",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2908,8 +2907,8 @@
       {
         "id": "e-defaultRamp-color-mix0_2-color2",
         "source": "defaultRamp",
-        "sourceHandle": "color",
         "target": "mix0_2",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2919,8 +2918,8 @@
       {
         "id": "e-mix0_0-color-mix1_0-color1",
         "source": "mix0_0",
-        "sourceHandle": "color",
         "target": "mix1_0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -2930,8 +2929,8 @@
       {
         "id": "e-mix0_2-color-mix1_0-color2",
         "source": "mix0_2",
-        "sourceHandle": "color",
         "target": "mix1_0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -2941,8 +2940,8 @@
       {
         "id": "e-audio-level-gain0-a",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "gain0",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2952,8 +2951,8 @@
       {
         "id": "e-bandSum0_16-result-gain0-b",
         "source": "bandSum0_16",
-        "sourceHandle": "result",
         "target": "gain0",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2963,8 +2962,8 @@
       {
         "id": "e-gain0-result-gain1-a",
         "source": "gain0",
-        "sourceHandle": "result",
         "target": "gain1",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2974,8 +2973,8 @@
       {
         "id": "e-bandSum1_16-result-gain1-b",
         "source": "bandSum1_16",
-        "sourceHandle": "result",
         "target": "gain1",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -2985,8 +2984,8 @@
       {
         "id": "e-gain1-result-gain2-a",
         "source": "gain1",
-        "sourceHandle": "result",
         "target": "gain2",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -2996,8 +2995,8 @@
       {
         "id": "e-bandSum2_16-result-gain2-b",
         "source": "bandSum2_16",
-        "sourceHandle": "result",
         "target": "gain2",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -3007,8 +3006,8 @@
       {
         "id": "e-mix1_0-color-pump-color1",
         "source": "mix1_0",
-        "sourceHandle": "color",
         "target": "pump",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -3018,8 +3017,8 @@
       {
         "id": "e-gain2-result-gainColor-a",
         "source": "gain2",
-        "sourceHandle": "result",
         "target": "gainColor",
+        "sourceHandle": "result",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -3029,8 +3028,8 @@
       {
         "id": "e-gain2-result-gainColor-b",
         "source": "gain2",
-        "sourceHandle": "result",
         "target": "gainColor",
+        "sourceHandle": "result",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -3040,8 +3039,8 @@
       {
         "id": "e-gain2-result-gainColor-c",
         "source": "gain2",
-        "sourceHandle": "result",
         "target": "gainColor",
+        "sourceHandle": "result",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -3051,8 +3050,8 @@
       {
         "id": "e-gainColor-color-pump-color2",
         "source": "gainColor",
-        "sourceHandle": "color",
         "target": "pump",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -3062,14 +3061,16 @@
       {
         "id": "e-pump-color-out-color",
         "source": "pump",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

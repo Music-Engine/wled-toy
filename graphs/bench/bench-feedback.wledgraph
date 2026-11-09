@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "source",
@@ -301,8 +300,8 @@
       {
         "id": "e-source-audio-audio-audio",
         "source": "source",
-        "sourceHandle": "audio",
         "target": "audio",
+        "sourceHandle": "audio",
         "targetHandle": "audio",
         "style": {
           "stroke": "#e0853d",
@@ -312,8 +311,8 @@
       {
         "id": "e-time-time-pal-position",
         "source": "time",
-        "sourceHandle": "time",
         "target": "pal",
+        "sourceHandle": "time",
         "targetHandle": "position",
         "style": {
           "stroke": "#a1a1a1",
@@ -323,8 +322,8 @@
       {
         "id": "e-pal-color-spark-color1",
         "source": "pal",
-        "sourceHandle": "color",
         "target": "spark",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -334,8 +333,8 @@
       {
         "id": "e-sparkle-out-sparkColor-a",
         "source": "sparkle",
-        "sourceHandle": "out",
         "target": "sparkColor",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -345,8 +344,8 @@
       {
         "id": "e-sparkle-out-sparkColor-b",
         "source": "sparkle",
-        "sourceHandle": "out",
         "target": "sparkColor",
+        "sourceHandle": "out",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -356,8 +355,8 @@
       {
         "id": "e-sparkle-out-sparkColor-c",
         "source": "sparkle",
-        "sourceHandle": "out",
         "target": "sparkColor",
+        "sourceHandle": "out",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -367,8 +366,8 @@
       {
         "id": "e-sparkColor-color-spark-color2",
         "source": "sparkColor",
-        "sourceHandle": "color",
         "target": "spark",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -378,8 +377,8 @@
       {
         "id": "e-scan-out-scanColor-a",
         "source": "scan",
-        "sourceHandle": "out",
         "target": "scanColor",
+        "sourceHandle": "out",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -389,8 +388,8 @@
       {
         "id": "e-scan-out-scanColor-b",
         "source": "scan",
-        "sourceHandle": "out",
         "target": "scanColor",
+        "sourceHandle": "out",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -400,8 +399,8 @@
       {
         "id": "e-scan-out-scanColor-c",
         "source": "scan",
-        "sourceHandle": "out",
         "target": "scanColor",
+        "sourceHandle": "out",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -411,8 +410,8 @@
       {
         "id": "e-spark-color-seed-color1",
         "source": "spark",
-        "sourceHandle": "color",
         "target": "seed",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -422,8 +421,8 @@
       {
         "id": "e-scanColor-color-seed-color2",
         "source": "scanColor",
-        "sourceHandle": "color",
         "target": "seed",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -433,8 +432,8 @@
       {
         "id": "e-seed-color-trails-color",
         "source": "seed",
-        "sourceHandle": "color",
         "target": "trails",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -444,8 +443,8 @@
       {
         "id": "e-trails-color-blur-color",
         "source": "trails",
-        "sourceHandle": "color",
         "target": "blur",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -455,8 +454,8 @@
       {
         "id": "e-prev1-color-echo-color1",
         "source": "prev1",
-        "sourceHandle": "color",
         "target": "echo",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -466,8 +465,8 @@
       {
         "id": "e-prev2-color-echo-color2",
         "source": "prev2",
-        "sourceHandle": "color",
         "target": "echo",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -477,8 +476,8 @@
       {
         "id": "e-blur-color-stack-color1",
         "source": "blur",
-        "sourceHandle": "color",
         "target": "stack",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -488,8 +487,8 @@
       {
         "id": "e-echo-color-stack-color2",
         "source": "echo",
-        "sourceHandle": "color",
         "target": "stack",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -499,8 +498,8 @@
       {
         "id": "e-stack-color-trails2-color",
         "source": "stack",
-        "sourceHandle": "color",
         "target": "trails2",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -510,8 +509,8 @@
       {
         "id": "e-trails2-color-lift-color1",
         "source": "trails2",
-        "sourceHandle": "color",
         "target": "lift",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -521,8 +520,8 @@
       {
         "id": "e-audio-level-liftColor-a",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "liftColor",
+        "sourceHandle": "level",
         "targetHandle": "a",
         "style": {
           "stroke": "#a1a1a1",
@@ -532,8 +531,8 @@
       {
         "id": "e-audio-level-liftColor-b",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "liftColor",
+        "sourceHandle": "level",
         "targetHandle": "b",
         "style": {
           "stroke": "#a1a1a1",
@@ -543,8 +542,8 @@
       {
         "id": "e-audio-level-liftColor-c",
         "source": "audio",
-        "sourceHandle": "level",
         "target": "liftColor",
+        "sourceHandle": "level",
         "targetHandle": "c",
         "style": {
           "stroke": "#a1a1a1",
@@ -554,8 +553,8 @@
       {
         "id": "e-liftColor-color-lift-color2",
         "source": "liftColor",
-        "sourceHandle": "color",
         "target": "lift",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -565,14 +564,16 @@
       {
         "id": "e-lift-color-out-color",
         "source": "lift",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

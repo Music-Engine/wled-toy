@@ -2,7 +2,6 @@
   "app": "wledtoy",
   "formatVersion": 1,
   "graph": {
-    "version": 3,
     "nodes": [
       {
         "id": "time",
@@ -662,8 +661,8 @@
       {
         "id": "e-time-time-drift-z",
         "source": "time",
-        "sourceHandle": "time",
         "target": "drift",
+        "sourceHandle": "time",
         "targetHandle": "z",
         "style": {
           "stroke": "#a1a1a1",
@@ -673,8 +672,8 @@
       {
         "id": "e-drift-vector-map-location",
         "source": "drift",
-        "sourceHandle": "vector",
         "target": "map",
+        "sourceHandle": "vector",
         "targetHandle": "location",
         "style": {
           "stroke": "#6363c7",
@@ -684,8 +683,8 @@
       {
         "id": "e-map-vector-noise-vector",
         "source": "map",
-        "sourceHandle": "vector",
         "target": "noise",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -695,8 +694,8 @@
       {
         "id": "e-map-vector-voronoi-vector",
         "source": "map",
-        "sourceHandle": "vector",
         "target": "voronoi",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -706,8 +705,8 @@
       {
         "id": "e-map-vector-magic-vector",
         "source": "map",
-        "sourceHandle": "vector",
         "target": "magic",
+        "sourceHandle": "vector",
         "targetHandle": "vector",
         "style": {
           "stroke": "#6363c7",
@@ -717,8 +716,8 @@
       {
         "id": "e-noise-color-blend-color1",
         "source": "noise",
-        "sourceHandle": "color",
         "target": "blend",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -728,8 +727,8 @@
       {
         "id": "e-voronoi-color-blend-color2",
         "source": "voronoi",
-        "sourceHandle": "color",
         "target": "blend",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -739,8 +738,8 @@
       {
         "id": "e-blend-color-shared-color1",
         "source": "blend",
-        "sourceHandle": "color",
         "target": "shared",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -750,8 +749,8 @@
       {
         "id": "e-magic-color-shared-color2",
         "source": "magic",
-        "sourceHandle": "color",
         "target": "shared",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -761,8 +760,8 @@
       {
         "id": "e-shared-color-tap0-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap0",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -772,8 +771,8 @@
       {
         "id": "e-shared-color-tap1-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap1",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -783,8 +782,8 @@
       {
         "id": "e-shared-color-tap2-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap2",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -794,8 +793,8 @@
       {
         "id": "e-shared-color-tap3-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap3",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -805,8 +804,8 @@
       {
         "id": "e-shared-color-tap4-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap4",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -816,8 +815,8 @@
       {
         "id": "e-shared-color-tap5-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap5",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -827,8 +826,8 @@
       {
         "id": "e-shared-color-tap6-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap6",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -838,8 +837,8 @@
       {
         "id": "e-shared-color-tap7-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap7",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -849,8 +848,8 @@
       {
         "id": "e-shared-color-tap8-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap8",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -860,8 +859,8 @@
       {
         "id": "e-shared-color-tap9-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap9",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -871,8 +870,8 @@
       {
         "id": "e-shared-color-tap10-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap10",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -882,8 +881,8 @@
       {
         "id": "e-shared-color-tap11-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap11",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -893,8 +892,8 @@
       {
         "id": "e-shared-color-tap12-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap12",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -904,8 +903,8 @@
       {
         "id": "e-shared-color-tap13-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap13",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -915,8 +914,8 @@
       {
         "id": "e-shared-color-tap14-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap14",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -926,8 +925,8 @@
       {
         "id": "e-shared-color-tap15-color",
         "source": "shared",
-        "sourceHandle": "color",
         "target": "tap15",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -937,8 +936,8 @@
       {
         "id": "e-tap0-color-sum0_0-color1",
         "source": "tap0",
-        "sourceHandle": "color",
         "target": "sum0_0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -948,8 +947,8 @@
       {
         "id": "e-tap1-color-sum0_0-color2",
         "source": "tap1",
-        "sourceHandle": "color",
         "target": "sum0_0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -959,8 +958,8 @@
       {
         "id": "e-tap2-color-sum0_2-color1",
         "source": "tap2",
-        "sourceHandle": "color",
         "target": "sum0_2",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -970,8 +969,8 @@
       {
         "id": "e-tap3-color-sum0_2-color2",
         "source": "tap3",
-        "sourceHandle": "color",
         "target": "sum0_2",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -981,8 +980,8 @@
       {
         "id": "e-tap4-color-sum0_4-color1",
         "source": "tap4",
-        "sourceHandle": "color",
         "target": "sum0_4",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -992,8 +991,8 @@
       {
         "id": "e-tap5-color-sum0_4-color2",
         "source": "tap5",
-        "sourceHandle": "color",
         "target": "sum0_4",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1003,8 +1002,8 @@
       {
         "id": "e-tap6-color-sum0_6-color1",
         "source": "tap6",
-        "sourceHandle": "color",
         "target": "sum0_6",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1014,8 +1013,8 @@
       {
         "id": "e-tap7-color-sum0_6-color2",
         "source": "tap7",
-        "sourceHandle": "color",
         "target": "sum0_6",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1025,8 +1024,8 @@
       {
         "id": "e-tap8-color-sum0_8-color1",
         "source": "tap8",
-        "sourceHandle": "color",
         "target": "sum0_8",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1036,8 +1035,8 @@
       {
         "id": "e-tap9-color-sum0_8-color2",
         "source": "tap9",
-        "sourceHandle": "color",
         "target": "sum0_8",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1047,8 +1046,8 @@
       {
         "id": "e-tap10-color-sum0_10-color1",
         "source": "tap10",
-        "sourceHandle": "color",
         "target": "sum0_10",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1058,8 +1057,8 @@
       {
         "id": "e-tap11-color-sum0_10-color2",
         "source": "tap11",
-        "sourceHandle": "color",
         "target": "sum0_10",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1069,8 +1068,8 @@
       {
         "id": "e-tap12-color-sum0_12-color1",
         "source": "tap12",
-        "sourceHandle": "color",
         "target": "sum0_12",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1080,8 +1079,8 @@
       {
         "id": "e-tap13-color-sum0_12-color2",
         "source": "tap13",
-        "sourceHandle": "color",
         "target": "sum0_12",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1091,8 +1090,8 @@
       {
         "id": "e-tap14-color-sum0_14-color1",
         "source": "tap14",
-        "sourceHandle": "color",
         "target": "sum0_14",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1102,8 +1101,8 @@
       {
         "id": "e-tap15-color-sum0_14-color2",
         "source": "tap15",
-        "sourceHandle": "color",
         "target": "sum0_14",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1113,8 +1112,8 @@
       {
         "id": "e-sum0_0-color-sum1_0-color1",
         "source": "sum0_0",
-        "sourceHandle": "color",
         "target": "sum1_0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1124,8 +1123,8 @@
       {
         "id": "e-sum0_2-color-sum1_0-color2",
         "source": "sum0_2",
-        "sourceHandle": "color",
         "target": "sum1_0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1135,8 +1134,8 @@
       {
         "id": "e-sum0_4-color-sum1_2-color1",
         "source": "sum0_4",
-        "sourceHandle": "color",
         "target": "sum1_2",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1146,8 +1145,8 @@
       {
         "id": "e-sum0_6-color-sum1_2-color2",
         "source": "sum0_6",
-        "sourceHandle": "color",
         "target": "sum1_2",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1157,8 +1156,8 @@
       {
         "id": "e-sum0_8-color-sum1_4-color1",
         "source": "sum0_8",
-        "sourceHandle": "color",
         "target": "sum1_4",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1168,8 +1167,8 @@
       {
         "id": "e-sum0_10-color-sum1_4-color2",
         "source": "sum0_10",
-        "sourceHandle": "color",
         "target": "sum1_4",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1179,8 +1178,8 @@
       {
         "id": "e-sum0_12-color-sum1_6-color1",
         "source": "sum0_12",
-        "sourceHandle": "color",
         "target": "sum1_6",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1190,8 +1189,8 @@
       {
         "id": "e-sum0_14-color-sum1_6-color2",
         "source": "sum0_14",
-        "sourceHandle": "color",
         "target": "sum1_6",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1201,8 +1200,8 @@
       {
         "id": "e-sum1_0-color-sum2_0-color1",
         "source": "sum1_0",
-        "sourceHandle": "color",
         "target": "sum2_0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1212,8 +1211,8 @@
       {
         "id": "e-sum1_2-color-sum2_0-color2",
         "source": "sum1_2",
-        "sourceHandle": "color",
         "target": "sum2_0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1223,8 +1222,8 @@
       {
         "id": "e-sum1_4-color-sum2_2-color1",
         "source": "sum1_4",
-        "sourceHandle": "color",
         "target": "sum2_2",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1234,8 +1233,8 @@
       {
         "id": "e-sum1_6-color-sum2_2-color2",
         "source": "sum1_6",
-        "sourceHandle": "color",
         "target": "sum2_2",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1245,8 +1244,8 @@
       {
         "id": "e-sum2_0-color-sum3_0-color1",
         "source": "sum2_0",
-        "sourceHandle": "color",
         "target": "sum3_0",
+        "sourceHandle": "color",
         "targetHandle": "color1",
         "style": {
           "stroke": "#c7c729",
@@ -1256,8 +1255,8 @@
       {
         "id": "e-sum2_2-color-sum3_0-color2",
         "source": "sum2_2",
-        "sourceHandle": "color",
         "target": "sum3_0",
+        "sourceHandle": "color",
         "targetHandle": "color2",
         "style": {
           "stroke": "#c7c729",
@@ -1267,8 +1266,8 @@
       {
         "id": "e-sum3_0-color-ceiling-color",
         "source": "sum3_0",
-        "sourceHandle": "color",
         "target": "ceiling",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
@@ -1278,14 +1277,16 @@
       {
         "id": "e-ceiling-color-out-color",
         "source": "ceiling",
-        "sourceHandle": "color",
         "target": "out",
+        "sourceHandle": "color",
         "targetHandle": "color",
         "style": {
           "stroke": "#c7c729",
           "strokeWidth": 2
         }
       }
-    ]
+    ],
+    "scenes": [],
+    "version": 4
   }
 }

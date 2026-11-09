@@ -3,16 +3,16 @@ import { directory, filterFs, flattenFs, leaf, separator, type MenuFs } from './
 
 const fs: MenuFs<string> = {
   title: 'Add',
-  items: [
-    directory('A', [leaf('a1'), separator, directory('Inner', [leaf('a2')]), separator, leaf('a3')]),
-    directory('B', [leaf('b1')]),
-  ],
+  items: [directory('A', [leaf('a1'), separator, directory('Inner', [leaf('a2')]), separator, leaf('a3')]), directory('B', [leaf('b1')])],
 }
 
 describe('flattenFs', () => {
   it('lists nodes depth first with their directory path', () => {
     expect(flattenFs(fs.items)).toEqual([
-      { node: 'a1', path: ['A'] }, { node: 'a2', path: ['A', 'Inner'] }, { node: 'a3', path: ['A'] }, { node: 'b1', path: ['B'] },
+      { node: 'a1', path: ['A'] },
+      { node: 'a2', path: ['A', 'Inner'] },
+      { node: 'a3', path: ['A'] },
+      { node: 'b1', path: ['B'] },
     ])
   })
 })

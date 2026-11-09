@@ -90,8 +90,23 @@ export class Analyzer {
     this.onsets = new OnsetDetector(this.hopRate)
     this.tempo = new TempoTracker(this.hopRate)
     this.features = {
-      bands: new Float32Array(config.bands), spectrum: new Float32Array(windowSize / 2), waveform: this.frame, chroma: new Float32Array(12),
-      level: 0, gain: 1, rms: 0, peak: 0, gate: false, flux: 0, onset: false, bpm: 120, beatPhase: 0, beat: false, beatConfidence: 0, centroid: 0, flatness: 0,
+      bands: new Float32Array(config.bands),
+      spectrum: new Float32Array(windowSize / 2),
+      waveform: this.frame,
+      chroma: new Float32Array(12),
+      level: 0,
+      gain: 1,
+      rms: 0,
+      peak: 0,
+      gate: false,
+      flux: 0,
+      onset: false,
+      bpm: 120,
+      beatPhase: 0,
+      beat: false,
+      beatConfidence: 0,
+      centroid: 0,
+      flatness: 0,
     }
   }
 

@@ -1,0 +1,83 @@
+{
+  "glsl": {
+    "probes": {},
+    "uniforms": [],
+    "resources": {
+      "audioSource": [
+        {
+          "source": "file",
+          "channel": "mono",
+          "agc": {
+            "release": 8,
+            "floorDb": -50
+          },
+          "gate": {
+            "thresholdDb": -55,
+            "hold": 0.3
+          }
+        }
+      ],
+      "audioFeatures": [
+        true
+      ]
+    },
+    "output": {
+      "protocol": "settings",
+      "universe": 0,
+      "fps": 0,
+      "gamma": 1,
+      "ceiling": 1,
+      "powerBudgetMa": 0,
+      "maPerChannel": 20,
+      "dithering": "off"
+    },
+    "lineNodes": {
+      "pixel": {
+        "30": "pal",
+        "31": "pal",
+        "32": "pal",
+        "33": "pal",
+        "34": "pal",
+        "35": "pal",
+        "36": "pal",
+        "37": "pal",
+        "38": "sparkle",
+        "39": "sparkColor",
+        "40": "spark",
+        "41": "scan",
+        "42": "scanColor",
+        "43": "seed",
+        "44": "trails",
+        "45": "blur",
+        "46": "blur",
+        "47": "blur",
+        "48": "prev1",
+        "49": "prev2",
+        "50": "echo",
+        "51": "stack",
+        "52": "trails2",
+        "53": "liftColor",
+        "54": "lift",
+        "55": "out"
+      },
+      "frame": {}
+    },
+    "frame": null,
+    "issues": [],
+    "slots": {
+      "pixel": {},
+      "global": {}
+    }
+  },
+  "usermod": {
+    "issues": [
+      {
+        "nodeId": "trails",
+        "message": "Trails reads a texture or a GLSL-only helper, which a C++ unit has nothing for"
+      }
+    ]
+  },
+  "standalone": {
+    "issues": []
+  }
+}
