@@ -1,0 +1,40 @@
+name: record-switch-bytes
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Render every corpus graph and rewrite the switch goldens
+        env:
+          VITE_SWITCH_BYTES: record
+        run: pnpm exec vitest run --project browser-gpu src/lib/graph/compile/tests/switch.browser.test.ts
+
+      - name: Commit the goldens to the dispatched branch
+        run: |
+          git add src/lib/graph/compile/__snapshots__/switch
+          if git diff --cached --quiet; then
+            echo "Goldens already match this machine"
+            exit 0
+          fi
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -m "test(graph): record switch LED bytes on ubuntu-22.04"
+          git push
